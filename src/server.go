@@ -85,11 +85,17 @@ func getTasksHandle() http.Handler {
 	})
 }
 
+func newTaskHandle() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		return
+	})
+}
+
 func putTaskHandle() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var putReq struct {
-			Id     string     `json:"id"`
-			Status TaskStatus `json:"status"`
+			Id     string `json:"id"`
+			Status string `json:"status"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&putReq); err != nil {
 			log.Errorf("unable to decode json: %v\n", err)
