@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<!-- metas -->
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+	<meta name="author" content="Brendan Schlaman">
+
+	<!-- css, favicon, title -->
+	<link rel="stylesheet" type="text/css" href="styles.css">
+	<link rel="icon" type="image/png" href="/favicon.ico" />
+
+	<script defer src="js/todo.js"></script>
+
+	<title>Boilerplate</title>
+</head>
+<body><!-- workaround for FOUC --><script>let FF_FOUC_FIX;</script>
+<div class="wrapper">
+	<h2>Todo App Scrum Style UI</h2>
+	<p>Scrum-style UI with dragable task tyles</p>
+	<div class="todo-app-wrapper">
+		<div class="todo-app-bucket">
+			<div draggable="true" class="task">
+				<h4 class="task-title">Sample Task</h4>
+				<p class="task-desc">Create the rest of the TODO app</p>
+			</div>
+			<div draggable="true" class="task">
+				<h4 class="task-title">Sample Task 2</h4>
+				<p class="task-desc">Finish analysis</p>
+			</div>
+			<div draggable="true" class="task">
+				<h4 class="task-title">New Task</h4>
+				<p class="task-desc">Add the necessary javascript to connect the frontend to the backend</p>
+			</div>
+		</div>
+		<div class="todo-app-bucket"></div>
+		<div class="todo-app-bucket"></div>
+	</div>
+<!-- end of wrapper div -->
+</div>
+</body>
+</html>
