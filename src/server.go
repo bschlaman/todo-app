@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"time"
 
 	"github.com/bschlaman/b-utils/pkg/logger"
 	"github.com/bschlaman/b-utils/pkg/utils"
@@ -31,6 +32,15 @@ func getPgxConn() (*pgx.Conn, error) {
 	return conn, nil
 }
 
+type Task struct {
+	Id          string    `json:"id"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
+	Title       string    `json:"title"`
+	Description string    `json:"description"`
+	Status      string    `json:"status"`
+}
+
 func getTasksHandle() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		conn, err := getPgxConn()
@@ -43,8 +53,7 @@ func getTasksHandle() http.Handler {
 
 		// TODO: this will not work; needs to be an array
 		// fine for the initial commit
-		var id, cAt, uAt, title, desc, status string
-		err = conn.QueryRow(context.Background(),
+		rows, err := conn.Query(context.Background(),
 			`SELECT
 				id,
 				created_at,
@@ -53,28 +62,29 @@ func getTasksHandle() http.Handler {
 				description,
 				status
 				FROM tasks`,
-		).Scan(&id, &cAt, &uAt, &title, &desc, &status)
+		)
 		if err != nil {
-			log.Errorf("QueryRow failed: %v\n", err)
+			log.Errorf("Query failed: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+		defer rows.Close()
+
+		var tasks []Task
+		for rows.Next() {
+			var id, title, desc, status string
+			var cAt, uAt time.Time
+			rows.Scan(&id, &cAt, &uAt, &title, &desc, &status)
+			tasks = append(tasks, Task{id, cAt, uAt, title, desc, status})
+		}
+
+		if rows.Err() != nil {
+			log.Errorf("Query failed: %v\n", err)
 			http.Error(w, "something went wrong", http.StatusInternalServerError)
 			return
 		}
 
-		js, err := json.Marshal(&struct {
-			Id          string `json:"id"`
-			CreatedAt   string `json:"created_at"`
-			UpdatedAt   string `json:"updated_at"`
-			Title       string `json:"title"`
-			Description string `json:"description"`
-			Status      string `json:"status"`
-		}{
-			id,
-			cAt,
-			uAt,
-			title,
-			desc,
-			status,
-		})
+		js, err := json.Marshal(tasks)
 		if err != nil {
 			log.Errorf("json.Marshal failed: %v\n", err)
 			http.Error(w, "something went wrong", http.StatusInternalServerError)
