@@ -42,21 +42,33 @@ body {
 .todo-app-wrapper {
 	display: flex;
 	gap: 1rem;
+	height: 100vw;
 }
 .todo-app-wrapper .todo-app-bucket {
 	background: lightgrey;
-	height: 26rem;
+	height: 50rem;
 	width: 100%;
+}
+.task.dragging {
+	background: lightblue !important;
+}
+.droppable-hover {
+	background: grey !important;
 }
 .todo-app-bucket .task {
 	padding: 1rem;
 	background: white;
 	margin: 3px;
+	border-radius: 0.5rem;
 	cursor: move;
 }
-.task.dragging {
-	background: lightblue;
+.task .task-id {
+	font-size: 0.7rem;
+	color: grey;
 }
-.droppable-hover {
-	background: grey !important;
+.task .task-created-at,
+.task .task-status {
+	text-align: right;
+	font-size: 0.7rem;
+	color: grey;
 }

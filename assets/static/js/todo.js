@@ -9,6 +9,7 @@
 		});
 		task.addEventListener("dragend", _ => {
 			task.classList.remove("dragging");
+			buckets.forEach(b => {b.classList.remove(hoverClass)});
 		});
 	});
 
@@ -35,9 +36,10 @@
 			}
 		});
 
-		bucket.addEventListener("drop", _ => {
-			bucket.classList.remove(hoverClass);
-		});
+		// no longer needed; handled in "dragend"
+		// bucket.addEventListener("drop", _ => {
+		// 	bucket.classList.remove(hoverClass);
+		// });
 	});
 
 	function getClosestTaskBelowCursor(bucket, y){
