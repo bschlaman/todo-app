@@ -32,6 +32,16 @@ func getPgxConn() (*pgx.Conn, error) {
 	return conn, nil
 }
 
+func commonHeadersMiddleware(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// TODO: for development purposes only
+		// if I don't end up using this, I can probably
+		// delete this entire function
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		h.ServeHTTP(w, r)
+	})
+}
+
 type Task struct {
 	Id          string    `json:"id"`
 	CreatedAt   time.Time `json:"created_at"`
@@ -191,9 +201,9 @@ func main() {
 	fs := http.FileServer(http.Dir(path.Join("..", staticDir)))
 	http.Handle("/", fs)
 	http.Handle("/echo", utils.LogReq(log)(utils.EchoHandle()))
-	http.Handle("/get_tasks", utils.LogReq(log)(getTasksHandle()))
-	http.Handle("/put_task", utils.LogReq(log)(putTaskHandle()))
-	http.Handle("/create_task", utils.LogReq(log)(createTaskHandle()))
+	http.Handle("/get_tasks", utils.LogReq(log)(commonHeadersMiddleware(getTasksHandle())))
+	http.Handle("/put_task", utils.LogReq(log)(commonHeadersMiddleware(putTaskHandle())))
+	http.Handle("/create_task", utils.LogReq(log)(commonHeadersMiddleware(createTaskHandle())))
 	http.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, path.Join("..", staticDir, "favicon.png"))
 	})
