@@ -53,11 +53,14 @@ body {
 .droppable-hover {
 	background: grey !important;
 }
-.todo-app-bucket .task {
+.task {
 	padding: 1rem;
 	background: white;
 	margin: 3px;
 	border-radius: 0.5rem;
+	cursor: move;
+}
+.task .task-title {
 	cursor: move;
 }
 .task .task-id {
@@ -70,20 +73,16 @@ body {
 	font-size: 0.7rem;
 	color: grey;
 }
+.task .task-desc {
+	white-space: pre-wrap;
+}
 
 button.modal-open {
 	font-size: 1.5rem;
 }
 .create-task-modal {
-	/* outline: 2px solid black;
-	border-radius: 8px; */
-	/* position: fixed;
-	left: 50%;
-	top: 50%;
-	transform: translate(-50%, -50%); */
 	padding: 1rem;
 	background: var(--transp-white);
-	/* z-index: 3; */
 }
 .create-task-modal .modal-close {
 	position: absolute;
@@ -114,14 +113,4 @@ button.modal-open {
 .create-task-modal button {
 	float: right;
 	font-size: 1.5rem;
-}
-.modal-overlay {
-	position: fixed;
-	top: 0;
-	right: 0;
-	left: 0;
-	bottom: 0;
-	background-color: rgba(0, 0, 0, 0.5);
-	pointer-events: none;
-	z-index: 2;
 }

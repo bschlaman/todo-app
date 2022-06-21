@@ -5,6 +5,13 @@
 	const newTaskSaveButton = document.querySelector(".create-task-modal .task-save");
 	const hoverClass = "droppable-hover";
 	const modal = document.querySelector(".create-task-modal");
+	// TODO: for development purposes only
+	const routesPrefix = "";
+	const routes = {
+		getTasks: `${routesPrefix}/get_tasks`,
+		createTask: `${routesPrefix}/create_task`,
+		updateTask: `${routesPrefix}/put_task`,
+	}
 
 	getTasks();
 
@@ -66,7 +73,7 @@
 	}
 
 	function getTasks(){
-		fetch("/get_tasks", { method: "GET" })
+		fetch(routes.getTasks, { method: "GET" })
 			.then(res => res.json())
 			.then(data => {
 				data.forEach(task => { renderTask(task); });
@@ -129,7 +136,7 @@
 			console.warn("task creation failed");
 			return;
 		}
-		fetch("/create_task", {
+		fetch(routes.createTask, {
 			method: "POST",
 			headers: {
 				'Content-Type': 'application/json',
@@ -146,7 +153,7 @@
 			console.warn("task update failed");
 			return;
 		}
-		fetch("/put_task", {
+		fetch(routes.updateTask, {
 			method: "PUT",
 			headers: {
 				'Content-Type': 'application/json',
