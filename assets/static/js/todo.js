@@ -7,7 +7,7 @@
 
 	newTaskButton.onclick = _ => {
 		const titleInput = document.querySelector('input[name="title"]');
-		const descInput = document.querySelector('input[name="description"]');
+		const descInput = document.querySelector('textarea[name="description"]');
 		createTask(titleInput.value, descInput.value);
 		// TODO: examine the order of operations here
 		getTasks();
@@ -58,10 +58,10 @@
 		fetch("/get_tasks", { method: "GET" })
 			.then(res => res.json())
 			.then(data => {
-				console.log(data);
 				data.forEach(task => { renderTask(task); });
 			})
 			.catch(err => {
+				// TODO: this catches when res is undefined.  is there a more graceful way?
 				console.warn("error occured:", err);
 			});
 	}
