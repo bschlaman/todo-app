@@ -1,10 +1,9 @@
 (function (){
-	getTasks();
-
-	const tasks = document.querySelectorAll(".task");
 	const buckets = document.querySelectorAll(".todo-app-bucket");
 	const newTaskButton = document.querySelector(".task-creation-wrapper form button");
 	const hoverClass = "droppable-hover";
+
+	getTasks();
 
 	newTaskButton.onclick = _ => {
 		const titleInput = document.querySelector('input[name="title"]');
@@ -13,16 +12,6 @@
 		// TODO: examine the order of operations here
 		getTasks();
 	};
-
-	tasks.forEach(task => {
-		task.addEventListener("dragstart", _ => {
-			task.classList.add("dragging");
-		});
-		task.addEventListener("dragend", _ => {
-			task.classList.remove("dragging");
-			buckets.forEach(b => {b.classList.remove(hoverClass)});
-		});
-	});
 
 	buckets.forEach(bucket => {
 		bucket.addEventListener("dragover", e => {
@@ -113,7 +102,9 @@
 		});
 		taskDiv.addEventListener("dragend", _ => {
 			taskDiv.classList.remove("dragging");
-			buckets.forEach(b => {b.classList.remove(hoverClass)});
+			buckets.forEach(b => { b.classList.remove(hoverClass) });
+			const destinationStatus = taskDiv.parentNode.dataset.status;
+			updateTask(task.id, destinationStatus, task.title, task.description);
 		});
 
 		// TODO: this is not maintainable / extensible; html file
@@ -133,6 +124,25 @@
 				'Content-Type': 'application/json',
 			},
 			body: JSON.stringify({
+				title:       title,
+				description: description,
+			}),
+		});
+	}
+
+	function updateTask(id, status, title, description) {
+		if(!id){
+			console.warn("task update failed");
+			return;
+		}
+		fetch("/put_task", {
+			method: "PUT",
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				id:          id,
+				status:      status,
 				title:       title,
 				description: description,
 			}),

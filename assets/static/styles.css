@@ -45,7 +45,6 @@ body {
 }
 .todo-app-wrapper .todo-app-bucket {
 	background: lightgrey;
-	height: 50rem;
 	width: 100%;
 }
 .task.dragging {

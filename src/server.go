@@ -139,8 +139,10 @@ func createTaskHandle() http.Handler {
 func putTaskHandle() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var putReq struct {
-			Id     string `json:"id"`
-			Status string `json:"status"`
+			Id          string `json:"id"`
+			Status      string `json:"status"`
+			Title       string `json:"title"`
+			Description string `json:"description"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&putReq); err != nil {
 			log.Errorf("unable to decode json: %v\n", err)
@@ -159,9 +161,13 @@ func putTaskHandle() http.Handler {
 		_, err = conn.Exec(context.Background(),
 			`UPDATE tasks SET
 			updated_at = CURRENT_TIMESTAMP,
-			status = $1
-			WHERE id = $2`,
+			status = $1,
+			title = $2,
+			description = $3
+			WHERE id = $4`,
 			putReq.Status,
+			putReq.Title,
+			putReq.Description,
 			putReq.Id,
 		)
 		if err != nil {
