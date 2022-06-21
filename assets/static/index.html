@@ -19,7 +19,7 @@
 	<h2>Todo App Scrum Style UI</h2>
 	<p>Scrum-style UI with dragable task tyles</p>
 	<div class="todo-app-wrapper">
-		<div class="todo-app-bucket">
+		<div class="todo-app-bucket" data-status="BACKLOG">
 			<div draggable="true" class="task">
 				<h4 class="task-title">Sample Task</h4>
 				<p class="task-id">87168605-9bb3-46ad-94bb-50a63cf1d288</p>
@@ -33,7 +33,6 @@
 				<p class="task-desc">Finish analysis</p>
 				<p class="task-status">IN PROGRESS</p>
 				<p class="task-created-at">18.06.2022</p>
-
 			</div>
 			<div draggable="true" class="task">
 				<h4 class="task-title">New Task</h4>
@@ -41,11 +40,17 @@
 				<p class="task-desc">Add the necessary javascript to connect the frontend to the backend</p>
 				<p class="task-status">DONE</p>
 				<p class="task-created-at">19.06.2022</p>
-
 			</div>
 		</div>
-		<div class="todo-app-bucket"></div>
-		<div class="todo-app-bucket"></div>
+		<div class="todo-app-bucket" data-status="DOING"></div>
+		<div class="todo-app-bucket" data-status="DONE"></div>
+	</div>
+	<div class="task-creation-wrapper">
+		<form method="POST" action="/create_task">
+			<input type="text" placeholder="title" name="title"/>
+			<input type="text" placeholder="description" name="description"/>
+			<button>Create Task</button>
+		</form>
 	</div>
 <!-- end of wrapper div -->
 </div>

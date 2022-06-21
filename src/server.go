@@ -95,7 +95,7 @@ func getTasksHandle() http.Handler {
 	})
 }
 
-func newTaskHandle() http.Handler {
+func createTaskHandle() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		return
 	})
@@ -152,7 +152,7 @@ func main() {
 	http.Handle("/echo", utils.LogReq(log)(utils.EchoHandle()))
 	http.Handle("/get_tasks", utils.LogReq(log)(getTasksHandle()))
 	http.Handle("/put_task", utils.LogReq(log)(putTaskHandle()))
-	http.Handle("/new_task", utils.LogReq(log)(newTaskHandle()))
+	http.Handle("/create_task", utils.LogReq(log)(createTaskHandle()))
 	http.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, path.Join("..", staticDir, "favicon.png"))
 	})
