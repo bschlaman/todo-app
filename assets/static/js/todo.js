@@ -1,17 +1,28 @@
 (function (){
 	const buckets = document.querySelectorAll(".todo-app-bucket");
-	const newTaskButton = document.querySelector(".task-creation-wrapper form button");
+	const openCreateTaskModalButton = document.querySelector("button.modal-open");
+	const closeCreateTaskModalButton = document.querySelector("button.modal-close");
+	const newTaskSaveButton = document.querySelector(".create-task-modal .task-save");
 	const hoverClass = "droppable-hover";
+	const modal = document.querySelector(".create-task-modal");
 
 	getTasks();
 
-	newTaskButton.onclick = _ => {
+	newTaskSaveButton.onclick = _ => {
 		const titleInput = document.querySelector('input[name="title"]');
 		const descInput = document.querySelector('textarea[name="description"]');
 		createTask(titleInput.value, descInput.value);
 		// TODO: examine the order of operations here
 		getTasks();
+	}
+
+	openCreateTaskModalButton.onclick = _ => {
+		modal.showModal();
 	};
+
+	closeCreateTaskModalButton.onclick = _ => {
+		modal.close();
+	}
 
 	buckets.forEach(bucket => {
 		bucket.addEventListener("dragover", e => {

@@ -8,18 +8,18 @@
 
 	<!-- css, favicon, title -->
 	<link rel="stylesheet" type="text/css" href="styles.css">
-	<link rel="icon" type="image/png" href="/favicon.ico" />
+	<link rel="icon" type="image/png" href="/favicon.png" />
 
 	<script defer src="js/todo.js"></script>
 
-	<title>Boilerplate</title>
+	<title>Todosky</title>
 </head>
 <body><!-- workaround for FOUC --><script>let FF_FOUC_FIX;</script>
 <div class="wrapper">
 	<h2>Todo App Scrum Style UI</h2>
 	<p>Scrum-style UI with dragable task tyles</p>
 	<div class="todo-app-wrapper">
-		<!--div class="todo-app-bucket" data-status="BACKLOG">
+		<div class="todo-app-bucket" data-status="BACKLOG">
 			<div draggable="true" class="task">
 				<h4 class="task-title">Sample Task</h4>
 				<p class="task-id">87168605-9bb3-46ad-94bb-50a63cf1d288</p>
@@ -41,18 +41,24 @@
 				<p class="task-status">DONE</p>
 				<p class="task-created-at">19.06.2022</p>
 			</div>
-		</div-->
-		<div class="todo-app-bucket" data-status="BACKLOG"></div>
+		</div>
+		<!--div class="todo-app-bucket" data-status="BACKLOG"></div-->
 		<div class="todo-app-bucket" data-status="DOING"></div>
 		<div class="todo-app-bucket" data-status="DONE"></div>
 	</div>
-	<div class="task-creation-wrapper">
-		<form onsubmit="event.preventDefault();">
-			<input type="text" placeholder="title" name="title"/>
-			<textarea placeholder="description" name="description"></textarea>
-			<button>Create Task</button>
+	<button class="modal-open">Create Task</button>
+	<dialog class="create-task-modal">
+		<button class="modal-close">&times;</button>
+		<h3 class="modal-title">Create Task</h3>
+		<form method="dialog">
+			<label for="title">Title</label>
+			<input onkeydown="return event.key != 'Enter';" type="text" required="" placeholder="Title" name="title"/>
+			<label for="description">Description</label>
+			<textarea required="" placeholder="Description" name="description"></textarea>
+			<button class="task-save">Save</button>
 		</form>
-	</div>
+	</dialog>
+	<!-- <div class="modal-overlay"></div> -->
 <!-- end of wrapper div -->
 </div>
 </body>
