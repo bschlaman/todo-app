@@ -42,7 +42,6 @@ body {
 .todo-app-wrapper {
 	display: flex;
 	gap: 1rem;
-	height: 100vw;
 }
 .todo-app-wrapper .todo-app-bucket {
 	background: lightgrey;

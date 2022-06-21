@@ -46,7 +46,7 @@
 		<div class="todo-app-bucket" data-status="DONE"></div>
 	</div>
 	<div class="task-creation-wrapper">
-		<form method="POST" action="/create_task">
+		<form onsubmit="event.preventDefault();">
 			<input type="text" placeholder="title" name="title"/>
 			<input type="text" placeholder="description" name="description"/>
 			<button>Create Task</button>

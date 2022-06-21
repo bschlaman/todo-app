@@ -7,9 +7,9 @@
 	const hoverClass = "droppable-hover";
 
 	newTaskButton.onclick = _ => {
-		const titleInput = document.querySelector('input [name="title"]');
-		const descInput = document.querySelector('input [name="description"]');
-		createTask(titleInput.value, descInput);
+		const titleInput = document.querySelector('input[name="title"]');
+		const descInput = document.querySelector('input[name="description"]');
+		createTask(titleInput.value, descInput.value);
 		// TODO: examine the order of operations here
 		getTasks();
 	};
@@ -123,7 +123,7 @@
 	}
 
 	function createTask(title, description) {
-		if(!title || !desctiption){
+		if(!title || !description){
 			console.warn("task creation failed");
 			return;
 		}
