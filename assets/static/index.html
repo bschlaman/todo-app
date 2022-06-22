@@ -16,8 +16,7 @@
 </head>
 <body><!-- workaround for FOUC --><script>let FF_FOUC_FIX;</script>
 <div class="wrapper">
-	<h2>Todo App Scrum Style UI</h2>
-	<p>Scrum-style UI with dragable task tyles</p>
+	<button class="modal-open">Create New Task</button>
 	<div class="todo-app-wrapper">
 		<div class="todo-app-bucket" data-status="BACKLOG">
 			<!-- <div draggable="true" class="task">
@@ -33,8 +32,11 @@
 				<p class="task-desc">Finish analysis</p>
 				<p class="task-status">IN PROGRESS</p>
 				<p class="task-created-at">18.06.2022</p>
-			</div>
-			<div draggable="true" class="task">
+			</div> -->
+		</div>
+		<div class="todo-app-bucket" data-status="DOING"></div>
+		<div class="todo-app-bucket" data-status="DONE">
+			<!-- <div draggable="true" class="task">
 				<h4 class="task-title">New Task</h4>
 				<p class="task-id">4732b983-52c8-4224-ac0c-9340e623b43e</p>
 				<p class="task-desc">Add the necessary javascript to connect the frontend to the backend</p>
@@ -42,10 +44,7 @@
 				<p class="task-created-at">19.06.2022</p>
 			</div> -->
 		</div>
-		<div class="todo-app-bucket" data-status="DOING"></div>
-		<div class="todo-app-bucket" data-status="DONE"></div>
 	</div>
-	<button class="modal-open">Create Task</button>
 	<dialog class="create-task-modal">
 		<button class="modal-close">&times;</button>
 		<h3 class="modal-title">Create Task</h3>

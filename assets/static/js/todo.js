@@ -13,6 +13,7 @@
 		updateTask: `${routesPrefix}/put_task`,
 	}
 
+	document.querySelectorAll(".task").forEach(task => { task.remove(); });
 	getTasks();
 
 	newTaskSaveButton.onclick = _ => {
@@ -20,6 +21,7 @@
 		const descInput = document.querySelector('textarea[name="description"]');
 		createTask(titleInput.value, descInput.value);
 		// TODO: examine the order of operations here
+		document.querySelectorAll(".task").forEach(task => { task.remove(); });
 		getTasks();
 	}
 

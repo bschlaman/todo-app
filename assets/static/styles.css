@@ -9,6 +9,8 @@
 	--color2: #242729;
 	/* blue highlight */
 	--color3: #2996ed;
+	/* green highlight */
+	--color4: #105c06;
 	/* slightly transparent black */
 	--transp-black: rgba(0, 0, 0, 0.9);
 	/* slightly transparent white */
@@ -77,12 +79,36 @@ body {
 	white-space: pre-wrap;
 }
 
+/* done task styles */
+.todo-app-bucket[data-status="DONE"] .task {
+	border-left: 3px solid green;
+}
+.todo-app-bucket[data-status="DONE"] .task :not(:first-child) {
+	display: none;
+}
+
+.modal-open {
+	color: var(--transp-black);
+	background: var(--transp-white);
+	border: 2px solid var(--transp-black);
+	border-radius: 8px;
+	transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+	margin: 1rem 0;
+	font-size: 1.4rem;
+	cursor: pointer;
+}
+.modal-open:hover {
+	color: var(--color4);
+	border: 2px solid var(--color4);
+}
+
 button.modal-open {
 	font-size: 1.5rem;
 }
 .create-task-modal {
 	padding: 1rem;
 	background: var(--transp-white);
+	border-radius: 10px;
 }
 .create-task-modal .modal-close {
 	position: absolute;
