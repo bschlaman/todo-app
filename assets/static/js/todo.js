@@ -78,7 +78,7 @@
 		fetch(routes.getTasks, { method: "GET" })
 			.then(res => res.json())
 			.then(data => {
-				data.forEach(task => { renderTask(task); });
+				data.forEach(task => { renderTaskFromJSON(task); });
 			})
 			.catch(err => {
 				// TODO: this catches when res is undefined.  is there a more graceful way?
@@ -86,7 +86,7 @@
 			});
 	}
 
-	function renderTask(task){
+	function renderTaskFromJSON(task){
 		const taskDiv = document.createElement("div");
 		taskDiv.classList.add("task");
 		taskDiv.setAttribute("draggable", "true");
@@ -94,6 +94,7 @@
 		const taskTitle = document.createElement("h4");
 		taskTitle.classList.add("task-title");
 		taskTitle.innerHTML = task.title;
+		taskTitle.setAttribute("contenteditable", "true");
 
 		const taskId = document.createElement("p");
 		taskId.classList.add("task-id");
@@ -102,6 +103,7 @@
 		const taskDesc = document.createElement("p");
 		taskDesc.classList.add("task-desc");
 		taskDesc.innerHTML = task.description;
+		taskDesc.setAttribute("contenteditable", "true");
 
 		const taskStatus = document.createElement("p");
 		taskStatus.classList.add("task-status");
@@ -110,6 +112,10 @@
 		const taskCreatedAt = document.createElement("p");
 		taskCreatedAt.classList.add("task-created-at");
 		taskCreatedAt.innerHTML = task.created_at;
+
+		taskTitle.onblur = taskDesc.onblur = _ => {
+			updateTaskById(task.id, taskStatus.innerHTML, taskTitle.innerHTML, taskDesc.innerHTML);
+		};
 
 		taskDiv.appendChild(taskTitle);
 		taskDiv.appendChild(taskId);
@@ -124,7 +130,8 @@
 			taskDiv.classList.remove("dragging");
 			buckets.forEach(b => { b.classList.remove(hoverClass) });
 			const destinationStatus = taskDiv.parentNode.dataset.status;
-			updateTask(task.id, destinationStatus, task.title, task.description);
+			// TODO: it may be a problem to only use the original task data for later updates
+			updateTaskById(task.id, destinationStatus, task.title, task.description);
 		});
 
 		// TODO: this is not maintainable / extensible; html file
@@ -150,7 +157,7 @@
 		});
 	}
 
-	function updateTask(id, status, title, description) {
+	function updateTaskById(id, status, title, description) {
 		if(!id){
 			console.warn("task update failed");
 			return;
@@ -166,6 +173,9 @@
 				title:       title,
 				description: description,
 			}),
+		})
+		.catch(err => {
+			console.warn("error occured:", err);
 		});
 	}
 

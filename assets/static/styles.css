@@ -60,10 +60,6 @@ body {
 	background: white;
 	margin: 3px;
 	border-radius: 0.5rem;
-	cursor: move;
-}
-.task .task-title {
-	cursor: move;
 }
 .task .task-id {
 	font-size: 0.7rem;
