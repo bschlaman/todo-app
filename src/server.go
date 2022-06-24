@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"strings"
 	"time"
 
 	"github.com/bschlaman/b-utils/pkg/logger"
@@ -51,6 +52,59 @@ type Task struct {
 	Status      string    `json:"status"`
 }
 
+func getTaskByIdHandle() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		taskId := path.Base(r.URL.Path)
+
+		// TODO: strongly coupled to id format
+		if strings.Count(taskId, "-") != 4 {
+			log.Errorf("taskId seems incorrect: %s\n", taskId)
+			http.Error(w, "bad task id", http.StatusBadRequest)
+			return
+		}
+
+		// TODO: can getting a connection be middleware?
+		conn, err := getPgxConn()
+		if err != nil {
+			log.Errorf("unable to connect to database: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+		defer conn.Close(context.Background())
+
+		var id, title, desc, status string
+		var cAt, uAt time.Time
+
+		err = conn.QueryRow(context.Background(),
+			`SELECT
+				id,
+				created_at,
+				updated_at,
+				title,
+				description,
+				status
+				FROM tasks
+				WHERE id = $1`,
+			taskId,
+		).Scan(&id, &cAt, &uAt, &title, &desc, &status)
+		if err != nil {
+			log.Errorf("Query failed: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+
+		js, err := json.Marshal(Task{id, cAt, uAt, title, desc, status})
+		if err != nil {
+			log.Errorf("json.Marshal failed: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(js)
+
+	})
+}
+
 func getTasksHandle() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		conn, err := getPgxConn()
@@ -61,8 +115,6 @@ func getTasksHandle() http.Handler {
 		}
 		defer conn.Close(context.Background())
 
-		// TODO: this will not work; needs to be an array
-		// fine for the initial commit
 		rows, err := conn.Query(context.Background(),
 			`SELECT
 				id,
@@ -198,10 +250,14 @@ func init() {
 }
 
 func main() {
+	// TODO: need to figure out a way to handle routes here
 	fs := http.FileServer(http.Dir(path.Join("..", staticDir)))
+	// taskFs := http.FileServer(http.Dir(path.Join("..", staticDir, "task")))
 	http.Handle("/", fs)
+	//http.Handle("/task", http.StripPrefix("/task", taskFs))
 	http.Handle("/echo", utils.LogReq(log)(utils.EchoHandle()))
 	http.Handle("/get_tasks", utils.LogReq(log)(commonHeadersMiddleware(getTasksHandle())))
+	http.Handle("/get_task/", utils.LogReq(log)(commonHeadersMiddleware(getTaskByIdHandle())))
 	http.Handle("/put_task", utils.LogReq(log)(commonHeadersMiddleware(putTaskHandle())))
 	http.Handle("/create_task", utils.LogReq(log)(commonHeadersMiddleware(createTaskHandle())))
 	http.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
