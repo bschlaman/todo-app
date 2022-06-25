@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"regexp"
 	"strings"
 	"time"
 
@@ -240,6 +241,19 @@ func putTaskHandle() http.Handler {
 	})
 }
 
+func matchIdRedir(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// TODO: really really don't like this strategy
+		match, _ := regexp.MatchString(
+			"/task/([0-9a-z]+-){4}[0-9a-z]+",
+			r.URL.Path)
+		if match {
+			r.URL.Path = "/task/"
+		}
+		h.ServeHTTP(w, r)
+	})
+}
+
 func init() {
 	file, err := os.OpenFile(logPath, os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
@@ -250,11 +264,8 @@ func init() {
 }
 
 func main() {
-	// TODO: need to figure out a way to handle routes here
 	fs := http.FileServer(http.Dir(path.Join("..", staticDir)))
-	// taskFs := http.FileServer(http.Dir(path.Join("..", staticDir, "task")))
-	http.Handle("/", fs)
-	//http.Handle("/task", http.StripPrefix("/task", taskFs))
+	http.Handle("/", matchIdRedir(fs))
 	http.Handle("/echo", utils.LogReq(log)(utils.EchoHandle()))
 	http.Handle("/get_tasks", utils.LogReq(log)(commonHeadersMiddleware(getTasksHandle())))
 	http.Handle("/get_task/", utils.LogReq(log)(commonHeadersMiddleware(getTaskByIdHandle())))
