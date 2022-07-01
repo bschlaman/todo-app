@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS public.tasks
     updated_at timestamp without time zone,
 		title character varying(50) NOT NULL,
 		description character varying(240),
-    status task_status DEFAULT 'BACKLOG'::word_pair_status
+    status task_status DEFAULT 'BACKLOG'::task_status
 );
 
 INSERT INTO tasks (updated_at, title, description) VALUES

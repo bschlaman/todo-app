@@ -58,7 +58,7 @@ body {
 .task {
 	padding: 1rem;
 	background: white;
-	margin: 3px;
+	margin: 8px;
 	border-radius: 0.5rem;
 }
 .task .task-id {
