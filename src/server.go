@@ -53,6 +53,77 @@ type Task struct {
 	Status      string    `json:"status"`
 }
 
+type Comment struct {
+	Id        string    `json:"id"`
+	TaskId    string    `json:"task_id"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	Text      string    `json:"text"`
+	Edited    bool      `json:"edited"`
+}
+
+func getCommentsByIdHandle() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		taskId := r.URL.Query().Get("id")
+		if strings.Count(taskId, "-") != 4 {
+			log.Errorf("taskId seems incorrect: %s\n", taskId)
+			http.Error(w, "bad task id", http.StatusBadRequest)
+			return
+		}
+
+		conn, err := getPgxConn()
+		if err != nil {
+			log.Errorf("unable to connect to database: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+		defer conn.Close(context.Background())
+
+		rows, err := conn.Query(context.Background(),
+			`SELECT
+				id,
+				created_at,
+				updated_at,
+				text,
+				edited
+				FROM comments
+				WHERE task_id = $1`,
+			taskId,
+		)
+		if err != nil {
+			log.Errorf("Query failed: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+		defer rows.Close()
+
+		var comments []Comment
+		for rows.Next() {
+			var id, text string
+			var edited bool
+			var cAt, uAt time.Time
+			rows.Scan(&id, &cAt, &uAt, &text, &edited)
+			comments = append(comments, Comment{id, taskId, cAt, uAt, text, edited})
+		}
+
+		if rows.Err() != nil {
+			log.Errorf("Query failed: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+
+		js, err := json.Marshal(comments)
+		if err != nil {
+			log.Errorf("json.Marshal failed: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(js)
+	})
+}
+
 func getTaskByIdHandle() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		taskId := path.Base(r.URL.Path)
@@ -271,6 +342,7 @@ func main() {
 	http.Handle("/get_task/", utils.LogReq(log)(commonHeadersMiddleware(getTaskByIdHandle())))
 	http.Handle("/put_task", utils.LogReq(log)(commonHeadersMiddleware(putTaskHandle())))
 	http.Handle("/create_task", utils.LogReq(log)(commonHeadersMiddleware(createTaskHandle())))
+	http.Handle("/get_comments_by_task_id", utils.LogReq(log)(commonHeadersMiddleware(getCommentsByIdHandle())))
 	http.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, path.Join("..", staticDir, "favicon.png"))
 	})

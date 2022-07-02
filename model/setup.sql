@@ -15,6 +15,18 @@ CREATE TABLE IF NOT EXISTS public.tasks
     status task_status DEFAULT 'BACKLOG'::task_status
 );
 
+CREATE TABLE IF NOT EXISTS public.comments
+(
+    id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+		task_id uuid NOT NULL,
+    created_at timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp without time zone,
+		text character varying(1000) NOT NULL,
+    edited boolean NOT NULL DEFAULT false,
+		CONSTRAINT fk_task FOREIGN KEY(task_id) REFERENCES tasks(id)
+);
+
+
 INSERT INTO tasks (updated_at, title, description) VALUES
 (CURRENT_TIMESTAMP,	'Sample Task', 'Create the rest of the TODO app');
 
