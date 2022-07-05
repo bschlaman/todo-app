@@ -60,13 +60,11 @@ body {
 	background: white;
 	margin: 8px;
 	border-radius: 0.5rem;
-}
-.task .task-id {
-	font-size: 0.7rem;
-	color: grey;
+	position: relative;
 }
 .task .task-created-at,
-.task .task-status {
+.task .task-status,
+.task .task-id {
 	text-align: right;
 	font-size: 0.7rem;
 	color: grey;
@@ -74,12 +72,17 @@ body {
 .task .task-desc {
 	white-space: pre-wrap;
 }
+.task .task-edit-link {
+	position: absolute;
+	top: 1rem;
+	right: 1rem;
+}
 
 /* done task styles */
 .todo-app-bucket[data-status="DONE"] .task {
 	border-left: 5px solid var(--color4);
 }
-.todo-app-bucket[data-status="DONE"] .task :not(:first-child) {
+.todo-app-bucket[data-status="DONE"] .task :not(.task-title) {
 	display: none;
 }
 .todo-app-bucket[data-status="DONE"] .task-title {

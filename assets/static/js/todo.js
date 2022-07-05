@@ -94,16 +94,20 @@
 		const taskTitle = document.createElement("h4");
 		taskTitle.classList.add("task-title");
 		taskTitle.innerHTML = task.title;
-		taskTitle.setAttribute("contenteditable", "true");
 
-		const taskId = document.createElement("p");
-		taskId.classList.add("task-id");
-		taskId.innerHTML = task.id;
+		const taskEditLink = document.createElement("a");
+		taskEditLink.classList.add("task-edit-link");
+		taskEditLink.innerHTML = "edit";
+		taskEditLink.setAttribute("href", `/task/${task.id}`);
+		taskEditLink.setAttribute("target", "_blank");
 
 		const taskDesc = document.createElement("p");
 		taskDesc.classList.add("task-desc");
 		taskDesc.innerHTML = task.description;
-		taskDesc.setAttribute("contenteditable", "true");
+
+		const taskId = document.createElement("p");
+		taskId.classList.add("task-id");
+		taskId.innerHTML = task.id;
 
 		const taskStatus = document.createElement("p");
 		taskStatus.classList.add("task-status");
@@ -117,11 +121,12 @@
 			updateTaskById(task.id, taskStatus.innerHTML, taskTitle.innerHTML, taskDesc.innerHTML);
 		};
 
+		taskDiv.appendChild(taskEditLink);
 		taskDiv.appendChild(taskTitle);
-		taskDiv.appendChild(taskId);
 		taskDiv.appendChild(taskDesc);
-		taskDiv.appendChild(taskStatus);
+		// taskDiv.appendChild(taskStatus);
 		taskDiv.appendChild(taskCreatedAt);
+		taskDiv.appendChild(taskId);
 
 		taskDiv.addEventListener("dragstart", _ => {
 			taskDiv.classList.add("dragging");
