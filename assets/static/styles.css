@@ -11,6 +11,8 @@
 	--color3: #2996ed;
 	/* green highlight */
 	--color4: #105c06;
+	/* manilla background */
+	--color5: rgba(191, 182, 153 0.7);
 	/* slightly transparent black */
 	--transp-black: rgba(0, 0, 0, 0.9);
 	/* slightly transparent white */
@@ -190,4 +192,28 @@ button.modal-open {
 	top: 1rem;
 	right: 1rem;
 	margin: 0.4rem;
+}
+.new-comment {
+	outline: 2px solid grey;
+	border-radius: 8px;
+	max-width: 60%;
+	position: relative;
+	padding: 1rem;
+	margin: 1rem 0.5rem;
+	font-size: 1.5rem;
+}
+.new-comment textarea {
+	background: var(--color5);
+	resize: none;
+	width: 100%;
+	box-sizing: border-box;
+	border-radius: 8px;
+	padding: 1rem;
+	margin: 1rem 0;
+}
+.new-comment button {
+	color: var(--transp-white);
+	font-size: 1.3rem;
+	background: var(--color3);
+	border-radius: 3px;
 }
