@@ -54,7 +54,7 @@ type Task struct {
 }
 
 type Comment struct {
-	Id        string    `json:"id"`
+	Id        int       `json:"id"`
 	TaskId    string    `json:"task_id"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
@@ -100,7 +100,8 @@ func getCommentsByIdHandle() http.Handler {
 
 		var comments []Comment
 		for rows.Next() {
-			var id, text string
+			var id int
+			var text string
 			var edited bool
 			var cAt, uAt time.Time
 			rows.Scan(&id, &cAt, &uAt, &text, &edited)
@@ -108,7 +109,7 @@ func getCommentsByIdHandle() http.Handler {
 		}
 
 		if rows.Err() != nil {
-			log.Errorf("Query failed: %v\n", err)
+			log.Errorf("Query failed: %v\n", rows.Err())
 			http.Error(w, "something went wrong", http.StatusInternalServerError)
 			return
 		}
@@ -213,7 +214,7 @@ func getTasksHandle() http.Handler {
 		}
 
 		if rows.Err() != nil {
-			log.Errorf("Query failed: %v\n", err)
+			log.Errorf("Query failed: %v\n", rows.Err())
 			http.Error(w, "something went wrong", http.StatusInternalServerError)
 			return
 		}

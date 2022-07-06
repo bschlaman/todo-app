@@ -41,6 +41,7 @@ body {
 	### CONTENT
 */
 
+/* tasks */
 .todo-app-wrapper {
 	display: flex;
 	gap: 1rem;
@@ -89,6 +90,7 @@ body {
 	margin: 0;
 }
 
+/* new task modal button */
 .modal-open {
 	color: var(--transp-black);
 	background: var(--transp-white);
@@ -104,6 +106,7 @@ body {
 	border: 2px solid var(--color4);
 }
 
+/* new task modal */
 button.modal-open {
 	font-size: 1.5rem;
 }
@@ -141,4 +144,50 @@ button.modal-open {
 .create-task-modal button {
 	float: right;
 	font-size: 1.5rem;
+}
+
+/* task view */
+.task-view-wrapper {
+	font-size: 2rem;
+}
+.task-view-wrapper .task-title {
+	font-weight: bold;
+}
+.task-view-wrapper .task-id {
+	color: lightgrey;
+}
+.task-view-wrapper .task-status {
+	color: lightgrey;
+}
+.task-view-wrapper .task-desc {
+}
+.task-view-wrapper .task-comments {
+}
+.task-view-wrapper .task-save {
+	font-size: 2rem;
+}
+.task-comments .comment-wrapper {
+	outline: 2px solid grey;
+	border-radius: 8px;
+	max-width: 60%;
+	position: relative;
+	padding: 1rem;
+	margin: 1rem 0.5rem;
+	font-size: 1.5rem;
+}
+.comment-wrapper .comment-text {
+}
+.comment-wrapper .comment-created-at {
+	color: lightgrey;
+	position: absolute;
+	bottom: 1rem;
+	right: 1rem;
+	margin: 0.4rem;
+}
+.comment-wrapper .comment-id {
+	color: lightgrey;
+	position: absolute;
+	top: 1rem;
+	right: 1rem;
+	margin: 0.4rem;
 }
