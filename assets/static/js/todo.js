@@ -11,7 +11,7 @@
 		getTasks: `${routesPrefix}/get_tasks`,
 		createTask: `${routesPrefix}/create_task`,
 		updateTask: `${routesPrefix}/put_task`,
-	}
+	};
 
 	document.querySelectorAll(".task").forEach(task => { task.remove(); });
 	getTasks();

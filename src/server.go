@@ -271,6 +271,53 @@ func createTaskHandle() http.Handler {
 	})
 }
 
+func createCommentHandle() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var createReq struct {
+			Text   string `json:"text"`
+			TaskId string `json:"task_id"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&createReq); err != nil {
+			log.Errorf("unable to decode json: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusBadRequest)
+			return
+		}
+
+		if createReq.Text == "" || createReq.TaskId == "" {
+			log.Error("createComment: Text or TaskId blank")
+			http.Error(w, "something went wrong", http.StatusBadRequest)
+			return
+		}
+
+		conn, err := getPgxConn()
+		if err != nil {
+			log.Errorf("unable to connect to database: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+		defer conn.Close(context.Background())
+
+		_, err = conn.Exec(context.Background(),
+			`INSERT INTO comments (
+				updated_at,
+				text,
+				task_id
+			) VALUES (
+				CURRENT_TIMESTAMP,
+				$1,
+				$2
+			);`,
+			createReq.Text,
+			createReq.TaskId,
+		)
+		if err != nil {
+			log.Errorf("Exec failed: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+	})
+}
+
 func putTaskHandle() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var putReq struct {
@@ -343,6 +390,7 @@ func main() {
 	http.Handle("/get_task/", utils.LogReq(log)(commonHeadersMiddleware(getTaskByIdHandle())))
 	http.Handle("/put_task", utils.LogReq(log)(commonHeadersMiddleware(putTaskHandle())))
 	http.Handle("/create_task", utils.LogReq(log)(commonHeadersMiddleware(createTaskHandle())))
+	http.Handle("/create_comment", utils.LogReq(log)(commonHeadersMiddleware(createCommentHandle())))
 	http.Handle("/get_comments_by_task_id", utils.LogReq(log)(commonHeadersMiddleware(getCommentsByIdHandle())))
 	http.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, path.Join("..", staticDir, "favicon.png"))
