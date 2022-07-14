@@ -6,6 +6,7 @@
 		getTaskById: `/get_task`,
 		getCommentsByTaskId: `/get_comments_by_task_id`,
 		createComment: `/create_comment`,
+		updateTask: `/put_task`,
 	};
 
 	const taskTitle = document.querySelector(".task-title");
@@ -22,6 +23,16 @@
 		textInput.value = "";
 	});
 
+	const taskSave = document.querySelector(".task-save");
+	taskSave.addEventListener("click", e => {
+		updateTaskById(
+			taskIdFromPath,
+			taskStatus.innerHTML,
+			taskTitle.innerHTML,
+			taskDesc.innerHTML,
+		);
+	});
+
 	getTaskById(taskIdFromPath);
 	getCommentsByTaskId(taskIdFromPath);
 
@@ -34,6 +45,9 @@
 
 	function renderComments(comments){
 		if(comments === null) return;
+		// clear the comments section first
+		while(taskComments.firstChild)
+			taskComments.removeChild(taskComments.firstChild);
 		comments.forEach(comment => {
 			const commentWrapper = document.createElement("div");
 			commentWrapper.classList.add("comment-wrapper");
@@ -90,12 +104,34 @@
 				text:    text,
 				task_id: taskId,
 			})})
-			.then(res => {
-				res.json();
-			})
+			.then(res => { getCommentsByTaskId(taskIdFromPath) })
 			.catch(err => {
 				console.warn("error occured:", err);
 			});
+	}
+
+	// TODO: DRY!!! this func is copied from todo.js
+	function updateTaskById(id, status, title, description) {
+		if(!id){
+			console.warn("task update failed");
+			return;
+		}
+		fetch(routes.updateTask, {
+			method: "PUT",
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				id:          id,
+				status:      status,
+				title:       title,
+				description: description,
+			}),
+		})
+		.then(res => { location.reload() })
+		.catch(err => {
+			console.warn("error occured:", err);
+		});
 	}
 
 })();

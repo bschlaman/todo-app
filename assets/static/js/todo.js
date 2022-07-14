@@ -1,11 +1,5 @@
 (function (){
-	const buckets = document.querySelectorAll(".todo-app-bucket");
-	const openCreateTaskModalButton = document.querySelector("button.modal-open");
-	const closeCreateTaskModalButton = document.querySelector("button.modal-close");
-	const newTaskSaveButton = document.querySelector(".create-task-modal .task-save");
-	const hoverClass = "droppable-hover";
-	const modal = document.querySelector(".create-task-modal");
-	// TODO: for development purposes only
+	// TODO: routesPrefix for development purposes only
 	const routesPrefix = "";
 	const routes = {
 		getTasks: `${routesPrefix}/get_tasks`,
@@ -13,25 +7,53 @@
 		updateTask: `${routesPrefix}/put_task`,
 	};
 
+	const hoverClass = "droppable-hover";
+
+	const buckets = document.querySelectorAll(".todo-app-bucket");
+	const openCreateTaskModalButton = document.querySelector("button.modal-open");
+	const closeCreateTaskModalButton = document.querySelector("button.modal-close");
+	const newTaskSaveButton = document.querySelector(".create-task-modal .task-save");
+	const newTaskForm = document.querySelector(".create-task-modal form");
+	// TODO: better names and more specific selector for the below 2
+	const titleInput = document.querySelector('input[name="title"]');
+	const descInput = document.querySelector('textarea[name="description"]');
+	const modal = document.querySelector(".create-task-modal");
+	modal.addEventListener("keydown", e => {
+		if(e.ctrlKey && e.keyCode === 13){
+			newTaskSaveButton.click();
+			// How do i close the dialog after this?
+			// no idea why I have to do this... I don't need to
+			// explicitly close the modal when I physically click it
+			//  closeCreateTaskModalButton.click();
+		}
+	});
+
+	// TODO: should the action of clearing state, fetching data,
+	// and rendering be one function?
 	document.querySelectorAll(".task").forEach(task => { task.remove(); });
 	getTasks();
 
-	newTaskSaveButton.onclick = _ => {
-		const titleInput = document.querySelector('input[name="title"]');
-		const descInput = document.querySelector('textarea[name="description"]');
-		createTask(titleInput.value, descInput.value);
-		// TODO: examine the order of operations here
-		document.querySelectorAll(".task").forEach(task => { task.remove(); });
-		getTasks();
-	}
-
 	openCreateTaskModalButton.onclick = _ => {
+		// values should already be cleared, but doing this just in case
+		// there are edge cases when page reloads, etc
+		titleInput.value = descInput.value = "";
 		modal.showModal();
+		titleInput.focus();
 	};
 
 	closeCreateTaskModalButton.onclick = _ => {
 		modal.close();
 	}
+
+	newTaskSaveButton.addEventListener("click", _ => {
+		createTask(titleInput.value, descInput.value);
+		// TODO: BAD!  createTask is async, so this may miss new tasks
+		setTimeout(_ => {
+			titleInput.value = descInput.value = "";
+			document.querySelectorAll(".task").forEach(task => { task.remove(); });
+			getTasks();
+		}, 500);
+	});
 
 	buckets.forEach(bucket => {
 		bucket.addEventListener("dragover", e => {
