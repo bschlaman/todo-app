@@ -1,4 +1,5 @@
 (function (){
+	// GLOBALS
 	const path = window.location.pathname;
 	const taskIdFromPath = path.substring(path.lastIndexOf("/") + 1);
 
@@ -9,45 +10,77 @@
 		updateTask: `/put_task`,
 	};
 
+	const STATUSES = ["BACKLOG", "DOING", "DONE", "DEPRIORITIZED", "ARCHIVE"];
+	// ENDGLOBALS
+
+	getTaskById(taskIdFromPath).then(task => { renderTask(task) });
+	getCommentsByTaskId(taskIdFromPath).then(comments => { renderCommentsFromJSON(comments) });
+
 	const taskTitle = document.querySelector(".task-title");
 	const taskId = document.querySelector(".task-id");
 	const taskStatus = document.querySelector(".task-status");
 	const taskDesc = document.querySelector(".task-desc");
+	// TODO: inner join here (see todo.js TODO)
+	const taskStoryId = document.querySelector(".task-story-id");
 	const taskComments = document.querySelector(".task-comments");
+	const taskSave = document.querySelector(".task-save");
 
 	const createCommentForm = document.querySelector(".new-comment form");
-	createCommentForm.addEventListener("submit", e => {
-		e.preventDefault();
-		const textInput = document.querySelector(".new-comment form textarea");
-		createComment(taskIdFromPath, textInput.value);
-		textInput.value = "";
+	const createCommentTextInput = createCommentForm.querySelector("textarea");
+	const createCommentButton = createCommentForm.querySelector("button");
+
+	STATUSES.forEach(status => {
+		const option = document.createElement("option");
+		option.setAttribute("value", status);
+		option.innerHTML = status;
+		taskStatus.appendChild(option);
 	});
 
-	const taskSave = document.querySelector(".task-save");
 	taskSave.addEventListener("click", e => {
 		updateTaskById(
 			taskIdFromPath,
-			taskStatus.innerHTML,
+			taskStatus.value,
 			taskTitle.innerHTML,
 			taskDesc.innerHTML,
+			taskStoryId.innerHTML,
 		);
 	});
 
-	getTaskById(taskIdFromPath);
-	getCommentsByTaskId(taskIdFromPath);
+	createCommentForm.addEventListener("submit", e => {
+		e.preventDefault();
+		createComment(taskIdFromPath, createCommentTextInput.value);
+		setTimeout(_ => {
+			// TODO: remember to use clearInputValues once I combine js files
+			createCommentTextInput.value = "";
+			getCommentsByTaskId(taskIdFromPath).then(comments => { renderCommentsFromJSON(comments) });
+		}, 500);
+	});
+
+	createCommentTextInput.addEventListener("keydown", e => {
+		if(e.keyCode === 13 && e.ctrlKey){
+			e.preventDefault(); // prevent dialog not closing weirdness
+			createCommentButton.click();
+		}
+	});
 
 	function renderTask(task){
 		taskTitle.innerHTML = task.title;
 		taskId.innerHTML = task.id;
-		taskStatus.innerHTML = task.status;
 		taskDesc.innerHTML = task.description;
+		taskStoryId.innerHTML = task.story_id;
+		for(let i = 0; i < taskStatus.options.length; i++){
+			if(taskStatus.options[i].value === task.status){
+				taskStatus.options[i].selected = true;
+				break;
+			}
+		}
 	}
 
-	function renderComments(comments){
-		if(comments === null) return;
-		// clear the comments section first
-		while(taskComments.firstChild)
-			taskComments.removeChild(taskComments.firstChild);
+	function renderCommentsFromJSON(comments){
+		if(!comments){
+			console.warn("no comments to render!");
+		}
+		while(taskComments.firstChild) taskComments.removeChild(taskComments.firstChild);
 		comments.forEach(comment => {
 			const commentWrapper = document.createElement("div");
 			commentWrapper.classList.add("comment-wrapper");
@@ -71,24 +104,19 @@
 		});
 	}
 
+	// API FUNCTIONS
+
 	function getTaskById(id){
-		fetch(`${routes.getTaskById}?id=${id}`, { method: "GET" })
+		return fetch(`${routes.getTaskById}?id=${id}`, { method: "GET" })
 			.then(res => res.json())
-			.then(data => {
-				renderTask(data);
-			})
 			.catch(err => {
-				// TODO: DRY - create simple err handle func
 				console.warn("error occured:", err);
 			});
 	}
 
 	function getCommentsByTaskId(id){
-		fetch(`${routes.getCommentsByTaskId}?id=${id}`, { method: "GET" })
+		return fetch(`${routes.getCommentsByTaskId}?id=${id}`, { method: "GET" })
 			.then(res => res.json())
-			.then(data => {
-				renderComments(data);
-			})
 			.catch(err => {
 				console.warn("error occured:", err);
 			});
@@ -104,16 +132,15 @@
 				text:    text,
 				task_id: taskId,
 			})})
-			.then(res => { getCommentsByTaskId(taskIdFromPath) })
 			.catch(err => {
 				console.warn("error occured:", err);
 			});
 	}
 
 	// TODO: DRY!!! this func is copied from todo.js
-	function updateTaskById(id, status, title, description) {
-		if(!id){
-			console.warn("task update failed");
+	function updateTaskById(id, status, title, description, storyId) {
+		if(!id || !status || !title || !description || !storyId){
+			console.warn("could not update task");
 			return;
 		}
 		fetch(routes.updateTask, {
@@ -126,9 +153,10 @@
 				status:      status,
 				title:       title,
 				description: description,
+				story_id:    storyId,
 			}),
 		})
-		.then(res => { location.reload() })
+		.then(res => { location.reload() }) // specific to task.js
 		.catch(err => {
 			console.warn("error occured:", err);
 		});

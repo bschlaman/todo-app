@@ -1,4 +1,5 @@
 (function (){
+	// GLOBALS
 	const routes = {
 		getTasks: `/get_tasks`,
 		createTask: `/create_task`,
@@ -9,14 +10,12 @@
 		createSprint: `/create_sprint`,
 	};
 
+	const hoverClass = "droppable-hover";
+	// ENDGLOBALS
+
 	// TODO: should the action of clearing state, fetching data,
 	// and rendering be one function?
 	getTasks().then(tasks => { renderTasksFromJSON(tasks) });
-	getStories();
-
-	const hoverClass = "droppable-hover";
-
-	const buckets = document.querySelectorAll(".todo-app-bucket");
 
 	// CODE SECTION: CREATE TASK MODAL ============================
 	const createTaskButton = document.querySelector(".create-task-button");
@@ -35,7 +34,7 @@
 		// TODO: this is bad, catch should be at the end
 		getStories().then(stories => {
 			stories.forEach(story => {
-				let option = document.createElement("option");
+				const option = document.createElement("option");
 				option.setAttribute("value", story.id);
 				option.innerHTML = story.title;
 				createTaskSelectInput.appendChild(option);
@@ -54,6 +53,7 @@
 	createTaskSaveButton.addEventListener("click", _ => {
 		createTask(createTaskTitleInput.value, createTaskDescInput.value, createTaskSelectInput.value);
 		// TODO: BAD!  createTask is async, so this may miss new tasks
+		// also, not sure when to clearInputValues - i think this is a UX decision
 		setTimeout(_ => {
 			clearInputValues(createTaskTitleInput, createTaskDescInput, createTaskSelectInput);
 			getTasks().then(tasks => { renderTasksFromJSON(tasks) });
@@ -135,6 +135,8 @@
 	// END CREATE SPRINT MODAL ============================
 
 
+	const buckets = document.querySelectorAll(".todo-app-bucket");
+
 	buckets.forEach(bucket => {
 		bucket.addEventListener("dragover", e => {
 			e.preventDefault();
@@ -177,6 +179,9 @@
 	}
 
 	function renderTasksFromJSON(tasks){
+		if(!tasks){
+			console.warn("no tasks to render!");
+		}
 		// Clear out the task elements to avoid duplication
 		document.querySelectorAll(".task").forEach(task => { task.remove(); });
 		tasks.forEach(task => {
@@ -229,20 +234,23 @@
 				taskDiv.classList.remove("dragging");
 				buckets.forEach(b => { b.classList.remove(hoverClass) });
 				const destinationStatus = taskDiv.parentNode.dataset.status;
-				// TODO: it may be a problem to only use the original task data for later updates
-				updateTaskById(task.id, destinationStatus, task.title, task.description);
+				updateTaskById(task.id, destinationStatus, task.title, task.description, task.story_id);
 			});
 
 			// TODO: this is not maintainable / extensible; html file
-			// is tightly coupled with data model
+			// is tightly coupled with data model.  Can I pull in this as config somehow?
+			// e.g. /get_config -> {"status_buckets": ["BACKLOG", "DOING", ...]}
 			const bucket = document.querySelector(`[data-status="${task.status}"]`);
 			bucket.appendChild(taskDiv);
 		});
 	}
 
+	// API FUNCTIONS
+
 	function getTasks(){
 		return fetch(routes.getTasks, { method: "GET" })
 			.then(res => res.json())
+			// TODO: DRY - create simple err handle func
 			.catch(err => {
 				console.warn("error occured:", err);
 			});
@@ -318,9 +326,9 @@
 		});
 	}
 
-	function updateTaskById(id, status, title, description) {
-		if(!id){
-			console.warn("task update failed");
+	function updateTaskById(id, status, title, description, storyId) {
+		if(!id || !status || !title || !description || !storyId){
+			console.warn("could not update task");
 			return;
 		}
 		fetch(routes.updateTask, {
@@ -333,6 +341,7 @@
 				status:      status,
 				title:       title,
 				description: description,
+				story_id:    storyId,
 			}),
 		})
 		.catch(err => {
