@@ -72,7 +72,7 @@
 	}
 
 	function getTaskById(id){
-		fetch(`${routes.getTaskById}/${id}`, { method: "GET" })
+		fetch(`${routes.getTaskById}?id=${id}`, { method: "GET" })
 			.then(res => res.json())
 			.then(data => {
 				renderTask(data);

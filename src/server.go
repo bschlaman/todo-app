@@ -16,12 +16,14 @@ import (
 	"github.com/jackc/pgx/v4"
 )
 
+// TODO: pull these from config table
 const (
-	serverName string = "TODO-APP-SERVER"
-	port       string = ":8080"
-	logPath    string = "logs/output.log"
-	configPath string = "config.json"
-	staticDir  string = "assets/static"
+	serverName     string        = "TODO-APP-SERVER"
+	port           string        = ":8080"
+	logPath        string        = "logs/output.log"
+	configPath     string        = "config.json"
+	staticDir      string        = "assets/static"
+	sprintDuration time.Duration = time.Hour * 24 * 14
 )
 
 var log *logger.BLogger
@@ -34,16 +36,6 @@ func getPgxConn() (*pgx.Conn, error) {
 	return conn, nil
 }
 
-func commonHeadersMiddleware(h http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// TODO: for development purposes only
-		// if I don't end up using this, I can probably
-		// delete this entire function
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		h.ServeHTTP(w, r)
-	})
-}
-
 type Task struct {
 	Id          string    `json:"id"`
 	CreatedAt   time.Time `json:"created_at"`
@@ -51,6 +43,7 @@ type Task struct {
 	Title       string    `json:"title"`
 	Description string    `json:"description"`
 	Status      string    `json:"status"`
+	StoryId     string    `json:"story_id"`
 }
 
 type Comment struct {
@@ -60,6 +53,25 @@ type Comment struct {
 	UpdatedAt time.Time `json:"updated_at"`
 	Text      string    `json:"text"`
 	Edited    bool      `json:"edited"`
+}
+
+type Sprint struct {
+	Id        string    `json:"id"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	Title     string    `json:"title"`
+	StartDate time.Time `json:"start_date"`
+	EndDate   time.Time `json:"end_date"`
+}
+
+type Story struct {
+	Id          string    `json:"id"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
+	Title       string    `json:"title"`
+	Description string    `json:"description"`
+	Status      string    `json:"status"`
+	SprintId    string    `json:"sprint_id"`
 }
 
 func getCommentsByIdHandle() http.Handler {
@@ -127,8 +139,8 @@ func getCommentsByIdHandle() http.Handler {
 
 func getTaskByIdHandle() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		taskId := path.Base(r.URL.Path)
 
+		taskId := r.URL.Query().Get("id")
 		// TODO: strongly coupled to id format
 		if strings.Count(taskId, "-") != 4 {
 			log.Errorf("taskId seems incorrect: %s\n", taskId)
@@ -145,7 +157,7 @@ func getTaskByIdHandle() http.Handler {
 		}
 		defer conn.Close(context.Background())
 
-		var id, title, desc, status string
+		var id, title, desc, status, storyId string
 		var cAt, uAt time.Time
 
 		err = conn.QueryRow(context.Background(),
@@ -155,18 +167,19 @@ func getTaskByIdHandle() http.Handler {
 				updated_at,
 				title,
 				description,
-				status
+				status,
+				story_id
 				FROM tasks
 				WHERE id = $1`,
 			taskId,
-		).Scan(&id, &cAt, &uAt, &title, &desc, &status)
+		).Scan(&id, &cAt, &uAt, &title, &desc, &status, &storyId)
 		if err != nil {
 			log.Errorf("Query failed: %v\n", err)
 			http.Error(w, "something went wrong", http.StatusInternalServerError)
 			return
 		}
 
-		js, err := json.Marshal(Task{id, cAt, uAt, title, desc, status})
+		js, err := json.Marshal(Task{id, cAt, uAt, title, desc, status, storyId})
 		if err != nil {
 			log.Errorf("json.Marshal failed: %v\n", err)
 			http.Error(w, "something went wrong", http.StatusInternalServerError)
@@ -207,10 +220,10 @@ func getTasksHandle() http.Handler {
 
 		var tasks []Task
 		for rows.Next() {
-			var id, title, desc, status string
+			var id, title, desc, status, storyId string
 			var cAt, uAt time.Time
-			rows.Scan(&id, &cAt, &uAt, &title, &desc, &status)
-			tasks = append(tasks, Task{id, cAt, uAt, title, desc, status})
+			rows.Scan(&id, &cAt, &uAt, &title, &desc, &status, &storyId)
+			tasks = append(tasks, Task{id, cAt, uAt, title, desc, status, storyId})
 		}
 
 		if rows.Err() != nil {
@@ -360,6 +373,201 @@ func putTaskHandle() http.Handler {
 	})
 }
 
+func getSprintsHandle() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		conn, err := getPgxConn()
+		if err != nil {
+			log.Errorf("unable to connect to database: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+		defer conn.Close(context.Background())
+
+		rows, err := conn.Query(context.Background(),
+			`SELECT
+				id,
+				created_at,
+				updated_at,
+				title,
+				start_date,
+				end_date
+				FROM sprints`,
+		)
+		if err != nil {
+			log.Errorf("Query failed: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+		defer rows.Close()
+
+		var sprints []Sprint
+		for rows.Next() {
+			var id, title string
+			var cAt, uAt, sd, ed time.Time
+			rows.Scan(&id, &cAt, &uAt, &title, &sd, &ed)
+			sprints = append(sprints, Sprint{id, cAt, uAt, title, sd, ed})
+		}
+
+		if rows.Err() != nil {
+			log.Errorf("Query failed: %v\n", rows.Err())
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+
+		js, err := json.Marshal(sprints)
+		if err != nil {
+			log.Errorf("json.Marshal failed: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(js)
+	})
+}
+
+func createSprintHandle() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		var createReq struct {
+			Title     string    `json:"title"`
+			StartDate time.Time `json:"start_date"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&createReq); err != nil {
+			log.Errorf("unable to decode json: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusBadRequest)
+			return
+		}
+
+		conn, err := getPgxConn()
+		if err != nil {
+			log.Errorf("unable to connect to database: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+		defer conn.Close(context.Background())
+
+		_, err = conn.Exec(context.Background(),
+			`INSERT INTO sprints (
+				updated_at,
+				title,
+				start_date,
+				end_date
+			) VALUES (
+				CURRENT_TIMESTAMP,
+				$1,
+				$2,
+				$3
+			);`,
+			createReq.Title,
+			createReq.StartDate,
+			createReq.StartDate.Add(sprintDuration),
+		)
+		if err != nil {
+			log.Errorf("Exec failed: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+	})
+}
+
+func getStoriesHandle() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		conn, err := getPgxConn()
+		if err != nil {
+			log.Errorf("unable to connect to database: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+		defer conn.Close(context.Background())
+
+		rows, err := conn.Query(context.Background(),
+			`SELECT
+				id,
+				created_at,
+				updated_at,
+				title,
+				description,
+				status,
+				sprint_id
+				FROM stories`,
+		)
+		if err != nil {
+			log.Errorf("Query failed: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+		defer rows.Close()
+
+		var stories []Story
+		for rows.Next() {
+			var id, title, desc, status, sId string
+			var cAt, uAt time.Time
+			rows.Scan(&id, &cAt, &uAt, &title, &desc, &status, &sId)
+			stories = append(stories, Story{id, cAt, uAt, title, desc, status, sId})
+		}
+
+		if rows.Err() != nil {
+			log.Errorf("Query failed: %v\n", rows.Err())
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+
+		js, err := json.Marshal(stories)
+		if err != nil {
+			log.Errorf("json.Marshal failed: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(js)
+	})
+}
+
+func createStoryHandle() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var createReq struct {
+			Title       string `json:"title"`
+			Description string `json:"description"`
+			SprintId    string `json:"sprint_id"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&createReq); err != nil {
+			log.Errorf("unable to decode json: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusBadRequest)
+			return
+		}
+
+		conn, err := getPgxConn()
+		if err != nil {
+			log.Errorf("unable to connect to database: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+		defer conn.Close(context.Background())
+
+		_, err = conn.Exec(context.Background(),
+			`INSERT INTO stories (
+				updated_at,
+				title,
+				description,
+				sprint_id
+			) VALUES (
+				CURRENT_TIMESTAMP,
+				$1,
+				$2,
+				$3
+			);`,
+			createReq.Title,
+			createReq.Description,
+			createReq.SprintId,
+		)
+		if err != nil {
+			log.Errorf("Exec failed: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+	})
+}
+
 func matchIdRedir(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// TODO: really really don't like this strategy
@@ -383,18 +591,33 @@ func init() {
 }
 
 func main() {
+	// special case handlers
 	fs := http.FileServer(http.Dir(path.Join("..", staticDir)))
 	http.Handle("/", matchIdRedir(fs))
-	http.Handle("/echo", utils.LogReq(log)(utils.EchoHandle()))
-	http.Handle("/get_tasks", utils.LogReq(log)(commonHeadersMiddleware(getTasksHandle())))
-	http.Handle("/get_task/", utils.LogReq(log)(commonHeadersMiddleware(getTaskByIdHandle())))
-	http.Handle("/put_task", utils.LogReq(log)(commonHeadersMiddleware(putTaskHandle())))
-	http.Handle("/create_task", utils.LogReq(log)(commonHeadersMiddleware(createTaskHandle())))
-	http.Handle("/create_comment", utils.LogReq(log)(commonHeadersMiddleware(createCommentHandle())))
-	http.Handle("/get_comments_by_task_id", utils.LogReq(log)(commonHeadersMiddleware(getCommentsByIdHandle())))
 	http.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, path.Join("..", staticDir, "favicon.png"))
 	})
+
+	routes := []struct {
+		Path    string
+		Handler func() http.Handler
+	}{
+		{"/echo", utils.EchoHandle},
+		{"/get_tasks", getTasksHandle},
+		{"/get_task", getTaskByIdHandle},
+		{"/put_task", putTaskHandle},
+		{"/create_task", createTaskHandle},
+		{"/create_comment", createCommentHandle},
+		{"/get_comments_by_task_id", getCommentsByIdHandle},
+		{"/get_sprints", getSprintsHandle},
+		{"/create_sprint", createSprintHandle},
+		{"/get_stories", getStoriesHandle},
+		{"/create_story", createStoryHandle},
+	}
+	for _, route := range routes {
+		http.Handle(route.Path, utils.LogReq(log)(route.Handler()))
+	}
+
 	log.Info("starting http server on port", port)
 	log.Fatal(http.ListenAndServe(port, nil))
 }

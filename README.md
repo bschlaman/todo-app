@@ -16,17 +16,18 @@ Plan is to reroute `/task/{id}` to `/task` so that I can use an `http.FileServer
 
 ### APIs
 - `/get_tasks`
-- `/get_task/{id}`
+- `/get_task?id={id}`
 - `/put_task`
 - `/create_task`
 - `/create_comment`
-- `/get_comments_by_task_id`
+- `/get_comments_by_task_id?id={id}`
 
+New:
 - `/get_sprints`
 - `/create_sprint`
 
-- `/create_story`
 - `/get_stories`
+- `/create_story`
 
 - `/assign_task_to_story` (`/put_task` ??)
 - `/assign_story_to_sprint`

@@ -60,7 +60,9 @@ CREATE TABLE IF NOT EXISTS public.config
     value character varying(1000) NOT NULL
 );
 
-INSERT INTO config (key, value) VALUES ('sprint_duration_seconds', EXTRACT(EPOCH FROM '2 weeks'::interval));
+INSERT INTO config (key, value) VALUES
+	('sprint_duration_seconds', EXTRACT(EPOCH FROM '2 weeks'::interval)),
+	('server_name', 'TODO-APP-SERVER');
 
 
 -- INSERT INTO tasks (updated_at, title, description) VALUES
