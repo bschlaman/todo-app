@@ -65,6 +65,10 @@ INSERT INTO config (key, value) VALUES
 	('server_name', 'TODO-APP-SERVER');
 
 
+INSERT INTO stories (updated_at, title, description, sprint_id) VALUES
+	(CURRENT_TIMESTAMP, 'Dummy Story', 'Catchall Story so that foreign key story_id for tasks is not null', NULL);
+
+
 -- INSERT INTO tasks (updated_at, title, description) VALUES
 -- (CURRENT_TIMESTAMP,  'Sample Task', 'Create the rest of the TODO app');
 

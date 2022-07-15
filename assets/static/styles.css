@@ -171,7 +171,7 @@ button.modal-open {
 .task-view-wrapper .task-comments {
 	white-space: pre-wrap;
 }
-.task-view-wrapper .task-save {
+.task-view-wrapper .modal-save {
 	font-size: 2rem;
 }
 .task-comments .comment-wrapper {

@@ -208,7 +208,8 @@ func getTasksHandle() http.Handler {
 				updated_at,
 				title,
 				description,
-				status
+				status,
+				story_id
 				FROM tasks`,
 		)
 		if err != nil {

@@ -1,59 +1,70 @@
 (function (){
-	// TODO: routesPrefix for development purposes only
-	const routesPrefix = "";
 	const routes = {
-		getTasks: `${routesPrefix}/get_tasks`,
-		createTask: `${routesPrefix}/create_task`,
-		updateTask: `${routesPrefix}/put_task`,
+		getTasks: `/get_tasks`,
+		createTask: `/create_task`,
+		updateTask: `/put_task`,
 	};
-
-	const hoverClass = "droppable-hover";
-
-	const buckets = document.querySelectorAll(".todo-app-bucket");
-	const openCreateTaskModalButton = document.querySelector("button.modal-open");
-	const closeCreateTaskModalButton = document.querySelector("button.modal-close");
-	const newTaskSaveButton = document.querySelector(".create-task-modal .task-save");
-	const newTaskForm = document.querySelector(".create-task-modal form");
-	// TODO: better names and more specific selector for the below 2
-	const titleInput = document.querySelector('input[name="title"]');
-	const descInput = document.querySelector('textarea[name="description"]');
-	const modal = document.querySelector(".create-task-modal");
-	modal.addEventListener("keydown", e => {
-		if(e.ctrlKey && e.keyCode === 13){
-			newTaskSaveButton.click();
-			// How do i close the dialog after this?
-			// no idea why I have to do this... I don't need to
-			// explicitly close the modal when I physically click it
-			//  closeCreateTaskModalButton.click();
-		}
-	});
 
 	// TODO: should the action of clearing state, fetching data,
 	// and rendering be one function?
 	document.querySelectorAll(".task").forEach(task => { task.remove(); });
 	getTasks();
 
-	openCreateTaskModalButton.onclick = _ => {
-		// values should already be cleared, but doing this just in case
-		// there are edge cases when page reloads, etc
-		titleInput.value = descInput.value = "";
-		modal.showModal();
-		titleInput.focus();
+	const hoverClass = "droppable-hover";
+
+	const buckets = document.querySelectorAll(".todo-app-bucket");
+
+			// TODO:
+			// newTaskSaveButton.click();
+			// How do i close the dialog after this?
+			// no idea why I have to do this... I don't need to
+			// explicitly close the modal when I physically click it
+			// closeCreateTaskModalButton.click();
+
+	const createSprintButton = document.querySelector(".create-sprint-button");
+	const createStoryButton = document.querySelector(".create-story-button");
+
+	// CREATE TASK MODAL ============================
+	const createTaskButton = document.querySelector(".create-task-button");
+	const createTaskModal = document.querySelector(".create-task-modal");
+	const createTaskTitleInput = createTaskModal.querySelector('input[name="title"]');
+	const createTaskDescInput = createTaskModal.querySelector(' textarea[name="description"]');
+	const createTaskSaveButton = createTaskModal.querySelector(".modal-save");
+	// Create button
+	createTaskButton.onclick = _ => {
+		clearInputValues(createTaskTitleInput, createTaskDescInput); // page reload edge cases
+		createTaskModal.showModal();
+		createTaskTitleInput.focus();
 	};
-
-	closeCreateTaskModalButton.onclick = _ => {
-		modal.close();
-	}
-
-	newTaskSaveButton.addEventListener("click", _ => {
-		createTask(titleInput.value, descInput.value);
+	// Close (x) button
+	createTaskModal.querySelectorAll(".modal-close").forEach(mcb => {
+		mcb.onclick = createTaskModal.close;
+	});
+	// CTRL-Enter to save task (currently not working)
+	createTaskModal.addEventListener("keydown", e => {
+		if(e.ctrlKey && e.keyCode === 13){
+			console.log('ctrl enter pressed');
+		}
+	});
+	createTaskSaveButton.addEventListener("click", _ => {
+		createTask(createTaskTitleInput.value, createTaskDescInput.value);
 		// TODO: BAD!  createTask is async, so this may miss new tasks
 		setTimeout(_ => {
-			titleInput.value = descInput.value = "";
+			clearInputValues(createTaskTitleInput, createTaskDescInput);
 			document.querySelectorAll(".task").forEach(task => { task.remove(); });
 			getTasks();
 		}, 500);
 	});
+	// END CREATE TASK MODAL ============================
+
+	// CREATE SPRINT MODAL ============================
+	const createSprintButton = document.querySelector(".create-sprint-button");
+	// END CREATE SPRINT MODAL ============================
+
+	// CREATE STORY MODAL ============================
+	const createStoryButton = document.querySelector(".create-story-button");
+	// END CREATE STORY MODAL ============================
+
 
 	buckets.forEach(bucket => {
 		bucket.addEventListener("dragover", e => {
@@ -203,6 +214,12 @@
 		})
 		.catch(err => {
 			console.warn("error occured:", err);
+		});
+	}
+
+	function clearInputValues(...inputElements){
+		inputElements.forEach(inputElement => {
+			inputElement.value = "";
 		});
 	}
 

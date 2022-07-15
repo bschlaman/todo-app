@@ -16,7 +16,9 @@
 </head>
 <body><!-- workaround for FOUC --><script>let FF_FOUC_FIX;</script>
 <div class="wrapper">
-	<button class="modal-open">Create New Task</button>
+	<button class="modal-open create-task-button">Create New Task</button>
+	<button class="modal-open create-sprint-button">Create New Sprint</button>
+	<button class="modal-open create-story-button">Create New Story</button>
 	<div class="todo-app-wrapper">
 		<div class="todo-app-bucket" data-status="BACKLOG">
 			<!-- <div draggable="true" class="task">
@@ -45,15 +47,47 @@
 			</div> -->
 		</div>
 	</div>
+
+	<!-- CREATE TASK MODAL -->
 	<dialog class="create-task-modal">
 		<button class="modal-close">&times;</button>
 		<h3 class="modal-title">Create Task</h3>
 		<form method="dialog">
 			<label for="title">Title</label>
-			<input onkeydown="return event.key != 'Enter';" type="text" required="" placeholder="Title" name="title"/>
+			<input onkeydown="return event.key != 'Enter';" type="text" required placeholder="Title" name="title"/>
 			<label for="description">Description</label>
-			<textarea required="" placeholder="Description" name="description"></textarea>
-			<button class="task-save">Save</button>
+			<textarea required placeholder="Description" name="description"></textarea>
+			<label for="story">Story</label>
+			<select name="story"></select>
+			<button class="modal-save">Save</button>
+		</form>
+	</dialog>
+
+	<!-- CREATE SPRINT MODAL -->
+	<dialog class="create-sprint-modal">
+		<button class="modal-close">&times;</button>
+		<h3 class="modal-title">Create Sprint</h3>
+		<form method="dialog">
+			<label for="title">Title</label>
+			<input onkeydown="return event.key != 'Enter';" type="text" required placeholder="Title" name="title"/>
+			<label for="startdate">Start Date</label>
+			<input required type="date" name="startdate">
+			<button class="modal-save">Save</button>
+		</form>
+	</dialog>
+
+	<!-- CREATE STORY MODAL -->
+	<dialog class="create-story-modal">
+		<button class="modal-close">&times;</button>
+		<h3 class="modal-title">Create Story</h3>
+		<form method="dialog">
+			<label for="title">Title</label>
+			<input onkeydown="return event.key != 'Enter';" type="text" required placeholder="Title" name="title"/>
+			<label for="description">Description</label>
+			<textarea required placeholder="Description" name="description"></textarea>
+			<label for="sprint">Sprint</label>
+			<select name="sprint"></select>
+			<button class="modal-save">Save</button>
 		</form>
 	</dialog>
 <!-- end of wrapper div -->
