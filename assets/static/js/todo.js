@@ -14,16 +14,6 @@
 
 	const buckets = document.querySelectorAll(".todo-app-bucket");
 
-			// TODO:
-			// newTaskSaveButton.click();
-			// How do i close the dialog after this?
-			// no idea why I have to do this... I don't need to
-			// explicitly close the modal when I physically click it
-			// closeCreateTaskModalButton.click();
-
-	const createSprintButton = document.querySelector(".create-sprint-button");
-	const createStoryButton = document.querySelector(".create-story-button");
-
 	// CREATE TASK MODAL ============================
 	const createTaskButton = document.querySelector(".create-task-button");
 	const createTaskModal = document.querySelector(".create-task-modal");
@@ -38,12 +28,13 @@
 	};
 	// Close (x) button
 	createTaskModal.querySelectorAll(".modal-close").forEach(mcb => {
-		mcb.onclick = createTaskModal.close;
+		mcb.onclick = _ => { createTaskModal.close() };
 	});
 	// CTRL-Enter to save task (currently not working)
 	createTaskModal.addEventListener("keydown", e => {
-		if(e.ctrlKey && e.keyCode === 13){
-			console.log('ctrl enter pressed');
+		if(e.keyCode === 13 && e.ctrlKey){
+			e.preventDefault(); // prevent dialog not closing weirdness
+			createTaskSaveButton.click();
 		}
 	});
 	createTaskSaveButton.addEventListener("click", _ => {
