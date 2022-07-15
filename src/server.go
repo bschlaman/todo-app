@@ -249,6 +249,7 @@ func createTaskHandle() http.Handler {
 		var createReq struct {
 			Title       string `json:"title"`
 			Description string `json:"description"`
+			StoryId     string `json:"story_id"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&createReq); err != nil {
 			log.Errorf("unable to decode json: %v\n", err)
@@ -268,14 +269,17 @@ func createTaskHandle() http.Handler {
 			`INSERT INTO tasks (
 				updated_at,
 				title,
-				description
+				description,
+				story_id
 			) VALUES (
 				CURRENT_TIMESTAMP,
 				$1,
-				$2
+				$2,
+				$3
 			);`,
 			createReq.Title,
 			createReq.Description,
+			createReq.StoryId,
 		)
 		if err != nil {
 			log.Errorf("Exec failed: %v\n", err)
@@ -432,6 +436,7 @@ func createSprintHandle() http.Handler {
 		var createReq struct {
 			Title     string    `json:"title"`
 			StartDate time.Time `json:"start_date"`
+			EndDate   time.Time `json:"end_date"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&createReq); err != nil {
 			log.Errorf("unable to decode json: %v\n", err)
@@ -461,7 +466,8 @@ func createSprintHandle() http.Handler {
 			);`,
 			createReq.Title,
 			createReq.StartDate,
-			createReq.StartDate.Add(sprintDuration),
+			// createReq.StartDate.Add(sprintDuration),
+			createReq.EndDate,
 		)
 		if err != nil {
 			log.Errorf("Exec failed: %v\n", err)

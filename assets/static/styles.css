@@ -44,7 +44,7 @@ body {
 	### CONTENT
 */
 
-/* tasks */
+/* buckets */
 .todo-app-wrapper {
 	display: flex;
 	gap: 1rem;
@@ -59,6 +59,8 @@ body {
 .droppable-hover {
 	background: grey !important;
 }
+
+/* task tiles */
 .task {
 	padding: 1rem;
 	background: white;
@@ -93,7 +95,7 @@ body {
 	margin: 0;
 }
 
-/* new task modal button */
+/* open modal buttons */
 .modal-open {
 	color: var(--transp-black);
 	background: var(--transp-white);
@@ -103,53 +105,55 @@ body {
 	margin: 1rem 0;
 	font-size: 1.4rem;
 	cursor: pointer;
+	font-size: 1.5rem;
 }
 .modal-open:hover {
 	color: var(--color4);
 	border: 2px solid var(--color4);
 }
 
-/* new task modal */
-button.modal-open {
-	font-size: 1.5rem;
-}
-.create-task-modal {
+/* modals: common themes */
+.create-task-modal,
+.create-story-modal,
+.create-sprint-modal {
 	padding: 1rem;
 	background: var(--transp-white);
 	border-radius: 10px;
 }
-.create-task-modal .modal-close {
+.create-modal .modal-close {
 	position: absolute;
 	top: 4%;
 	right: 4%;
 }
-.create-task-modal h3 {
+.create-modal button {
+	float: right;
+	font-size: 1.5rem;
+}
+.create-modal h3 {
 	text-align: center;
 	font-size: 2rem;
 	margin: 1rem 0;
 }
-.create-task-modal input,
-.create-task-modal textarea {
+.create-modal input,
+.create-modal textarea {
 	width: 100%;
 	box-sizing: border-box;
 	padding: 0.8rem;
 	margin: 0.5rem 0;
 	border-radius: 0.5rem;
 }
-.create-task-modal input {
+.create-modal input {
 	font-weight: bold;
 	font-size: 1.2rem;
 }
-.create-task-modal textarea {
+.create-modal textarea {
 	resize: none;
 	height: 8rem;
 }
-.create-task-modal button {
-	float: right;
-	font-size: 1.5rem;
-}
 
-/* task view */
+/* OTHER PAGES */
+
+/* task view page */
 .task-view-wrapper {
 	font-size: 2rem;
 }

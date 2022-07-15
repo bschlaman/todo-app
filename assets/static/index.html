@@ -17,39 +17,16 @@
 <body><!-- workaround for FOUC --><script>let FF_FOUC_FIX;</script>
 <div class="wrapper">
 	<button class="modal-open create-task-button">Create New Task</button>
-	<button class="modal-open create-sprint-button">Create New Sprint</button>
 	<button class="modal-open create-story-button">Create New Story</button>
+	<button class="modal-open create-sprint-button">Create New Sprint</button>
 	<div class="todo-app-wrapper">
-		<div class="todo-app-bucket" data-status="BACKLOG">
-			<!-- <div draggable="true" class="task">
-				<h4 class="task-title">Sample Task</h4>
-				<p class="task-id">87168605-9bb3-46ad-94bb-50a63cf1d288</p>
-				<p class="task-desc">Create the rest of the TODO app</p>
-				<p class="task-status">BACKLOG</p>
-				<p class="task-created-at">17.06.2022</p>
-			</div>
-			<div draggable="true" class="task">
-				<h4 class="task-title">Sample Task 2</h4>
-				<p class="task-id">2e8f4013-2f49-4f0e-bf84-c7ada135d063</p>
-				<p class="task-desc">Finish analysis</p>
-				<p class="task-status">IN PROGRESS</p>
-				<p class="task-created-at">18.06.2022</p>
-			</div> -->
-		</div>
+		<div class="todo-app-bucket" data-status="BACKLOG"></div>
 		<div class="todo-app-bucket" data-status="DOING"></div>
-		<div class="todo-app-bucket" data-status="DONE">
-			<!-- <div draggable="true" class="task">
-				<h4 class="task-title">New Task</h4>
-				<p class="task-id">4732b983-52c8-4224-ac0c-9340e623b43e</p>
-				<p class="task-desc">Add the necessary javascript to connect the frontend to the backend</p>
-				<p class="task-status">DONE</p>
-				<p class="task-created-at">19.06.2022</p>
-			</div> -->
-		</div>
+		<div class="todo-app-bucket" data-status="DONE"></div>
 	</div>
 
 	<!-- CREATE TASK MODAL -->
-	<dialog class="create-task-modal">
+	<dialog class="create-modal create-task-modal">
 		<button class="modal-close">&times;</button>
 		<h3 class="modal-title">Create Task</h3>
 		<form method="dialog">
@@ -63,21 +40,8 @@
 		</form>
 	</dialog>
 
-	<!-- CREATE SPRINT MODAL -->
-	<dialog class="create-sprint-modal">
-		<button class="modal-close">&times;</button>
-		<h3 class="modal-title">Create Sprint</h3>
-		<form method="dialog">
-			<label for="title">Title</label>
-			<input onkeydown="return event.key != 'Enter';" type="text" required placeholder="Title" name="title"/>
-			<label for="startdate">Start Date</label>
-			<input required type="date" name="startdate">
-			<button class="modal-save">Save</button>
-		</form>
-	</dialog>
-
 	<!-- CREATE STORY MODAL -->
-	<dialog class="create-story-modal">
+	<dialog class="create-modal create-story-modal">
 		<button class="modal-close">&times;</button>
 		<h3 class="modal-title">Create Story</h3>
 		<form method="dialog">
@@ -87,6 +51,21 @@
 			<textarea required placeholder="Description" name="description"></textarea>
 			<label for="sprint">Sprint</label>
 			<select required name="sprint"></select>
+			<button class="modal-save">Save</button>
+		</form>
+	</dialog>
+
+	<!-- CREATE SPRINT MODAL -->
+	<dialog class="create-modal create-sprint-modal">
+		<button class="modal-close">&times;</button>
+		<h3 class="modal-title">Create Sprint</h3>
+		<form method="dialog">
+			<label for="title">Title</label>
+			<input onkeydown="return event.key != 'Enter';" type="text" required placeholder="Title" name="title"/>
+			<label for="startdate">Start Date</label>
+			<input required type="date" name="startdate">
+			<label for="enddate">End Date</label>
+			<input required type="date" name="enddate">
 			<button class="modal-save">Save</button>
 		</form>
 	</dialog>
