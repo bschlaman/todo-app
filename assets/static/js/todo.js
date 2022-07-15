@@ -3,6 +3,7 @@
 		getTasks: `/get_tasks`,
 		createTask: `/create_task`,
 		updateTask: `/put_task`,
+		getStories: `/get_stories`,
 	};
 
 	// TODO: should the action of clearing state, fetching data,
@@ -18,7 +19,8 @@
 	const createTaskButton = document.querySelector(".create-task-button");
 	const createTaskModal = document.querySelector(".create-task-modal");
 	const createTaskTitleInput = createTaskModal.querySelector('input[name="title"]');
-	const createTaskDescInput = createTaskModal.querySelector(' textarea[name="description"]');
+	const createTaskDescInput = createTaskModal.querySelector('textarea[name="description"]');
+	const createTaskSelectInput = createTaskModal.querySelector('select[name="story"]');
 	const createTaskSaveButton = createTaskModal.querySelector(".modal-save");
 	// Create button
 	createTaskButton.onclick = _ => {
@@ -46,6 +48,18 @@
 			getTasks();
 		}, 500);
 	});
+	// Load options once dropdown is clicked
+	createTaskSelectInput.onclick = _ => {
+		// TODO: this is bad, catch should be at the end
+		getStories().then(stories => {
+			stories.forEach(story => {
+				let option = document.createElement("option");
+				option.setAttribute("value", story.id);
+				option.innerHTML = story.title;
+				createTaskSelectInput.appendChild(option);
+			});
+		});
+	};
 	// END CREATE TASK MODAL ============================
 
 	// CREATE SPRINT MODAL ============================
@@ -96,18 +110,6 @@
 				return { offset: offset, element: task };
 			return closestTask;
 		}, { offset: Number.NEGATIVE_INFINITY }).element;
-	}
-
-	function getTasks(){
-		fetch(routes.getTasks, { method: "GET" })
-			.then(res => res.json())
-			.then(data => {
-				data.forEach(task => { renderTaskFromJSON(task); });
-			})
-			.catch(err => {
-				// TODO: this catches when res is undefined.  is there a more graceful way?
-				console.warn("error occured:", err);
-			});
 	}
 
 	function renderTaskFromJSON(task){
@@ -169,6 +171,18 @@
 		bucket.appendChild(taskDiv);
 	}
 
+	function getTasks(){
+		fetch(routes.getTasks, { method: "GET" })
+			.then(res => res.json())
+			.then(data => {
+				data.forEach(task => { renderTaskFromJSON(task); });
+			})
+			.catch(err => {
+				// TODO: this catches when res is undefined.  is there a more graceful way?
+				console.warn("error occured:", err);
+			});
+	}
+
 	function createTask(title, description) {
 		if(!title || !description){
 			console.warn("task creation failed");
@@ -208,7 +222,15 @@
 		});
 	}
 
-	function clearInputValues(...inputElements){
+	function getStories() {
+		return fetch(routes.getStories, { method: "GET" })
+			.then(res => res.json())
+			.catch(err => {
+				console.warn("error occured:", err);
+			});
+	}
+
+	function clearInputValues(...inputElements) {
 		inputElements.forEach(inputElement => {
 			inputElement.value = "";
 		});
