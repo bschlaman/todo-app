@@ -70,7 +70,8 @@ body {
 }
 .task .task-created-at,
 .task .task-status,
-.task .task-id {
+.task .task-id,
+.task .task-story-id {
 	text-align: right;
 	font-size: 0.7rem;
 	color: grey;
@@ -88,11 +89,16 @@ body {
 .todo-app-bucket[data-status="DONE"] .task {
 	border-left: 5px solid var(--color4);
 }
-.todo-app-bucket[data-status="DONE"] .task :not(.task-title) {
+.todo-app-bucket[data-status="DONE"] .task :not(.task-title, .task-created-at) {
 	display: none;
 }
 .todo-app-bucket[data-status="DONE"] .task-title {
+	display: inline-block;
 	margin: 0;
+}
+.todo-app-bucket[data-status="DONE"] .task .task-created-at {
+	display: inline-block;
+	float: right;
 }
 
 /* open modal buttons */

@@ -208,11 +208,12 @@
 
 			const taskCreatedAt = document.createElement("p");
 			taskCreatedAt.classList.add("task-created-at");
-			taskCreatedAt.innerHTML = task.created_at;
+			taskCreatedAt.innerHTML = formatDate(new Date(task.created_at));
 
 			const taskStoryId = document.createElement("p");
-			taskCreatedAt.classList.add("task-story-id");
-			taskCreatedAt.innerHTML = "story: " + task.story_id;
+			taskStoryId.classList.add("task-story-id");
+			// TODO: show story name instead -> use an inner join server side for this?
+			taskStoryId.innerHTML = "story id: " + task.story_id.split("-")[0];
 
 			taskDiv.appendChild(taskEditLink);
 			taskDiv.appendChild(taskTitle);
@@ -339,10 +340,16 @@
 		});
 	}
 
+	// ========== UTIL FUNCTIONS ==========
+
 	function clearInputValues(...inputElements) {
 		inputElements.forEach(inputElement => {
 			inputElement.value = "";
 		});
+	}
+
+	function formatDate(date){
+		return `${date.toDateString()}`;
 	}
 
 })();
