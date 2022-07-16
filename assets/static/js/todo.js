@@ -1,19 +1,4 @@
 (function (){
-	// GLOBAL CONSTS
-	const routes = {
-		getTasks: `/get_tasks`,
-		createTask: `/create_task`,
-		updateTask: `/put_task`,
-		getStories: `/get_stories`,
-		getStoryById: `/get_story`,
-		getSprints: `/get_sprints`,
-		createStory: `/create_story`,
-		createSprint: `/create_sprint`,
-	};
-
-	const hoverClass = "droppable-hover";
-	// END GLOBAL CONSTS
-
 	// stores story data by story_id
 	const storyDataCache = new Map();
 
@@ -287,24 +272,6 @@
 			});
 	}
 
-	// this function is cached
-	function getStoryById(id) {
-		if(storyDataCache.has(id)){
-			return new Promise(resolve => {
-				resolve(storyDataCache.get(id));
-			});
-		}
-		return fetch(`${routes.getStoryById}?id=${id}`, { method: "GET" })
-			.then(res => res.json())
-			.then(story => {
-				storyDataCache.set(story.id, story);
-				return story;
-			})
-			.catch(err => {
-				console.warn("error occured:", err);
-			});
-	}
-
 	function createTask(title, description, storyId) {
 		if(!title || !description || !storyId){
 			console.warn("task creation failed");
@@ -380,18 +347,6 @@
 		.catch(err => {
 			console.warn("error occured:", err);
 		});
-	}
-
-	// ========== UTIL FUNCTIONS ==========
-
-	function clearInputValues(...inputElements) {
-		inputElements.forEach(inputElement => {
-			inputElement.value = "";
-		});
-	}
-
-	function formatDate(date){
-		return `${date.toDateString()}`;
 	}
 
 })();

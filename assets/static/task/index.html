@@ -10,16 +10,28 @@
 	<link rel="stylesheet" type="text/css" href="/styles.css">
 	<link rel="icon" type="image/png" href="/favicon.png" />
 
+	<script defer src="/js/common.js"></script>
 	<script defer src="/task/js/task.js"></script>
 
 	<title>Task</title>
 </head>
 <body><!-- workaround for FOUC --><script>let FF_FOUC_FIX;</script>
 <div class="task-view-wrapper">
-	<div class="task-title" contenteditable="true"></div>
-	<a href="/">Back</a>
-	<div class="task-id"></div>
-	<div class="task-story-id"></div>
+	<h3 class="task-title" contenteditable="true"></h3>
+	<div class="task-metadata">
+		<div class="task-element-pair">
+			<p class="task-element-label">id:</p>
+			<p class="task-id"></p>
+		</div>
+		<div class="task-element-pair">
+			<p class="task-element-label">Created:</p>
+			<p class="task-created-at"></p>
+		</div>
+		<div class="task-element-pair">
+			<p class="task-element-label">Parent story:</p>
+			<p class="task-story-title"></p>
+		</div>
+	</div>
 	<select class="task-status"></select>
 	<div class="task-desc" contenteditable="true"></div>
 	<div class="task-comments"></div>

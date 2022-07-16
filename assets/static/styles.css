@@ -163,16 +163,26 @@ body {
 .task-view-wrapper {
 	font-size: 2rem;
 }
-.task-view-wrapper .task-title {
+.task-view-wrapper .task-metadata {
+	display: flex;
+	align-items: center;
+	font-size: 1.5rem;
+	gap: 3rem;
+}
+.task-view-wrapper .task-element-pair {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+.task-element-pair .task-element-label {
 	font-weight: bold;
 }
-.task-view-wrapper .task-id {
-	color: lightgrey;
-	font-size: 0.8rem;
+.task-element-pair p:not(.task-element-label) {
+	color: grey;
 }
-.task-view-wrapper .task-story-title {
-	color: lightgrey;
-	font-size: 0.8rem;
+.task-view-wrapper .task-status {
+	font-size: 2rem;
+	margin-bottom: 1rem;
 }
 .task-view-wrapper .task-desc {
 	white-space: pre-wrap;

@@ -1,27 +1,16 @@
 (function (){
-	// GLOBALS
 	const path = window.location.pathname;
 	const taskIdFromPath = path.substring(path.lastIndexOf("/") + 1);
-
-	const routes = {
-		getTaskById: `/get_task`,
-		getCommentsByTaskId: `/get_comments_by_task_id`,
-		createComment: `/create_comment`,
-		updateTask: `/put_task`,
-	};
-
-	const STATUSES = ["BACKLOG", "DOING", "DONE", "DEPRIORITIZED", "ARCHIVE"];
-	// ENDGLOBALS
 
 	getTaskById(taskIdFromPath).then(task => { renderTask(task) });
 	getCommentsByTaskId(taskIdFromPath).then(comments => { renderCommentsFromJSON(comments) });
 
 	const taskTitle = document.querySelector(".task-title");
 	const taskId = document.querySelector(".task-id");
+	const taskCreatedAt = document.querySelector(".task-created-at");
 	const taskStatus = document.querySelector(".task-status");
 	const taskDesc = document.querySelector(".task-desc");
-	// TODO: inner join here (see todo.js TODO)
-	const taskStoryId = document.querySelector(".task-story-id");
+	const taskStoryTitle = document.querySelector(".task-story-title");
 	const taskComments = document.querySelector(".task-comments");
 	const taskSave = document.querySelector(".task-save");
 
@@ -42,7 +31,7 @@
 			taskStatus.value,
 			taskTitle.innerHTML,
 			taskDesc.innerHTML,
-			taskStoryId.innerHTML,
+			taskStoryTitle.innerHTML,
 		);
 	});
 
@@ -65,9 +54,14 @@
 
 	function renderTask(task){
 		taskTitle.innerHTML = task.title;
-		taskId.innerHTML = task.id;
+		taskId.innerHTML = formatId(task.id);
+		taskCreatedAt.innerHTML = formatDate(new Date(task.created_at));
 		taskDesc.innerHTML = task.description;
-		taskStoryId.innerHTML = task.story_id;
+		taskStoryTitle.innerHTML = "Loading...";
+		getStoryById(task.story_id).then(story => {
+			if(!story) return;
+			taskStoryTitle.innerHTML = story.title;
+		});
 		for(let i = 0; i < taskStatus.options.length; i++){
 			if(taskStatus.options[i].value === task.status){
 				taskStatus.options[i].selected = true;
@@ -79,6 +73,7 @@
 	function renderCommentsFromJSON(comments){
 		if(!comments){
 			console.warn("no comments to render!");
+			return;
 		}
 		while(taskComments.firstChild) taskComments.removeChild(taskComments.firstChild);
 		comments.forEach(comment => {
@@ -91,7 +86,7 @@
 
 			const commentCreatedAt = document.createElement("p");
 			commentCreatedAt.classList.add("comment-created-at");
-			commentCreatedAt.innerHTML = comment.created_at;
+			commentCreatedAt.innerHTML = formatDate(new Date(comment.created_at));
 
 			const commentId = document.createElement("p");
 			commentId.classList.add("comment-id");
@@ -116,6 +111,14 @@
 
 	function getCommentsByTaskId(id){
 		return fetch(`${routes.getCommentsByTaskId}?id=${id}`, { method: "GET" })
+			.then(res => res.json())
+			.catch(err => {
+				console.warn("error occured:", err);
+			});
+	}
+
+	function getStoryById(id) {
+		return fetch(`${routes.getStoryById}?id=${id}`, { method: "GET" })
 			.then(res => res.json())
 			.catch(err => {
 				console.warn("error occured:", err);
