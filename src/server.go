@@ -191,6 +191,60 @@ func getTaskByIdHandle() http.Handler {
 	})
 }
 
+func getStoryByIdHandle() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		storyId := r.URL.Query().Get("id")
+		// TODO: strongly coupled to id format
+		if strings.Count(storyId, "-") != 4 {
+			log.Errorf("storyId seems incorrect: %s\n", storyId)
+			http.Error(w, "bad story id", http.StatusBadRequest)
+			return
+		}
+
+		// TODO: can getting a connection be middleware?
+		conn, err := getPgxConn()
+		if err != nil {
+			log.Errorf("unable to connect to database: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+		defer conn.Close(context.Background())
+
+		var id, title, desc, status, sprintId string
+		var cAt, uAt time.Time
+
+		err = conn.QueryRow(context.Background(),
+			`SELECT
+				id,
+				created_at,
+				updated_at,
+				title,
+				description,
+				status,
+				sprint_id
+				FROM stories
+				WHERE id = $1`,
+			storyId,
+		).Scan(&id, &cAt, &uAt, &title, &desc, &status, &sprintId)
+		if err != nil {
+			log.Errorf("Query failed: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+
+		js, err := json.Marshal(Story{id, cAt, uAt, title, desc, status, sprintId})
+		if err != nil {
+			log.Errorf("json.Marshal failed: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(js)
+
+	})
+}
+
 func getTasksHandle() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		conn, err := getPgxConn()
@@ -616,10 +670,11 @@ func main() {
 		{"/create_task", createTaskHandle},
 		{"/create_comment", createCommentHandle},
 		{"/get_comments_by_task_id", getCommentsByIdHandle},
+		{"/get_stories", getStoriesHandle},
+		{"/get_story", getStoryByIdHandle},
+		{"/create_story", createStoryHandle},
 		{"/get_sprints", getSprintsHandle},
 		{"/create_sprint", createSprintHandle},
-		{"/get_stories", getStoriesHandle},
-		{"/create_story", createStoryHandle},
 	}
 	for _, route := range routes {
 		http.Handle(route.Path, utils.LogReq(log)(route.Handler()))

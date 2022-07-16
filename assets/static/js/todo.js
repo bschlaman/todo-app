@@ -1,21 +1,37 @@
 (function (){
-	// GLOBALS
+	// GLOBAL CONSTS
 	const routes = {
 		getTasks: `/get_tasks`,
 		createTask: `/create_task`,
 		updateTask: `/put_task`,
 		getStories: `/get_stories`,
+		getStoryById: `/get_story`,
 		getSprints: `/get_sprints`,
 		createStory: `/create_story`,
 		createSprint: `/create_sprint`,
 	};
 
 	const hoverClass = "droppable-hover";
-	// ENDGLOBALS
+	// END GLOBAL CONSTS
 
-	// TODO: should the action of clearing state, fetching data,
-	// and rendering be one function?
-	getTasks().then(tasks => { renderTasksFromJSON(tasks) });
+	// stores story data by story_id
+	const storyDataCache = new Map();
+
+	// TODO: this await slows down page loads massively
+	// it would be better to getTasks, render them,
+	// leave "loading..." in the HTML, and update them async
+	// note that trying this by calling getStoryById with cache
+	// from renderTasksFromJSON did not work, since all get calls
+	// were initiated well before any of them finished, so the cache
+	// was never used and I basically DDoS'd myself
+	(async function(){
+		await getStories().then(stories => {
+			stories.forEach(story => {
+				storyDataCache.set(story.id, story);
+			});
+		});
+		getTasks().then(tasks => { renderTasksFromJSON(tasks) });
+	})();
 
 	// CODE SECTION: CREATE TASK MODAL ============================
 	const createTaskButton = document.querySelector(".create-task-button");
@@ -30,8 +46,8 @@
 		createTaskModal.showModal();
 		createTaskTitleInput.focus();
 		// Remove option from <select> and call /get_stories
-		while(createTaskSelectInput.firstChild) createTaskSelectInput.removeChild(createTaskSelectInput.firstChild);
-		// TODO: this is bad, catch should be at the end
+		while(createTaskSelectInput.firstChild)
+			createTaskSelectInput.removeChild(createTaskSelectInput.firstChild);
 		getStories().then(stories => {
 			stories.forEach(story => {
 				const option = document.createElement("option");
@@ -215,17 +231,16 @@
 			taskCreatedAt.classList.add("task-created-at");
 			taskCreatedAt.innerHTML = formatDate(new Date(task.created_at));
 
-			const taskStoryId = document.createElement("p");
-			taskStoryId.classList.add("task-story-id");
-			// TODO: show story name instead -> use an inner join server side for this?
-			taskStoryId.innerHTML = "story id: " + task.story_id.split("-")[0];
+			const taskStoryTitle = document.createElement("p");
+			taskStoryTitle.classList.add("task-story-title");
+			taskStoryTitle.innerHTML = storyDataCache.get(task.story_id).title;
 
 			taskDiv.appendChild(taskEditLink);
 			taskDiv.appendChild(taskTitle);
 			taskDiv.appendChild(taskDesc);
 			// taskDiv.appendChild(taskStatus);
 			taskDiv.appendChild(taskCreatedAt);
-			taskDiv.appendChild(taskStoryId);
+			taskDiv.appendChild(taskStoryTitle);
 
 			taskDiv.addEventListener("dragstart", _ => {
 				taskDiv.classList.add("dragging");
@@ -267,6 +282,24 @@
 	function getSprints() {
 		return fetch(routes.getSprints, { method: "GET" })
 			.then(res => res.json())
+			.catch(err => {
+				console.warn("error occured:", err);
+			});
+	}
+
+	// this function is cached
+	function getStoryById(id) {
+		if(storyDataCache.has(id)){
+			return new Promise(resolve => {
+				resolve(storyDataCache.get(id));
+			});
+		}
+		return fetch(`${routes.getStoryById}?id=${id}`, { method: "GET" })
+			.then(res => res.json())
+			.then(story => {
+				storyDataCache.set(story.id, story);
+				return story;
+			})
 			.catch(err => {
 				console.warn("error occured:", err);
 			});

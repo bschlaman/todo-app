@@ -71,7 +71,7 @@ body {
 .task .task-created-at,
 .task .task-status,
 .task .task-id,
-.task .task-story-id {
+.task .task-story-title {
 	text-align: right;
 	font-size: 0.7rem;
 	color: grey;
@@ -170,7 +170,7 @@ body {
 	color: lightgrey;
 	font-size: 0.8rem;
 }
-.task-view-wrapper .task-story-id {
+.task-view-wrapper .task-story-title {
 	color: lightgrey;
 	font-size: 0.8rem;
 }
