@@ -397,6 +397,7 @@ func putTaskHandle() http.Handler {
 			Status      string `json:"status"`
 			Title       string `json:"title"`
 			Description string `json:"description"`
+			StoryId     string `json:"story_id"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&putReq); err != nil {
 			log.Errorf("unable to decode json: %v\n", err)
@@ -417,11 +418,13 @@ func putTaskHandle() http.Handler {
 			updated_at = CURRENT_TIMESTAMP,
 			status = $1,
 			title = $2,
-			description = $3
-			WHERE id = $4`,
+			description = $3,
+			story_id = $4
+			WHERE id = $5`,
 			putReq.Status,
 			putReq.Title,
 			putReq.Description,
+			putReq.StoryId,
 			putReq.Id,
 		)
 		if err != nil {

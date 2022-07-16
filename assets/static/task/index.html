@@ -20,28 +20,29 @@
 	<h3 class="task-title" contenteditable="true"></h3>
 	<div class="task-metadata">
 		<div class="task-element-pair">
-			<p class="task-element-label">id:</p>
-			<p class="task-id"></p>
+			<p class="task-element-label">Id:</p>
+			<p class="task-id">loading...</p>
 		</div>
 		<div class="task-element-pair">
 			<p class="task-element-label">Created:</p>
-			<p class="task-created-at"></p>
+			<p class="task-created-at">loading...</p>
 		</div>
 		<div class="task-element-pair">
 			<p class="task-element-label">Parent story:</p>
-			<p class="task-story-title"></p>
+			<select class="task-story-title"></select>
+			<!--<p class="task-story-title">loading...</p>-->
 		</div>
 	</div>
 	<select class="task-status"></select>
 	<div class="task-desc" contenteditable="true"></div>
+	<button class="task-save">Save</button>
 	<div class="task-comments"></div>
 	<div class="new-comment">
 		<form>
-			<textarea placeholder="Type new comment"></textarea>
+			<textarea placeholder="Type new comment (ctrl+&#9166; to save)"></textarea>
 			<button>Post</button>
 		</form>
 	</div>
-	<button class="task-save">Save</button>
 <!-- end of wrapper div -->
 </div>
 </body>

@@ -31,7 +31,7 @@
 			taskStatus.value,
 			taskTitle.innerHTML,
 			taskDesc.innerHTML,
-			taskStoryTitle.innerHTML,
+			taskStoryTitle.value,
 		);
 	});
 
@@ -39,8 +39,7 @@
 		e.preventDefault();
 		createComment(taskIdFromPath, createCommentTextInput.value);
 		setTimeout(_ => {
-			// TODO: remember to use clearInputValues once I combine js files
-			createCommentTextInput.value = "";
+			clearInputValues(createCommentTextInput);
 			getCommentsByTaskId(taskIdFromPath).then(comments => { renderCommentsFromJSON(comments) });
 		}, 500);
 	});
@@ -53,14 +52,21 @@
 	});
 
 	function renderTask(task){
+		document.title = task.title;
 		taskTitle.innerHTML = task.title;
 		taskId.innerHTML = formatId(task.id);
 		taskCreatedAt.innerHTML = formatDate(new Date(task.created_at));
 		taskDesc.innerHTML = task.description;
-		taskStoryTitle.innerHTML = "Loading...";
-		getStoryById(task.story_id).then(story => {
-			if(!story) return;
-			taskStoryTitle.innerHTML = story.title;
+		while(taskStoryTitle.firstChild)
+			taskStoryTitle.removeChild(taskStoryTitle.firstChild);
+		getStories().then(stories => {
+			stories.forEach(story => {
+				const option = document.createElement("option");
+				option.setAttribute("value", story.id);
+				option.innerHTML = story.title;
+				taskStoryTitle.appendChild(option);
+				if(story.id === task.story_id) option.selected = true;
+			});
 		});
 		for(let i = 0; i < taskStatus.options.length; i++){
 			if(taskStatus.options[i].value === task.status){
@@ -72,7 +78,7 @@
 
 	function renderCommentsFromJSON(comments){
 		if(!comments){
-			console.warn("no comments to render!");
+			console.warn("no comments to render");
 			return;
 		}
 		while(taskComments.firstChild) taskComments.removeChild(taskComments.firstChild);
