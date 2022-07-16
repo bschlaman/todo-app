@@ -64,9 +64,10 @@ body {
 .task {
 	padding: 1rem;
 	background: white;
-	margin: 8px;
+	margin: 10px;
 	border-radius: 0.5rem;
 	position: relative;
+	box-shadow: 3px 3px 2px darkgrey;
 }
 .task .task-created-at,
 .task .task-status,
