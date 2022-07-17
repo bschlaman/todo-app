@@ -19,9 +19,7 @@ import (
 // TODO: pull these from config table
 const (
 	serverName     string        = "TODO-APP-SERVER"
-	port           string        = ":8080"
 	logPath        string        = "logs/output.log"
-	configPath     string        = "config.json"
 	staticDir      string        = "assets/static"
 	sprintDuration time.Duration = time.Hour * 24 * 14
 )
@@ -683,6 +681,10 @@ func main() {
 		http.Handle(route.Path, utils.LogReq(log)(route.Handler()))
 	}
 
+	port := os.Getenv("SERVER_PORT")
+	if port == "" {
+		panic("SERVER_PORT env var not set")
+	}
 	log.Info("starting http server on port", port)
 	log.Fatal(http.ListenAndServe(port, nil))
 }
