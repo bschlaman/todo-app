@@ -99,6 +99,10 @@ body {
 	text-align: center;
 	color: grey;
 	margin: 0;
+	cursor: grab;
+}
+.task .task-handle:active {
+	cursor: grabbing;
 }
 
 /* done task styles */
