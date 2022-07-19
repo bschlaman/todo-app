@@ -19,7 +19,8 @@
 	/* slightly transparent white */
 	--transp-white: rgba(255, 255, 255, 0.9);
 /*	--font: "Montserrat", sans-serif;*/
-	--font: "Quicksand", sans-serif;
+/*	--font: "Quicksand", sans-serif;*/
+	--font: "Avantgarde", "TeX Gyre Adventor", "URW Gothic L", sans-serif;
 }
 
 /* defaults */
@@ -33,6 +34,7 @@ a {
 }
 input, select, textarea, button {
 	font-family: inherit;
+	font-size: inherit;
 }
 
 /* global */
@@ -54,6 +56,11 @@ body {
 	width: 100%;
 	box-shadow: inset 0 0 3px;
 }
+.todo-app-bucket .bucket-label {
+	font-size: 1.8rem;
+	color: var(--transp-black);
+	margin-left: 1rem;
+}
 .task.dragging {
 	background: lightblue !important;
 }
@@ -69,13 +76,14 @@ body {
 	border-radius: 0.5rem;
 	position: relative;
 	box-shadow: 3px 3px 2px darkgrey;
+	font-size: 1.4rem;
 }
 .task .task-created-at,
 .task .task-status,
 .task .task-id,
 .task .task-story-title {
 	text-align: right;
-	font-size: 0.7rem;
+	font-size: 1rem;
 	color: grey;
 }
 .task .task-desc {
@@ -111,9 +119,8 @@ body {
 	border-radius: 8px;
 	transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 	margin: 1rem 0;
-	font-size: 1.4rem;
 	cursor: pointer;
-	font-size: 1.5rem;
+	font-size: 2rem;
 }
 .modal-open:hover {
 	color: var(--color4);
@@ -164,6 +171,22 @@ body {
 /* task view page */
 .task-view-wrapper {
 	font-size: 2rem;
+	margin: 0 auto;
+	max-width: 60%;
+}
+.task-view-wrapper .task-header {
+	display: flex;
+	align-items: center;
+	gap: 3rem;
+}
+.task-view-wrapper .task-title {
+	display: inline-block;
+}
+.task-view-wrapper .task-header a {
+	border: 2px solid blue;
+	border-radius: 5px;
+	padding-right: 10px;
+	background: lightgrey;
 }
 .task-view-wrapper .task-metadata {
 	display: flex;
@@ -186,13 +209,13 @@ body {
 }
 .task-view-wrapper .task-status {
 	font-size: 1.5rem;
-	margin-bottom: 1rem;
 }
 .task-view-wrapper .task-desc {
 	white-space: pre-wrap;
 	background: var(--color-beige);
-	padding: 0.5rem;
+	padding: 1rem;
 	border-radius: 5px;
+	margin: 1rem 0;
 }
 .task-view-wrapper .task-comments {
 	white-space: pre-wrap;
@@ -203,10 +226,9 @@ body {
 .task-comments .comment-wrapper {
 	outline: 2px solid grey;
 	border-radius: 8px;
-	max-width: 60%;
 	position: relative;
 	padding: 1rem;
-	margin: 1rem 0.5rem;
+	margin: 1rem 0;
 	font-size: 1.5rem;
 }
 .comment-wrapper .comment-text {
@@ -228,10 +250,9 @@ body {
 .new-comment {
 	outline: 2px solid grey;
 	border-radius: 8px;
-	max-width: 60%;
 	position: relative;
 	padding: 1rem;
-	margin: 1rem 0.5rem;
+	margin: 1rem 0;
 	font-size: 1.5rem;
 }
 .new-comment textarea {

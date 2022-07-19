@@ -8,7 +8,9 @@
 
 	<!-- css, favicon, title -->
 	<link rel="stylesheet" type="text/css" href="/styles.css">
-	<link rel="icon" type="image/png" href="/favicon.png" />
+	<!--<link rel="icon" type="image/png" href="/favicon.png" />-->
+	<link rel="icon" type="image/png" href="https://schlamalama.com/favicon.png" />
+
 
 	<script defer src="/js/common.js"></script>
 	<script defer src="/task/js/task.js"></script>
@@ -17,7 +19,10 @@
 </head>
 <body><!-- workaround for FOUC --><script>let FF_FOUC_FIX;</script>
 <div class="task-view-wrapper">
-	<h3 class="task-title" contenteditable="true"></h3>
+	<div class="task-header">
+		<a href="/">&#12296;Back</a>
+		<h3 class="task-title" contenteditable="true"></h3>
+	</div>
 	<div class="task-metadata">
 		<div class="task-element-pair">
 			<p class="task-element-label">Id:</p>
@@ -28,12 +33,14 @@
 			<p class="task-created-at">loading...</p>
 		</div>
 		<div class="task-element-pair">
+			<p class="task-element-label">Status:</p>
+			<select class="task-status"></select>
+		</div>
+		<div class="task-element-pair">
 			<p class="task-element-label">Parent story:</p>
 			<select class="task-story-title"></select>
-			<!--<p class="task-story-title">loading...</p>-->
 		</div>
 	</div>
-	<select class="task-status"></select>
 	<div class="task-desc" contenteditable="true"></div>
 	<button class="task-save">Save</button>
 	<div class="task-comments"></div>

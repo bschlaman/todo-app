@@ -8,7 +8,8 @@
 
 	<!-- css, favicon, title -->
 	<link rel="stylesheet" type="text/css" href="styles.css">
-	<link rel="icon" type="image/png" href="/favicon.png" />
+	<!--link rel="icon" type="image/png" href="/favicon.png" /-->
+	<link rel="icon" type="image/png" href="https://schlamalama.com/favicon.png" />
 
 	<script defer src="js/common.js"></script>
 	<script defer src="js/todo.js"></script>
@@ -21,9 +22,15 @@
 	<button class="modal-open create-story-button">Create New Story</button>
 	<button class="modal-open create-sprint-button">Create New Sprint</button>
 	<div class="todo-app-wrapper">
-		<div class="todo-app-bucket" data-status="BACKLOG"></div>
-		<div class="todo-app-bucket" data-status="DOING"></div>
-		<div class="todo-app-bucket" data-status="DONE"></div>
+		<div class="todo-app-bucket" data-status="BACKLOG">
+			<p class="bucket-label">BACKLOG</p>
+		</div>
+		<div class="todo-app-bucket" data-status="DOING">
+			<p class="bucket-label">DOING</p>
+		</div>
+		<div class="todo-app-bucket" data-status="DONE">
+			<p class="bucket-label">DONE</p>
+		</div>
 	</div>
 
 	<!-- CREATE TASK MODAL -->

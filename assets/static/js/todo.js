@@ -198,7 +198,6 @@
 			taskEditLink.classList.add("task-edit-link");
 			taskEditLink.innerHTML = "edit";
 			taskEditLink.setAttribute("href", `/task/${task.id}`);
-			taskEditLink.setAttribute("target", "_blank");
 
 			const taskDesc = document.createElement("p");
 			taskDesc.classList.add("task-desc");
