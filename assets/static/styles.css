@@ -18,8 +18,6 @@
 	--transp-black: rgba(0, 0, 0, 0.9);
 	/* slightly transparent white */
 	--transp-white: rgba(255, 255, 255, 0.9);
-/*	--font: "Montserrat", sans-serif;*/
-/*	--font: "Quicksand", sans-serif;*/
 	--font: "Avantgarde", "TeX Gyre Adventor", "URW Gothic L", sans-serif;
 }
 
@@ -78,6 +76,9 @@ body {
 	box-shadow: 3px 3px 2px darkgrey;
 	font-size: 1.4rem;
 }
+.task .task-title {
+	margin-top: 0.4rem;
+}
 .task .task-created-at,
 .task .task-status,
 .task .task-id,
@@ -94,12 +95,17 @@ body {
 	top: 1rem;
 	right: 1rem;
 }
+.task .task-handle {
+	text-align: center;
+	color: grey;
+	margin: 0;
+}
 
 /* done task styles */
 .todo-app-bucket[data-status="DONE"] .task {
 	border-left: 5px solid var(--color4);
 }
-.todo-app-bucket[data-status="DONE"] .task :not(.task-title, .task-created-at) {
+.todo-app-bucket[data-status="DONE"] .task :not(.task-title, .task-created-at, .task-edit-link) {
 	display: none;
 }
 .todo-app-bucket[data-status="DONE"] .task-title {

@@ -188,7 +188,11 @@
 		tasks.forEach(task => {
 			const taskDiv = document.createElement("div");
 			taskDiv.classList.add("task");
-			taskDiv.setAttribute("draggable", "true");
+			// taskDiv.setAttribute("draggable", "true");
+
+			const taskHandle = document.createElement("p");
+			taskHandle.classList.add("task-handle");
+			taskHandle.innerHTML = "&#8801;";
 
 			const taskTitle = document.createElement("h4");
 			taskTitle.classList.add("task-title");
@@ -219,17 +223,26 @@
 			taskStoryTitle.classList.add("task-story-title");
 			taskStoryTitle.innerHTML = storyDataCache.get(task.story_id).title;
 
+			taskDiv.appendChild(taskHandle);
 			taskDiv.appendChild(taskEditLink);
 			taskDiv.appendChild(taskTitle);
 			taskDiv.appendChild(taskDesc);
-			// taskDiv.appendChild(taskStatus);
 			taskDiv.appendChild(taskCreatedAt);
 			taskDiv.appendChild(taskStoryTitle);
+
+			taskHandle.addEventListener("mousedown", e => {
+				taskDiv.setAttribute("draggable", true);
+			});
+			taskHandle.addEventListener("mouseup", e => {
+				taskDiv.setAttribute("draggable", false);
+			});
 
 			taskDiv.addEventListener("dragstart", _ => {
 				taskDiv.classList.add("dragging");
 			});
 			taskDiv.addEventListener("dragend", _ => {
+				// just in case not caught by mouseup
+				taskDiv.setAttribute("draggable", false);
 				taskDiv.classList.remove("dragging");
 				buckets.forEach(b => { b.classList.remove(hoverClass) });
 				const destinationStatus = taskDiv.parentNode.dataset.status;
