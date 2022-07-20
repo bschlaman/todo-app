@@ -8,12 +8,12 @@ import (
 	"os"
 	"path"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/bschlaman/b-utils/pkg/logger"
 	"github.com/bschlaman/b-utils/pkg/utils"
-	"github.com/jackc/pgx/v4"
 )
 
 // TODO: pull these from config table
@@ -26,50 +26,67 @@ const (
 
 var log *logger.BLogger
 
-func getPgxConn() (*pgx.Conn, error) {
-	conn, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
-	if err != nil {
-		return nil, err
-	}
-	return conn, nil
-}
+func getConfigHandle() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		conn, err := getPgxConn()
+		if err != nil {
+			log.Errorf("unable to connect to database: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+		defer conn.Close(context.Background())
 
-type Task struct {
-	Id          string    `json:"id"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
-	Title       string    `json:"title"`
-	Description string    `json:"description"`
-	Status      string    `json:"status"`
-	StoryId     string    `json:"story_id"`
-}
+		rows, err := conn.Query(context.Background(),
+			`SELECT
+				id,
+				created_at,
+				key,
+				value
+				FROM config`,
+		)
+		if err != nil {
+			log.Errorf("Query failed: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+		defer rows.Close()
 
-type Comment struct {
-	Id        int       `json:"id"`
-	TaskId    string    `json:"task_id"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	Text      string    `json:"text"`
-	Edited    bool      `json:"edited"`
-}
+		var serverConfigRows []ServerConfigRow
+		for rows.Next() {
+			var id, key, value string
+			var cAt time.Time
+			rows.Scan(&id, &cAt, &key, &value)
+			serverConfigRows = append(serverConfigRows,
+				ServerConfigRow{id, cAt, key, value})
+		}
 
-type Sprint struct {
-	Id        string    `json:"id"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	Title     string    `json:"title"`
-	StartDate time.Time `json:"start_date"`
-	EndDate   time.Time `json:"end_date"`
-}
+		if rows.Err() != nil {
+			log.Errorf("Query failed: %v\n", rows.Err())
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
 
-type Story struct {
-	Id          string    `json:"id"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
-	Title       string    `json:"title"`
-	Description string    `json:"description"`
-	Status      string    `json:"status"`
-	SprintId    string    `json:"sprint_id"`
+		// TODO: this doesn't seem like good form
+		// Might I have other types besides string and int??
+		serverConfig := make(map[string]interface{})
+		for _, scr := range serverConfigRows {
+			i, err := strconv.ParseInt(scr.Value, 10, 64)
+			if err == nil {
+				serverConfig[scr.Key] = i
+			} else {
+				serverConfig[scr.Key] = scr.Value
+			}
+		}
+
+		js, err := json.Marshal(serverConfig)
+		if err != nil {
+			log.Errorf("json.Marshal failed: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(js)
+	})
 }
 
 func getCommentsByIdHandle() http.Handler {
@@ -665,6 +682,7 @@ func main() {
 		Handler func() http.Handler
 	}{
 		{"/echo", utils.EchoHandle},
+		{"/get_config", getConfigHandle},
 		{"/get_tasks", getTasksHandle},
 		{"/get_task", getTaskByIdHandle},
 		{"/put_task", putTaskHandle},
