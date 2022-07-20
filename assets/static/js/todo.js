@@ -4,6 +4,16 @@
 
 	// stores story data by story_id
 	const storyDataCache = new Map();
+	// stores sprint data by sprint_id
+	const sprintDataCache = new Map();
+
+	const sprintSelect = document.querySelector(".sprint-select-wrapper select");
+	sprintSelect.addEventListener("change", _ => {
+		// TODO: inefficient! I should store task state globally
+		// to avoid another full call here
+		// could i instead cache this in local storage??
+		getTasks().then(tasks => { renderTasksFromJSON(tasks) });
+	});
 
 	// TODO: this await slows down page loads massively
 	// it would be better to getTasks, render them,
@@ -18,6 +28,18 @@
 	await getStories().then(stories => {
 		stories.forEach(story => {
 			storyDataCache.set(story.id, story);
+		});
+	});
+	// need to await this before task render because we filter tasks
+	// based on sprintsCache
+	await getSprints().then(sprints => {
+		sprints.forEach(sprint => {
+			sprintDataCache.set(sprint.id, sprint);
+
+			const option = document.createElement("option");
+			option.setAttribute("value", sprint.id);
+			option.innerHTML = sprint.title;
+			sprintSelect.appendChild(option);
 		});
 	});
 	getTasks().then(tasks => { renderTasksFromJSON(tasks) });
@@ -192,9 +214,17 @@
 		if(!tasks){
 			console.warn("no tasks to render!");
 		}
+		if(!sprintSelect.value){
+			console.err("couldn't get sprint from dropdown, therefore cannot render tasksk");
+			return;
+		}
 		// Clear out the task elements to avoid duplication
 		document.querySelectorAll(".task").forEach(task => { task.remove(); });
-		tasks.forEach(task => {
+		// Only take tasks which are in the selected sprint
+		tasks.filter(t => {
+			const story = storyDataCache.get(t.story_id);
+			return story.sprint_id === sprintSelect.value;
+		}).forEach(task => {
 			const taskDiv = document.createElement("div");
 			taskDiv.classList.add("task");
 			// taskDiv.setAttribute("draggable", "true");

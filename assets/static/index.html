@@ -18,10 +18,16 @@
 </head>
 <body><!-- workaround for FOUC --><script>let FF_FOUC_FIX;</script>
 <div class="wrapper">
-	<button class="modal-open create-task-button">Create New Task</button>
-	<button class="modal-open create-story-button">Create New Story</button>
-	<button class="modal-open create-sprint-button">Create New Sprint</button>
-	<div class="todo-app-wrapper">
+	<div class="header-wrapper">
+		<button class="modal-open create-task-button">Create New Task</button>
+		<button class="modal-open create-story-button">Create New Story</button>
+		<button class="modal-open create-sprint-button">Create New Sprint</button>
+		<div class="sprint-select-wrapper">
+			<p class="sprint-select-label">Viewing Sprint:</p>
+			<select></select>
+		</div>
+	</div>
+	<div class="bucket-wrapper">
 		<div class="todo-app-bucket" data-status="BACKLOG">
 			<p class="bucket-label">BACKLOG</p>
 		</div>
