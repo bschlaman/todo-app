@@ -57,7 +57,8 @@ CREATE TABLE IF NOT EXISTS public.config
 (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     key character varying(50) NOT NULL UNIQUE,
-    value character varying(1000) NOT NULL
+    value character varying(1000) NOT NULL,
+    created_at timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 INSERT INTO config (key, value) VALUES
