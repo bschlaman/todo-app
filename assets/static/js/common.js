@@ -1,6 +1,8 @@
 // GLOBAL CONSTS
 
 const routes = {
+	getConfig: `/get_config`,
+
 	getTasks: `/get_tasks`,
 	createTask: `/create_task`,
 	updateTask: `/put_task`,
@@ -21,6 +23,14 @@ const STATUSES = ["BACKLOG", "DOING", "DONE", "DEPRIORITIZED", "ARCHIVE"];
 const hoverClass = "droppable-hover";
 
 // API
+
+function getConfig(){
+	return fetch(routes.getConfig, { method: "GET" })
+		.then(res => res.json())
+		.catch(err => {
+			console.warn("error occured:", err);
+		});
+}
 
 function getTasks(){
 	return fetch(routes.getTasks, { method: "GET" })

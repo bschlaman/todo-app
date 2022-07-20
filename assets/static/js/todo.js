@@ -1,4 +1,7 @@
-(function (){
+(async function (){
+
+	let serverConfig;
+
 	// stores story data by story_id
 	const storyDataCache = new Map();
 
@@ -9,14 +12,15 @@
 	// from renderTasksFromJSON did not work, since all get calls
 	// were initiated well before any of them finished, so the cache
 	// was never used and I basically DDoS'd myself
-	(async function(){
-		await getStories().then(stories => {
-			stories.forEach(story => {
-				storyDataCache.set(story.id, story);
-			});
+	await getConfig().then(config => {
+		serverConfig = config;
+	});
+	await getStories().then(stories => {
+		stories.forEach(story => {
+			storyDataCache.set(story.id, story);
 		});
-		getTasks().then(tasks => { renderTasksFromJSON(tasks) });
-	})();
+	});
+	getTasks().then(tasks => { renderTasksFromJSON(tasks) });
 
 	// CODE SECTION: CREATE TASK MODAL ============================
 	const createTaskButton = document.querySelector(".create-task-button");
@@ -42,6 +46,8 @@
 			});
 		});
 	};
+	createTaskTitleInput.setAttribute("maxlength", serverConfig.task_title_max_len);
+	createTaskDescInput.setAttribute("maxlength", serverConfig.task_desc_max_len);
 	// Close (x) button
 	createTaskModal.querySelector(".modal-close").onclick = _ => { createTaskModal.close() };
 	// CTRL-Enter to save
@@ -86,6 +92,8 @@
 			});
 		});
 	};
+	createStoryTitleInput.setAttribute("maxlength", serverConfig.story_title_max_len);
+	createStoryDescInput.setAttribute("maxlength", serverConfig.story_desc_max_len);
 	// Close (x) button
 	createStoryModal.querySelector(".modal-close").onclick = _ => { createStoryModal.close() };
 	// CTRL-Enter to save
@@ -117,6 +125,7 @@
 		createSprintModal.showModal();
 		createSprintTitleInput.focus();
 	};
+	createSprintTitleInput.setAttribute("maxlength", serverConfig.sprint_title_max_len);
 	// Close (x) button
 	createSprintModal.querySelector(".modal-close").onclick = _ => { createSprintModal.close() };
 	// CTRL-Enter to save

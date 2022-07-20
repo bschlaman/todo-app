@@ -1,6 +1,12 @@
-(function (){
+(async function (){
 	const path = window.location.pathname;
 	const taskIdFromPath = path.substring(path.lastIndexOf("/") + 1);
+
+	let serverConfig;
+
+	await getConfig().then(config => {
+		serverConfig = config;
+	});
 
 	getTaskById(taskIdFromPath).then(task => { renderTask(task) });
 	getCommentsByTaskId(taskIdFromPath).then(comments => { renderCommentsFromJSON(comments) });
@@ -51,12 +57,16 @@
 		}
 	});
 
+	createCommentTextInput.setAttribute("maxlength", serverConfig.comment_max_len);
+
 	function renderTask(task){
 		document.title = task.title;
 		taskTitle.innerHTML = task.title;
 		taskId.innerHTML = formatId(task.id);
 		taskCreatedAt.innerHTML = formatDate(new Date(task.created_at));
 		taskDesc.innerHTML = task.description;
+		taskTitle.setAttribute("maxlength", serverConfig.task_title_max_len);
+		taskDesc.setAttribute("maxlength", serverConfig.task_desc_max_len);
 		while(taskStoryTitle.firstChild)
 			taskStoryTitle.removeChild(taskStoryTitle.firstChild);
 		getStories().then(stories => {
