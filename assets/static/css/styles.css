@@ -300,3 +300,16 @@ body.task-view {
 	background: var(--color3);
 	border-radius: 3px;
 }
+
+/* login page */
+body.login .login-wrapper {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+body.login form {
+	font-size: 3rem;
+}
+body.login input[name="pass"] {
+	padding: 0.6rem;
+}

@@ -1,21 +1,21 @@
 // GLOBAL CONSTS
 
 const routes = {
-	getConfig: `/get_config`,
+	getConfig:           `/api/get_config`,
 
-	getTasks: `/get_tasks`,
-	createTask: `/create_task`,
-	updateTask: `/put_task`,
-	getStories: `/get_stories`,
-	getSprints: `/get_sprints`,
-	createStory: `/create_story`,
-	createSprint: `/create_sprint`,
+	getTasks:            `/api/get_tasks`,
+	createTask:          `/api/create_task`,
+	updateTask:          `/api/put_task`,
+	getStories:          `/api/get_stories`,
+	getSprints:          `/api/get_sprints`,
+	createStory:         `/api/create_story`,
+	createSprint:	       `/api/create_sprint`,
 
-	getTaskById: `/get_task`,
-	getCommentsByTaskId: `/get_comments_by_task_id`,
-	createComment: `/create_comment`,
-	updateTask: `/put_task`,
-	getStoryById: `/get_story`,
+	getTaskById:         `/api/get_task`,
+	getCommentsByTaskId: `/api/get_comments_by_task_id`,
+	createComment:       `/api/create_comment`,
+	updateTask:          `/api/put_task`,
+	getStoryById:        `/api/get_story`,
 };
 
 const STATUSES = ["BACKLOG", "DOING", "DONE", "DEPRIORITIZED", "ARCHIVE"];

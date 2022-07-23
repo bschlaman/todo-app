@@ -6,6 +6,7 @@ import (
 	"os"
 	"path"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/bschlaman/b-utils/pkg/logger"
@@ -41,7 +42,20 @@ func createSaveNewSession() string {
 
 func sessionMiddleware(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		println("asdf")
+		// authentication not required for these paths
+		skippablePaths := []string{
+			"/login",
+			"/js",
+			"/css",
+			"/favicon.ico",
+		}
+		for _, path := range skippablePaths {
+			if strings.HasPrefix(r.URL.Path, path) {
+				h.ServeHTTP(w, r)
+				return
+			}
+		}
+
 		sessionValid := true
 
 		// *Cookie.Valid() added in go1.18
@@ -53,10 +67,10 @@ func sessionMiddleware(h http.Handler) http.Handler {
 		}
 
 		// id not found in sessions data structure
-		_, ok := sessions[cookie.Value]
+		session, ok := sessions[cookie.Value]
 		if !ok {
 			sessionValid = false
-			log.Infof("invalid cookie: session not recognized")
+			log.Infof("invalid cookie: session not recognized: %v\n", session)
 		}
 
 		// session expired
@@ -67,44 +81,45 @@ func sessionMiddleware(h http.Handler) http.Handler {
 
 		if !sessionValid {
 			http.Redirect(w, r, "/login", http.StatusSeeOther)
-			return // is this needed?
+			return
 		}
 		h.ServeHTTP(w, r)
 	})
 }
 
-func loginHandle(h http.Handler) http.Handler {
+func loginHandle() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		println("asdflogin")
 		// TODO: branching based on method seems clunky...
 		// if GET, we want to serve the login/index.html page
-		if r.Method == http.MethodGet {
-			h.ServeHTTP(w, r)
-			return
-		}
-		if r.Method == http.MethodPost {
-			pass := r.FormValue("pass")
-			if pass == loginPw {
-				log.Info("login successful!")
-				id := createSaveNewSession()
-				cookie := &http.Cookie{
-					Name:     "session",
-					Value:    id,
-					SameSite: http.SameSiteDefaultMode,
-				}
-				http.SetCookie(w, cookie)
-				log.Infof("setting cookie: %v\n", cookie)
-				http.Redirect(w, r, "/", http.StatusSeeOther)
-				return
+		// if r.Method == http.MethodGet {
+		// 	// this also seems bad
+		// 	http.ServeFile(w, r, "index.html")
+		// 	return
+		// }
+		// if r.Method == http.MethodPost {
+		pass := r.FormValue("pass")
+		if pass == loginPw {
+			log.Info("login successful!")
+			id := createSaveNewSession()
+			cookie := &http.Cookie{
+				Name:     "session",
+				Value:    id,
+				SameSite: http.SameSiteDefaultMode,
+				Path:     "/",
 			}
-			log.Infof("incorrect pw: %v\n", pass)
-			http.Error(w, "incorrect pw", http.StatusUnauthorized)
+			http.SetCookie(w, cookie)
+			log.Infof("setting cookie: %v\n", cookie)
+			http.Redirect(w, r, "/", http.StatusSeeOther)
 			return
 		}
+		log.Infof("incorrect pw: %v\n", pass)
+		http.Error(w, "incorrect pw", http.StatusUnauthorized)
+		return
+		// }
 	})
 }
 
-func matchIdRedir(h http.Handler) http.Handler {
+func matchIdRedirMiddleware(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// TODO: really really don't like this strategy
 		match, _ := regexp.MatchString(
@@ -117,45 +132,65 @@ func matchIdRedir(h http.Handler) http.Handler {
 	})
 }
 
+func redirectRootPathMiddleware(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/" {
+			// http.FileServer will register /taskboard and /taskboard/;
+			// the former redirects to the latter.  Not ideal but whatever
+			http.Redirect(w, r, "/taskboard", http.StatusSeeOther)
+			return
+		}
+		h.ServeHTTP(w, r)
+	})
+}
+
 func init() {
 	file, err := os.OpenFile(logPath, os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
 		panic(err)
 	}
 	mw := io.MultiWriter(file, os.Stdout)
+	// init globals
 	log = logger.New(mw)
 	sessions = make(map[string]Session)
 	loginPw = os.Getenv("LOGIN_PW")
 }
 
 func main() {
+
 	// special case handlers
 	fs := http.FileServer(http.Dir(path.Join("..", staticDir)))
-	http.Handle("/", sessionMiddleware(matchIdRedir(fs)))
-	http.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, path.Join("..", staticDir, "favicon.png"))
-	})
-	http.Handle("/login", loginHandle(fs))
+	http.Handle("/", sessionMiddleware(
+		redirectRootPathMiddleware(
+			matchIdRedirMiddleware(fs),
+		),
+	))
 
-	routes := []struct {
+	// currently using schlamalama.com/favicon.ico
+	// http.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
+	// 	http.ServeFile(w, r, path.Join("..", staticDir, "favicon.png"))
+	// })
+
+	apiRoutes := []struct {
 		Path    string
 		Handler func() http.Handler
 	}{
-		{"/echo", utils.EchoHandle},
-		{"/get_config", getConfigHandle},
-		{"/get_tasks", getTasksHandle},
-		{"/get_task", getTaskByIdHandle},
-		{"/put_task", putTaskHandle},
-		{"/create_task", createTaskHandle},
-		{"/create_comment", createCommentHandle},
-		{"/get_comments_by_task_id", getCommentsByIdHandle},
-		{"/get_stories", getStoriesHandle},
-		{"/get_story", getStoryByIdHandle},
-		{"/create_story", createStoryHandle},
-		{"/get_sprints", getSprintsHandle},
-		{"/create_sprint", createSprintHandle},
+		{"/api/echo", utils.EchoHandle},
+		{"/api/login", loginHandle},
+		{"/api/get_config", getConfigHandle},
+		{"/api/get_tasks", getTasksHandle},
+		{"/api/get_task", getTaskByIdHandle},
+		{"/api/put_task", putTaskHandle},
+		{"/api/create_task", createTaskHandle},
+		{"/api/create_comment", createCommentHandle},
+		{"/api/get_comments_by_task_id", getCommentsByIdHandle},
+		{"/api/get_stories", getStoriesHandle},
+		{"/api/get_story", getStoryByIdHandle},
+		{"/api/create_story", createStoryHandle},
+		{"/api/get_sprints", getSprintsHandle},
+		{"/api/create_sprint", createSprintHandle},
 	}
-	for _, route := range routes {
+	for _, route := range apiRoutes {
 		http.Handle(route.Path, utils.LogReq(log)(route.Handler()))
 	}
 
