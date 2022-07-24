@@ -39,7 +39,7 @@
 
 			const option = document.createElement("option");
 			option.setAttribute("value", sprint.id);
-			option.innerHTML = sprint.title;
+			option.textContent = sprint.title;
 			sprintSelect.appendChild(option);
 			if(localStorage.getItem("viewing_sprint_id") === sprint.id)
 				option.selected = true;
@@ -63,10 +63,14 @@
 		while(createTaskSelectInput.firstChild)
 			createTaskSelectInput.removeChild(createTaskSelectInput.firstChild);
 		getStories().then(stories => {
-			stories.forEach(story => {
+			stories.filter(s => {
+				// if for some reason sprintSelect.value is falsey, dont filter
+				if(!sprintSelect.value) return true;
+				return s.sprint_id === sprintSelect.value;
+			}).forEach(story => {
 				const option = document.createElement("option");
 				option.setAttribute("value", story.id);
-				option.innerHTML = story.title;
+				option.textContent = story.title;
 				createTaskSelectInput.appendChild(option);
 			});
 		});
@@ -107,12 +111,11 @@
 		createStoryTitleInput.focus();
 		// Remove option from <select> and call /get_stories
 		while(createStorySelectInput.firstChild) createStorySelectInput.removeChild(createStorySelectInput.firstChild);
-		// TODO: this is bad, catch should be at the end
 		getSprints().then(sprints => {
 			sprints.forEach(sprint => {
 				let option = document.createElement("option");
 				option.setAttribute("value", sprint.id);
-				option.innerHTML = sprint.title;
+				option.textContent = sprint.title;
 				createStorySelectInput.appendChild(option);
 			});
 		});
@@ -238,32 +241,32 @@
 
 			const taskTitle = document.createElement("h4");
 			taskTitle.classList.add("task-title");
-			taskTitle.innerHTML = task.title;
+			taskTitle.textContent = task.title;
 
 			const taskEditLink = document.createElement("a");
 			taskEditLink.classList.add("task-edit-link");
-			taskEditLink.innerHTML = "edit";
+			taskEditLink.textContent = "edit";
 			taskEditLink.setAttribute("href", `/task/${task.id}`);
 
 			const taskDesc = document.createElement("p");
 			taskDesc.classList.add("task-desc");
-			taskDesc.innerHTML = task.description;
+			taskDesc.textContent = task.description;
 
 			const taskId = document.createElement("p");
 			taskId.classList.add("task-id");
-			taskId.innerHTML = task.id;
+			taskId.textContent = task.id;
 
 			const taskStatus = document.createElement("p");
 			taskStatus.classList.add("task-status");
-			taskStatus.innerHTML = task.status;
+			taskStatus.textContent = task.status;
 
 			const taskCreatedAt = document.createElement("p");
 			taskCreatedAt.classList.add("task-created-at");
-			taskCreatedAt.innerHTML = formatDate(new Date(task.created_at));
+			taskCreatedAt.textContent = formatDate(new Date(task.created_at));
 
 			const taskStoryTitle = document.createElement("p");
 			taskStoryTitle.classList.add("task-story-title");
-			taskStoryTitle.innerHTML = storyDataCache.get(task.story_id).title;
+			taskStoryTitle.textContent = storyDataCache.get(task.story_id).title;
 
 			taskDiv.appendChild(taskHandle);
 			taskDiv.appendChild(taskEditLink);

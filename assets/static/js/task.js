@@ -27,7 +27,7 @@
 	STATUSES.forEach(status => {
 		const option = document.createElement("option");
 		option.setAttribute("value", status);
-		option.innerHTML = status;
+		option.textContent = status;
 		taskStatus.appendChild(option);
 	});
 
@@ -61,10 +61,10 @@
 
 	function renderTask(task){
 		document.title = task.title;
-		taskTitle.innerHTML = task.title;
-		taskId.innerHTML = formatId(task.id);
-		taskCreatedAt.innerHTML = formatDate(new Date(task.created_at));
-		taskDesc.innerHTML = task.description;
+		taskTitle.textContent = task.title;
+		taskId.textContent = formatId(task.id);
+		taskCreatedAt.textContent = formatDate(new Date(task.created_at));
+		taskDesc.textContent = task.description;
 		taskTitle.setAttribute("maxlength", serverConfig.task_title_max_len);
 		taskDesc.setAttribute("maxlength", serverConfig.task_desc_max_len);
 		while(taskStoryTitle.firstChild)
@@ -73,7 +73,7 @@
 			stories.forEach(story => {
 				const option = document.createElement("option");
 				option.setAttribute("value", story.id);
-				option.innerHTML = story.title;
+				option.textContent = story.title;
 				taskStoryTitle.appendChild(option);
 				if(story.id === task.story_id) option.selected = true;
 			});
@@ -98,15 +98,15 @@
 
 			const commentText = document.createElement("p");
 			commentText.classList.add("comment-text");
-			commentText.innerHTML = comment.text;
+			commentText.textContent = comment.text;
 
 			const commentCreatedAt = document.createElement("p");
 			commentCreatedAt.classList.add("comment-created-at");
-			commentCreatedAt.innerHTML = formatDate(new Date(comment.created_at));
+			commentCreatedAt.textContent = formatDate(new Date(comment.created_at));
 
 			const commentId = document.createElement("p");
 			commentId.classList.add("comment-id");
-			commentId.innerHTML = comment.id;
+			commentId.textContent = comment.id;
 
 			commentWrapper.appendChild(commentId);
 			commentWrapper.appendChild(commentText);
