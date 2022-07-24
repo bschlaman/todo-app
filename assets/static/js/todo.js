@@ -13,6 +13,7 @@
 		// to avoid another full call here
 		// could i instead cache this in local storage??
 		getTasks().then(tasks => { renderTasksFromJSON(tasks) });
+		localStorage.setItem("viewing_sprint_id", sprintSelect.value);
 	});
 
 	// TODO: this await slows down page loads massively
@@ -40,6 +41,8 @@
 			option.setAttribute("value", sprint.id);
 			option.innerHTML = sprint.title;
 			sprintSelect.appendChild(option);
+			if(localStorage.getItem("viewing_sprint_id") === sprint.id)
+				option.selected = true;
 		});
 	});
 	getTasks().then(tasks => { renderTasksFromJSON(tasks) });

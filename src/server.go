@@ -20,7 +20,7 @@ const (
 	logPath         string        = "logs/output.log"
 	staticDir       string        = "assets/static"
 	sprintDuration  time.Duration = time.Hour * 24 * 14
-	sessionDuration time.Duration = 45 * time.Second
+	sessionDuration time.Duration = 1 * time.Hour
 )
 
 type Session struct {
@@ -56,33 +56,32 @@ func sessionMiddleware(h http.Handler) http.Handler {
 			}
 		}
 
-		sessionValid := true
+		loginPath := "/login"
 
 		// *Cookie.Valid() added in go1.18
 		// "session" not present in cookie, or cookie not present at all
 		cookie, err := r.Cookie("session")
 		if err != nil {
-			sessionValid = false
 			log.Infof("invalid cookie: no session in cookie")
+			http.Redirect(w, r, loginPath, http.StatusSeeOther)
+			return
 		}
 
 		// id not found in sessions data structure
 		session, ok := sessions[cookie.Value]
 		if !ok {
-			sessionValid = false
 			log.Infof("invalid cookie: session not recognized: %v\n", session)
+			http.Redirect(w, r, loginPath, http.StatusSeeOther)
+			return
 		}
 
 		// session expired
 		if time.Now().Sub(sessions[cookie.Value].CreatedAt) > sessionDuration {
-			sessionValid = false
 			log.Infof("invalid cookie: session expired")
-		}
-
-		if !sessionValid {
-			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			http.Redirect(w, r, loginPath, http.StatusSeeOther)
 			return
 		}
+
 		h.ServeHTTP(w, r)
 	})
 }
