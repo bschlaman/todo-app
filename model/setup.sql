@@ -63,7 +63,8 @@ CREATE TABLE IF NOT EXISTS public.tag_assignments
 		tag_id uuid NOT NULL,
 		story_id uuid NOT NULL,
 		CONSTRAINT fk_tag_id FOREIGN KEY(tag_id) REFERENCES tags(id),
-		CONSTRAINT fk_story_id FOREIGN KEY(story_id) REFERENCES stories(id)
+		CONSTRAINT fk_story_id FOREIGN KEY(story_id) REFERENCES stories(id),
+		UNIQUE (tag_id, story_id)
 );
 
 CREATE TABLE IF NOT EXISTS public.comments
@@ -81,9 +82,9 @@ CREATE TABLE IF NOT EXISTS public.comments
 CREATE TABLE IF NOT EXISTS public.config
 (
 		id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+		created_at timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
 		key character varying(50) NOT NULL UNIQUE,
-		value character varying(1000) NOT NULL,
-		created_at timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
+		value character varying(1000) NOT NULL
 );
 
 INSERT INTO config (key, value) VALUES
@@ -94,7 +95,9 @@ INSERT INTO config (key, value) VALUES
 	('task_title_max_len', '150'),
 	('story_desc_max_len', '2000'),
 	('task_desc_max_len', '2000'),
-	('comment_max_len', '2000');
+	('comment_max_len', '2000'),
+	('tag_title_max_len', '30'),
+	('tag_desc_max_len', '2000');
 
 
 INSERT INTO stories (updated_at, title, description, sprint_id) VALUES
