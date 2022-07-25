@@ -6,84 +6,84 @@ CREATE TYPE story_status AS ENUM ('BACKLOG', 'DOING', 'DONE', 'DEPRIORITIZED', '
 
 CREATE TABLE IF NOT EXISTS public.sprints
 (
-    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    created_at timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone,
-    title character varying(150) NOT NULL,
-    start_date date NOT NULL,
-    end_date date NOT NULL,
-    edited boolean NOT NULL DEFAULT false,
-    CONSTRAINT sprint_start_date_before_end_date CHECK (start_date < end_date)
+		id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+		created_at timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+		updated_at timestamp without time zone,
+		title character varying(150) NOT NULL,
+		start_date date NOT NULL,
+		end_date date NOT NULL,
+		edited boolean NOT NULL DEFAULT false,
+		CONSTRAINT sprint_start_date_before_end_date CHECK (start_date < end_date)
 );
 
 CREATE TABLE IF NOT EXISTS public.stories
 (
-    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    created_at timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone,
-    title character varying(150) NOT NULL,
-    description character varying(2000),
-    status story_status DEFAULT 'BACKLOG'::story_status,
-    sprint_id uuid,
-    edited boolean NOT NULL DEFAULT false,
-    CONSTRAINT fk_sprint_id FOREIGN KEY(sprint_id) REFERENCES sprints(id),
-    CONSTRAINT title_not_empty CHECK (title <> '')
+		id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+		created_at timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+		updated_at timestamp without time zone,
+		title character varying(150) NOT NULL,
+		description character varying(2000),
+		status story_status DEFAULT 'BACKLOG'::story_status,
+		sprint_id uuid,
+		edited boolean NOT NULL DEFAULT false,
+		CONSTRAINT fk_sprint_id FOREIGN KEY(sprint_id) REFERENCES sprints(id),
+		CONSTRAINT title_not_empty CHECK (title <> '')
 );
 
 CREATE TABLE IF NOT EXISTS public.tasks
 (
-    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    created_at timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone,
-    title character varying(150) NOT NULL,
-    description character varying(2000),
-    status task_status DEFAULT 'BACKLOG'::task_status,
-    story_id uuid,
-    edited boolean NOT NULL DEFAULT false,
-    CONSTRAINT fk_story_id FOREIGN KEY(story_id) REFERENCES stories(id),
-    CONSTRAINT title_not_empty CHECK (title <> '')
+		id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+		created_at timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+		updated_at timestamp without time zone,
+		title character varying(150) NOT NULL,
+		description character varying(2000),
+		status task_status DEFAULT 'BACKLOG'::task_status,
+		story_id uuid,
+		edited boolean NOT NULL DEFAULT false,
+		CONSTRAINT fk_story_id FOREIGN KEY(story_id) REFERENCES stories(id),
+		CONSTRAINT title_not_empty CHECK (title <> '')
 );
 
 CREATE TABLE IF NOT EXISTS public.tags
 (
-    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    created_at timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone,
-    title character varying(30) NOT NULL,
-    description character varying(2000),
-    edited boolean NOT NULL DEFAULT false,
+		id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+		created_at timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+		updated_at timestamp without time zone,
+		title character varying(30) NOT NULL,
+		description character varying(2000),
+		edited boolean NOT NULL DEFAULT false,
 		is_parent boolean NOT NULL DEFAULT false,
-    CONSTRAINT title_not_empty CHECK (title <> '')
+		CONSTRAINT title_not_empty CHECK (title <> '')
 );
 
 CREATE TABLE IF NOT EXISTS public.tag_assignments
 (
-    id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    created_at timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+		id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+		created_at timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
 		tag_id uuid NOT NULL,
 		story_id uuid NOT NULL,
-    CONSTRAINT fk_tag_id FOREIGN KEY(tag_id) REFERENCES tags(id),
-    CONSTRAINT fk_story_id FOREIGN KEY(story_id) REFERENCES stories(id)
+		CONSTRAINT fk_tag_id FOREIGN KEY(tag_id) REFERENCES tags(id),
+		CONSTRAINT fk_story_id FOREIGN KEY(story_id) REFERENCES stories(id)
 );
 
 CREATE TABLE IF NOT EXISTS public.comments
 (
-    id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    task_id uuid NOT NULL,
-    created_at timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone,
-    text character varying(2000) NOT NULL,
-    edited boolean NOT NULL DEFAULT false,
-    CONSTRAINT fk_task_id FOREIGN KEY(task_id) REFERENCES tasks(id),
-    CONSTRAINT text_not_empty CHECK (text <> '')
+		id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+		task_id uuid NOT NULL,
+		created_at timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+		updated_at timestamp without time zone,
+		text character varying(2000) NOT NULL,
+		edited boolean NOT NULL DEFAULT false,
+		CONSTRAINT fk_task_id FOREIGN KEY(task_id) REFERENCES tasks(id),
+		CONSTRAINT text_not_empty CHECK (text <> '')
 );
 
 CREATE TABLE IF NOT EXISTS public.config
 (
-    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    key character varying(50) NOT NULL UNIQUE,
-    value character varying(1000) NOT NULL,
-    created_at timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
+		id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+		key character varying(50) NOT NULL UNIQUE,
+		value character varying(1000) NOT NULL,
+		created_at timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 INSERT INTO config (key, value) VALUES
@@ -107,4 +107,4 @@ INSERT INTO stories (updated_at, title, description, sprint_id) VALUES
 -- TABLESPACE pg_default;
 
 -- ALTER TABLE IF EXISTS public.tasks
---    OWNER to postgres;
+--		OWNER to postgres;
