@@ -35,8 +35,8 @@
 		updateTaskById(
 			taskIdFromPath,
 			taskStatus.value,
-			taskTitle.innerHTML,
-			taskDesc.innerHTML,
+			taskTitle.textContent, // no newlines should be present
+			taskDesc.innerText, // possible newlines
 			taskStoryTitle.value,
 		);
 	});

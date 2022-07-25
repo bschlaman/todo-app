@@ -10,6 +10,7 @@ type Task struct {
 	Description string    `json:"description"`
 	Status      string    `json:"status"`
 	StoryId     string    `json:"story_id"`
+	Edited      bool      `json:"edited"`
 }
 
 type Comment struct {
@@ -28,6 +29,7 @@ type Sprint struct {
 	Title     string    `json:"title"`
 	StartDate time.Time `json:"start_date"`
 	EndDate   time.Time `json:"end_date"`
+	Edited    bool      `json:"edited"`
 }
 
 type Story struct {
@@ -38,6 +40,7 @@ type Story struct {
 	Description string    `json:"description"`
 	Status      string    `json:"status"`
 	SprintId    string    `json:"sprint_id"`
+	Edited      bool      `json:"edited"`
 }
 
 type ServerConfigRow struct {

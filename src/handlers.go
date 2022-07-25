@@ -157,6 +157,7 @@ func getTaskByIdHandle() http.Handler {
 
 		var id, title, desc, status, storyId string
 		var cAt, uAt time.Time
+		var edited bool
 
 		err = conn.QueryRow(context.Background(),
 			`SELECT
@@ -166,18 +167,19 @@ func getTaskByIdHandle() http.Handler {
 				title,
 				description,
 				status,
-				story_id
+				story_id,
+				edited
 				FROM tasks
 				WHERE id = $1`,
 			taskId,
-		).Scan(&id, &cAt, &uAt, &title, &desc, &status, &storyId)
+		).Scan(&id, &cAt, &uAt, &title, &desc, &status, &storyId, &edited)
 		if err != nil {
 			log.Errorf("Query failed: %v\n", err)
 			http.Error(w, "something went wrong", http.StatusInternalServerError)
 			return
 		}
 
-		js, err := json.Marshal(Task{id, cAt, uAt, title, desc, status, storyId})
+		js, err := json.Marshal(Task{id, cAt, uAt, title, desc, status, storyId, edited})
 		if err != nil {
 			log.Errorf("json.Marshal failed: %v\n", err)
 			http.Error(w, "something went wrong", http.StatusInternalServerError)
@@ -211,6 +213,7 @@ func getStoryByIdHandle() http.Handler {
 
 		var id, title, desc, status, sprintId string
 		var cAt, uAt time.Time
+		var edited bool
 
 		err = conn.QueryRow(context.Background(),
 			`SELECT
@@ -220,18 +223,19 @@ func getStoryByIdHandle() http.Handler {
 				title,
 				description,
 				status,
-				sprint_id
+				sprint_id,
+				edited
 				FROM stories
 				WHERE id = $1`,
 			storyId,
-		).Scan(&id, &cAt, &uAt, &title, &desc, &status, &sprintId)
+		).Scan(&id, &cAt, &uAt, &title, &desc, &status, &sprintId, &edited)
 		if err != nil {
 			log.Errorf("Query failed: %v\n", err)
 			http.Error(w, "something went wrong", http.StatusInternalServerError)
 			return
 		}
 
-		js, err := json.Marshal(Story{id, cAt, uAt, title, desc, status, sprintId})
+		js, err := json.Marshal(Story{id, cAt, uAt, title, desc, status, sprintId, edited})
 		if err != nil {
 			log.Errorf("json.Marshal failed: %v\n", err)
 			http.Error(w, "something went wrong", http.StatusInternalServerError)
@@ -261,7 +265,8 @@ func getTasksHandle() http.Handler {
 				title,
 				description,
 				status,
-				story_id
+				story_id,
+				edited
 				FROM tasks`,
 		)
 		if err != nil {
@@ -275,8 +280,9 @@ func getTasksHandle() http.Handler {
 		for rows.Next() {
 			var id, title, desc, status, storyId string
 			var cAt, uAt time.Time
-			rows.Scan(&id, &cAt, &uAt, &title, &desc, &status, &storyId)
-			tasks = append(tasks, Task{id, cAt, uAt, title, desc, status, storyId})
+			var edited bool
+			rows.Scan(&id, &cAt, &uAt, &title, &desc, &status, &storyId, &edited)
+			tasks = append(tasks, Task{id, cAt, uAt, title, desc, status, storyId, edited})
 		}
 
 		if rows.Err() != nil {
@@ -417,7 +423,8 @@ func putTaskHandle() http.Handler {
 			status = $1,
 			title = $2,
 			description = $3,
-			story_id = $4
+			story_id = $4,
+			edited = true
 			WHERE id = $5`,
 			putReq.Status,
 			putReq.Title,
@@ -450,7 +457,8 @@ func getSprintsHandle() http.Handler {
 				updated_at,
 				title,
 				start_date,
-				end_date
+				end_date,
+				edited
 				FROM sprints`,
 		)
 		if err != nil {
@@ -464,8 +472,9 @@ func getSprintsHandle() http.Handler {
 		for rows.Next() {
 			var id, title string
 			var cAt, uAt, sd, ed time.Time
-			rows.Scan(&id, &cAt, &uAt, &title, &sd, &ed)
-			sprints = append(sprints, Sprint{id, cAt, uAt, title, sd, ed})
+			var edited bool
+			rows.Scan(&id, &cAt, &uAt, &title, &sd, &ed, &edited)
+			sprints = append(sprints, Sprint{id, cAt, uAt, title, sd, ed, edited})
 		}
 
 		if rows.Err() != nil {
@@ -550,7 +559,8 @@ func getStoriesHandle() http.Handler {
 				title,
 				description,
 				status,
-				sprint_id
+				sprint_id,
+				edited
 				FROM stories`,
 		)
 		if err != nil {
@@ -564,8 +574,9 @@ func getStoriesHandle() http.Handler {
 		for rows.Next() {
 			var id, title, desc, status, sId string
 			var cAt, uAt time.Time
-			rows.Scan(&id, &cAt, &uAt, &title, &desc, &status, &sId)
-			stories = append(stories, Story{id, cAt, uAt, title, desc, status, sId})
+			var edited bool
+			rows.Scan(&id, &cAt, &uAt, &title, &desc, &status, &sId, &edited)
+			stories = append(stories, Story{id, cAt, uAt, title, desc, status, sId, edited})
 		}
 
 		if rows.Err() != nil {
