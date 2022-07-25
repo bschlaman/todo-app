@@ -16,6 +16,10 @@ const routes = {
 	createComment:       `/api/create_comment`,
 	updateTask:          `/api/put_task`,
 	getStoryById:        `/api/get_story`,
+
+	getTags:             `/api/get_tags`,
+	createTag:           `/api/create_tag`,
+	assignTag:           `/api/assign_tag`,
 };
 
 const STATUSES = ["BACKLOG", "DOING", "DONE", "DEPRIORITIZED", "ARCHIVE"];
@@ -51,6 +55,14 @@ function getStories() {
 
 function getSprints() {
 	return fetch(routes.getSprints, { method: "GET" })
+		.then(res => res.json())
+		.catch(err => {
+			console.warn("error occured:", err);
+		});
+}
+
+function getTags() {
+	return fetch(routes.getTags, { method: "GET" })
 		.then(res => res.json())
 		.catch(err => {
 			console.warn("error occured:", err);
@@ -107,6 +119,40 @@ function createSprint(title, startdate, enddate) {
 			title:      title,
 			start_date: new Date(startdate),
 			end_date:   new Date(enddate),
+		}),
+	});
+}
+
+function createTag(title, description) {
+	if(!title || !description){
+		console.warn("tag creation failed");
+		return;
+	}
+	fetch(routes.createTag, {
+		method: "POST",
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({
+			title:       title,
+			description: description,
+		}),
+	});
+}
+
+function assignTag(tag_id, story_id) {
+	if(!tag_id || !story_id){
+		console.warn("tag assignment failed");
+		return;
+	}
+	fetch(routes.createTag, {
+		method: "POST",
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({
+			tag_id:   tag_id,
+			story_id: story_id,
 		}),
 	});
 }

@@ -19,9 +19,10 @@
 <body><!-- workaround for FOUC --><script>let FF_FOUC_FIX;</script>
 <div class="wrapper">
 	<div class="header-wrapper">
-		<button class="modal-open create-task-button">Create New Task</button>
-		<button class="modal-open create-story-button">Create New Story</button>
-		<button class="modal-open create-sprint-button">Create New Sprint</button>
+		<button class="modal-open create-task-button">New Task</button>
+		<button class="modal-open create-story-button">New Story</button>
+		<button class="modal-open create-sprint-button">New Sprint</button>
+		<button class="modal-open create-tag-button">New Tag</button>
 		<div class="sprint-select-wrapper">
 			<p class="sprint-select-label">Viewing Sprint:</p>
 			<select></select>
@@ -80,6 +81,19 @@
 			<input required type="date" name="startdate">
 			<label for="enddate">End Date</label>
 			<input required type="date" name="enddate">
+			<button class="modal-save">Save</button>
+		</form>
+	</dialog>
+
+	<!-- CREATE TAG MODAL -->
+	<dialog class="create-modal create-tag-modal">
+		<button class="modal-close">&times;</button>
+		<h3 class="modal-title">Create Tag</h3>
+		<form method="dialog">
+			<label for="title">Title</label>
+			<input onkeydown="return event.key != 'Enter';" type="text" required placeholder="Title" name="title"/>
+			<label for="description">Description</label>
+			<textarea required placeholder="Description" name="description"></textarea>
 			<button class="modal-save">Save</button>
 		</form>
 	</dialog>

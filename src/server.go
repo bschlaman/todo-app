@@ -188,6 +188,9 @@ func main() {
 		{"/api/create_story", createStoryHandle},
 		{"/api/get_sprints", getSprintsHandle},
 		{"/api/create_sprint", createSprintHandle},
+		{"/api/assign_tag", createTagAssignmentHandle},
+		{"/api/get_tags", getTagsHandle},
+		{"/api/create_tag", createTagHandle},
 	}
 	for _, route := range apiRoutes {
 		http.Handle(route.Path, utils.LogReq(log)(route.Handler()))

@@ -171,6 +171,36 @@
 		}, 500);
 	});
 	// END CREATE SPRINT MODAL ============================
+	// CODE SECTION: CREATE TAG MODAL ============================
+	const createTagButton = document.querySelector(".create-tag-button");
+	const createTagModal = document.querySelector(".create-tag-modal");
+	const createTagTitleInput = createTagModal.querySelector('input[name="title"]');
+	const createTagDescInput = createTagModal.querySelector('textarea[name="description"]');
+	const createTagSaveButton = createTagModal.querySelector(".modal-save");
+	// Create button
+	createTagButton.onclick = _ => {
+		clearInputValues(createTagTitleInput, createTagDescInput); // page reload edge cases
+		createTagModal.showModal();
+		createTagTitleInput.focus();
+	};
+	createTagTitleInput.setAttribute("maxlength", serverConfig.tag_title_max_len);
+	createTagDescInput.setAttribute("maxlength", serverConfig.tag_desc_max_len);
+	// Close (x) button
+	createTagModal.querySelector(".modal-close").onclick = _ => { createTagModal.close() };
+	// CTRL-Enter to save
+	createTagModal.addEventListener("keydown", e => {
+		if(e.keyCode === 13 && e.ctrlKey){
+			e.preventDefault(); // prevent dialog not closing weirdness
+			createTagSaveButton.click();
+		}
+	});
+	createTagSaveButton.addEventListener("click", _ => {
+		createTag(createTagTitleInput.value, createTagDescInput.value);
+		setTimeout(_ => {
+			clearInputValues(createTagTitleInput, createTagDescInput);
+		}, 500);
+	});
+	// END CREATE TAG MODAL ============================
 
 
 	const buckets = document.querySelectorAll(".todo-app-bucket");

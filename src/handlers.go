@@ -49,7 +49,7 @@ func getConfigHandle() http.Handler {
 			return
 		}
 
-		// TODO: this doesn't seem like good form
+		// this doesn't seem like good form
 		// Might I have other types besides string and int??
 		serverConfig := make(map[string]interface{})
 		for _, scr := range serverConfigRows {
@@ -632,6 +632,154 @@ func createStoryHandle() http.Handler {
 			createReq.Title,
 			createReq.Description,
 			createReq.SprintId,
+		)
+		if err != nil {
+			log.Errorf("Exec failed: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+	})
+}
+
+// TAGS
+func getTagsHandle() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		conn, err := getPgxConn()
+		if err != nil {
+			log.Errorf("unable to connect to database: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+		defer conn.Close(context.Background())
+
+		rows, err := conn.Query(context.Background(),
+			`SELECT
+				id,
+				created_at,
+				updated_at,
+				title,
+				description,
+				is_parent,
+				edited
+				FROM tags`,
+		)
+		if err != nil {
+			log.Errorf("Query failed: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+		defer rows.Close()
+
+		var tags []Tag
+		for rows.Next() {
+			var id, title, desc string
+			var cAt, uAt time.Time
+			var isParent, edited bool
+			rows.Scan(&id, &cAt, &uAt, &title, &desc, &isParent, &edited)
+			tags = append(tags, Tag{id, cAt, uAt, title, desc, isParent, edited})
+		}
+
+		if rows.Err() != nil {
+			log.Errorf("Query failed: %v\n", rows.Err())
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+
+		js, err := json.Marshal(tags)
+		if err != nil {
+			log.Errorf("json.Marshal failed: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(js)
+	})
+}
+
+func createTagAssignmentHandle() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var createReq struct {
+			TagId   string `json:"tag_id"`
+			StoryId string `json:"story_id"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&createReq); err != nil {
+			log.Errorf("unable to decode json: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusBadRequest)
+			return
+		}
+
+		if createReq.TagId == "" || createReq.StoryId == "" {
+			log.Error("createTagAssignment: TagId or StoryId blank")
+			http.Error(w, "something went wrong", http.StatusBadRequest)
+			return
+		}
+
+		conn, err := getPgxConn()
+		if err != nil {
+			log.Errorf("unable to connect to database: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+		defer conn.Close(context.Background())
+
+		_, err = conn.Exec(context.Background(),
+			`INSERT INTO tag_assignments (
+				tag_id,
+				story_id
+			) VALUES (
+				$1,
+				$2
+			);`,
+			createReq.TagId,
+			createReq.StoryId,
+		)
+		if err != nil {
+			log.Errorf("Exec failed: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+	})
+}
+
+func createTagHandle() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var createReq struct {
+			Title       string `json:"title"`
+			Description string `json:"description"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&createReq); err != nil {
+			log.Errorf("unable to decode json: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusBadRequest)
+			return
+		}
+
+		// TODO: turn this into a validation function
+		if createReq.Title == "" || createReq.Description == "" {
+			log.Error("createTag: Title or Description blank")
+			http.Error(w, "something went wrong", http.StatusBadRequest)
+			return
+		}
+
+		conn, err := getPgxConn()
+		if err != nil {
+			log.Errorf("unable to connect to database: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+		defer conn.Close(context.Background())
+
+		_, err = conn.Exec(context.Background(),
+			`INSERT INTO tags (
+				updated_at,
+				title,
+				description
+			) VALUES (
+				CURRENT_TIMESTAMP,
+				$1,
+				$2
+			);`,
+			createReq.Title,
+			createReq.Description,
 		)
 		if err != nil {
 			log.Errorf("Exec failed: %v\n", err)

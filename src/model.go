@@ -22,6 +22,25 @@ type Comment struct {
 	Edited    bool      `json:"edited"`
 }
 
+type Tag struct {
+	Id          string    `json:"id"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
+	Title       string    `json:"title"`
+	Description string    `json:"description"`
+	IsParent    bool      `json:"is_parent"`
+	Edited      bool      `json:"edited"`
+}
+
+type TagAssignment struct {
+	Id        int       `json:"id"`
+	CreatedAt time.Time `json:"created_at"`
+	TagId     string    `json:"tag_id"`
+	StoryId   string    `json:"story_id"`
+}
+
+// TODO: change the order so cAt is up top
+// or use field names during construction
 type Sprint struct {
 	Id        string    `json:"id"`
 	CreatedAt time.Time `json:"created_at"`

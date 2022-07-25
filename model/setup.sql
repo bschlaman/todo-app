@@ -51,8 +51,8 @@ CREATE TABLE IF NOT EXISTS public.tags
 		updated_at timestamp without time zone,
 		title character varying(30) NOT NULL,
 		description character varying(2000),
-		edited boolean NOT NULL DEFAULT false,
 		is_parent boolean NOT NULL DEFAULT false,
+		edited boolean NOT NULL DEFAULT false,
 		CONSTRAINT title_not_empty CHECK (title <> '')
 );
 

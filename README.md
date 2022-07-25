@@ -32,3 +32,7 @@ New:
 - `/assign_task_to_story` (`/put_task` ??)
 - `/assign_story_to_sprint`
 
+### Architecture
+Now that I've introduced the concept of tags, I think a new strategy is necessary for data fetching and rendering.
+My plan is to basically fetch all of the data at once for the taskboard view, save it into Maps, and then render.
+All of the calls should be async, with the rendering taking place once all are completed.
