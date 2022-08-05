@@ -36,3 +36,6 @@ New:
 Now that I've introduced the concept of tags, I think a new strategy is necessary for data fetching and rendering.
 My plan is to basically fetch all of the data at once for the taskboard view, save it into Maps, and then render.
 All of the calls should be async, with the rendering taking place once all are completed.
+
+### Rendering
+I am starting to lean towards the "give me ALL of the data, then render" approach.  My app is so small at the moment that this should not matter.  Order does matter while rendering (e.g. can't render tasks without stories / labels), but data fetching is order agnostic.  That means I can take advantage of `Promise.all` to speed things up.  If it becomes clear that latency is a problem later, I can work on optimizing queries and api fetch orchestration.  Re-rendering the entire page is also relatively inexpensive for how small this project is currently

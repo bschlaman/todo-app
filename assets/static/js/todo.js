@@ -23,6 +23,11 @@
 	// from renderTasksFromJSON did not work, since all get calls
 	// were initiated well before any of them finished, so the cache
 	// was never used and I basically DDoS'd myself
+	// another approach is to use Promise.all for any calls which are
+	// orthogonal (which is currently all of them)
+	// note: Promise.all was IMMEDIATELY better; almost a 75% reduction in load times
+	// almost to the point where I'm satisfied
+	console.time("api_calls");
 	await getConfig().then(config => {
 		serverConfig = config;
 	});
@@ -31,7 +36,7 @@
 			storyDataCache.set(story.id, story);
 		});
 	});
-	// need to await this before task render because we filter tasks
+	// need to  this before task render because we filter tasks
 	// based on sprintsCache
 	await getSprints().then(sprints => {
 		sprints.forEach(sprint => {
@@ -45,7 +50,8 @@
 				option.selected = true;
 		});
 	});
-	getTasks().then(tasks => { renderTasksFromJSON(tasks) });
+	await getTasks().then(tasks => { renderTasksFromJSON(tasks) });
+	console.timeEnd("api_calls");
 
 	// CODE SECTION: CREATE TASK MODAL ============================
 	const createTaskButton = document.querySelector(".create-task-button");
