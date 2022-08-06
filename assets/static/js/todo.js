@@ -1,32 +1,13 @@
 (async function (){
 
 	let serverConfig;
-
 	// stores story data by story_id
 	const storyDataCache = new Map();
 	// stores sprint data by sprint_id
 	const sprintDataCache = new Map();
+	// stores task data by task_id
+	const taskDataCache = new Map();
 
-	const sprintSelect = document.querySelector(".sprint-select-wrapper select");
-	sprintSelect.addEventListener("change", _ => {
-		// TODO: inefficient! I should store task state globally
-		// to avoid another full call here
-		// could i instead cache this in local storage??
-		getTasks().then(tasks => { renderTasksFromJSON(tasks) });
-		localStorage.setItem("viewing_sprint_id", sprintSelect.value);
-	});
-
-	// TODO: this await slows down page loads massively
-	// it would be better to getTasks, render them,
-	// leave "loading..." in the HTML, and update them async
-	// note that trying this by calling getStoryById with cache
-	// from renderTasksFromJSON did not work, since all get calls
-	// were initiated well before any of them finished, so the cache
-	// was never used and I basically DDoS'd myself
-	// another approach is to use Promise.all for any calls which are
-	// orthogonal (which is currently all of them)
-	// note: Promise.all was IMMEDIATELY better; almost a 75% reduction in load times
-	// almost to the point where I'm satisfied
 	console.time("api_calls");
 	await getConfig().then(config => {
 		serverConfig = config;
@@ -36,22 +17,33 @@
 			storyDataCache.set(story.id, story);
 		});
 	});
-	// need to  this before task render because we filter tasks
-	// based on sprintsCache
 	await getSprints().then(sprints => {
 		sprints.forEach(sprint => {
 			sprintDataCache.set(sprint.id, sprint);
+		});
+	});
+	await getTasks().then(tasks => {
+		tasks.forEach(task => { taskDataCache.set(task.id, task); });
+	});
+	console.timeEnd("api_calls");
 
+	// render sprint selector (must be before task render)
+	const sprintSelect = document.querySelector(".sprint-select-wrapper select");
+	sprintSelect.addEventListener("change", _ => {
+		renderTasksFromJSON(Array.from(taskDataCache.values()));
+		localStorage.setItem("viewing_sprint_id", sprintSelect.value);
+	});
+	sprintDataCache.forEach((sprint, _) => {
 			const option = document.createElement("option");
 			option.setAttribute("value", sprint.id);
 			option.textContent = sprint.title;
 			sprintSelect.appendChild(option);
 			if(localStorage.getItem("viewing_sprint_id") === sprint.id)
 				option.selected = true;
-		});
 	});
-	await getTasks().then(tasks => { renderTasksFromJSON(tasks) });
-	console.timeEnd("api_calls");
+
+	// TODO: renderTasksFromJSON should take no arguments and use the map
+	renderTasksFromJSON(Array.from(taskDataCache.values()));
 
 	// CODE SECTION: CREATE TASK MODAL ============================
 	const createTaskButton = document.querySelector(".create-task-button");
@@ -68,17 +60,15 @@
 		// Remove option from <select> and call /get_stories
 		while(createTaskSelectInput.firstChild)
 			createTaskSelectInput.removeChild(createTaskSelectInput.firstChild);
-		getStories().then(stories => {
-			stories.filter(s => {
+		Array.from(storyDataCache.values()).filter(s => {
 				// if for some reason sprintSelect.value is falsey, dont filter
 				if(!sprintSelect.value) return true;
 				return s.sprint_id === sprintSelect.value;
-			}).forEach(story => {
-				const option = document.createElement("option");
-				option.setAttribute("value", story.id);
-				option.textContent = story.title;
-				createTaskSelectInput.appendChild(option);
-			});
+		}).forEach(story => {
+			const option = document.createElement("option");
+			option.setAttribute("value", story.id);
+			option.textContent = story.title;
+			createTaskSelectInput.appendChild(option);
 		});
 	};
 	createTaskTitleInput.setAttribute("maxlength", serverConfig.task_title_max_len);
@@ -98,7 +88,7 @@
 		// also, not sure when to clearInputValues - i think this is a UX decision
 		setTimeout(_ => {
 			clearInputValues(createTaskTitleInput, createTaskDescInput, createTaskSelectInput);
-			getTasks().then(tasks => { renderTasksFromJSON(tasks) });
+			location.reload();
 		}, 500);
 	});
 	// END CREATE TASK MODAL ============================
@@ -117,13 +107,11 @@
 		createStoryTitleInput.focus();
 		// Remove option from <select> and call /get_stories
 		while(createStorySelectInput.firstChild) createStorySelectInput.removeChild(createStorySelectInput.firstChild);
-		getSprints().then(sprints => {
-			sprints.forEach(sprint => {
-				let option = document.createElement("option");
-				option.setAttribute("value", sprint.id);
-				option.textContent = sprint.title;
-				createStorySelectInput.appendChild(option);
-			});
+		sprintDataCache.forEach((sprint, _) => {
+			let option = document.createElement("option");
+			option.setAttribute("value", sprint.id);
+			option.textContent = sprint.title;
+			createStorySelectInput.appendChild(option);
 		});
 	};
 	createStoryTitleInput.setAttribute("maxlength", serverConfig.story_title_max_len);
@@ -142,6 +130,7 @@
 		// TODO: BAD!  createStory is async, so this may miss new Storys
 		setTimeout(_ => {
 			clearInputValues(createStoryTitleInput, createStoryDescInput, createStorySelectInput);
+			location.reload();
 		}, 500);
 	});
 	// END CREATE STORY MODAL ============================
@@ -174,6 +163,7 @@
 		// TODO: BAD!  createSprint is async, so this may miss new Sprints
 		setTimeout(_ => {
 			clearInputValues(createSprintTitleInput, createSprintStartdateInput, createSprintEnddateInput);
+			location.reload();
 		}, 500);
 	});
 	// END CREATE SPRINT MODAL ============================
@@ -204,6 +194,7 @@
 		createTag(createTagTitleInput.value, createTagDescInput.value);
 		setTimeout(_ => {
 			clearInputValues(createTagTitleInput, createTagDescInput);
+			location.reload();
 		}, 500);
 	});
 	// END CREATE TAG MODAL ============================
