@@ -696,6 +696,57 @@ func getTagsHandle() http.Handler {
 	})
 }
 
+func getTagAssignmentsHandle() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		conn, err := getPgxConn()
+		if err != nil {
+			log.Errorf("unable to connect to database: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+		defer conn.Close(context.Background())
+
+		rows, err := conn.Query(context.Background(),
+			`SELECT
+				id,
+				created_at,
+				tag_id,
+				story_id
+				FROM tag_assignments`,
+		)
+		if err != nil {
+			log.Errorf("Query failed: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+		defer rows.Close()
+
+		var tagAssignments []TagAssignment
+		for rows.Next() {
+			var id int
+			var tagId, storyId string
+			var cAt time.Time
+			rows.Scan(&id, &cAt, &tagId, &storyId)
+			tagAssignments = append(tagAssignments, TagAssignment{id, cAt, tagId, storyId})
+		}
+
+		if rows.Err() != nil {
+			log.Errorf("Query failed: %v\n", rows.Err())
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+
+		js, err := json.Marshal(tagAssignments)
+		if err != nil {
+			log.Errorf("json.Marshal failed: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(js)
+	})
+}
+
 func createTagAssignmentHandle() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var createReq struct {

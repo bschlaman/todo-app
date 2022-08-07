@@ -155,9 +155,7 @@ body {
 }
 
 /* modals: common themes */
-.create-task-modal,
-.create-story-modal,
-.create-sprint-modal {
+.create-modal {
 	padding: 1rem;
 	background: var(--transp-white);
 	border-radius: 10px;
@@ -191,6 +189,30 @@ body {
 .create-modal textarea {
 	resize: none;
 	height: 8rem;
+}
+/* sprint view */
+.story {
+	padding: 1rem;
+	background: #ebeded;
+	margin: 10px;
+	border-radius: 0.5rem;
+	position: relative;
+	box-shadow: 3px 3px 2px darkgrey;
+	align-items: center;
+}
+.story-edit-link {
+	position: absolute;
+	top: 1rem;
+	right: 1rem;
+}
+.story-metadata-container {
+	text-align: right;
+}
+.story-created-at {
+	color: var(--transp-black);
+}
+.story-tags label {
+	margin-right: 1rem;
 }
 
 /* OTHER PAGES */

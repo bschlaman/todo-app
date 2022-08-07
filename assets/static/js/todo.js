@@ -7,25 +7,50 @@
 	const sprintDataCache = new Map();
 	// stores task data by task_id
 	const taskDataCache = new Map();
+	const tagDataCache = new Map();
+	const tagAssignmentDataCache = new Map();
+
+	// should probably store this data elsewhere
+	const tagColors = {
+		"Todo App": "green",
+		"Work": "blue",
+		"Music": "red",
+		"Chess Engine": "darkgoldenrod",
+		"Life": "purple",
+		"Piano": "darkgrey",
+		"Guitar": "brown",
+	}
 
 	console.time("api_calls");
-	await getConfig().then(config => {
-		serverConfig = config;
-	});
-	await getStories().then(stories => {
-		stories.forEach(story => {
-			storyDataCache.set(story.id, story);
-		});
-	});
-	await getSprints().then(sprints => {
-		sprints.forEach(sprint => {
-			sprintDataCache.set(sprint.id, sprint);
-		});
-	});
-	await getTasks().then(tasks => {
-		tasks.forEach(task => { taskDataCache.set(task.id, task); });
-	});
+	await Promise.all([
+		getConfig().then(config => {
+			serverConfig = config;
+		}),
+		getStories().then(stories => {
+			stories.forEach(story => {
+				storyDataCache.set(story.id, story);
+			});
+		}),
+		getSprints().then(sprints => {
+			sprints.forEach(sprint => {
+				sprintDataCache.set(sprint.id, sprint);
+			});
+		}),
+		getTasks().then(tasks => {
+			tasks.forEach(task => { taskDataCache.set(task.id, task); });
+		}),
+		getTags().then(tags => {
+			tags.forEach(tag => { tagDataCache.set(tag.id, tag); });
+		}),
+		getTagAssignments().then(tagAssignments => {
+			if(!tagAssignments) return;
+			tagAssignments.forEach(tagAssignment => {
+				tagAssignmentDataCache.set(tagAssignment.id, tagAssignment);
+			});
+		}),
+	]);
 	console.timeEnd("api_calls");
+	console.log(tagAssignmentDataCache);
 
 	// render sprint selector (must be before task render)
 	const sprintSelect = document.querySelector(".sprint-select-wrapper select");
@@ -44,6 +69,7 @@
 
 	// TODO: renderTasksFromJSON should take no arguments and use the map
 	renderTasksFromJSON(Array.from(taskDataCache.values()));
+	renderStories();
 
 	// CODE SECTION: CREATE TASK MODAL ============================
 	const createTaskButton = document.querySelector(".create-task-button");
@@ -260,7 +286,6 @@
 		}).forEach(task => {
 			const taskDiv = document.createElement("div");
 			taskDiv.classList.add("task");
-			// taskDiv.setAttribute("draggable", "true");
 
 			const taskHandle = document.createElement("p");
 			taskHandle.classList.add("task-handle");
@@ -326,6 +351,71 @@
 			// e.g. /get_config -> {"status_buckets": ["BACKLOG", "DOING", ...]}
 			const bucket = document.querySelector(`[data-status="${task.status}"]`);
 			bucket.appendChild(taskDiv);
+		});
+	}
+
+	function renderStories(){
+		storyDataCache.forEach((story, _) => {
+			const storyDiv = document.createElement("div");
+			storyDiv.classList.add("story");
+
+			const storyTitle = document.createElement("h4");
+			storyTitle.classList.add("story-title");
+			storyTitle.textContent = story.title;
+
+			const storyDesc = document.createElement("p");
+			storyDesc.classList.add("story-desc");
+			storyDesc.textContent = story.description;
+
+			const storyEditLink = document.createElement("a");
+			storyEditLink.classList.add("story-edit-link");
+			storyEditLink.textContent = "edit";
+			storyEditLink.setAttribute("href", `/story/${story.id}`);
+
+			const storyMetadataContainer = document.createElement("div");
+			storyMetadataContainer.classList.add("story-metadata-container");
+
+			const storySprintTitle = document.createElement("p");
+			storySprintTitle.classList.add("story-sprint-title");
+			storySprintTitle.textContent = sprintDataCache.get(story.sprint_id).title;
+
+			const storyCreatedAt = document.createElement("p");
+			storyCreatedAt.classList.add("story-created-at");
+			storyCreatedAt.textContent = formatDate(new Date(story.created_at));
+
+			const storyTags = document.createElement("div");
+			storyTags.classList.add("story-tags");
+			tagDataCache.forEach((tag, _) => {
+				const tagCheckBox = document.createElement("input");
+				tagCheckBox.setAttribute("type", "checkbox");
+				tagCheckBox.setAttribute("name", tag.title);
+				tagCheckBox.dataset.tag_id = tag.id;
+				tagCheckBox.addEventListener("change", _ => {
+					createTagAssignment(tag.id, story.id);
+				});
+				// this is an expensive O(n) operation, but I dont care
+				tagAssignmentDataCache.forEach((ta, _) => {
+					if(ta.story_id === story.id && ta.tag_id === tag.id)
+						tagCheckBox.checked = true;
+				});
+				const tagCheckBoxLabel = document.createElement("label");
+				tagCheckBoxLabel.setAttribute("for", tag.title);
+				tagCheckBoxLabel.style.color = tagColors[tag.title];
+				tagCheckBoxLabel.textContent = tag.title;
+				storyTags.appendChild(tagCheckBox);
+				storyTags.appendChild(tagCheckBoxLabel);
+			});
+
+			storyDiv.appendChild(storyTitle);
+			storyDiv.appendChild(storyDesc);
+			storyDiv.appendChild(storyEditLink);
+			storyDiv.appendChild(storyTags);
+			storyDiv.appendChild(storyMetadataContainer);
+			storyMetadataContainer.appendChild(storyCreatedAt);
+			storyMetadataContainer.appendChild(storySprintTitle);
+
+			const storiesWrapper = document.querySelector(".stories-wrapper");
+			storiesWrapper.appendChild(storyDiv);
 		});
 	}
 

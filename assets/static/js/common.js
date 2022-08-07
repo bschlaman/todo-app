@@ -18,8 +18,9 @@ const routes = {
 	getStoryById:        `/api/get_story`,
 
 	getTags:             `/api/get_tags`,
+	getTagAssignments:   `/api/get_tag_assignments`,
+	createTagAssignment: `/api/create_tag_assignment`,
 	createTag:           `/api/create_tag`,
-	assignTag:           `/api/assign_tag`,
 };
 
 const STATUSES = ["BACKLOG", "DOING", "DONE", "DEPRIORITIZED", "ARCHIVE"];
@@ -32,7 +33,7 @@ function getConfig(){
 	return fetch(routes.getConfig, { method: "GET" })
 		.then(res => res.json())
 		.catch(err => {
-			console.warn("error occured:", err);
+			console.error("error occured:", err);
 		});
 }
 
@@ -41,7 +42,7 @@ function getTasks(){
 		.then(res => res.json())
 		// TODO: DRY - create simple err handle func
 		.catch(err => {
-			console.warn("error occured:", err);
+			console.error("error occured:", err);
 		});
 }
 
@@ -49,7 +50,7 @@ function getStories() {
 	return fetch(routes.getStories, { method: "GET" })
 		.then(res => res.json())
 		.catch(err => {
-			console.warn("error occured:", err);
+			console.error("error occured:", err);
 		});
 }
 
@@ -57,7 +58,7 @@ function getSprints() {
 	return fetch(routes.getSprints, { method: "GET" })
 		.then(res => res.json())
 		.catch(err => {
-			console.warn("error occured:", err);
+			console.error("error occured:", err);
 		});
 }
 
@@ -65,13 +66,21 @@ function getTags() {
 	return fetch(routes.getTags, { method: "GET" })
 		.then(res => res.json())
 		.catch(err => {
-			console.warn("error occured:", err);
+			console.error("error occured:", err);
+		});
+}
+
+function getTagAssignments() {
+	return fetch(routes.getTagAssignments, { method: "GET" })
+		.then(res => res.json())
+		.catch(err => {
+			console.error("error occured:", err);
 		});
 }
 
 function createTask(title, description, storyId) {
 	if(!title || !description || !storyId){
-		console.warn("task creation failed");
+		console.error("task creation failed");
 		return;
 	}
 	fetch(routes.createTask, {
@@ -89,7 +98,7 @@ function createTask(title, description, storyId) {
 
 function createStory(title, description, sprintId) {
 	if(!title || !description || !sprintId){
-		console.warn("story creation failed");
+		console.error("story creation failed");
 		return;
 	}
 	fetch(routes.createStory, {
@@ -107,7 +116,7 @@ function createStory(title, description, sprintId) {
 
 function createSprint(title, startdate, enddate) {
 	if(!title || !startdate || !enddate){
-		console.warn("story creation failed");
+		console.error("story creation failed");
 		return;
 	}
 	fetch(routes.createSprint, {
@@ -125,7 +134,7 @@ function createSprint(title, startdate, enddate) {
 
 function createTag(title, description) {
 	if(!title || !description){
-		console.warn("tag creation failed");
+		console.error("tag creation failed");
 		return;
 	}
 	fetch(routes.createTag, {
@@ -140,12 +149,12 @@ function createTag(title, description) {
 	});
 }
 
-function assignTag(tag_id, story_id) {
+function createTagAssignment(tag_id, story_id) {
 	if(!tag_id || !story_id){
-		console.warn("tag assignment failed");
+		console.error("tag assignment failed");
 		return;
 	}
-	fetch(routes.createTag, {
+	fetch(routes.createTagAssignment, {
 		method: "POST",
 		headers: {
 			'Content-Type': 'application/json',
@@ -159,7 +168,7 @@ function assignTag(tag_id, story_id) {
 
 function updateTaskById(id, status, title, description, storyId) {
 	if(!id || !status || !title || !description || !storyId){
-		console.warn("could not update task");
+		console.error("could not update task");
 		return;
 	}
 	fetch(routes.updateTask, {
@@ -176,7 +185,7 @@ function updateTaskById(id, status, title, description, storyId) {
 		}),
 	})
 	.catch(err => {
-		console.warn("error occured:", err);
+		console.error("error occured:", err);
 	});
 }
 
@@ -194,6 +203,6 @@ function formatDate(date){
 
 function formatId(id){
 	// expect postgres style id
-	if(id.split("-").length != 5) console.warn("id seems to be wrong format:", id);
+	if(id.split("-").length != 5) console.error("id seems to be wrong format:", id);
 	return id.split("-")[0] + "...";
 }
