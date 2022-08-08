@@ -792,6 +792,50 @@ func createTagAssignmentHandle() http.Handler {
 	})
 }
 
+func destroyTagAssignmentHandle() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var destroyReq struct {
+			TagId   string `json:"tag_id"`
+			StoryId string `json:"story_id"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&destroyReq); err != nil {
+			log.Errorf("unable to decode json: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusBadRequest)
+			return
+		}
+
+		if destroyReq.TagId == "" || destroyReq.StoryId == "" {
+			log.Error("destroyTagAssignment: TagId or StoryId blank")
+			http.Error(w, "something went wrong", http.StatusBadRequest)
+			return
+		}
+
+		conn, err := getPgxConn()
+		if err != nil {
+			log.Errorf("unable to connect to database: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+		defer conn.Close(context.Background())
+
+		_, err = conn.Exec(context.Background(),
+			`DELETE FROM tag_assignments
+				WHERE
+				tag_id = $1
+				AND
+				story_id = $2
+			;`,
+			destroyReq.TagId,
+			destroyReq.StoryId,
+		)
+		if err != nil {
+			log.Errorf("Exec failed: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+	})
+}
+
 func createTagHandle() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var createReq struct {

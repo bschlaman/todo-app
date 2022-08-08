@@ -1,26 +1,27 @@
 // GLOBAL CONSTS
 
 const routes = {
-	getConfig:           `/api/get_config`,
+	getConfig:               `/api/get_config`,
 
-	getTasks:            `/api/get_tasks`,
-	createTask:          `/api/create_task`,
-	updateTask:          `/api/put_task`,
-	getStories:          `/api/get_stories`,
-	getSprints:          `/api/get_sprints`,
-	createStory:         `/api/create_story`,
-	createSprint:	       `/api/create_sprint`,
+	getTasks:                `/api/get_tasks`,
+	createTask:              `/api/create_task`,
+	updateTask:              `/api/put_task`,
+	getStories:              `/api/get_stories`,
+	getSprints:              `/api/get_sprints`,
+	createStory:             `/api/create_story`,
+	createSprint:	           `/api/create_sprint`,
 
-	getTaskById:         `/api/get_task`,
-	getCommentsByTaskId: `/api/get_comments_by_task_id`,
-	createComment:       `/api/create_comment`,
-	updateTask:          `/api/put_task`,
-	getStoryById:        `/api/get_story`,
+	getTaskById:             `/api/get_task`,
+	getCommentsByTaskId:     `/api/get_comments_by_task_id`,
+	createComment:           `/api/create_comment`,
+	updateTask:              `/api/put_task`,
+	getStoryById:            `/api/get_story`,
 
-	getTags:             `/api/get_tags`,
-	getTagAssignments:   `/api/get_tag_assignments`,
-	createTagAssignment: `/api/create_tag_assignment`,
-	createTag:           `/api/create_tag`,
+	getTags:                 `/api/get_tags`,
+	getTagAssignments:       `/api/get_tag_assignments`,
+	createTagAssignment:     `/api/create_tag_assignment`,
+	destroyTagAssignment:    `/api/destroy_tag_assignment`,
+	createTag:               `/api/create_tag`,
 };
 
 const STATUSES = ["BACKLOG", "DOING", "DONE", "DEPRIORITIZED", "ARCHIVE"];
@@ -155,6 +156,23 @@ function createTagAssignment(tag_id, story_id) {
 		return;
 	}
 	fetch(routes.createTagAssignment, {
+		method: "POST",
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({
+			tag_id:   tag_id,
+			story_id: story_id,
+		}),
+	});
+}
+
+function destroyTagAssignment(tag_id, story_id) {
+	if(!tag_id || !story_id){
+		console.error("tag assignment failed");
+		return;
+	}
+	fetch(routes.destroyTagAssignment, {
 		method: "POST",
 		headers: {
 			'Content-Type': 'application/json',

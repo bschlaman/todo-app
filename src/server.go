@@ -189,6 +189,7 @@ func main() {
 		{"/api/get_sprints", getSprintsHandle},
 		{"/api/create_sprint", createSprintHandle},
 		{"/api/create_tag_assignment", createTagAssignmentHandle},
+		{"/api/destroy_tag_assignment", destroyTagAssignmentHandle},
 		{"/api/get_tags", getTagsHandle},
 		{"/api/get_tag_assignments", getTagAssignmentsHandle},
 		{"/api/create_tag", createTagHandle},

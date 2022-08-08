@@ -19,6 +19,7 @@
 		"Life": "purple",
 		"Piano": "darkgrey",
 		"Guitar": "brown",
+		"Intellectual Pursuits": "darkblue",
 	}
 
 	console.time("api_calls");
@@ -391,7 +392,11 @@
 				tagCheckBox.setAttribute("name", tag.title);
 				tagCheckBox.dataset.tag_id = tag.id;
 				tagCheckBox.addEventListener("change", _ => {
-					createTagAssignment(tag.id, story.id);
+					if(tagCheckBox.checked){
+						createTagAssignment(tag.id, story.id);
+					} else {
+						destroyTagAssignment(tag.id, story.id);
+					}
 				});
 				// this is an expensive O(n) operation, but I dont care
 				tagAssignmentDataCache.forEach((ta, _) => {
