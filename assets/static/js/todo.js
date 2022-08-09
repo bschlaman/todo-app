@@ -411,10 +411,32 @@
 				storyTags.appendChild(tagCheckBoxLabel);
 			});
 
+			const storySprintSelect = document.createElement("select");
+			sprintDataCache.forEach((sprint, _) => {
+				let option = document.createElement("option");
+				option.setAttribute("value", sprint.id);
+				option.textContent = sprint.title;
+				if(story.sprint_id === sprint.id) option.selected = true;
+				storySprintSelect.appendChild(option);
+			});
+			storySprintSelect.addEventListener("change", _ => {
+				updateStoryById(
+					story.id,
+					story.status,
+					story.title,
+					story.description,
+					storySprintSelect.value,
+				);
+				setTimeout(_ => {
+					location.reload();
+				}, 1000);
+			});
+
 			storyDiv.appendChild(storyTitle);
 			storyDiv.appendChild(storyDesc);
 			storyDiv.appendChild(storyEditLink);
 			storyDiv.appendChild(storyTags);
+			storyDiv.appendChild(storySprintSelect);
 			storyDiv.appendChild(storyMetadataContainer);
 			storyMetadataContainer.appendChild(storyCreatedAt);
 			storyMetadataContainer.appendChild(storySprintTitle);

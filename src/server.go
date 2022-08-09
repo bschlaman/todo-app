@@ -180,6 +180,7 @@ func main() {
 		{"/api/get_tasks", getTasksHandle},
 		{"/api/get_task", getTaskByIdHandle},
 		{"/api/put_task", putTaskHandle},
+		{"/api/put_story", putStoryHandle},
 		{"/api/create_task", createTaskHandle},
 		{"/api/create_comment", createCommentHandle},
 		{"/api/get_comments_by_task_id", getCommentsByIdHandle},

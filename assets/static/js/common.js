@@ -6,6 +6,7 @@ const routes = {
 	getTasks:                `/api/get_tasks`,
 	createTask:              `/api/create_task`,
 	updateTask:              `/api/put_task`,
+	updateStory:             `/api/put_story`,
 	getStories:              `/api/get_stories`,
 	getSprints:              `/api/get_sprints`,
 	createStory:             `/api/create_story`,
@@ -14,7 +15,6 @@ const routes = {
 	getTaskById:             `/api/get_task`,
 	getCommentsByTaskId:     `/api/get_comments_by_task_id`,
 	createComment:           `/api/create_comment`,
-	updateTask:              `/api/put_task`,
 	getStoryById:            `/api/get_story`,
 
 	getTags:                 `/api/get_tags`,
@@ -200,6 +200,29 @@ function updateTaskById(id, status, title, description, storyId) {
 			title:       title,
 			description: description,
 			story_id:    storyId,
+		}),
+	})
+	.catch(err => {
+		console.error("error occured:", err);
+	});
+}
+
+function updateStoryById(id, status, title, description, sprintId) {
+	if(!id || !status || !title || !description || !sprintId){
+		console.error("could not update story");
+		return;
+	}
+	fetch(routes.updateStory, {
+		method: "PUT",
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({
+			id:           id,
+			status:       status,
+			title:        title,
+			description:  description,
+			sprint_id:    sprintId,
 		}),
 	})
 	.catch(err => {

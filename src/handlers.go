@@ -394,6 +394,52 @@ func createCommentHandle() http.Handler {
 	})
 }
 
+func putStoryHandle() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var putReq struct {
+			Id          string `json:"id"`
+			Status      string `json:"status"`
+			Title       string `json:"title"`
+			Description string `json:"description"`
+			SprintId    string `json:"sprint_id"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&putReq); err != nil {
+			log.Errorf("unable to decode json: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusBadRequest)
+			return
+		}
+
+		conn, err := getPgxConn()
+		if err != nil {
+			log.Errorf("unable to connect to database: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+		defer conn.Close(context.Background())
+
+		_, err = conn.Exec(context.Background(),
+			`UPDATE stories SET
+			updated_at = CURRENT_TIMESTAMP,
+			status = $1,
+			title = $2,
+			description = $3,
+			sprint_id = $4,
+			edited = true
+			WHERE id = $5`,
+			putReq.Status,
+			putReq.Title,
+			putReq.Description,
+			putReq.SprintId,
+			putReq.Id,
+		)
+		if err != nil {
+			log.Errorf("Exec failed: %v\n", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+	})
+}
+
 func putTaskHandle() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var putReq struct {
