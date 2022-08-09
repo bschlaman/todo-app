@@ -321,10 +321,22 @@
 			taskStoryTitle.classList.add("task-story-title");
 			taskStoryTitle.textContent = storyDataCache.get(task.story_id).title;
 
+			const taskTags = document.createElement("div");
+			taskTags.classList.add("task-tags");
+			tagAssignmentDataCache.forEach((ta, _) => {
+				if(ta.story_id !== task.story_id) return;
+				const tag = tagDataCache.get(ta.tag_id);
+				const taskTag = document.createElement("span");
+				taskTag.style.background = tagColors[tag.title];
+				taskTag.textContent = tag.title;
+				taskTags.appendChild(taskTag);
+			});
+
 			taskDiv.appendChild(taskHandle);
 			taskDiv.appendChild(taskEditLink);
 			taskDiv.appendChild(taskTitle);
 			taskDiv.appendChild(taskDesc);
+			taskDiv.appendChild(taskTags);
 			taskDiv.appendChild(taskCreatedAt);
 			taskDiv.appendChild(taskStoryTitle);
 

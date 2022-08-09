@@ -104,6 +104,14 @@ body {
 .task .task-handle:active {
 	cursor: grabbing;
 }
+.task .task-tags span {
+	margin: 0.2rem;
+	color: var(--transp-white);
+	padding: 0.4rem;
+	border-radius: 4px;
+	font-size: 0.8rem;
+	font-weight: bold;
+}
 
 /* done task styles */
 .todo-app-bucket[data-status="DONE"] .task {
