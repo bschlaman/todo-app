@@ -68,6 +68,28 @@
 				option.selected = true;
 	});
 
+	// render tag selector
+	// wrapping in a function for now so I can call it from
+	// some kind of render() func later
+	(function(){
+		const tags = document.querySelector(".tags-wrapper");
+		tagDataCache.forEach((tag, _) => {
+			const tagCheckBox = document.createElement("input");
+			tagCheckBox.setAttribute("type", "checkbox");
+			tagCheckBox.setAttribute("name", tag.title);
+			tagCheckBox.dataset.tag_id = tag.id;
+			tagCheckBox.addEventListener("change", _ => {
+				// re-render tasks or page reload
+			});
+			const tagCheckBoxLabel = document.createElement("label");
+			tagCheckBoxLabel.setAttribute("for", tag.title);
+			tagCheckBoxLabel.style.color = tagColors[tag.title];
+			tagCheckBoxLabel.textContent = tag.title;
+			tags.appendChild(tagCheckBox);
+			tags.appendChild(tagCheckBoxLabel);
+		});
+	})();
+
 	// TODO: renderTasksFromJSON should take no arguments and use the map
 	renderTasksFromJSON(Array.from(taskDataCache.values()));
 	renderStories();
