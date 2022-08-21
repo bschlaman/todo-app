@@ -175,6 +175,7 @@ func main() {
 		Handler func() http.Handler
 	}{
 		{"/api/echo", utils.EchoHandle},
+		{"/api/echodelay", utils.EchoDelayHandle},
 		{"/api/login", loginHandle},
 		{"/api/get_config", getConfigHandle},
 		{"/api/get_tasks", getTasksHandle},
