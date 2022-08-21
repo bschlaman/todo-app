@@ -404,7 +404,7 @@
 			// is tightly coupled with data model.  Can I pull in this as config somehow?
 			// e.g. /get_config -> {"status_buckets": ["BACKLOG", "DOING", ...]}
 			const bucket = document.querySelector(`[data-status="${task.status}"]`);
-			bucket.appendChild(taskDiv);
+			bucket?.appendChild(taskDiv);
 		});
 	}
 
