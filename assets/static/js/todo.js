@@ -11,7 +11,7 @@
 	const tagAssignmentDataCache = new Map();
 
 	// should probably store this data elsewhere
-	const tagColors = {
+	const TAG_COLORS = {
 		"Todo App": "green",
 		"Work": "blue",
 		"Music": "red",
@@ -21,6 +21,11 @@
 		"Guitar": "brown",
 		"Intellectual Pursuits": "darkblue",
 	}
+
+	const LOCAL_STORAGE_KEYS = {
+		selectedSprintId: "viewing_sprint_id",
+		selectedTagIds: "selected_tag_ids",
+	};
 
 	console.time("api_calls");
 	await Promise.all([
@@ -51,20 +56,19 @@
 		}),
 	]);
 	console.timeEnd("api_calls");
-	console.log(tagAssignmentDataCache);
 
 	// render sprint selector (must be before task render)
 	const sprintSelect = document.querySelector(".sprint-select-wrapper select");
 	sprintSelect.addEventListener("change", _ => {
 		renderTasksFromJSON(Array.from(taskDataCache.values()));
-		localStorage.setItem("viewing_sprint_id", sprintSelect.value);
+		localStorage.setItem(LOCAL_STORAGE_KEYS.selectedSprintId, sprintSelect.value);
 	});
 	sprintDataCache.forEach((sprint, _) => {
 			const option = document.createElement("option");
 			option.setAttribute("value", sprint.id);
 			option.textContent = sprint.title;
 			sprintSelect.appendChild(option);
-			if(localStorage.getItem("viewing_sprint_id") === sprint.id)
+			if(localStorage.getItem(LOCAL_STORAGE_KEYS.selectedSprintId) === sprint.id)
 				option.selected = true;
 	});
 
@@ -73,17 +77,23 @@
 	// some kind of render() func later
 	(function(){
 		const tags = document.querySelector(".tags-wrapper");
+		const localStorageSelectedTagIds = localStorage.getItem(
+			LOCAL_STORAGE_KEYS.selectedTagIds,
+		);
 		tagDataCache.forEach((tag, _) => {
 			const tagCheckBox = document.createElement("input");
 			tagCheckBox.setAttribute("type", "checkbox");
 			tagCheckBox.setAttribute("name", tag.title);
 			tagCheckBox.dataset.tag_id = tag.id;
+			if(localStorageSelectedTagIds.includes(tag.id))
+				tagCheckBox.checked = true;
 			tagCheckBox.addEventListener("change", _ => {
-				// re-render tasks or page reload
+				setLocalStorageSelectedTags();
+				renderTasksFromJSON(Array.from(taskDataCache.values()));
 			});
 			const tagCheckBoxLabel = document.createElement("label");
 			tagCheckBoxLabel.setAttribute("for", tag.title);
-			tagCheckBoxLabel.style.color = tagColors[tag.title];
+			tagCheckBoxLabel.style.color = TAG_COLORS[tag.title];
 			tagCheckBoxLabel.textContent = tag.title;
 			tags.appendChild(tagCheckBox);
 			tags.appendChild(tagCheckBoxLabel);
@@ -302,10 +312,19 @@
 		}
 		// Clear out the task elements to avoid duplication
 		document.querySelectorAll(".task").forEach(task => { task.remove(); });
-		// Only take tasks which are in the selected sprint
+
+		const selectedTagIds = new Set();
+		document.querySelectorAll(".tags-wrapper input").forEach(tagCheckBox => {
+			if(tagCheckBox.checked) selectedTagIds.add(tagCheckBox.dataset.tag_id);
+		});
 		tasks.filter(t => {
-			const story = storyDataCache.get(t.story_id);
-			return story.sprint_id === sprintSelect.value;
+			// inefficient
+			for(const ta of tagAssignmentDataCache.values()){
+				if(ta.story_id === t.story_id && selectedTagIds.has(ta.tag_id)) return true;
+			}
+			return false;
+			// const story = storyDataCache.get(t.story_id);
+			// return story.sprint_id === sprintSelect.value;
 		}).forEach(task => {
 			const taskDiv = document.createElement("div");
 			taskDiv.classList.add("task");
@@ -349,7 +368,7 @@
 				if(ta.story_id !== task.story_id) return;
 				const tag = tagDataCache.get(ta.tag_id);
 				const taskTag = document.createElement("span");
-				taskTag.style.background = tagColors[tag.title];
+				taskTag.style.background = TAG_COLORS[tag.title];
 				taskTag.textContent = tag.title;
 				taskTags.appendChild(taskTag);
 			});
@@ -439,7 +458,7 @@
 				});
 				const tagCheckBoxLabel = document.createElement("label");
 				tagCheckBoxLabel.setAttribute("for", tag.title);
-				tagCheckBoxLabel.style.color = tagColors[tag.title];
+				tagCheckBoxLabel.style.color = TAG_COLORS[tag.title];
 				tagCheckBoxLabel.textContent = tag.title;
 				storyTags.appendChild(tagCheckBox);
 				storyTags.appendChild(tagCheckBoxLabel);
@@ -478,6 +497,17 @@
 			const storiesWrapper = document.querySelector(".stories-wrapper");
 			storiesWrapper.appendChild(storyDiv);
 		});
+	}
+
+	function setLocalStorageSelectedTags(){
+		const selectedTagIds = [...document.querySelectorAll(".tags-wrapper input")]
+			.filter(tagCheckBox => {
+			return tagCheckBox.checked;
+		}).map(e => {
+			return e.dataset.tag_id;
+		});
+
+		localStorage.setItem(LOCAL_STORAGE_KEYS.selectedTagIds, selectedTagIds);
 	}
 
 })();
