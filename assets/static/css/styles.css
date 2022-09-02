@@ -30,6 +30,9 @@ html {
 a {
 	text-decoration: none;
 }
+a:visited {
+	color: blue;
+}
 input, select, textarea, button {
 	font-family: inherit;
 	font-size: inherit;
@@ -172,9 +175,14 @@ body {
 }
 .tags-wrapper span {
 	white-space: nowrap;
+	display: inline-block;
 }
 .tags-wrapper label {
 	margin-right: 1rem;
+}
+.tags-wrapper a {
+	margin: 0 1rem;
+	text-decoration: underline;
 }
 
 /* modals: common themes */

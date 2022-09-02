@@ -243,7 +243,7 @@ function formatDate(date){
 }
 
 function formatDateCompact(date){
-	return `${date.getMonth() + 1}.${date.getDate()}`;
+	return `${date.getMonth() + 1}.${date.getDate() + 1}`;
 }
 
 function sprintToString(sprint){

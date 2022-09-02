@@ -105,19 +105,24 @@
 		// "All" and "None" links
 		const allAnchor = document.createElement("a");
 		allAnchor.textContent = "All";
+		allAnchor.setAttribute("href", "#");
 		const noneAnchor = document.createElement("a");
 		noneAnchor.textContent = "None";
+		noneAnchor.setAttribute("href", "#");
 		allAnchor.onclick = _ => {
 			document.querySelectorAll(".tags-wrapper input")?.forEach(i => {
 				i.checked = true;
 			});
+			// TODO: would be better to fire an event here
 			setLocalStorageSelectedTags();
+			renderTasksFromJSON(Array.from(taskDataCache.values()));
 		};
 		noneAnchor.onclick = _ => {
 			document.querySelectorAll(".tags-wrapper input")?.forEach(i => {
 				i.checked = false;
 			});
 			setLocalStorageSelectedTags();
+			renderTasksFromJSON(Array.from(taskDataCache.values()));
 		};
 		tagsWrapper.appendChild(allAnchor);
 		tagsWrapper.appendChild(noneAnchor);
@@ -362,7 +367,7 @@
 			taskTitle.textContent = task.title;
 
 			const taskEditLink = document.createElement("a");
-			taskEditLink.classList.add("tasj-edit-link");
+			taskEditLink.classList.add("task-edit-link");
 			taskEditLink.textContent = "edit";
 			taskEditLink.setAttribute("href", `/task/${task.id}`);
 
