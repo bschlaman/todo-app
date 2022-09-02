@@ -132,9 +132,9 @@ body {
 .header-wrapper {
 	display: flex;
 	gap: 1rem;
-	font-size: 2rem;
+	font-size: 1.2rem;
 	align-items: center;
-	margin: 2rem 0;
+	margin: 1rem 0;
 }
 /* open modal buttons */
 .modal-open {
@@ -155,15 +155,23 @@ body {
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
-	margin-left: 4rem;
+	margin-left: 2rem;
 }
 .sprint-select-wrapper .sprint-select-label {
 	font-weight: bold;
 	margin: 0;
+	font-size: 1rem;
+}
+.sprint-select-wrapper select {
+	max-width: 25rem;
 }
 /* tag selector */
 .tags-wrapper {
 	font-size: 1rem;
+	max-width: 15rem;
+}
+.tags-wrapper span {
+	white-space: nowrap;
 }
 .tags-wrapper label {
 	margin-right: 1rem;

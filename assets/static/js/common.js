@@ -242,6 +242,18 @@ function formatDate(date){
 	return `${date.toDateString()}`;
 }
 
+function formatDateCompact(date){
+	return `${date.getMonth() + 1}.${date.getDate()}`;
+}
+
+function sprintToString(sprint){
+	return `${sprint.title} (${
+		formatDateCompact(new Date(sprint.start_date))
+	} - ${
+		formatDateCompact(new Date(sprint.end_date))
+	})`
+}
+
 function formatId(id){
 	// expect postgres style id
 	if(id.split("-").length != 5) console.error("id seems to be wrong format:", id);

@@ -61,12 +61,13 @@
 	const sprintSelect = document.querySelector(".sprint-select-wrapper select");
 	sprintSelect.addEventListener("change", _ => {
 		renderTasksFromJSON(Array.from(taskDataCache.values()));
+		renderStories();
 		localStorage.setItem(LOCAL_STORAGE_KEYS.selectedSprintId, sprintSelect.value);
 	});
 	sprintDataCache.forEach((sprint, _) => {
 			const option = document.createElement("option");
 			option.setAttribute("value", sprint.id);
-			option.textContent = sprint.title;
+			option.textContent = sprintToString(sprint);
 			sprintSelect.appendChild(option);
 			if(localStorage.getItem(LOCAL_STORAGE_KEYS.selectedSprintId) === sprint.id)
 				option.selected = true;
@@ -76,7 +77,7 @@
 	// wrapping in a function for now so I can call it from
 	// some kind of render() func later
 	(function(){
-		const tags = document.querySelector(".tags-wrapper");
+		const tagsWrapper = document.querySelector(".tags-wrapper");
 		const localStorageSelectedTagIds = localStorage.getItem(
 			LOCAL_STORAGE_KEYS.selectedTagIds,
 		);
@@ -85,7 +86,7 @@
 			tagCheckBox.setAttribute("type", "checkbox");
 			tagCheckBox.setAttribute("name", tag.title);
 			tagCheckBox.dataset.tag_id = tag.id;
-			if(localStorageSelectedTagIds.includes(tag.id))
+			if(localStorageSelectedTagIds?.includes(tag.id))
 				tagCheckBox.checked = true;
 			tagCheckBox.addEventListener("change", _ => {
 				setLocalStorageSelectedTags();
@@ -95,9 +96,32 @@
 			tagCheckBoxLabel.setAttribute("for", tag.title);
 			tagCheckBoxLabel.style.color = TAG_COLORS[tag.title];
 			tagCheckBoxLabel.textContent = tag.title;
-			tags.appendChild(tagCheckBox);
-			tags.appendChild(tagCheckBoxLabel);
+			const tagContainer = document.createElement("span");
+			tagContainer.appendChild(tagCheckBox);
+			tagContainer.appendChild(tagCheckBoxLabel);
+			tagsWrapper.appendChild(tagContainer);
 		});
+
+		// "All" and "None" links
+		const allAnchor = document.createElement("a");
+		allAnchor.textContent = "All";
+		const noneAnchor = document.createElement("a");
+		noneAnchor.textContent = "None";
+		allAnchor.onclick = _ => {
+			document.querySelectorAll(".tags-wrapper input")?.forEach(i => {
+				i.checked = true;
+			});
+			setLocalStorageSelectedTags();
+		};
+		noneAnchor.onclick = _ => {
+			document.querySelectorAll(".tags-wrapper input")?.forEach(i => {
+				i.checked = false;
+			});
+			setLocalStorageSelectedTags();
+		};
+		tagsWrapper.appendChild(allAnchor);
+		tagsWrapper.appendChild(noneAnchor);
+
 	})();
 
 	// TODO: renderTasksFromJSON should take no arguments and use the map
@@ -307,7 +331,7 @@
 			console.warn("no tasks to render!");
 		}
 		if(!sprintSelect.value){
-			console.err("couldn't get sprint from dropdown, therefore cannot render tasksk");
+			console.err("couldn't get sprint from dropdown, therefore cannot render tasks");
 			return;
 		}
 		// Clear out the task elements to avoid duplication
@@ -318,13 +342,13 @@
 			if(tagCheckBox.checked) selectedTagIds.add(tagCheckBox.dataset.tag_id);
 		});
 		tasks.filter(t => {
+			const story = storyDataCache.get(t.story_id);
+			if(story.sprint_id !== sprintSelect.value) return false;
 			// inefficient
 			for(const ta of tagAssignmentDataCache.values()){
 				if(ta.story_id === t.story_id && selectedTagIds.has(ta.tag_id)) return true;
 			}
 			return false;
-			// const story = storyDataCache.get(t.story_id);
-			// return story.sprint_id === sprintSelect.value;
 		}).forEach(task => {
 			const taskDiv = document.createElement("div");
 			taskDiv.classList.add("task");
@@ -338,7 +362,7 @@
 			taskTitle.textContent = task.title;
 
 			const taskEditLink = document.createElement("a");
-			taskEditLink.classList.add("task-edit-link");
+			taskEditLink.classList.add("tasj-edit-link");
 			taskEditLink.textContent = "edit";
 			taskEditLink.setAttribute("href", `/task/${task.id}`);
 
@@ -409,7 +433,17 @@
 	}
 
 	function renderStories(){
-		storyDataCache.forEach((story, _) => {
+		if(!sprintSelect.value){
+			console.err("couldn't get sprint from dropdown, therefore cannot render stories");
+			return;
+		}
+
+		// Clear out the story elements to avoid duplication
+		document.querySelectorAll(".story").forEach(story => { story.remove(); });
+
+		Array.from(storyDataCache.values()).filter(story => {
+			return story.sprint_id === sprintSelect.value;
+		}).forEach((story, _) => {
 			const storyDiv = document.createElement("div");
 			storyDiv.classList.add("story");
 
@@ -468,7 +502,7 @@
 			sprintDataCache.forEach((sprint, _) => {
 				let option = document.createElement("option");
 				option.setAttribute("value", sprint.id);
-				option.textContent = sprint.title;
+				option.textContent = sprintToString(sprint);
 				if(story.sprint_id === sprint.id) option.selected = true;
 				storySprintSelect.appendChild(option);
 			});
