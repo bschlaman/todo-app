@@ -65,7 +65,11 @@ func sessionMiddleware(h http.Handler) http.Handler {
 		cookie, err := r.Cookie("session")
 		if err != nil {
 			log.Infof("invalid cookie: no session in cookie")
-			http.Redirect(w, r, loginPath, http.StatusSeeOther)
+			if strings.HasPrefix(r.URL.Path, "/api") {
+				http.Error(w, "invalid cookie", http.StatusUnauthorized)
+			} else {
+				http.Redirect(w, r, loginPath, http.StatusSeeOther)
+			}
 			return
 		}
 
@@ -73,14 +77,22 @@ func sessionMiddleware(h http.Handler) http.Handler {
 		_, ok := sessions[cookie.Value]
 		if !ok {
 			log.Infof("invalid cookie: session not recognized")
-			http.Redirect(w, r, loginPath, http.StatusSeeOther)
+			if strings.HasPrefix(r.URL.Path, "/api") {
+				http.Error(w, "invalid cookie", http.StatusUnauthorized)
+			} else {
+				http.Redirect(w, r, loginPath, http.StatusSeeOther)
+			}
 			return
 		}
 
 		// session expired
 		if time.Now().Sub(sessions[cookie.Value].CreatedAt) > sessionDuration {
 			log.Infof("invalid cookie: session expired")
-			http.Redirect(w, r, loginPath, http.StatusSeeOther)
+			if strings.HasPrefix(r.URL.Path, "/api") {
+				http.Error(w, "invalid cookie", http.StatusUnauthorized)
+			} else {
+				http.Redirect(w, r, loginPath, http.StatusSeeOther)
+			}
 			return
 		}
 

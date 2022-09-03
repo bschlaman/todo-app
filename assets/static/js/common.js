@@ -32,51 +32,45 @@ const hoverClass = "droppable-hover";
 
 function getConfig(){
 	return fetch(routes.getConfig, { method: "GET" })
+		.then(handleApiRes)
 		.then(res => res.json())
-		.catch(err => {
-			console.error("error occured:", err);
-		});
+		.catch(handleApiErr);
 }
 
 function getTasks(){
 	return fetch(routes.getTasks, { method: "GET" })
+		.then(handleApiRes)
 		.then(res => res.json())
 		// TODO: DRY - create simple err handle func
-		.catch(err => {
-			console.error("error occured:", err);
-		});
+		.catch(handleApiErr);
 }
 
 function getStories() {
 	return fetch(routes.getStories, { method: "GET" })
+		.then(handleApiRes)
 		.then(res => res.json())
-		.catch(err => {
-			console.error("error occured:", err);
-		});
+		.catch(handleApiErr);
 }
 
 function getSprints() {
 	return fetch(routes.getSprints, { method: "GET" })
+		.then(handleApiRes)
 		.then(res => res.json())
-		.catch(err => {
-			console.error("error occured:", err);
-		});
+		.catch(handleApiErr);
 }
 
 function getTags() {
 	return fetch(routes.getTags, { method: "GET" })
+		.then(handleApiRes)
 		.then(res => res.json())
-		.catch(err => {
-			console.error("error occured:", err);
-		});
+		.catch(handleApiErr);
 }
 
 function getTagAssignments() {
 	return fetch(routes.getTagAssignments, { method: "GET" })
+		.then(handleApiRes)
 		.then(res => res.json())
-		.catch(err => {
-			console.error("error occured:", err);
-		});
+		.catch(handleApiErr);
 }
 
 function createTask(title, description, storyId) {
@@ -94,7 +88,8 @@ function createTask(title, description, storyId) {
 			description: description,
 			story_id:    storyId,
 		}),
-	});
+	})
+	.then(handleApiRes);
 }
 
 function createStory(title, description, sprintId) {
@@ -112,7 +107,8 @@ function createStory(title, description, sprintId) {
 			description: description,
 			sprint_id:   sprintId,
 		}),
-	});
+	})
+	.then(handleApiRes);
 }
 
 function createSprint(title, startdate, enddate) {
@@ -130,7 +126,8 @@ function createSprint(title, startdate, enddate) {
 			start_date: new Date(startdate),
 			end_date:   new Date(enddate),
 		}),
-	});
+	})
+	.then(handleApiRes);
 }
 
 function createTag(title, description) {
@@ -147,7 +144,8 @@ function createTag(title, description) {
 			title:       title,
 			description: description,
 		}),
-	});
+	})
+	.then(handleApiRes);
 }
 
 function createTagAssignment(tag_id, story_id) {
@@ -164,7 +162,8 @@ function createTagAssignment(tag_id, story_id) {
 			tag_id:   tag_id,
 			story_id: story_id,
 		}),
-	});
+	})
+	.then(handleApiRes);
 }
 
 function destroyTagAssignment(tag_id, story_id) {
@@ -181,7 +180,8 @@ function destroyTagAssignment(tag_id, story_id) {
 			tag_id:   tag_id,
 			story_id: story_id,
 		}),
-	});
+	})
+	.then(handleApiRes);
 }
 
 function updateTaskById(id, status, title, description, storyId) {
@@ -202,9 +202,8 @@ function updateTaskById(id, status, title, description, storyId) {
 			story_id:    storyId,
 		}),
 	})
-	.catch(err => {
-		console.error("error occured:", err);
-	});
+	.then(handleApiRes)
+	.catch(handleApiErr);
 }
 
 function updateStoryById(id, status, title, description, sprintId) {
@@ -225,9 +224,8 @@ function updateStoryById(id, status, title, description, sprintId) {
 			sprint_id:    sprintId,
 		}),
 	})
-	.catch(err => {
-		console.error("error occured:", err);
-	});
+	.then(handleApiRes)
+	.catch(handleApiErr);
 }
 
 // UTIL FUNCTIONS
@@ -258,4 +256,14 @@ function formatId(id){
 	// expect postgres style id
 	if(id.split("-").length != 5) console.error("id seems to be wrong format:", id);
 	return id.split("-")[0] + "...";
+}
+
+function handleApiRes(res) {
+	if(res.ok) return res;
+	alert(`${res.url}: ${res.status}`);
+}
+
+function handleApiErr(err) {
+	console.error("error occured:", err);
+	alert(err);
 }
