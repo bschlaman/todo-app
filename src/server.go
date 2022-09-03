@@ -48,6 +48,8 @@ func sessionMiddleware(h http.Handler) http.Handler {
 			"/js",
 			"/css",
 			"/favicon.ico",
+			"/api/login",
+			"/api/echo",
 		}
 		for _, path := range skippablePaths {
 			if strings.HasPrefix(r.URL.Path, path) {
@@ -68,9 +70,9 @@ func sessionMiddleware(h http.Handler) http.Handler {
 		}
 
 		// id not found in sessions data structure
-		session, ok := sessions[cookie.Value]
+		_, ok := sessions[cookie.Value]
 		if !ok {
-			log.Infof("invalid cookie: session not recognized: %v\n", session)
+			log.Infof("invalid cookie: session not recognized")
 			http.Redirect(w, r, loginPath, http.StatusSeeOther)
 			return
 		}
@@ -197,7 +199,9 @@ func main() {
 		{"/api/create_tag", createTagHandle},
 	}
 	for _, route := range apiRoutes {
-		http.Handle(route.Path, utils.LogReq(log)(route.Handler()))
+		http.Handle(route.Path, utils.LogReq(log)(
+			sessionMiddleware(route.Handler()),
+		))
 	}
 
 	port := os.Getenv("SERVER_PORT")
