@@ -57,6 +57,11 @@
 	]);
 	console.timeEnd("api_calls");
 
+	// TEMPORARY: DELETE
+	document.querySelector(".bulk-create-task-button").onclick = _ => {
+		bulkCreateTasks(null, null, "838f9281-48ce-4bdd-b773-34c3c012f54d");
+	}
+
 	// render sprint selector (must be before task render)
 	const sprintSelect = document.querySelector(".sprint-select-wrapper select");
 	sprintSelect.addEventListener("change", _ => {
@@ -476,6 +481,9 @@
 			storyCreatedAt.classList.add("story-created-at");
 			storyCreatedAt.textContent = formatDate(new Date(story.created_at));
 
+			storyMetadataContainer.appendChild(storyCreatedAt);
+			storyMetadataContainer.appendChild(storySprintTitle);
+
 			const storyTags = document.createElement("div");
 			storyTags.classList.add("story-tags");
 			tagDataCache.forEach((tag, _) => {
@@ -524,14 +532,31 @@
 				}, 1000);
 			});
 
+			const openTasksListWrapper = document.createElement("div");
+			const openTasksListTitle = document.createElement("h4");
+			openTasksListTitle.textContent = "Tasks in this sprint";
+			const openTasksList = document.createElement("ul");
+			openTasksListWrapper.appendChild(openTasksListTitle);
+			openTasksListWrapper.appendChild(openTasksList);
+			Array.from(taskDataCache.values()).filter(task => {
+				if(task.story_id !== story.id) return false;
+				return true;
+			}).forEach(task => {
+				const li = document.createElement("li");
+				li.textContent = `(${task.status}) ${task.title}`;
+				openTasksList.appendChild(li);
+			})
+
+
 			storyDiv.appendChild(storyTitle);
 			storyDiv.appendChild(storyDesc);
 			storyDiv.appendChild(storyEditLink);
 			storyDiv.appendChild(storyTags);
 			storyDiv.appendChild(storySprintSelect);
-			storyDiv.appendChild(storyMetadataContainer);
-			storyMetadataContainer.appendChild(storyCreatedAt);
-			storyMetadataContainer.appendChild(storySprintTitle);
+			storyDiv.appendChild(openTasksListWrapper);
+			// don't need to display this info for now, the sprint is
+			// already captured by the sprint select
+			// storyDiv.appendChild(storyMetadataContainer);
 
 			const storiesWrapper = document.querySelector(".stories-wrapper");
 			storiesWrapper.appendChild(storyDiv);
@@ -547,6 +572,16 @@
 		});
 
 		localStorage.setItem(LOCAL_STORAGE_KEYS.selectedTagIds, selectedTagIds);
+	}
+
+	function bulkCreateTasks(commonTitle, commonDescription, storyId){
+		const story = storyDataCache.get(storyId);
+		const sprint = sprintDataCache.get(story.sprint_id);
+		const sprintStart = new Date(sprint.start_date);
+		const sprintEnd = new Date(sprint.end_date);
+		for(let d = sprintStart; d <= sprintEnd; d.setDate(d.getDate() + 1)){
+			console.log(d);
+		}
 	}
 
 })();
