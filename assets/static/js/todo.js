@@ -57,11 +57,6 @@
 	]);
 	console.timeEnd("api_calls");
 
-	// TEMPORARY: DELETE
-	document.querySelector(".bulk-create-task-button").onclick = _ => {
-		bulkCreateTasks(null, null, "838f9281-48ce-4bdd-b773-34c3c012f54d");
-	}
-
 	// render sprint selector (must be before task render)
 	const sprintSelect = document.querySelector(".sprint-select-wrapper select");
 	sprintSelect.addEventListener("change", _ => {
@@ -291,6 +286,48 @@
 		}, 500);
 	});
 	// END CREATE TAG MODAL ============================
+
+	// CODE SECTION: BULK CREATE TASK MODAL ============================
+	const bulkCreateTaskButton = document.querySelector(".bulk-create-task-button");
+	const bulkCreateTaskModal = document.querySelector(".bulk-create-task-modal");
+	const bulkCreateTaskTitleInput = bulkCreateTaskModal.querySelector('input[name="title"]');
+	const bulkCreateTaskDescInput = bulkCreateTaskModal.querySelector('textarea[name="description"]');
+	const bulkCreateTaskSelectInput = bulkCreateTaskModal.querySelector('select[name="story"]');
+	const bulkCreateTaskSaveButton = bulkCreateTaskModal.querySelector(".modal-save");
+	// Create button
+	bulkCreateTaskButton.onclick = _ => {
+		clearInputValues(bulkCreateTaskTitleInput, bulkCreateTaskDescInput, bulkCreateTaskSelectInput); // page reload edge cases
+		bulkCreateTaskModal.showModal();
+		bulkCreateTaskTitleInput.focus();
+		// Remove option from <select> and call /get_stories
+		while(bulkCreateTaskSelectInput.firstChild)
+			bulkCreateTaskSelectInput.removeChild(bulkCreateTaskSelectInput.firstChild);
+		Array.from(storyDataCache.values()).filter(s => {
+				// if for some reason sprintSelect.value is falsey, dont filter
+				if(!sprintSelect.value) return true;
+				return s.sprint_id === sprintSelect.value;
+		}).forEach(story => {
+			const option = document.createElement("option");
+			option.setAttribute("value", story.id);
+			option.textContent = story.title;
+			bulkCreateTaskSelectInput.appendChild(option);
+		});
+	};
+	bulkCreateTaskTitleInput.setAttribute("maxlength", serverConfig.task_title_max_len);
+	bulkCreateTaskDescInput.setAttribute("maxlength", serverConfig.task_desc_max_len);
+	// Close (x) button
+	bulkCreateTaskModal.querySelector(".modal-close").onclick = _ => { bulkCreateTaskModal.close() };
+	// CTRL-Enter to save
+	bulkCreateTaskModal.addEventListener("keydown", e => {
+		if(e.keyCode === 13 && e.ctrlKey){
+			e.preventDefault(); // prevent dialog not closing weirdness
+			bulkCreateTaskSaveButton.click();
+		}
+	});
+	bulkCreateTaskSaveButton.addEventListener("click", _ => {
+		bulkCreateTasks(bulkCreateTaskTitleInput.value, bulkCreateTaskDescInput.value, bulkCreateTaskSelectInput.value);
+	});
+	// END BULK CREATE TASK MODAL ============================
 
 
 	const buckets = document.querySelectorAll(".todo-app-bucket");
@@ -574,13 +611,18 @@
 		localStorage.setItem(LOCAL_STORAGE_KEYS.selectedTagIds, selectedTagIds);
 	}
 
-	function bulkCreateTasks(commonTitle, commonDescription, storyId){
+	async function bulkCreateTasks(commonTitle, commonDescription, storyId){
 		const story = storyDataCache.get(storyId);
 		const sprint = sprintDataCache.get(story.sprint_id);
 		const sprintStart = new Date(sprint.start_date);
 		const sprintEnd = new Date(sprint.end_date);
-		for(let d = sprintStart; d <= sprintEnd; d.setDate(d.getDate() + 1)){
-			console.log(d);
+		for(let d = sprintStart; d <= sprintEnd; d.setUTCDate(d.getUTCDate() + 1)){
+			const monthString = String(d.getUTCMonth() + 1).padStart(2, "0");
+			const dateString = String(d.getUTCDate()).padStart(2, "0");
+			const prefix = `[${monthString}.${dateString}] `;
+			await createTask(prefix + commonTitle, commonDescription, storyId).then(_ => {
+				console.log("Created task", prefix + commonTitle);
+			});
 		}
 	}
 

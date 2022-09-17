@@ -99,6 +99,22 @@
 			<button class="modal-save">Save</button>
 		</form>
 	</dialog>
+
+	<!-- BULK CREATE TASK MODAL -->
+	<dialog class="create-modal bulk-create-task-modal">
+		<button class="modal-close">&times;</button>
+		<h3 class="modal-title">Bulk Create Task</h3>
+		<form method="dialog">
+			<label for="title">Common Title</label>
+			<input onkeydown="return event.key != 'Enter';" type="text" required placeholder="Common Title" name="title"/>
+			<label for="description">Common Description</label>
+			<textarea required placeholder="Common Description" name="description"></textarea>
+			<label for="story">Story</label>
+			<select required name="story"></select>
+			<button class="modal-save">Save</button>
+		</form>
+	</dialog>
+
 	<!-- STORY VIEW -->
 <!-- end of wrapper div -->
 	<div class="stories-wrapper"></div>

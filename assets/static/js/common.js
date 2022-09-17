@@ -1,6 +1,8 @@
 // GLOBAL CONSTS
 
 const routes = {
+	simulateLatency:         `/api/echodelay?t=2`,
+
 	getConfig:               `/api/get_config`,
 
 	getTasks:                `/api/get_tasks`,
@@ -24,11 +26,18 @@ const routes = {
 	createTag:               `/api/create_tag`,
 };
 
-const STATUSES = ["BACKLOG", "DOING", "DONE", "DEPRIORITIZED", "ARCHIVE"];
+const STATUSES = ["BACKLOG", "DOING", "DONE", "DEPRIORITIZED", "ARCHIVE", "DUPLICATE"];
 
 const hoverClass = "droppable-hover";
 
 // API
+
+function simulateLatency(...args){
+	return fetch(routes.simulateLatency, { method: "GET" })
+		.then(handleApiRes)
+		.then(res => res.json())
+		.catch(handleApiErr);
+}
 
 function getConfig(){
 	return fetch(routes.getConfig, { method: "GET" })
@@ -41,7 +50,6 @@ function getTasks(){
 	return fetch(routes.getTasks, { method: "GET" })
 		.then(handleApiRes)
 		.then(res => res.json())
-		// TODO: DRY - create simple err handle func
 		.catch(handleApiErr);
 }
 
@@ -78,7 +86,7 @@ function createTask(title, description, storyId) {
 		console.error("task creation failed");
 		return;
 	}
-	fetch(routes.createTask, {
+	return fetch(routes.createTask, {
 		method: "POST",
 		headers: {
 			'Content-Type': 'application/json',
