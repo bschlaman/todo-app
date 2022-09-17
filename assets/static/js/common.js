@@ -105,7 +105,7 @@ function createStory(title, description, sprintId) {
 		console.error("story creation failed");
 		return;
 	}
-	fetch(routes.createStory, {
+	return fetch(routes.createStory, {
 		method: "POST",
 		headers: {
 			'Content-Type': 'application/json',
@@ -124,7 +124,7 @@ function createSprint(title, startdate, enddate) {
 		console.error("story creation failed");
 		return;
 	}
-	fetch(routes.createSprint, {
+	return fetch(routes.createSprint, {
 		method: "POST",
 		headers: {
 			'Content-Type': 'application/json',
@@ -143,7 +143,7 @@ function createTag(title, description) {
 		console.error("tag creation failed");
 		return;
 	}
-	fetch(routes.createTag, {
+	return fetch(routes.createTag, {
 		method: "POST",
 		headers: {
 			'Content-Type': 'application/json',
@@ -161,7 +161,7 @@ function createTagAssignment(tag_id, story_id) {
 		console.error("tag assignment failed");
 		return;
 	}
-	fetch(routes.createTagAssignment, {
+	return fetch(routes.createTagAssignment, {
 		method: "POST",
 		headers: {
 			'Content-Type': 'application/json',
@@ -179,7 +179,7 @@ function destroyTagAssignment(tag_id, story_id) {
 		console.error("tag assignment failed");
 		return;
 	}
-	fetch(routes.destroyTagAssignment, {
+	return fetch(routes.destroyTagAssignment, {
 		method: "POST",
 		headers: {
 			'Content-Type': 'application/json',
@@ -197,7 +197,7 @@ function updateTaskById(id, status, title, description, storyId) {
 		console.error("could not update task");
 		return;
 	}
-	fetch(routes.updateTask, {
+	return fetch(routes.updateTask, {
 		method: "PUT",
 		headers: {
 			'Content-Type': 'application/json',
@@ -219,7 +219,7 @@ function updateStoryById(id, status, title, description, sprintId) {
 		console.error("could not update story");
 		return;
 	}
-	fetch(routes.updateStory, {
+	return fetch(routes.updateStory, {
 		method: "PUT",
 		headers: {
 			'Content-Type': 'application/json',
@@ -235,6 +235,42 @@ function updateStoryById(id, status, title, description, sprintId) {
 	.then(handleApiRes)
 	.catch(handleApiErr);
 }
+
+function getTaskById(id){
+	return fetch(`${routes.getTaskById}?id=${id}`, { method: "GET" })
+		.then(handleApiRes)
+		.then(res => res.json())
+		.catch(handleApiErr);
+}
+
+function getCommentsByTaskId(id){
+	return fetch(`${routes.getCommentsByTaskId}?id=${id}`, { method: "GET" })
+		.then(handleApiRes)
+		.then(res => res.json())
+		.catch(handleApiErr);
+}
+
+function getStoryById(id) {
+	return fetch(`${routes.getStoryById}?id=${id}`, { method: "GET" })
+		.then(handleApiRes)
+		.then(res => res.json())
+		.catch(handleApiErr);
+}
+
+function createComment(taskId, text){
+	return fetch(`${routes.createComment}`, {
+		method: "POST",
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({
+			text:    text,
+			task_id: taskId,
+		})})
+	.then(handleApiRes)
+	.catch(handleApiErr);
+}
+
 
 // UTIL FUNCTIONS
 
@@ -266,12 +302,17 @@ function formatId(id){
 	return id.split("-")[0] + "...";
 }
 
+// only accept 200 response
 function handleApiRes(res) {
+	// TODO: should I throw an error here?
+	// maybe not, as then it would be caught by a .catch
 	if(res.ok) return res;
 	alert(`${res.url}: ${res.status}`);
+	return null;
 }
 
+// catch actual networking errors
 function handleApiErr(err) {
-	console.error("error occured:", err);
+	console.error("(handleApiErr) error occured:", err);
 	alert(err);
 }

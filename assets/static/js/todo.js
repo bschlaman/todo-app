@@ -56,6 +56,7 @@
 		}),
 	]);
 	console.timeEnd("api_calls");
+	console.table(serverConfig);
 
 	// render sprint selector (must be before task render)
 	const sprintSelect = document.querySelector(".sprint-select-wrapper select");
@@ -142,7 +143,6 @@
 	const createTaskSaveButton = createTaskModal.querySelector(".modal-save");
 	// Create button
 	createTaskButton.onclick = _ => {
-		clearInputValues(createTaskTitleInput, createTaskDescInput, createTaskSelectInput); // page reload edge cases
 		createTaskModal.showModal();
 		createTaskTitleInput.focus();
 		// Remove option from <select> and call /get_stories
@@ -171,8 +171,11 @@
 		}
 	});
 	createTaskSaveButton.addEventListener("click", async _ => {
-		await createTask(createTaskTitleInput.value, createTaskDescInput.value, createTaskSelectInput.value);
-		clearInputValues(createTaskTitleInput, createTaskDescInput, createTaskSelectInput);
+		const res = await createTask(
+			createTaskTitleInput.value, createTaskDescInput.value, createTaskSelectInput.value
+		);
+		if(!res) return;
+		clearInputValues(createTaskTitleInput, createTaskDescInput);
 		location.reload();
 	});
 	// END CREATE TASK MODAL ============================
@@ -186,7 +189,6 @@
 	const createStorySaveButton = createStoryModal.querySelector(".modal-save");
 	// Create button
 	createStoryButton.onclick = _ => {
-		clearInputValues(createStoryTitleInput, createStoryDescInput, createStorySelectInput); // page reload edge cases
 		createStoryModal.showModal();
 		createStoryTitleInput.focus();
 		// Remove option from <select> and call /get_stories
@@ -210,8 +212,11 @@
 		}
 	});
 	createStorySaveButton.addEventListener("click", async _ => {
-		await createStory(createStoryTitleInput.value, createStoryDescInput.value, createStorySelectInput.value);
-		clearInputValues(createStoryTitleInput, createStoryDescInput, createStorySelectInput);
+		const res = await createStory(
+			createStoryTitleInput.value, createStoryDescInput.value, createStorySelectInput.value
+		);
+		if(!res) return;
+		clearInputValues(createStoryTitleInput, createStoryDescInput);
 		location.reload();
 	});
 	// END CREATE STORY MODAL ============================
@@ -225,7 +230,6 @@
 	const createSprintSaveButton = createSprintModal.querySelector(".modal-save");
 	// Create button
 	createSprintButton.onclick = _ => {
-		clearInputValues(createSprintTitleInput, createSprintStartdateInput, createSprintEnddateInput); // page reload edge cases
 		createSprintModal.showModal();
 		createSprintTitleInput.focus();
 	};
@@ -239,15 +243,16 @@
 			createSprintSaveButton.click();
 		}
 	});
-	createSprintSaveButton.addEventListener("click", _ => {
-		createSprint(createSprintTitleInput.value, createSprintStartdateInput.value, createSprintEnddateInput.value);
-		// TODO: BAD!  createSprint is async, so this may miss new Sprints
-		setTimeout(_ => {
-			clearInputValues(createSprintTitleInput, createSprintStartdateInput, createSprintEnddateInput);
-			location.reload();
-		}, 500);
+	createSprintSaveButton.addEventListener("click", async _ => {
+		const res = await createsprint(
+			createSprintTitleInput.value, createSprintStartdateInput.value, createSprintEnddateInput.value
+		);
+		if(!res) return;
+		clearInputValues(createSprintTitleInput);
+		location.reload();
 	});
 	// END CREATE SPRINT MODAL ============================
+
 	// CODE SECTION: CREATE TAG MODAL ============================
 	const createTagButton = document.querySelector(".create-tag-button");
 	const createTagModal = document.querySelector(".create-tag-modal");
@@ -256,7 +261,6 @@
 	const createTagSaveButton = createTagModal.querySelector(".modal-save");
 	// Create button
 	createTagButton.onclick = _ => {
-		clearInputValues(createTagTitleInput, createTagDescInput); // page reload edge cases
 		createTagModal.showModal();
 		createTagTitleInput.focus();
 	};
@@ -272,8 +276,8 @@
 		}
 	});
 	createTagSaveButton.addEventListener("click", async _ => {
-		await createTag(createTagTitleInput.value, createTagDescInput.value);
-		// TODO: is input clearing still needed / desirable?
+		const res = await createTag(createTagTitleInput.value, createTagDescInput.value);
+		if(!res) return;
 		clearInputValues(createTagTitleInput, createTagDescInput);
 		location.reload();
 	});
@@ -288,7 +292,6 @@
 	const bulkCreateTaskSaveButton = bulkCreateTaskModal.querySelector(".modal-save");
 	// Create button
 	bulkCreateTaskButton.onclick = _ => {
-		clearInputValues(bulkCreateTaskTitleInput, bulkCreateTaskDescInput, bulkCreateTaskSelectInput); // page reload edge cases
 		bulkCreateTaskModal.showModal();
 		bulkCreateTaskTitleInput.focus();
 		// Remove option from <select> and call /get_stories
@@ -317,6 +320,7 @@
 		}
 	});
 	bulkCreateTaskSaveButton.addEventListener("click", async _ => {
+		// TODO: partial success handling
 		await bulkCreateTasks(bulkCreateTaskTitleInput.value, bulkCreateTaskDescInput.value, bulkCreateTaskSelectInput.value);
 		location.reload();
 	});

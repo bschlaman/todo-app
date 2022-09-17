@@ -31,14 +31,16 @@
 		taskStatus.appendChild(option);
 	});
 
-	taskSave.addEventListener("click", e => {
-		updateTaskById(
+	taskSave.addEventListener("click", async _ => {
+		const res = await updateTaskById(
 			taskIdFromPath,
 			taskStatus.value,
 			taskTitle.textContent, // no newlines should be present
 			taskDesc.innerText, // possible newlines
 			taskStoryTitle.value,
 		);
+		if(!res) return;
+		location.reload();
 	});
 
 	createCommentForm.addEventListener("submit", e => {
@@ -112,72 +114,6 @@
 			commentWrapper.appendChild(commentText);
 			commentWrapper.appendChild(commentCreatedAt);
 			taskComments.appendChild(commentWrapper);
-		});
-	}
-
-	// API FUNCTIONS
-
-	function getTaskById(id){
-		return fetch(`${routes.getTaskById}?id=${id}`, { method: "GET" })
-			.then(res => res.json())
-			.catch(err => {
-				console.warn("error occured:", err);
-			});
-	}
-
-	function getCommentsByTaskId(id){
-		return fetch(`${routes.getCommentsByTaskId}?id=${id}`, { method: "GET" })
-			.then(res => res.json())
-			.catch(err => {
-				console.warn("error occured:", err);
-			});
-	}
-
-	function getStoryById(id) {
-		return fetch(`${routes.getStoryById}?id=${id}`, { method: "GET" })
-			.then(res => res.json())
-			.catch(err => {
-				console.warn("error occured:", err);
-			});
-	}
-
-	function createComment(taskId, text){
-		fetch(`${routes.createComment}`, {
-			method: "POST",
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify({
-				text:    text,
-				task_id: taskId,
-			})})
-			.catch(err => {
-				console.warn("error occured:", err);
-			});
-	}
-
-	// TODO: DRY!!! this func is copied from todo.js
-	function updateTaskById(id, status, title, description, storyId) {
-		if(!id || !status || !title || !description || !storyId){
-			console.warn("could not update task");
-			return;
-		}
-		fetch(routes.updateTask, {
-			method: "PUT",
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify({
-				id:          id,
-				status:      status,
-				title:       title,
-				description: description,
-				story_id:    storyId,
-			}),
-		})
-		.then(res => { location.reload() }) // specific to task.js
-		.catch(err => {
-			console.warn("error occured:", err);
 		});
 	}
 
