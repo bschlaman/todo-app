@@ -170,14 +170,10 @@
 			createTaskSaveButton.click();
 		}
 	});
-	createTaskSaveButton.addEventListener("click", _ => {
-		createTask(createTaskTitleInput.value, createTaskDescInput.value, createTaskSelectInput.value);
-		// TODO: BAD!  createTask is async, so this may miss new tasks
-		// also, not sure when to clearInputValues - i think this is a UX decision
-		setTimeout(_ => {
-			clearInputValues(createTaskTitleInput, createTaskDescInput, createTaskSelectInput);
-			location.reload();
-		}, 500);
+	createTaskSaveButton.addEventListener("click", async _ => {
+		await createTask(createTaskTitleInput.value, createTaskDescInput.value, createTaskSelectInput.value);
+		clearInputValues(createTaskTitleInput, createTaskDescInput, createTaskSelectInput);
+		location.reload();
 	});
 	// END CREATE TASK MODAL ============================
 
@@ -213,13 +209,10 @@
 			createStorySaveButton.click();
 		}
 	});
-	createStorySaveButton.addEventListener("click", _ => {
-		createStory(createStoryTitleInput.value, createStoryDescInput.value, createStorySelectInput.value);
-		// TODO: BAD!  createStory is async, so this may miss new Storys
-		setTimeout(_ => {
-			clearInputValues(createStoryTitleInput, createStoryDescInput, createStorySelectInput);
-			location.reload();
-		}, 500);
+	createStorySaveButton.addEventListener("click", async _ => {
+		await createStory(createStoryTitleInput.value, createStoryDescInput.value, createStorySelectInput.value);
+		clearInputValues(createStoryTitleInput, createStoryDescInput, createStorySelectInput);
+		location.reload();
 	});
 	// END CREATE STORY MODAL ============================
 
@@ -278,12 +271,11 @@
 			createTagSaveButton.click();
 		}
 	});
-	createTagSaveButton.addEventListener("click", _ => {
-		createTag(createTagTitleInput.value, createTagDescInput.value);
-		setTimeout(_ => {
-			clearInputValues(createTagTitleInput, createTagDescInput);
-			location.reload();
-		}, 500);
+	createTagSaveButton.addEventListener("click", async _ => {
+		await createTag(createTagTitleInput.value, createTagDescInput.value);
+		// TODO: is input clearing still needed / desirable?
+		clearInputValues(createTagTitleInput, createTagDescInput);
+		location.reload();
 	});
 	// END CREATE TAG MODAL ============================
 
@@ -324,8 +316,9 @@
 			bulkCreateTaskSaveButton.click();
 		}
 	});
-	bulkCreateTaskSaveButton.addEventListener("click", _ => {
-		bulkCreateTasks(bulkCreateTaskTitleInput.value, bulkCreateTaskDescInput.value, bulkCreateTaskSelectInput.value);
+	bulkCreateTaskSaveButton.addEventListener("click", async _ => {
+		await bulkCreateTasks(bulkCreateTaskTitleInput.value, bulkCreateTaskDescInput.value, bulkCreateTaskSelectInput.value);
+		location.reload();
 	});
 	// END BULK CREATE TASK MODAL ============================
 
