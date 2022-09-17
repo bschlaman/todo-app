@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"path"
 	"regexp"
@@ -22,7 +23,7 @@ const (
 	staticDir            string        = "assets/static"
 	sprintDuration       time.Duration = time.Hour * 24 * 14
 	sessionDuration      time.Duration = 1 * time.Hour
-	allowClearSessionAPI bool          = true
+	allowClearSessionAPI bool          = false
 )
 
 type Session struct {
@@ -61,7 +62,11 @@ func sessionMiddleware(h http.Handler) http.Handler {
 			}
 		}
 
-		loginPath := "/login"
+		qparam := url.Values{}
+		qparam.Add("ref", r.URL.Path)
+
+		// url.JoinPath added in go 1.19
+		loginPath := "/login" + "?" + qparam.Encode()
 
 		// *Cookie.Valid() added in go1.18
 		// "session" not present in cookie, or cookie not present at all
@@ -125,7 +130,22 @@ func loginHandle() http.Handler {
 			}
 			http.SetCookie(w, cookie)
 			log.Infof("setting cookie: %v\n", cookie)
-			http.Redirect(w, r, "/", http.StatusSeeOther)
+
+			u, err := url.Parse(r.Header.Get("Referer"))
+			if err != nil {
+				delete(sessions, id)
+				log.Infof("invalid ref url: %v\n", r.Header.Get("Referer"))
+				http.Error(w, "invalid ref url", http.StatusBadRequest)
+				return
+			}
+			ref, err := url.PathUnescape(u.Query().Get("ref"))
+			if err != nil {
+				delete(sessions, id)
+				log.Infof("invalid ref url: %v\n", r.Header.Get("Referer"))
+				http.Error(w, "invalid ref url", http.StatusBadRequest)
+				return
+			}
+			http.Redirect(w, r, ref, http.StatusSeeOther)
 			return
 		}
 		log.Infof("incorrect pw: %v\n", pass)
