@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"io"
 	"net/http"
 	"os"
@@ -16,11 +17,12 @@ import (
 
 // TODO: pull these from config table
 const (
-	serverName      string        = "TODO-APP-SERVER"
-	logPath         string        = "logs/output.log"
-	staticDir       string        = "assets/static"
-	sprintDuration  time.Duration = time.Hour * 24 * 14
-	sessionDuration time.Duration = 1 * time.Hour
+	serverName           string        = "TODO-APP-SERVER"
+	logPath              string        = "logs/output.log"
+	staticDir            string        = "assets/static"
+	sprintDuration       time.Duration = time.Hour * 24 * 14
+	sessionDuration      time.Duration = 1 * time.Hour
+	allowClearSessionAPI bool          = true
 )
 
 type Session struct {
@@ -50,6 +52,7 @@ func sessionMiddleware(h http.Handler) http.Handler {
 			"/favicon.ico",
 			"/api/login",
 			"/api/echo",
+			"/api/clear_sessions",
 		}
 		for _, path := range skippablePaths {
 			if strings.HasPrefix(r.URL.Path, path) {
@@ -132,6 +135,23 @@ func loginHandle() http.Handler {
 	})
 }
 
+func clearSessionsHandle() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		sessions = make(map[string]Session)
+		res, err := json.Marshal(&struct {
+			Message string `json:"message"`
+		}{
+			"ok",
+		})
+		if err != nil {
+			http.Error(w, "error clearing sessions", http.StatusInternalServerError)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(res)
+		return
+	})
+}
+
 func matchIdRedirMiddleware(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// TODO: really really don't like this strategy
@@ -178,6 +198,10 @@ func main() {
 			matchIdRedirMiddleware(fs),
 		),
 	))
+
+	if allowClearSessionAPI {
+		http.Handle("/api/clear_sessions", clearSessionsHandle())
+	}
 
 	// currently using schlamalama.com/favicon.ico
 	// http.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {

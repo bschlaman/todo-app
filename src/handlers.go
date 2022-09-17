@@ -187,7 +187,6 @@ func getTaskByIdHandle() http.Handler {
 		}
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(js)
-
 	})
 }
 
@@ -243,7 +242,6 @@ func getStoryByIdHandle() http.Handler {
 		}
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(js)
-
 	})
 }
 
