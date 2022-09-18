@@ -94,6 +94,9 @@
 				renderTasksFromJSON(Array.from(taskDataCache.values()));
 			});
 			const tagCheckBoxLabel = document.createElement("label");
+			tagCheckBoxLabel.onclick = _ => {
+				tagCheckBox.click();
+			};
 			tagCheckBoxLabel.setAttribute("for", tag.title);
 			tagCheckBoxLabel.style.color = TAG_COLORS[tag.title];
 			tagCheckBoxLabel.textContent = tag.title;
@@ -542,6 +545,9 @@
 						tagCheckBox.checked = true;
 				});
 				const tagCheckBoxLabel = document.createElement("label");
+				tagCheckBoxLabel.onclick = _ => {
+					tagCheckBox.click();
+				};
 				tagCheckBoxLabel.setAttribute("for", tag.title);
 				tagCheckBoxLabel.style.color = TAG_COLORS[tag.title];
 				tagCheckBoxLabel.textContent = tag.title;
