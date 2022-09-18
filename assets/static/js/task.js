@@ -66,6 +66,7 @@
 		taskTitle.textContent = task.title;
 		taskId.textContent = formatId(task.id);
 		taskCreatedAt.textContent = formatDate(new Date(task.created_at));
+		// taskDesc.innerHTML = DOMPurify.sanitize(marked.parse(task.description));
 		taskDesc.textContent = task.description;
 		taskTitle.setAttribute("maxlength", serverConfig.task_title_max_len);
 		taskDesc.setAttribute("maxlength", serverConfig.task_desc_max_len);
@@ -100,7 +101,7 @@
 
 			const commentText = document.createElement("p");
 			commentText.classList.add("comment-text");
-			commentText.textContent = comment.text;
+			commentText.innerHTML = DOMPurify.sanitize(marked.parse(comment.text));
 
 			const commentCreatedAt = document.createElement("p");
 			commentCreatedAt.classList.add("comment-created-at");

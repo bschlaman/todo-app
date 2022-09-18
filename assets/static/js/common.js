@@ -285,7 +285,7 @@ function formatDate(date){
 }
 
 function formatDateCompact(date){
-	return `${date.getMonth() + 1}.${date.getDate() + 1}`;
+	return `${date.getMonth() + 1}.${date.getUTCDate()}`;
 }
 
 function sprintToString(sprint){

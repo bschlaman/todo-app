@@ -145,6 +145,10 @@
 	createTaskButton.onclick = _ => {
 		createTaskModal.showModal();
 		createTaskTitleInput.focus();
+		// TODO: this isn't really necessary anymore since I reload page
+		// after new stories are created.  This makes it more difficult to save
+		// the last input that was selected - would have to do that by
+		// saving to local storage
 		// Remove option from <select> and call /get_stories
 		while(createTaskSelectInput.firstChild)
 			createTaskSelectInput.removeChild(createTaskSelectInput.firstChild);
@@ -412,7 +416,7 @@
 
 			const taskDesc = document.createElement("p");
 			taskDesc.classList.add("task-desc");
-			taskDesc.textContent = task.description;
+			taskDesc.innerHTML = DOMPurify.sanitize(marked.parse(task.description));
 
 			const taskId = document.createElement("p");
 			taskId.classList.add("task-id");
