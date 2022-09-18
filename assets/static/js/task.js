@@ -43,13 +43,12 @@
 		location.reload();
 	});
 
-	createCommentForm.addEventListener("submit", e => {
-		e.preventDefault();
-		createComment(taskIdFromPath, createCommentTextInput.value);
-		setTimeout(_ => {
-			clearInputValues(createCommentTextInput);
-			getCommentsByTaskId(taskIdFromPath).then(comments => { renderCommentsFromJSON(comments) });
-		}, 500);
+	createCommentForm.addEventListener("submit", async e => {
+		e.preventDefault(); // prevent submit default behavior
+		const res = await createComment(taskIdFromPath, createCommentTextInput.value);
+		if(!res) return;
+		clearInputValues(createCommentTextInput);
+		getCommentsByTaskId(taskIdFromPath).then(comments => { renderCommentsFromJSON(comments) });
 	});
 
 	createCommentTextInput.addEventListener("keydown", e => {

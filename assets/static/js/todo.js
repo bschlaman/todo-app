@@ -557,17 +557,16 @@
 				if(story.sprint_id === sprint.id) option.selected = true;
 				storySprintSelect.appendChild(option);
 			});
-			storySprintSelect.addEventListener("change", _ => {
-				updateStoryById(
+			storySprintSelect.addEventListener("change", async _ => {
+				const res = await updateStoryById(
 					story.id,
 					story.status,
 					story.title,
 					story.description,
 					storySprintSelect.value,
 				);
-				setTimeout(_ => {
-					location.reload();
-				}, 1000);
+				if(!res) return;
+				location.reload();
 			});
 
 			const openTasksListWrapper = document.createElement("div");
