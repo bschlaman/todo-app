@@ -501,7 +501,7 @@
 
 			const storyDesc = document.createElement("p");
 			storyDesc.classList.add("story-desc");
-			storyDesc.textContent = story.description;
+			storyDesc.innerHTML = DOMPurify.sanitize(marked.parse(story.description));
 
 			const storyEditLink = document.createElement("a");
 			storyEditLink.classList.add("story-edit-link");
