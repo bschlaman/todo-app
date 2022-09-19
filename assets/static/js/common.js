@@ -90,7 +90,7 @@ function getTagAssignments() {
 }
 
 function createTask(title, description, storyId) {
-	if(!title || !description || !storyId){
+	if(!title || !storyId){
 		console.error("task creation failed");
 		return;
 	}

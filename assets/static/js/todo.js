@@ -63,7 +63,7 @@
 	document.addEventListener("visibilitychange", _ => {
 		if(document.visibilityState === "visible")
 			checkSession().then(res => {
-				console.log("session time remaining (s):", res.session_time_remaining);
+				console.log("session time remaining (s):", res.session_time_remaining_seconds);
 			});
 	});
 

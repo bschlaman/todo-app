@@ -164,7 +164,7 @@ func checkSessionHandle() http.Handler {
 		timeRemaining := sessionDuration - time.Now().Sub(s.CreatedAt)
 
 		res, err := json.Marshal(&struct {
-			TimeRemaining int `json:"session_time_remaining"`
+			TimeRemainingSeconds int `json:"session_time_remaining_seconds"`
 		}{
 			int(timeRemaining.Seconds()),
 		})
