@@ -155,6 +155,28 @@ func loginHandle() http.Handler {
 	})
 }
 
+func checkSessionHandle() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// if the call makes it this far, we know the session is valid
+		cookie, _ := r.Cookie("session")
+		s, _ := sessions[cookie.Value]
+
+		timeRemaining := sessionDuration - time.Now().Sub(s.CreatedAt)
+
+		res, err := json.Marshal(&struct {
+			TimeRemaining int `json:"session_time_remaining"`
+		}{
+			int(timeRemaining.Seconds()),
+		})
+		if err != nil {
+			http.Error(w, "error getting session", http.StatusInternalServerError)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(res)
+		return
+	})
+}
+
 func clearSessionsHandle() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		sessions = make(map[string]Session)
@@ -235,6 +257,7 @@ func main() {
 		{"/api/echo", utils.EchoHandle},
 		{"/api/echodelay", utils.EchoDelayHandle},
 		{"/api/login", loginHandle},
+		{"/api/check_session", checkSessionHandle},
 		{"/api/get_config", getConfigHandle},
 		{"/api/get_tasks", getTasksHandle},
 		{"/api/get_task", getTaskByIdHandle},

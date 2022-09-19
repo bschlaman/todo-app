@@ -11,6 +11,15 @@
 	getTaskById(taskIdFromPath).then(task => { renderTask(task) });
 	getCommentsByTaskId(taskIdFromPath).then(comments => { renderCommentsFromJSON(comments) });
 
+	// detect when user navigates back to page and check
+	// if the session is still valid
+	document.addEventListener("visibilitychange", _ => {
+		if(document.visibilityState === "visible")
+			checkSession().then(res => {
+				console.log("session time remaining (s):", res.session_time_remaining);
+			});
+	});
+
 	const taskTitle = document.querySelector(".task-title");
 	const taskId = document.querySelector(".task-id");
 	const taskCreatedAt = document.querySelector(".task-created-at");

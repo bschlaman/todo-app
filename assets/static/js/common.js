@@ -1,6 +1,7 @@
 // GLOBAL CONSTS
 
 const routes = {
+	checkSession:            `/api/check_session`,
 	simulateLatency:         `/api/echodelay?t=2`,
 
 	getConfig:               `/api/get_config`,
@@ -31,6 +32,13 @@ const STATUSES = ["BACKLOG", "DOING", "DONE", "DEPRIORITIZED", "ARCHIVE", "DUPLI
 const hoverClass = "droppable-hover";
 
 // API
+
+function checkSession(){
+	return fetch(routes.checkSession, { method: "GET" })
+		.then(handleApiRes)
+		.then(res => res.json())
+		.catch(handleApiErr);
+}
 
 function simulateLatency(...args){
 	return fetch(routes.simulateLatency, { method: "GET" })
