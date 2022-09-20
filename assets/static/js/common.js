@@ -201,7 +201,7 @@ function destroyTagAssignment(tag_id, story_id) {
 }
 
 function updateTaskById(id, status, title, description, storyId) {
-	if(!id || !status || !title || !description || !storyId){
+	if(!id || !status || !title || !storyId){
 		console.error("could not update task");
 		return;
 	}
