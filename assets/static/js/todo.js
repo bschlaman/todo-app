@@ -261,7 +261,7 @@
 		}
 	});
 	createSprintSaveButton.addEventListener("click", async _ => {
-		const res = await createsprint(
+		const res = await createSprint(
 			createSprintTitleInput.value, createSprintStartdateInput.value, createSprintEnddateInput.value
 		);
 		if(!res) return;
