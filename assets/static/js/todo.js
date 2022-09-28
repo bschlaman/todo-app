@@ -20,6 +20,7 @@
 		"Piano": "darkgrey",
 		"Guitar": "brown",
 		"Intellectual Pursuits": "darkblue",
+		"Machine Learning": "darkred",
 	}
 
 	const LOCAL_STORAGE_KEYS = {

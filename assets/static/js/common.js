@@ -27,7 +27,7 @@ const routes = {
 	createTag:               `/api/create_tag`,
 };
 
-const STATUSES = ["BACKLOG", "DOING", "DONE", "DEPRIORITIZED", "ARCHIVE", "DUPLICATE"];
+const STATUSES = ["BACKLOG", "DOING", "DONE", "DEPRIORITIZED", "ARCHIVE", "DUPLICATE", "DEADLINE PASSED"];
 
 const hoverClass = "droppable-hover";
 
