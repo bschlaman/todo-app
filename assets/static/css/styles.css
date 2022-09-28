@@ -59,6 +59,7 @@ body {
 	background: lightgrey;
 	width: 100%;
 	box-shadow: inset 0 0 3px;
+	overflow: hidden; /* workaround for overflowing text like <a> tags */
 }
 .todo-app-bucket .bucket-label {
 	font-size: 1.8rem;
