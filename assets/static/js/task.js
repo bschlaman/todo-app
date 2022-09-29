@@ -84,6 +84,12 @@
 		location.reload();
 	});
 
+	// TODO (2022.09.29): ideally, I grab the whole url, but for now that is a security concern
+	const copyToClipboardButton = document.querySelector(".copy-to-clipboard");
+	copyToClipboardButton.onclick = _ => {
+		navigator.clipboard.writeText(window.location.pathname);
+	};
+
 	createCommentForm.addEventListener("submit", async e => {
 		e.preventDefault(); // prevent submit default behavior
 		const res = await createComment(taskIdFromPath, createCommentTextInput.value);
