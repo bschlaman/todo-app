@@ -2,24 +2,7 @@
 	const path = window.location.pathname;
 	const taskIdFromPath = path.substring(path.lastIndexOf("/") + 1);
 
-	let serverConfig;
-
-	await getConfig().then(config => {
-		serverConfig = config;
-	});
-
-	getTaskById(taskIdFromPath).then(task => { renderTask(task) });
-	getCommentsByTaskId(taskIdFromPath).then(comments => { renderCommentsFromJSON(comments) });
-
-	// detect when user navigates back to page and check
-	// if the session is still valid
-	document.addEventListener("visibilitychange", _ => {
-		if(document.visibilityState === "visible")
-			checkSession().then(res => {
-				console.log("session time remaining (s):", res.session_time_remaining_seconds);
-			});
-	});
-
+	// query DOM objects
 	const taskTitle = document.querySelector(".task-title");
 	const taskId = document.querySelector(".task-id");
 	const taskCreatedAt = document.querySelector(".task-created-at");
@@ -37,6 +20,31 @@
 	const createCommentForm = document.querySelector(".new-comment form");
 	const createCommentTextInput = createCommentForm.querySelector("textarea");
 	const createCommentButton = createCommentForm.querySelector("button");
+
+	let serverConfig;
+
+	console.time("api_calls");
+	// renderTask depends on serverConfig,
+	// so fetch config first
+	await getConfig().then(config => {
+		serverConfig = config;
+	}),
+	await Promise.all([
+		getTaskById(taskIdFromPath).then(task => { renderTask(task) }),
+		getCommentsByTaskId(taskIdFromPath).then(comments => { renderCommentsFromJSON(comments) }),
+	]);
+	console.timeEnd("api_calls");
+	console.table(serverConfig);
+
+	// detect when user navigates back to page and check
+	// if the session is still valid
+	document.addEventListener("visibilitychange", _ => {
+		if(document.visibilityState === "visible")
+			checkSession().then(res => {
+				console.log("session time remaining (s):", res.session_time_remaining_seconds);
+			});
+	});
+
 
 	// configure the "preview" checkbox and div
 	taskDescCheckBox.checked = true; // checked on page load
