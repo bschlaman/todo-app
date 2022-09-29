@@ -367,6 +367,10 @@ body.task-view {
 	padding: 1rem;
 	margin: 1rem 0;
 }
+.new-comment .char-indicator {
+	text-align: right;
+	margin: 0;
+}
 .new-comment button {
 	color: var(--transp-white);
 	font-size: 1.3rem;

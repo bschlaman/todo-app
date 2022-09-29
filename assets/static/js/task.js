@@ -19,6 +19,7 @@
 
 	const createCommentForm = document.querySelector(".new-comment form");
 	const createCommentTextInput = createCommentForm.querySelector("textarea");
+	const createCommentCharIndicator = createCommentForm.querySelector(".char-indicator");
 	const createCommentButton = createCommentForm.querySelector("button");
 
 	let serverConfig;
@@ -99,8 +100,20 @@
 	});
 
 	createCommentTextInput.setAttribute("maxlength", serverConfig.comment_max_len);
+	createCommentTextInput.addEventListener("input", _ => {
+		renderCharIndicator();
+	});
+	function renderCharIndicator(){
+		createCommentCharIndicator.textContent = `
+			${createCommentTextInput.value.length}
+			/
+			${serverConfig.comment_max_len}
+		`;
+	}
+	// do this once on startup
+	renderCharIndicator();
 
-	function renderTask(task){
+	async function renderTask(task){
 		document.title = task.title;
 		taskTitle.textContent = task.title;
 		taskId.textContent = formatId(task.id);
@@ -111,7 +124,8 @@
 		taskDesc.setAttribute("maxlength", serverConfig.task_desc_max_len);
 		while(taskStoryTitle.firstChild)
 			taskStoryTitle.removeChild(taskStoryTitle.firstChild);
-		getStories().then(stories => {
+		// TODO (2022.09.29) should this really be here?
+		await getStories().then(stories => {
 			stories.forEach(story => {
 				const option = document.createElement("option");
 				option.setAttribute("value", story.id);
