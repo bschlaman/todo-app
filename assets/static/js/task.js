@@ -25,13 +25,36 @@
 	const taskCreatedAt = document.querySelector(".task-created-at");
 	const taskStatus = document.querySelector(".task-status");
 	const taskDesc = document.querySelector(".task-desc");
+	const taskDescPreview = document.querySelector(".task-desc-preview");
 	const taskStoryTitle = document.querySelector(".task-story-title");
 	const taskComments = document.querySelector(".task-comments");
 	const taskSave = document.querySelector(".task-save");
 
+	const taskDescPreviewToggle = document.querySelector(".task-desc-preview-toggle");
+	const taskDescPreviewLabel = taskDescPreviewToggle.querySelector("label");
+	const taskDescCheckBox = taskDescPreviewToggle.querySelector("input");
+
 	const createCommentForm = document.querySelector(".new-comment form");
 	const createCommentTextInput = createCommentForm.querySelector("textarea");
 	const createCommentButton = createCommentForm.querySelector("button");
+
+	// configure the "preview" checkbox and div
+	taskDescCheckBox.checked = true; // checked on page load
+	taskDescPreviewLabel.onclick = _ => {
+		taskDescCheckBox.click();
+	};
+	taskDesc.style.display = "none";
+	taskDescPreview.style.display = "block";
+	taskDescCheckBox.addEventListener("change", _ => {
+		taskDescPreview.innerHTML = DOMPurify.sanitize(marked.parse(taskDesc.innerText));
+		if(taskDescCheckBox.checked){
+			taskDesc.style.display = "none";
+			taskDescPreview.style.display = "block";
+		} else {
+			taskDesc.style.display = "block";
+			taskDescPreview.style.display = "none";
+		}
+	});
 
 	STATUSES.forEach(status => {
 		const option = document.createElement("option");
@@ -74,8 +97,8 @@
 		taskTitle.textContent = task.title;
 		taskId.textContent = formatId(task.id);
 		taskCreatedAt.textContent = formatDate(new Date(task.created_at));
-		// taskDesc.innerHTML = DOMPurify.sanitize(marked.parse(task.description));
 		taskDesc.textContent = task.description;
+		taskDescPreview.innerHTML = DOMPurify.sanitize(marked.parse(task.description));
 		taskTitle.setAttribute("maxlength", serverConfig.task_title_max_len);
 		taskDesc.setAttribute("maxlength", serverConfig.task_desc_max_len);
 		while(taskStoryTitle.firstChild)

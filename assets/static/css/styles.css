@@ -303,13 +303,21 @@ body.task-view {
 .task-view-wrapper .task-status {
 	font-size: 1.5rem;
 }
+.task-view-wrapper .task-desc-preview-toggle label {
+	font-size: 0.8rem;
+}
 .task-view-wrapper .task-desc {
-	white-space: pre-wrap;
 	background: lightgrey;
 	font-size: 1.5rem;
 	padding: 1rem;
 	border-radius: 5px;
 	margin: 1rem 0;
+}
+.task-view-wrapper .task-desc-preview li p {
+	margin: 0;
+}
+.task-view-wrapper .task-desc:not(.task-desc-preview) {
+	white-space: pre-wrap;
 }
 .task-view-wrapper .task-save {
 	font-size: 1.5rem;
