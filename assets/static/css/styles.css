@@ -270,6 +270,7 @@ body.task-view {
 }
 .task-view-wrapper .task-title {
 	display: inline-block;
+	margin-bottom: 0;
 }
 .task-view-wrapper .task-header a {
 	border: 2px solid blue;
@@ -277,11 +278,15 @@ body.task-view {
 	padding-right: 10px;
 	background: lightgrey;
 }
-.task-view-wrapper .task-metadata {
+.task-view-wrapper .task-metadata-row {
 	display: flex;
 	align-items: center;
 	font-size: 1.5rem;
 	gap: 3rem;
+}
+.task-view-wrapper .task-metadata-row:first-of-type {
+	justify-content: center;
+	font-size: 1rem;
 }
 .task-view-wrapper .task-element-pair {
 	display: flex;
@@ -290,6 +295,7 @@ body.task-view {
 }
 .task-element-pair .task-element-label {
 	font-weight: bold;
+	white-space: nowrap;
 }
 .task-element-pair p:not(.task-element-label) {
 	color: grey;
@@ -299,13 +305,16 @@ body.task-view {
 }
 .task-view-wrapper .task-desc {
 	white-space: pre-wrap;
-	background: var(--color-beige);
+	background: lightgrey;
+	font-size: 1.5rem;
 	padding: 1rem;
 	border-radius: 5px;
 	margin: 1rem 0;
 }
 .task-view-wrapper .task-save {
-	font-size: 2rem;
+	font-size: 1.5rem;
+	display: block;
+	margin: 0 0 0 auto;
 }
 .task-comments .comment-wrapper {
 	outline: 2px solid grey;

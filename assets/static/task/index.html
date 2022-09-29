@@ -26,21 +26,25 @@
 		<h3 class="task-title" contenteditable="true"></h3>
 	</div>
 	<div class="task-metadata">
-		<div class="task-element-pair">
-			<p class="task-element-label">Id:</p>
-			<p class="task-id">loading...</p>
+		<div class="task-metadata-row"> <!-- cant think of a better name atm! -->
+			<div class="task-element-pair">
+				<p class="task-element-label">Id:</p>
+				<p class="task-id">loading...</p>
+			</div>
+			<div class="task-element-pair">
+				<p class="task-element-label">Created:</p>
+				<p class="task-created-at">loading...</p>
+			</div>
 		</div>
-		<div class="task-element-pair">
-			<p class="task-element-label">Created:</p>
-			<p class="task-created-at">loading...</p>
-		</div>
-		<div class="task-element-pair">
-			<p class="task-element-label">Status:</p>
-			<select class="task-status"></select>
-		</div>
-		<div class="task-element-pair">
-			<p class="task-element-label">Parent story:</p>
-			<select class="task-story-title"></select>
+		<div class="task-metadata-row">
+			<div class="task-element-pair">
+				<p class="task-element-label">Status:</p>
+				<select class="task-status"></select>
+			</div>
+			<div class="task-element-pair">
+				<p class="task-element-label">Parent story:</p>
+				<select class="task-story-title"></select>
+			</div>
 		</div>
 	</div>
 	<div class="task-desc" contenteditable="true"></div>
