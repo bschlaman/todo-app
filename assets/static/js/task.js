@@ -99,19 +99,16 @@
 		}
 	});
 
+	// Character limits
 	createCommentTextInput.setAttribute("maxlength", serverConfig.comment_max_len);
 	createCommentTextInput.addEventListener("input", _ => {
-		renderCharIndicator();
-	});
-	function renderCharIndicator(){
 		createCommentCharIndicator.textContent = `
 			${createCommentTextInput.value.length}
 			/
 			${serverConfig.comment_max_len}
 		`;
-	}
-	// do this once on startup
-	renderCharIndicator();
+	});
+	createCommentTextInput.dispatchEvent(new Event("input")); // render once at startup
 
 	async function renderTask(task){
 		document.title = task.title;

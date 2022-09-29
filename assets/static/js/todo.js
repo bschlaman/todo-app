@@ -153,6 +153,8 @@
 	const createTaskModal = document.querySelector(".create-task-modal");
 	const createTaskTitleInput = createTaskModal.querySelector('input[name="title"]');
 	const createTaskDescInput = createTaskModal.querySelector('textarea[name="description"]');
+	const createTaskTitleCharIndicator = createTaskModal.querySelector(".title-char-indicator");
+	const createTaskDescCharIndicator = createTaskModal.querySelector(".desc-char-indicator");
 	const createTaskSelectInput = createTaskModal.querySelector('select[name="story"]');
 	const createTaskSaveButton = createTaskModal.querySelector(".modal-save");
 	// Create button
@@ -177,8 +179,25 @@
 			createTaskSelectInput.appendChild(option);
 		});
 	};
+	// Character limits
 	createTaskTitleInput.setAttribute("maxlength", serverConfig.task_title_max_len);
 	createTaskDescInput.setAttribute("maxlength", serverConfig.task_desc_max_len);
+	createTaskTitleInput.addEventListener("input", _ => {
+		createTaskTitleCharIndicator.textContent = `
+			${createTaskTitleInput.value.length}
+			/
+			${serverConfig.task_title_max_len}
+		`;
+	});
+	createTaskDescInput.addEventListener("input", _ => {
+		createTaskDescCharIndicator.textContent = `
+			${createTaskDescInput.value.length}
+			/
+			${serverConfig.task_desc_max_len}
+		`;
+	});
+	createTaskTitleInput.dispatchEvent(new Event("input")); // render once at startup
+	createTaskDescInput.dispatchEvent(new Event("input")); // render once at startup
 	// Close (x) button
 	createTaskModal.querySelector(".modal-close").onclick = _ => { createTaskModal.close() };
 	// CTRL-Enter to save
@@ -203,6 +222,8 @@
 	const createStoryModal = document.querySelector(".create-story-modal");
 	const createStoryTitleInput = createStoryModal.querySelector('input[name="title"]');
 	const createStoryDescInput = createStoryModal.querySelector('textarea[name="description"]');
+	const createStoryTitleCharIndicator = createStoryModal.querySelector(".title-char-indicator");
+	const createStoryDescCharIndicator = createStoryModal.querySelector(".desc-char-indicator");
 	const createStorySelectInput = createStoryModal.querySelector('select[name="sprint"]');
 	const createStorySaveButton = createStoryModal.querySelector(".modal-save");
 	// Create button
@@ -218,8 +239,25 @@
 			createStorySelectInput.appendChild(option);
 		});
 	};
+	// Character limits
 	createStoryTitleInput.setAttribute("maxlength", serverConfig.story_title_max_len);
 	createStoryDescInput.setAttribute("maxlength", serverConfig.story_desc_max_len);
+	createStoryTitleInput.addEventListener("input", _ => {
+		createStoryTitleCharIndicator.textContent = `
+			${createStoryTitleInput.value.length}
+			/
+			${serverConfig.story_title_max_len}
+		`;
+	});
+	createStoryDescInput.addEventListener("input", _ => {
+		createStoryDescCharIndicator.textContent = `
+			${createStoryDescInput.value.length}
+			/
+			${serverConfig.story_desc_max_len}
+		`;
+	});
+	createStoryTitleInput.dispatchEvent(new Event("input")); // render once at startup
+	createStoryDescInput.dispatchEvent(new Event("input")); // render once at startup
 	// Close (x) button
 	createStoryModal.querySelector(".modal-close").onclick = _ => { createStoryModal.close() };
 	// CTRL-Enter to save
@@ -243,6 +281,7 @@
 	const createSprintButton = document.querySelector(".create-sprint-button");
 	const createSprintModal = document.querySelector(".create-sprint-modal");
 	const createSprintTitleInput = createSprintModal.querySelector('input[name="title"]');
+	const createSprintTitleCharIndicator = createSprintModal.querySelector(".title-char-indicator");
 	const createSprintStartdateInput = createSprintModal.querySelector('input[name="startdate"]');
 	const createSprintEnddateInput = createSprintModal.querySelector('input[name="enddate"]');
 	const createSprintSaveButton = createSprintModal.querySelector(".modal-save");
@@ -251,7 +290,16 @@
 		createSprintModal.showModal();
 		createSprintTitleInput.focus();
 	};
+	// Character limits
 	createSprintTitleInput.setAttribute("maxlength", serverConfig.sprint_title_max_len);
+	createSprintTitleInput.addEventListener("input", _ => {
+		createSprintTitleCharIndicator.textContent = `
+			${createSprintTitleInput.value.length}
+			/
+			${serverConfig.sprint_title_max_len}
+		`;
+	});
+	createSprintTitleInput.dispatchEvent(new Event("input")); // render once at startup
 	// Close (x) button
 	createSprintModal.querySelector(".modal-close").onclick = _ => { createSprintModal.close() };
 	// CTRL-Enter to save
@@ -276,14 +324,33 @@
 	const createTagModal = document.querySelector(".create-tag-modal");
 	const createTagTitleInput = createTagModal.querySelector('input[name="title"]');
 	const createTagDescInput = createTagModal.querySelector('textarea[name="description"]');
+	const createTagTitleCharIndicator = createTagModal.querySelector(".title-char-indicator");
+	const createTagDescCharIndicator = createTagModal.querySelector(".desc-char-indicator");
 	const createTagSaveButton = createTagModal.querySelector(".modal-save");
 	// Create button
 	createTagButton.onclick = _ => {
 		createTagModal.showModal();
 		createTagTitleInput.focus();
 	};
+	// Character limits
 	createTagTitleInput.setAttribute("maxlength", serverConfig.tag_title_max_len);
 	createTagDescInput.setAttribute("maxlength", serverConfig.tag_desc_max_len);
+	createTagTitleInput.addEventListener("input", _ => {
+		createTagTitleCharIndicator.textContent = `
+			${createTagTitleInput.value.length}
+			/
+			${serverConfig.tag_title_max_len}
+		`;
+	});
+	createTagDescInput.addEventListener("input", _ => {
+		createTagDescCharIndicator.textContent = `
+			${createTagDescInput.value.length}
+			/
+			${serverConfig.tag_desc_max_len}
+		`;
+	});
+	createTagTitleInput.dispatchEvent(new Event("input")); // render once at startup
+	createTagDescInput.dispatchEvent(new Event("input")); // render once at startup
 	// Close (x) button
 	createTagModal.querySelector(".modal-close").onclick = _ => { createTagModal.close() };
 	// CTRL-Enter to save
@@ -306,6 +373,8 @@
 	const bulkCreateTaskModal = document.querySelector(".bulk-create-task-modal");
 	const bulkCreateTaskTitleInput = bulkCreateTaskModal.querySelector('input[name="title"]');
 	const bulkCreateTaskDescInput = bulkCreateTaskModal.querySelector('textarea[name="description"]');
+	const bulkCreateTaskTitleCharIndicator = bulkCreateTaskModal.querySelector(".title-char-indicator");
+	const bulkCreateTaskDescCharIndicator = bulkCreateTaskModal.querySelector(".desc-char-indicator");
 	const bulkCreateTaskSelectInput = bulkCreateTaskModal.querySelector('select[name="story"]');
 	const bulkCreateTaskSaveButton = bulkCreateTaskModal.querySelector(".modal-save");
 	// Create button
@@ -326,8 +395,25 @@
 			bulkCreateTaskSelectInput.appendChild(option);
 		});
 	};
+	// Character limits
 	bulkCreateTaskTitleInput.setAttribute("maxlength", serverConfig.task_title_max_len);
 	bulkCreateTaskDescInput.setAttribute("maxlength", serverConfig.task_desc_max_len);
+	bulkCreateTaskTitleInput.addEventListener("input", _ => {
+		bulkCreateTaskTitleCharIndicator.textContent = `
+			${bulkCreateTaskTitleInput.value.length}
+			/
+			${serverConfig.task_title_max_len}
+		`;
+	});
+	bulkCreateTaskDescInput.addEventListener("input", _ => {
+		bulkCreateTaskDescCharIndicator.textContent = `
+			${bulkCreateTaskDescInput.value.length}
+			/
+			${serverConfig.task_desc_max_len}
+		`;
+	});
+	bulkCreateTaskTitleInput.dispatchEvent(new Event("input")); // render once at startup
+	bulkCreateTaskDescInput.dispatchEvent(new Event("input")); // render once at startup
 	// Close (x) button
 	bulkCreateTaskModal.querySelector(".modal-close").onclick = _ => { bulkCreateTaskModal.close() };
 	// CTRL-Enter to save

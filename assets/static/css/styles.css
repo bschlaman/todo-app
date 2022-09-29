@@ -196,6 +196,7 @@ body {
 	padding: 1rem;
 	background: var(--transp-white);
 	border-radius: 10px;
+	min-width: 50%; /* workaround for sizing weirdness with <p> in dialog */
 }
 .create-modal .modal-close {
 	position: absolute;
@@ -226,6 +227,10 @@ body {
 .create-modal textarea {
 	resize: none;
 	height: 8rem;
+}
+.create-modal .char-indicator {
+	text-align: right;
+	margin: 0;
 }
 /* sprint view */
 .story {
