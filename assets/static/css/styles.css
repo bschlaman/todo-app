@@ -89,7 +89,9 @@ body {
 .task .task-desc p {
 	/* wrap whitespace WITHIN p that markdown renderer creates
 		note that this may not the behavior I want - compare to real world examples */
-	white-space: pre-wrap;
+	/* as of 2022.09.29 I've decided I don't want this behavior.
+		the correct thing to do is just surround it in a code block or block quote */
+	/* white-space: pre-wrap; */
 }
 .task .task-created-at,
 .task .task-status,
