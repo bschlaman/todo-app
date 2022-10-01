@@ -26,12 +26,22 @@ const (
 	allowClearSessionAPI bool          = false
 )
 
+// global variables for dependence injection
+type Env struct {
+	Log *logger.BLogger
+	// future state: possibly store db connection here
+}
+
+var env *Env
+
+// keeping this for convenience of use in the main package
+// i.e. avoid e.Log
+var log *logger.BLogger
+
 type Session struct {
 	Id        string
 	CreatedAt time.Time
 }
-
-var log *logger.BLogger
 
 var sessions map[string]Session
 
@@ -226,7 +236,8 @@ func init() {
 	}
 	mw := io.MultiWriter(file, os.Stdout)
 	// init globals
-	log = logger.New(mw)
+	env = &Env{logger.New(mw)}
+	log = env.Log
 	sessions = make(map[string]Session)
 	loginPw = os.Getenv("LOGIN_PW")
 }

@@ -1,4 +1,4 @@
-package main
+package database
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"github.com/jackc/pgx/v4"
 )
 
-func getPgxConn() (*pgx.Conn, error) {
+func GetPgxConn() (*pgx.Conn, error) {
 	conn, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
 	if err != nil {
 		return nil, err
