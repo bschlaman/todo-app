@@ -28,6 +28,9 @@
 		selectedTagIds: "selected_tag_ids",
 	};
 
+	// used as a reference for length assertion
+	const BULK_TASK_PREFIX = "[mm.dd] ";
+
 	console.time("api_calls");
 	await Promise.all([
 		getConfig().then(config => {
@@ -402,7 +405,7 @@
 		bulkCreateTaskTitleCharIndicator.textContent = `
 			${bulkCreateTaskTitleInput.value.length}
 			/
-			${serverConfig.task_title_max_len}
+			${serverConfig.task_title_max_len - BULK_TASK_PREFIX.length}
 		`;
 	});
 	bulkCreateTaskDescInput.addEventListener("input", _ => {
@@ -723,6 +726,7 @@
 			const monthString = String(d.getUTCMonth() + 1).padStart(2, "0");
 			const dateString = String(d.getUTCDate()).padStart(2, "0");
 			const prefix = `[${monthString}.${dateString}] `;
+			console.assert(prefix.length === BULK_TASK_PREFIX.length);
 			await createTask(prefix + commonTitle, commonDescription, storyId).then(_ => {
 				console.log("Created task", prefix + commonTitle);
 			});
