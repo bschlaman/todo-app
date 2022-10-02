@@ -29,6 +29,13 @@ const routes = {
 
 const STATUSES = ["BACKLOG", "DOING", "DONE", "DEPRIORITIZED", "ARCHIVE", "DUPLICATE", "DEADLINE PASSED"];
 
+// since tasks may not have a parent story, we need something
+// to display as a stand-in in UI elements such as task cards
+// and the story selector during task creation.  Note that this
+// value is also used as "value" in story selector options as a
+// standin for null
+const NULL_STORY_IDENTIFIER = "NONE";
+
 const hoverClass = "droppable-hover";
 
 // API
@@ -90,7 +97,7 @@ function getTagAssignments() {
 }
 
 function createTask(title, description, storyId) {
-	if(!title || !storyId){
+	if(!title){
 		console.error("task creation failed");
 		return;
 	}
@@ -201,7 +208,7 @@ function destroyTagAssignment(tag_id, story_id) {
 }
 
 function updateTaskById(id, status, title, description, storyId) {
-	if(!id || !status || !title || !storyId){
+	if(!id || !status || !title){
 		console.error("could not update task");
 		return;
 	}

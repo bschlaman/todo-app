@@ -16,7 +16,7 @@ type Task struct {
 	Title       string    `json:"title"`
 	Description string    `json:"description"`
 	Status      string    `json:"status"`
-	StoryId     string    `json:"story_id"`
+	StoryId     *string   `json:"story_id"`
 	Edited      bool      `json:"edited"`
 }
 
@@ -198,7 +198,8 @@ func GetTaskByIdHandle(log *logger.BLogger, taskId string) (*Task, error) {
 	}
 	defer conn.Close(context.Background())
 
-	var id, title, desc, status, storyId string
+	var id, title, desc, status string
+	var storyId *string
 	var cAt, uAt time.Time
 	var edited bool
 
@@ -286,7 +287,8 @@ func GetTasks(log *logger.BLogger) ([]Task, error) {
 
 	var tasks []Task
 	for rows.Next() {
-		var id, title, desc, status, storyId string
+		var id, title, desc, status string
+		var storyId *string
 		var cAt, uAt time.Time
 		var edited bool
 		rows.Scan(&id, &cAt, &uAt, &title, &desc, &status, &storyId, &edited)

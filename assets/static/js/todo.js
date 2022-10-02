@@ -164,13 +164,16 @@
 	createTaskButton.onclick = _ => {
 		createTaskModal.showModal();
 		createTaskTitleInput.focus();
-		// TODO: this isn't really necessary anymore since I reload page
-		// after new stories are created.  This makes it more difficult to save
-		// the last input that was selected - would have to do that by
-		// saving to local storage
-		// Remove option from <select> and call /get_stories
 		while(createTaskSelectInput.firstChild)
 			createTaskSelectInput.removeChild(createTaskSelectInput.firstChild);
+		// add in the special NULL story; selected by default
+		const option = document.createElement("option");
+		// since the value can't literally be null, use the identifier as a standin
+		option.setAttribute("value", NULL_STORY_IDENTIFIER);
+		option.textContent = NULL_STORY_IDENTIFIER;
+		option.selected = true;
+		createTaskSelectInput.appendChild(option);
+		// add in story option for each story in the sprint
 		Array.from(storyDataCache.values()).filter(s => {
 				// if for some reason sprintSelect.value is falsey, dont filter
 				if(!sprintSelect.value) return true;
@@ -212,7 +215,9 @@
 	});
 	createTaskSaveButton.addEventListener("click", async _ => {
 		const res = await createTask(
-			createTaskTitleInput.value, createTaskDescInput.value, createTaskSelectInput.value
+			createTaskTitleInput.value,
+			createTaskDescInput.value,
+			createTaskSelectInput.value === NULL_STORY_IDENTIFIER ? null : createTaskSelectInput.value,
 		);
 		if(!res) return;
 		clearInputValues(createTaskTitleInput, createTaskDescInput);
@@ -493,12 +498,20 @@
 			if(tagCheckBox.checked) selectedTagIds.add(tagCheckBox.dataset.tag_id);
 		});
 		tasks.filter(t => {
+			// if there is no parent story, render it always
+			if(t.story_id === null) return true;
+
+			// only render tasks whose story is in the selected sprint
 			const story = storyDataCache.get(t.story_id);
 			if(story.sprint_id !== sprintSelect.value) return false;
-			// inefficient
+
+			// only render tasks whose story is tagged with a selected tag
+			// TODO: this is inefficient; is there a better way?
 			for(const ta of tagAssignmentDataCache.values()){
 				if(ta.story_id === t.story_id && selectedTagIds.has(ta.tag_id)) return true;
 			}
+
+			// default: don't render the task
 			return false;
 		}).forEach(task => {
 			const taskDiv = document.createElement("div");
@@ -535,7 +548,7 @@
 
 			const taskStoryTitle = document.createElement("p");
 			taskStoryTitle.classList.add("task-story-title");
-			taskStoryTitle.textContent = storyDataCache.get(task.story_id).title;
+			taskStoryTitle.textContent = task.story_id === null ? NULL_STORY_IDENTIFIER : storyDataCache.get(task.story_id).title;
 
 			const taskTags = document.createElement("div");
 			taskTags.classList.add("task-tags");

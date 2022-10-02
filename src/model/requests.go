@@ -3,9 +3,9 @@ package model
 import "time"
 
 type CreateTaskReq struct {
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	StoryId     string `json:"story_id"`
+	Title       string  `json:"title"`
+	Description string  `json:"description"`
+	StoryId     *string `json:"story_id"`
 }
 
 type CreateCommentReq struct {
@@ -22,11 +22,11 @@ type PutStoryReq struct {
 }
 
 type PutTaskReq struct {
-	Id          string `json:"id"`
-	Status      string `json:"status"`
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	StoryId     string `json:"story_id"`
+	Id          string  `json:"id"`
+	Status      string  `json:"status"`
+	Title       string  `json:"title"`
+	Description string  `json:"description"`
+	StoryId     *string `json:"story_id"`
 }
 
 type CreateSprintReq struct {

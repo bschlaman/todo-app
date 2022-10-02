@@ -9,7 +9,7 @@
 	const taskStatus = document.querySelector(".task-status");
 	const taskDesc = document.querySelector(".task-desc");
 	const taskDescPreview = document.querySelector(".task-desc-preview");
-	const taskStoryTitle = document.querySelector(".task-story-title");
+	const taskStorySelector = document.querySelector(".task-story-selector");
 	const taskComments = document.querySelector(".task-comments");
 	const taskSave = document.querySelector(".task-save");
 
@@ -78,7 +78,7 @@
 			taskStatus.value,
 			taskTitle.textContent, // no newlines should be present
 			taskDesc.innerText, // possible newlines
-			taskStoryTitle.value,
+			taskStorySelector.value === NULL_STORY_IDENTIFIER ? null : taskStorySelector.value,
 		);
 		if(!res) return;
 		location.reload();
@@ -125,15 +125,22 @@
 		taskDescPreview.innerHTML = DOMPurify.sanitize(marked.parse(task.description));
 		taskTitle.setAttribute("maxlength", serverConfig.task_title_max_len);
 		taskDesc.setAttribute("maxlength", serverConfig.task_desc_max_len);
-		while(taskStoryTitle.firstChild)
-			taskStoryTitle.removeChild(taskStoryTitle.firstChild);
+		while(taskStorySelector.firstChild)
+			taskStorySelector.removeChild(taskStorySelector.firstChild);
+		// add in the special NULL story; selected by default
+		const option = document.createElement("option");
+		// since the value can't literally be null, use the identifier as a standin
+		option.setAttribute("value", NULL_STORY_IDENTIFIER);
+		option.textContent = NULL_STORY_IDENTIFIER;
+		option.selected = true;
+		taskStorySelector.appendChild(option);
 		// TODO (2022.09.29) should this really be here?
 		await getStories().then(stories => {
 			stories.forEach(story => {
 				const option = document.createElement("option");
 				option.setAttribute("value", story.id);
 				option.textContent = story.title;
-				taskStoryTitle.appendChild(option);
+				taskStorySelector.appendChild(option);
 				if(story.id === task.story_id) option.selected = true;
 			});
 		});
