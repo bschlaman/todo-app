@@ -1,4 +1,4 @@
-(async function (){
+(async function () {
 	const path = window.location.pathname;
 	const taskIdFromPath = path.substring(path.lastIndexOf("/") + 1);
 
@@ -13,13 +13,16 @@
 	const taskComments = document.querySelector(".task-comments");
 	const taskSave = document.querySelector(".task-save");
 
-	const taskDescPreviewToggle = document.querySelector(".task-desc-preview-toggle");
+	const taskDescPreviewToggle = document.querySelector(
+		".task-desc-preview-toggle"
+	);
 	const taskDescPreviewLabel = taskDescPreviewToggle.querySelector("label");
 	const taskDescCheckBox = taskDescPreviewToggle.querySelector("input");
 
 	const createCommentForm = document.querySelector(".new-comment form");
 	const createCommentTextInput = createCommentForm.querySelector("textarea");
-	const createCommentCharIndicator = createCommentForm.querySelector(".char-indicator");
+	const createCommentCharIndicator =
+		createCommentForm.querySelector(".char-indicator");
 	const createCommentButton = createCommentForm.querySelector("button");
 
 	let serverConfig;
@@ -30,22 +33,28 @@
 	await getConfig().then(config => {
 		serverConfig = config;
 	}),
-	await Promise.all([
-		getTaskById(taskIdFromPath).then(task => { renderTask(task) }),
-		getCommentsByTaskId(taskIdFromPath).then(comments => { renderCommentsFromJSON(comments) }),
-	]);
+		await Promise.all([
+			getTaskById(taskIdFromPath).then(task => {
+				renderTask(task);
+			}),
+			getCommentsByTaskId(taskIdFromPath).then(comments => {
+				renderCommentsFromJSON(comments);
+			}),
+		]);
 	console.timeEnd("api_calls");
 	console.table(serverConfig);
 
 	// detect when user navigates back to page and check
 	// if the session is still valid
 	document.addEventListener("visibilitychange", _ => {
-		if(document.visibilityState === "visible")
+		if (document.visibilityState === "visible")
 			checkSession().then(res => {
-				console.log("session time remaining (s):", res.session_time_remaining_seconds);
+				console.log(
+					"session time remaining (s):",
+					res.session_time_remaining_seconds
+				);
 			});
 	});
-
 
 	// configure the "preview" checkbox and div
 	taskDescCheckBox.checked = true; // checked on page load
@@ -55,8 +64,10 @@
 	taskDesc.style.display = "none";
 	taskDescPreview.style.display = "block";
 	taskDescCheckBox.addEventListener("change", _ => {
-		taskDescPreview.innerHTML = DOMPurify.sanitize(marked.parse(taskDesc.innerText));
-		if(taskDescCheckBox.checked){
+		taskDescPreview.innerHTML = DOMPurify.sanitize(
+			marked.parse(taskDesc.innerText)
+		);
+		if (taskDescCheckBox.checked) {
 			taskDesc.style.display = "none";
 			taskDescPreview.style.display = "block";
 		} else {
@@ -78,9 +89,11 @@
 			taskStatus.value,
 			taskTitle.textContent, // no newlines should be present
 			taskDesc.innerText, // possible newlines
-			taskStorySelector.value === NULL_STORY_IDENTIFIER ? null : taskStorySelector.value,
+			taskStorySelector.value === NULL_STORY_IDENTIFIER
+				? null
+				: taskStorySelector.value
 		);
-		if(!res) return;
+		if (!res) return;
 		location.reload();
 	});
 
@@ -92,21 +105,29 @@
 
 	createCommentForm.addEventListener("submit", async e => {
 		e.preventDefault(); // prevent submit default behavior
-		const res = await createComment(taskIdFromPath, createCommentTextInput.value);
-		if(!res) return;
+		const res = await createComment(
+			taskIdFromPath,
+			createCommentTextInput.value
+		);
+		if (!res) return;
 		clearInputValues(createCommentTextInput);
-		getCommentsByTaskId(taskIdFromPath).then(comments => { renderCommentsFromJSON(comments) });
+		getCommentsByTaskId(taskIdFromPath).then(comments => {
+			renderCommentsFromJSON(comments);
+		});
 	});
 
 	createCommentTextInput.addEventListener("keydown", e => {
-		if(e.keyCode === 13 && e.ctrlKey){
+		if (e.keyCode === 13 && e.ctrlKey) {
 			e.preventDefault(); // prevent dialog not closing weirdness
 			createCommentButton.click();
 		}
 	});
 
 	// Character limits
-	createCommentTextInput.setAttribute("maxlength", serverConfig.comment_max_len);
+	createCommentTextInput.setAttribute(
+		"maxlength",
+		serverConfig.comment_max_len
+	);
 	createCommentTextInput.addEventListener("input", _ => {
 		createCommentCharIndicator.textContent = `
 			${createCommentTextInput.value.length}
@@ -116,16 +137,18 @@
 	});
 	createCommentTextInput.dispatchEvent(new Event("input")); // render once at startup
 
-	async function renderTask(task){
+	async function renderTask(task) {
 		document.title = task.title;
 		taskTitle.textContent = task.title;
 		taskId.textContent = formatId(task.id);
 		taskCreatedAt.textContent = formatDate(new Date(task.created_at));
 		taskDesc.textContent = task.description;
-		taskDescPreview.innerHTML = DOMPurify.sanitize(marked.parse(task.description));
+		taskDescPreview.innerHTML = DOMPurify.sanitize(
+			marked.parse(task.description)
+		);
 		taskTitle.setAttribute("maxlength", serverConfig.task_title_max_len);
 		taskDesc.setAttribute("maxlength", serverConfig.task_desc_max_len);
-		while(taskStorySelector.firstChild)
+		while (taskStorySelector.firstChild)
 			taskStorySelector.removeChild(taskStorySelector.firstChild);
 		// add in the special NULL story; selected by default
 		const option = document.createElement("option");
@@ -141,23 +164,24 @@
 				option.setAttribute("value", story.id);
 				option.textContent = story.title;
 				taskStorySelector.appendChild(option);
-				if(story.id === task.story_id) option.selected = true;
+				if (story.id === task.story_id) option.selected = true;
 			});
 		});
-		for(let i = 0; i < taskStatus.options.length; i++){
-			if(taskStatus.options[i].value === task.status){
+		for (let i = 0; i < taskStatus.options.length; i++) {
+			if (taskStatus.options[i].value === task.status) {
 				taskStatus.options[i].selected = true;
 				break;
 			}
 		}
 	}
 
-	function renderCommentsFromJSON(comments){
-		if(!comments){
+	function renderCommentsFromJSON(comments) {
+		if (!comments) {
 			console.warn("no comments to render");
 			return;
 		}
-		while(taskComments.firstChild) taskComments.removeChild(taskComments.firstChild);
+		while (taskComments.firstChild)
+			taskComments.removeChild(taskComments.firstChild);
 		comments.forEach(comment => {
 			const commentWrapper = document.createElement("div");
 			commentWrapper.classList.add("comment-wrapper");
@@ -180,5 +204,4 @@
 			taskComments.appendChild(commentWrapper);
 		});
 	}
-
 })();
