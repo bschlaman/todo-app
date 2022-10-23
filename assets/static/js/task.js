@@ -26,21 +26,35 @@
 	const createCommentButton = createCommentForm.querySelector("button");
 
 	let serverConfig;
+	// stores story data by story_id
+	const storyDataCache = new Map();
+	// stores sprint data by sprint_id
+	const sprintDataCache = new Map();
 
 	console.time("api_calls");
-	// renderTask depends on serverConfig,
-	// so fetch config first
-	await getConfig().then(config => {
-		serverConfig = config;
-	}),
-		await Promise.all([
-			getTaskById(taskIdFromPath).then(task => {
-				renderTask(task);
-			}),
-			getCommentsByTaskId(taskIdFromPath).then(comments => {
-				renderCommentsFromJSON(comments);
-			}),
-		]);
+	await Promise.all([
+		getConfig().then(config => {
+			serverConfig = config;
+		}),
+		getCommentsByTaskId(taskIdFromPath).then(comments => {
+			renderCommentsFromJSON(comments);
+		}),
+		getSprints().then(sprints => {
+			sprints.forEach(sprint => {
+				sprintDataCache.set(sprint.id, sprint);
+			});
+		}),
+		getStories().then(stories => {
+			stories.forEach(story => {
+				storyDataCache.set(story.id, story);
+			});
+		}),
+	]);
+	// renderTask depends on serverConfig
+	// and story/sprint data, so render this last
+	await getTaskById(taskIdFromPath).then(task => {
+		renderTask(task);
+	});
 	console.timeEnd("api_calls");
 	console.table(serverConfig);
 
@@ -125,7 +139,7 @@
 	});
 	createCommentTextInput.dispatchEvent(new Event("input")); // render once at startup
 
-	async function renderTask(task) {
+	function renderTask(task) {
 		document.title = task.title;
 		taskTitle.textContent = task.title;
 		taskId.textContent = formatId(task.id);
@@ -145,16 +159,24 @@
 		option.textContent = NULL_STORY_IDENTIFIER;
 		option.selected = true;
 		taskStorySelector.appendChild(option);
-		// TODO (2022.09.29) should this really be here?
-		await getStories().then(stories => {
-			stories.forEach(story => {
+
+		Array.from(storyDataCache.values())
+			.sort((story0, story1) => {
+				if (!sprintDataCache.has(story0.sprint_id)) return 1;
+				if (!sprintDataCache.has(story1.sprint_id)) return -1;
+				return (
+					new Date(sprintDataCache.get(story1.sprint_id).start_date) -
+					new Date(sprintDataCache.get(story0.sprint_id).start_date)
+				);
+			})
+			.forEach(story => {
 				const option = document.createElement("option");
 				option.setAttribute("value", story.id);
-				option.textContent = story.title;
+				const sprintTitle = sprintDataCache.get(story.sprint_id).title;
+				option.textContent = `(${sprintTitle}) ${story.title}`;
 				taskStorySelector.appendChild(option);
 				if (story.id === task.story_id) option.selected = true;
 			});
-		});
 		for (let i = 0; i < taskStatus.options.length; i++) {
 			if (taskStatus.options[i].value === task.status) {
 				taskStatus.options[i].selected = true;
