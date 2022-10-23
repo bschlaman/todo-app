@@ -160,29 +160,34 @@
 		option.selected = true;
 		taskStorySelector.appendChild(option);
 
-		Array.from(storyDataCache.values())
-			.sort((story0, story1) => {
-				if (!sprintDataCache.has(story0.sprint_id)) return 1;
-				if (!sprintDataCache.has(story1.sprint_id)) return -1;
+		// bucketize the stories by sprint
+		const sprintBuckets = new Map();
+		Array.from(storyDataCache.values()).forEach(story => {
+			if (!sprintBuckets.has(story.sprint_id))
+				sprintBuckets.set(story.sprint_id, []);
+			sprintBuckets.get(story.sprint_id).push(story);
+		});
+		// loop through the sorted keys (sprintIds)
+		Array.from(sprintBuckets.keys())
+			.sort((sprintId0, sprintId1) => {
 				return (
-					new Date(sprintDataCache.get(story1.sprint_id).start_date) -
-					new Date(sprintDataCache.get(story0.sprint_id).start_date)
+					new Date(sprintDataCache.get(sprintId1).start_date) -
+					new Date(sprintDataCache.get(sprintId0).start_date)
 				);
 			})
-			.forEach(story => {
-				const option = document.createElement("option");
-				option.setAttribute("value", story.id);
-				const sprintTitle = sprintDataCache.get(story.sprint_id).title;
-				option.textContent = `(${sprintTitle}) ${story.title}`;
-				taskStorySelector.appendChild(option);
-				if (story.id === task.story_id) option.selected = true;
+			.forEach(sprintId => {
+				const optGroup = document.createElement("optgroup");
+				optGroup.setAttribute("label", sprintDataCache.get(sprintId).title);
+				sprintBuckets.get(sprintId).forEach(story => {
+					const option = document.createElement("option");
+					option.setAttribute("value", story.id);
+					const sprintTitle = sprintDataCache.get(story.sprint_id).title;
+					option.textContent = story.title;
+					optGroup.appendChild(option);
+					if (story.id === task.story_id) option.selected = true;
+				});
+				taskStorySelector.appendChild(optGroup);
 			});
-		for (let i = 0; i < taskStatus.options.length; i++) {
-			if (taskStatus.options[i].value === task.status) {
-				taskStatus.options[i].selected = true;
-				break;
-			}
-		}
 	}
 
 	function renderCommentsFromJSON(comments) {
