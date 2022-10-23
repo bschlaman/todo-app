@@ -44,18 +44,6 @@
 	console.timeEnd("api_calls");
 	console.table(serverConfig);
 
-	// detect when user navigates back to page and check
-	// if the session is still valid
-	document.addEventListener("visibilitychange", _ => {
-		if (document.visibilityState === "visible")
-			checkSession().then(res => {
-				console.log(
-					"session time remaining (s):",
-					res.session_time_remaining_seconds
-				);
-			});
-	});
-
 	// configure the "preview" checkbox and div
 	taskDescCheckBox.checked = true; // checked on page load
 	taskDescPreviewLabel.onclick = _ => {
