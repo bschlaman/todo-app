@@ -31,6 +31,14 @@
 	// stores sprint data by sprint_id
 	const sprintDataCache = new Map();
 
+	// renderTask depends on these being set
+	STATUSES.forEach(status => {
+		const option = document.createElement("option");
+		option.setAttribute("value", status);
+		option.textContent = status;
+		taskStatus.appendChild(option);
+	});
+
 	console.time("api_calls");
 	await Promise.all([
 		getConfig().then(config => {
@@ -50,8 +58,10 @@
 			});
 		}),
 	]);
-	// renderTask depends on serverConfig
-	// and story/sprint data, so render this last
+	// renderTask depends on:
+	// 1) serverConfig
+	// 2) storyDataCache and sprintDataCache
+	// 3) status selector options
 	await getTaskById(taskIdFromPath).then(task => {
 		renderTask(task);
 	});
@@ -76,13 +86,6 @@
 			taskDesc.style.display = "block";
 			taskDescPreview.style.display = "none";
 		}
-	});
-
-	STATUSES.forEach(status => {
-		const option = document.createElement("option");
-		option.setAttribute("value", status);
-		option.textContent = status;
-		taskStatus.appendChild(option);
 	});
 
 	taskSave.addEventListener("click", async _ => {
@@ -150,6 +153,14 @@
 		);
 		taskTitle.setAttribute("maxlength", serverConfig.task_title_max_len);
 		taskDesc.setAttribute("maxlength", serverConfig.task_desc_max_len);
+		// status selector
+		for (let i = 0; i < taskStatus.options.length; i++) {
+			if (taskStatus.options[i].value === task.status) {
+				taskStatus.options[i].selected = true;
+				break;
+			}
+		}
+		// parent story selector
 		while (taskStorySelector.firstChild)
 			taskStorySelector.removeChild(taskStorySelector.firstChild);
 		// add in the special NULL story; selected by default
