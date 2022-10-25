@@ -257,6 +257,7 @@
 	const createStorySelectInput = createStoryModal.querySelector(
 		'select[name="sprint"]'
 	);
+	const createStoryTags = createStoryModal.querySelector(".story-tags");
 	const createStorySaveButton = createStoryModal.querySelector(".modal-save");
 	// Create button
 	createStoryButton.onclick = _ => {
@@ -301,6 +302,34 @@
 	createStoryModal.querySelector(".modal-close").onclick = _ => {
 		createStoryModal.close();
 	};
+	// story tag check boxes
+	tagDataCache.forEach((tag, _) => {
+		const tagCheckBox = document.createElement("input");
+		tagCheckBox.setAttribute("type", "checkbox");
+		tagCheckBox.setAttribute("name", tag.title);
+		tagCheckBox.dataset.tag_id = tag.id;
+		// tagCheckBox.addEventListener("change", _ => {
+		// 	if (tagCheckBox.checked) {
+		// 		createTagAssignment(tag.id, story.id);
+		// 	} else {
+		// 		destroyTagAssignment(tag.id, story.id);
+		// 	}
+		// });
+		// // this is an expensive O(n) operation, but I dont care
+		// tagAssignmentDataCache.forEach((ta, _) => {
+		// 	if (ta.story_id === story.id && ta.tag_id === tag.id)
+		// 		tagCheckBox.checked = true;
+		// });
+		const tagCheckBoxLabel = document.createElement("label");
+		tagCheckBoxLabel.onclick = _ => {
+			tagCheckBox.click();
+		};
+		tagCheckBoxLabel.setAttribute("for", tag.title);
+		tagCheckBoxLabel.style.color = TAG_COLORS[tag.title];
+		tagCheckBoxLabel.textContent = tag.title;
+		createStoryTags.appendChild(tagCheckBox);
+		createStoryTags.appendChild(tagCheckBoxLabel);
+	});
 	// CTRL-Enter to save
 	createStoryModal.addEventListener("keydown", e => {
 		if (e.keyCode === 13 && e.ctrlKey) {
@@ -315,6 +344,22 @@
 			createStorySelectInput.value
 		);
 		if (!res) return;
+		// TODO (2022.10.24): this will require a change to the model
+		// wherein I receive the story id back from story creation
+		// create the tag assignments
+		// Array.from(createStoryTags.querySelectorAll("input"))
+		// 	.filter(tagCheckBox => tagCheckBox.checked)
+		// 	.forEach(async tagCheckBox => {
+		// 		await createTagAssignment(tagCheckBox.dataset.tag_id, story.id).then(
+		// 			_ => {
+		// 				console.log(
+		// 					"Created tag assignment",
+		// 					tagCheckBox.dataset.tag_id,
+		// 					story.id
+		// 				);
+		// 			}
+		// 		);
+		// 	});
 		clearInputValues(createStoryTitleInput, createStoryDescInput);
 		location.reload();
 	});
@@ -831,12 +876,31 @@
 						openTasksList.appendChild(li);
 					});
 
+				// button that opens a new story modal and
+				// copies the title and desc into the inputs
+				// and selects the associated tags
+				const copyToNewButton = document.createElement("button");
+				copyToNewButton.textContent = "Copy to new story";
+				copyToNewButton.onclick = _ => {
+					createStoryButton.click();
+					createStoryTitleInput.value = story.title;
+					createStoryDescInput.value = story.description;
+					Array.from(storyTags.querySelectorAll("input"))
+						.filter(tagCheckBox => tagCheckBox.checked)
+						.forEach(tagCheckBox => {
+							createStoryTags.querySelector(
+								`[data-tag_id="${tagCheckBox.dataset.tag_id}"]`
+							).checked = true;
+						});
+				};
+
 				storyDiv.appendChild(storyTitle);
 				storyDiv.appendChild(storyDesc);
 				storyDiv.appendChild(storyEditLink);
 				storyDiv.appendChild(storyTags);
 				storyDiv.appendChild(storySprintSelect);
 				storyDiv.appendChild(openTasksListWrapper);
+				storyDiv.appendChild(copyToNewButton);
 				// don't need to display this info for now, the sprint is
 				// already captured by the sprint select
 				// storyDiv.appendChild(storyMetadataContainer);
