@@ -54,6 +54,14 @@ code {
 	margin: 2px;
 }
 
+
+/* global styles for all rendered markdown */
+.rendered-markdown table,
+.rendered-markdown th,
+.rendered-markdown td {
+	border: 1px solid black;
+}
+
 /*
 	### CONTENT
 */

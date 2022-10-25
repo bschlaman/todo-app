@@ -635,6 +635,7 @@
 
 				const taskDesc = document.createElement("p");
 				taskDesc.classList.add("task-desc");
+				taskDesc.classList.add("rendered-markdown");
 				taskDesc.innerHTML = DOMPurify.sanitize(marked.parse(task.description));
 
 				const taskId = document.createElement("p");
@@ -737,6 +738,7 @@
 
 				const storyDesc = document.createElement("p");
 				storyDesc.classList.add("story-desc");
+				storyDesc.classList.add("rendered-markdown");
 				storyDesc.innerHTML = DOMPurify.sanitize(
 					marked.parse(story.description)
 				);

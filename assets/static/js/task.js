@@ -214,6 +214,7 @@
 
 			const commentText = document.createElement("p");
 			commentText.classList.add("comment-text");
+			commentText.classList.add("rendered-markdown");
 			commentText.innerHTML = DOMPurify.sanitize(marked.parse(comment.text));
 
 			const commentCreatedAt = document.createElement("p");
