@@ -270,6 +270,14 @@
 			let option = document.createElement("option");
 			option.setAttribute("value", sprint.id);
 			option.textContent = sprint.title;
+			// select the latest sprint by default
+			if (
+				!createStorySelectInput.value ||
+				new Date(sprint.start_date) >
+					new Date(sprintDataCache.get(createStorySelectInput.value).start_date)
+			) {
+				option.selected = true;
+			}
 			createStorySelectInput.appendChild(option);
 		});
 	};
