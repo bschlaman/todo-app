@@ -27,7 +27,8 @@ CREATE TABLE IF NOT EXISTS public.stories
 		sprint_id uuid,
 		edited boolean NOT NULL DEFAULT false,
 		CONSTRAINT fk_sprint_id FOREIGN KEY(sprint_id) REFERENCES sprints(id),
-		CONSTRAINT title_not_empty CHECK (title <> '')
+		CONSTRAINT title_not_empty CHECK (title <> ''),
+		UNIQUE (title, sprint_id)
 );
 
 CREATE TABLE IF NOT EXISTS public.tasks
