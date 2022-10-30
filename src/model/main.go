@@ -319,7 +319,7 @@ func CreateTask(log *logger.BLogger, createReq CreateTaskReq) error {
 				title,
 				description,
 				story_id,
-				bulk
+				bulk_task
 			) VALUES (
 				CURRENT_TIMESTAMP,
 				$1,
