@@ -36,7 +36,10 @@ a {
 a:visited {
 	color: blue;
 }
-input, select, textarea, button {
+input,
+select,
+textarea,
+button {
 	font-family: inherit;
 	font-size: inherit;
 }
@@ -47,13 +50,12 @@ body {
 }
 
 code {
-	background: #F3F3F3;
+	background: #f3f3f3;
 	border-radius: 4px;
 	padding: 3px;
-	color: #DE3163;
+	color: #de3163;
 	margin: 2px;
 }
-
 
 /* global styles for all rendered markdown */
 .rendered-markdown table,
@@ -140,11 +142,32 @@ code {
 	font-weight: bold;
 }
 
+/* bulk task styles */
+/* very similar to done task styles; actually the same as of 2022.10.29 */
+.task.bulk-task {
+	border-left: 5px solid var(--color3);
+}
+.task.bulk-task
+	:not(.task-title, .task-created-at, .task-edit-link, .task-handle, .task-bulk-task-indicator) {
+	display: none;
+}
+.task.bulk-task .task-title {
+	display: inline-block;
+	margin: 0;
+}
+.task.bulk-task .task-created-at,
+.task.bulk-task .task-bulk-task-indicator {
+	float: right;
+	font-size: 0.8rem;
+}
+
 /* done task styles */
 .todo-app-bucket[data-status="DONE"] .task {
 	border-left: 5px solid var(--color4);
 }
-.todo-app-bucket[data-status="DONE"] .task :not(.task-title, .task-created-at, .task-edit-link) {
+.todo-app-bucket[data-status="DONE"]
+	.task
+	:not(.task-title, .task-created-at, .task-edit-link, .task-handle) {
 	display: none;
 }
 .todo-app-bucket[data-status="DONE"] .task-title {
@@ -154,6 +177,7 @@ code {
 .todo-app-bucket[data-status="DONE"] .task .task-created-at {
 	display: inline-block;
 	float: right;
+	font-size: 0.8rem;
 }
 
 .header-wrapper {
@@ -279,7 +303,7 @@ code {
 
 /* task view page */
 body.task-view {
-	background: #F3F3F3;
+	background: #f3f3f3;
 }
 .task-view-wrapper {
 	font-size: 2rem;

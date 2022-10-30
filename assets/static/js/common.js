@@ -116,7 +116,7 @@ function getTagAssignments() {
 		.catch(handleApiErr);
 }
 
-function createTask(title, description, storyId) {
+function createTask(title, description, storyId, bulkTask = false) {
 	if (!title) {
 		console.error("task creation failed");
 		return;
@@ -130,6 +130,7 @@ function createTask(title, description, storyId) {
 			title: title,
 			description: description,
 			story_id: storyId,
+			bulk_task: bulkTask,
 		}),
 	}).then(handleApiRes);
 }

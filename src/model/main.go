@@ -18,6 +18,7 @@ type Task struct {
 	Status      string    `json:"status"`
 	StoryId     *string   `json:"story_id"`
 	Edited      bool      `json:"edited"`
+	BulkTask    bool      `json:"bulk_task"`
 }
 
 type Comment struct {
@@ -201,7 +202,7 @@ func GetTaskByIdHandle(log *logger.BLogger, taskId string) (*Task, error) {
 	var id, title, desc, status string
 	var storyId *string
 	var cAt, uAt time.Time
-	var edited bool
+	var edited, bulkTask bool
 
 	err = conn.QueryRow(context.Background(),
 		`SELECT
@@ -212,17 +213,18 @@ func GetTaskByIdHandle(log *logger.BLogger, taskId string) (*Task, error) {
 				description,
 				status,
 				story_id,
-				edited
+				edited,
+				bulk_task
 				FROM tasks
 				WHERE id = $1`,
 		taskId,
-	).Scan(&id, &cAt, &uAt, &title, &desc, &status, &storyId, &edited)
+	).Scan(&id, &cAt, &uAt, &title, &desc, &status, &storyId, &edited, &bulkTask)
 	if err != nil {
 		log.Errorf("Query failed: %v\n", err)
 		return nil, err
 	}
 
-	return &Task{id, cAt, uAt, title, desc, status, storyId, edited}, nil
+	return &Task{id, cAt, uAt, title, desc, status, storyId, edited, bulkTask}, nil
 }
 
 func GetStoryById(log *logger.BLogger, storyId string) (*Story, error) {
@@ -276,7 +278,8 @@ func GetTasks(log *logger.BLogger) ([]Task, error) {
 				description,
 				status,
 				story_id,
-				edited
+				edited,
+				bulk_task
 				FROM tasks`,
 	)
 	if err != nil {
@@ -290,9 +293,9 @@ func GetTasks(log *logger.BLogger) ([]Task, error) {
 		var id, title, desc, status string
 		var storyId *string
 		var cAt, uAt time.Time
-		var edited bool
-		rows.Scan(&id, &cAt, &uAt, &title, &desc, &status, &storyId, &edited)
-		tasks = append(tasks, Task{id, cAt, uAt, title, desc, status, storyId, edited})
+		var edited, bulkTask bool
+		rows.Scan(&id, &cAt, &uAt, &title, &desc, &status, &storyId, &edited, &bulkTask)
+		tasks = append(tasks, Task{id, cAt, uAt, title, desc, status, storyId, edited, bulkTask})
 	}
 	if rows.Err() != nil {
 		log.Errorf("Query failed: %v\n", rows.Err())
@@ -315,16 +318,19 @@ func CreateTask(log *logger.BLogger, createReq CreateTaskReq) error {
 				updated_at,
 				title,
 				description,
-				story_id
+				story_id,
+				bulk
 			) VALUES (
 				CURRENT_TIMESTAMP,
 				$1,
 				$2,
-				$3
+				$3,
+				$4
 			);`,
 		createReq.Title,
 		createReq.Description,
 		createReq.StoryId,
+		createReq.BulkTask,
 	)
 	if err != nil {
 		log.Errorf("Exec failed: %v\n", err)

@@ -672,6 +672,7 @@
 			.forEach(task => {
 				const taskDiv = document.createElement("div");
 				taskDiv.classList.add("task");
+				if (task.bulk_task) taskDiv.classList.add("bulk-task");
 
 				const taskHandle = document.createElement("p");
 				taskHandle.classList.add("task-handle");
@@ -721,6 +722,13 @@
 					taskTags.appendChild(taskTag);
 				});
 
+				const taskBulkTaskIndicator = document.createElement("p");
+				taskBulkTaskIndicator.classList.add("task-bulk-task-indicator");
+				taskBulkTaskIndicator.textContent = "Bulk task";
+				taskBulkTaskIndicator.style.display = task.bulk_task
+					? "visible"
+					: "none";
+
 				taskDiv.appendChild(taskHandle);
 				taskDiv.appendChild(taskEditLink);
 				taskDiv.appendChild(taskTitle);
@@ -728,6 +736,7 @@
 				taskDiv.appendChild(taskTags);
 				taskDiv.appendChild(taskCreatedAt);
 				taskDiv.appendChild(taskStoryTitle);
+				taskDiv.appendChild(taskBulkTaskIndicator);
 
 				taskHandle.addEventListener("mousedown", e => {
 					taskDiv.setAttribute("draggable", true);
@@ -944,11 +953,14 @@
 			const dateString = String(d.getUTCDate()).padStart(2, "0");
 			const prefix = `[${monthString}.${dateString}] `;
 			console.assert(prefix.length === BULK_TASK_PREFIX.length);
-			await createTask(prefix + commonTitle, commonDescription, storyId).then(
-				_ => {
-					console.log("Created task", prefix + commonTitle);
-				}
-			);
+			await createTask(
+				prefix + commonTitle,
+				commonDescription,
+				storyId,
+				(bulkTask = true)
+			).then(_ => {
+				console.log("Created task", prefix + commonTitle);
+			});
 		}
 	}
 })();

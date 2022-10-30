@@ -41,6 +41,7 @@ CREATE TABLE IF NOT EXISTS public.tasks
 		status task_status DEFAULT 'BACKLOG'::task_status,
 		story_id uuid,
 		edited boolean NOT NULL DEFAULT false,
+		bulk_task boolean NOT NULL DEFAULT false,
 		CONSTRAINT fk_story_id FOREIGN KEY(story_id) REFERENCES stories(id),
 		CONSTRAINT title_not_empty CHECK (title <> '')
 );

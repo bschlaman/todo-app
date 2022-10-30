@@ -5,7 +5,8 @@ import "time"
 type CreateTaskReq struct {
 	Title       string  `json:"title"`
 	Description string  `json:"description"`
-	StoryId     *string `json:"story_id"`
+	StoryId     *string `json:"story_id"`  // ptr allows for null values
+	BulkTask    *bool   `json:"bulk_task"` // ptr allows for null values
 }
 
 type CreateCommentReq struct {
