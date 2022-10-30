@@ -164,7 +164,8 @@ func GetCommentsById(log *logger.BLogger, taskId string) ([]Comment, error) {
 				text,
 				edited
 				FROM comments
-				WHERE task_id = $1`,
+				WHERE task_id = $1
+				ORDER BY created_at`,
 		taskId,
 	)
 	if err != nil {
