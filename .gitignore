@@ -1,3 +1,4 @@
 src/start.sh
 src/logs
 assets/static/favicon.png
+node_modules

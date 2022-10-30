@@ -1,3 +1,6 @@
+import { NULL_STORY_IDENTIFIER, getConfig, getSprints, getStories, getTagAssignments, getTags, getTasks, sprintToString, formatDate } from "./common.js";
+
+
 (async function () {
 	let serverConfig;
 	// stores story data by story_id
@@ -274,7 +277,7 @@
 			if (
 				!createStorySelectInput.value ||
 				new Date(sprint.start_date) >
-					new Date(sprintDataCache.get(createStorySelectInput.value).start_date)
+				new Date(sprintDataCache.get(createStorySelectInput.value).start_date)
 			) {
 				option.selected = true;
 			}

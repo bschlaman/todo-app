@@ -27,7 +27,7 @@ const routes = {
 	createTag: `/api/create_tag`,
 };
 
-const STATUSES = [
+export const STATUSES = [
 	"BACKLOG",
 	"DOING",
 	"DONE",
@@ -42,7 +42,7 @@ const STATUSES = [
 // and the story selector during task creation.  Note that this
 // value is also used as "value" in story selector options as a
 // standin for null
-const NULL_STORY_IDENTIFIER = "NONE";
+export const NULL_STORY_IDENTIFIER = "NONE";
 
 const hoverClass = "droppable-hover";
 
@@ -60,63 +60,63 @@ document.addEventListener("visibilitychange", _ => {
 
 // API
 
-function checkSession() {
+export function checkSession() {
 	return fetch(routes.checkSession, { method: "GET" })
 		.then(handleApiRes)
 		.then(res => res.json())
 		.catch(handleApiErr);
 }
 
-function simulateLatency(...args) {
+export function simulateLatency(...args) {
 	return fetch(routes.simulateLatency, { method: "GET" })
 		.then(handleApiRes)
 		.then(res => res.json())
 		.catch(handleApiErr);
 }
 
-function getConfig() {
+export function getConfig() {
 	return fetch(routes.getConfig, { method: "GET" })
 		.then(handleApiRes)
 		.then(res => res.json())
 		.catch(handleApiErr);
 }
 
-function getTasks() {
+export function getTasks() {
 	return fetch(routes.getTasks, { method: "GET" })
 		.then(handleApiRes)
 		.then(res => res.json())
 		.catch(handleApiErr);
 }
 
-function getStories() {
+export function getStories() {
 	return fetch(routes.getStories, { method: "GET" })
 		.then(handleApiRes)
 		.then(res => res.json())
 		.catch(handleApiErr);
 }
 
-function getSprints() {
+export function getSprints() {
 	return fetch(routes.getSprints, { method: "GET" })
 		.then(handleApiRes)
 		.then(res => res.json())
 		.catch(handleApiErr);
 }
 
-function getTags() {
+export function getTags() {
 	return fetch(routes.getTags, { method: "GET" })
 		.then(handleApiRes)
 		.then(res => res.json())
 		.catch(handleApiErr);
 }
 
-function getTagAssignments() {
+export function getTagAssignments() {
 	return fetch(routes.getTagAssignments, { method: "GET" })
 		.then(handleApiRes)
 		.then(res => res.json())
 		.catch(handleApiErr);
 }
 
-function createTask(title, description, storyId, bulkTask = false) {
+export function createTask(title, description, storyId, bulkTask = false) {
 	if (!title) {
 		console.error("task creation failed");
 		return;
@@ -135,7 +135,7 @@ function createTask(title, description, storyId, bulkTask = false) {
 	}).then(handleApiRes);
 }
 
-function createStory(title, description, sprintId) {
+export function createStory(title, description, sprintId) {
 	if (!title || !description || !sprintId) {
 		console.error("story creation failed");
 		return;
@@ -153,7 +153,7 @@ function createStory(title, description, sprintId) {
 	}).then(handleApiRes);
 }
 
-function createSprint(title, startdate, enddate) {
+export function createSprint(title, startdate, enddate) {
 	if (!title || !startdate || !enddate) {
 		console.error("story creation failed");
 		return;
@@ -171,7 +171,7 @@ function createSprint(title, startdate, enddate) {
 	}).then(handleApiRes);
 }
 
-function createTag(title, description) {
+export function createTag(title, description) {
 	if (!title || !description) {
 		console.error("tag creation failed");
 		return;
@@ -188,7 +188,7 @@ function createTag(title, description) {
 	}).then(handleApiRes);
 }
 
-function createTagAssignment(tag_id, story_id) {
+export function createTagAssignment(tag_id, story_id) {
 	if (!tag_id || !story_id) {
 		console.error("tag assignment failed");
 		return;
@@ -205,7 +205,7 @@ function createTagAssignment(tag_id, story_id) {
 	}).then(handleApiRes);
 }
 
-function destroyTagAssignment(tag_id, story_id) {
+export function destroyTagAssignment(tag_id, story_id) {
 	if (!tag_id || !story_id) {
 		console.error("tag assignment failed");
 		return;
@@ -222,7 +222,7 @@ function destroyTagAssignment(tag_id, story_id) {
 	}).then(handleApiRes);
 }
 
-function updateTaskById(id, status, title, description, storyId) {
+export function updateTaskById(id, status, title, description, storyId) {
 	if (!id || !status || !title) {
 		console.error("could not update task");
 		return;
@@ -244,7 +244,7 @@ function updateTaskById(id, status, title, description, storyId) {
 		.catch(handleApiErr);
 }
 
-function updateStoryById(id, status, title, description, sprintId) {
+export function updateStoryById(id, status, title, description, sprintId) {
 	if (!id || !status || !title || !description || !sprintId) {
 		console.error("could not update story");
 		return;
@@ -266,28 +266,28 @@ function updateStoryById(id, status, title, description, sprintId) {
 		.catch(handleApiErr);
 }
 
-function getTaskById(id) {
+export function getTaskById(id) {
 	return fetch(`${routes.getTaskById}?id=${id}`, { method: "GET" })
 		.then(handleApiRes)
 		.then(res => res.json())
 		.catch(handleApiErr);
 }
 
-function getCommentsByTaskId(id) {
+export function getCommentsByTaskId(id) {
 	return fetch(`${routes.getCommentsByTaskId}?id=${id}`, { method: "GET" })
 		.then(handleApiRes)
 		.then(res => res.json())
 		.catch(handleApiErr);
 }
 
-function getStoryById(id) {
+export function getStoryById(id) {
 	return fetch(`${routes.getStoryById}?id=${id}`, { method: "GET" })
 		.then(handleApiRes)
 		.then(res => res.json())
 		.catch(handleApiErr);
 }
 
-function createComment(taskId, text) {
+export function createComment(taskId, text) {
 	return fetch(`${routes.createComment}`, {
 		method: "POST",
 		headers: {
@@ -304,27 +304,27 @@ function createComment(taskId, text) {
 
 // UTIL FUNCTIONS
 
-function clearInputValues(...inputElements) {
+export function clearInputValues(...inputElements) {
 	inputElements.forEach(inputElement => {
 		inputElement.value = "";
 	});
 }
 
-function formatDate(date) {
+export function formatDate(date) {
 	return `${date.toDateString()}`;
 }
 
-function formatDateCompact(date) {
+export function formatDateCompact(date) {
 	return `${date.getMonth() + 1}.${date.getUTCDate()}`;
 }
 
-function sprintToString(sprint) {
+export function sprintToString(sprint) {
 	return `${sprint.title} (${formatDateCompact(
 		new Date(sprint.start_date)
 	)} - ${formatDateCompact(new Date(sprint.end_date))})`;
 }
 
-function formatId(id) {
+export function formatId(id) {
 	// expect postgres style id
 	if (id.split("-").length != 5)
 		console.error("id seems to be wrong format:", id);
