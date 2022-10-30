@@ -148,7 +148,7 @@ func GetConfig(log *logger.BLogger) (map[string]interface{}, error) {
 	return serverConfig, nil
 }
 
-func GetCommentsById(log *logger.BLogger, taskId string) ([]Comment, error) {
+func GetCommentsByTaskId(log *logger.BLogger, taskId string) ([]Comment, error) {
 	conn, err := database.GetPgxConn()
 	if err != nil {
 		log.Errorf("unable to connect to database: %v\n", err)
@@ -164,8 +164,7 @@ func GetCommentsById(log *logger.BLogger, taskId string) ([]Comment, error) {
 				text,
 				edited
 				FROM comments
-				WHERE task_id = $1
-				ORDER BY created_at`,
+				WHERE task_id = $1`,
 		taskId,
 	)
 	if err != nil {

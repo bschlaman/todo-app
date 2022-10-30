@@ -208,27 +208,31 @@
 		}
 		while (taskComments.firstChild)
 			taskComments.removeChild(taskComments.firstChild);
-		comments.forEach(comment => {
-			const commentWrapper = document.createElement("div");
-			commentWrapper.classList.add("comment-wrapper");
+		comments
+			.sort((c0, c1) => {
+				return new Date(c0.created_at) - new Date(c1.created_at);
+			})
+			.forEach(comment => {
+				const commentWrapper = document.createElement("div");
+				commentWrapper.classList.add("comment-wrapper");
 
-			const commentText = document.createElement("p");
-			commentText.classList.add("comment-text");
-			commentText.classList.add("rendered-markdown");
-			commentText.innerHTML = DOMPurify.sanitize(marked.parse(comment.text));
+				const commentText = document.createElement("p");
+				commentText.classList.add("comment-text");
+				commentText.classList.add("rendered-markdown");
+				commentText.innerHTML = DOMPurify.sanitize(marked.parse(comment.text));
 
-			const commentCreatedAt = document.createElement("p");
-			commentCreatedAt.classList.add("comment-created-at");
-			commentCreatedAt.textContent = formatDate(new Date(comment.created_at));
+				const commentCreatedAt = document.createElement("p");
+				commentCreatedAt.classList.add("comment-created-at");
+				commentCreatedAt.textContent = formatDate(new Date(comment.created_at));
 
-			const commentId = document.createElement("p");
-			commentId.classList.add("comment-id");
-			commentId.textContent = comment.id;
+				const commentId = document.createElement("p");
+				commentId.classList.add("comment-id");
+				commentId.textContent = comment.id;
 
-			commentWrapper.appendChild(commentId);
-			commentWrapper.appendChild(commentText);
-			commentWrapper.appendChild(commentCreatedAt);
-			taskComments.appendChild(commentWrapper);
-		});
+				commentWrapper.appendChild(commentId);
+				commentWrapper.appendChild(commentText);
+				commentWrapper.appendChild(commentCreatedAt);
+				taskComments.appendChild(commentWrapper);
+			});
 	}
 })();

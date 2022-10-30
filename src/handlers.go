@@ -29,7 +29,7 @@ func getConfigHandle() http.Handler {
 	})
 }
 
-func getCommentsByIdHandle() http.Handler {
+func getCommentsByTaskIdHandle() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		taskId := r.URL.Query().Get("id")
 		if strings.Count(taskId, "-") != 4 {
@@ -38,7 +38,7 @@ func getCommentsByIdHandle() http.Handler {
 			return
 		}
 
-		comments, err := model.GetCommentsById(env.Log, taskId)
+		comments, err := model.GetCommentsByTaskId(env.Log, taskId)
 		if err != nil {
 			http.Error(w, "something went wrong", http.StatusInternalServerError)
 			return

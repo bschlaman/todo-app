@@ -276,7 +276,7 @@ func main() {
 		{"/api/put_story", putStoryHandle},
 		{"/api/create_task", createTaskHandle},
 		{"/api/create_comment", createCommentHandle},
-		{"/api/get_comments_by_task_id", getCommentsByIdHandle},
+		{"/api/get_comments_by_task_id", getCommentsByTaskIdHandle},
 		{"/api/get_stories", getStoriesHandle},
 		{"/api/get_story", getStoryByIdHandle},
 		{"/api/create_story", createStoryHandle},
