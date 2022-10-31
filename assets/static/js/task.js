@@ -1,4 +1,4 @@
-import { getConfig, getCommentsByTaskId, createComment, clearInputValues, getSprints, getStories, STATUSES, getTaskById, formatId, formatDate, NULL_STORY_IDENTIFIER } from './common.js';
+import { updateTaskById, getConfig, getCommentsByTaskId, createComment, clearInputValues, getSprints, getStories, STATUSES, getTaskById, formatId, formatDate, NULL_STORY_IDENTIFIER } from './common.js';
 (async function () {
 	const path = window.location.pathname;
 	const taskIdFromPath = path.substring(path.lastIndexOf("/") + 1);
