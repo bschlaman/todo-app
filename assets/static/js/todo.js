@@ -14,6 +14,9 @@ import {
 	sprintToString,
 	formatDate,
 	updateTaskById,
+	clearInputValues,
+	createTagAssignment,
+	destroyTagAssignment,
 } from "./common.js";
 
 (async function () {
