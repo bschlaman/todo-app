@@ -1,4 +1,4 @@
-import { NULL_STORY_IDENTIFIER, getConfig, getSprints, getStories, getTagAssignments, getTags, getTasks, sprintToString, formatDate } from "./common.js";
+import { NULL_STORY_IDENTIFIER, hoverClass, getConfig, getSprints, getStories, getTagAssignments, getTags, getTasks, sprintToString, formatDate, updateTaskById } from "./common.js";
 
 
 (async function () {

@@ -44,7 +44,7 @@ export const STATUSES = [
 // standin for null
 export const NULL_STORY_IDENTIFIER = "NONE";
 
-const hoverClass = "droppable-hover";
+export const hoverClass = "droppable-hover";
 
 // detect when user navigates back to page and check
 // if the session is still valid

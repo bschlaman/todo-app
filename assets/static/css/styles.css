@@ -175,7 +175,6 @@ code {
 	margin: 0;
 }
 .todo-app-bucket[data-status="DONE"] .task .task-created-at {
-	display: inline-block;
 	float: right;
 	font-size: 0.8rem;
 }
@@ -382,19 +381,19 @@ body.task-view {
 }
 .comment-wrapper .comment-text {
 }
+.comment-wrapper .comment-id,
 .comment-wrapper .comment-created-at {
 	color: lightgrey;
 	position: absolute;
-	bottom: 1rem;
 	right: 1rem;
 	margin: 0.4rem;
+	font-size: 1rem;
+}
+.comment-wrapper .comment-created-at {
+	bottom: 1rem;
 }
 .comment-wrapper .comment-id {
-	color: lightgrey;
-	position: absolute;
 	top: 1rem;
-	right: 1rem;
-	margin: 0.4rem;
 }
 .new-comment {
 	outline: 2px solid grey;
