@@ -1,5 +1,20 @@
-import { NULL_STORY_IDENTIFIER, hoverClass, getConfig, getSprints, getStories, getTagAssignments, getTags, getTasks, sprintToString, formatDate, updateTaskById } from "./common.js";
-
+import {
+	createTask,
+	createStory,
+	createSprint,
+	createTag,
+	NULL_STORY_IDENTIFIER,
+	hoverClass,
+	getConfig,
+	getSprints,
+	getStories,
+	getTagAssignments,
+	getTags,
+	getTasks,
+	sprintToString,
+	formatDate,
+	updateTaskById,
+} from "./common.js";
 
 (async function () {
 	let serverConfig;
@@ -277,7 +292,7 @@ import { NULL_STORY_IDENTIFIER, hoverClass, getConfig, getSprints, getStories, g
 			if (
 				!createStorySelectInput.value ||
 				new Date(sprint.start_date) >
-				new Date(sprintDataCache.get(createStorySelectInput.value).start_date)
+					new Date(sprintDataCache.get(createStorySelectInput.value).start_date)
 			) {
 				option.selected = true;
 			}
