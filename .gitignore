@@ -1,4 +1,6 @@
-src/start.sh
-src/logs
+start.sh
+logs
 assets/static/favicon.png
 node_modules
+package-lock.json
+dist

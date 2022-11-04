@@ -20,7 +20,7 @@ import (
 const (
 	serverName           string        = "TODO-APP-SERVER"
 	logPath              string        = "logs/output.log"
-	staticDir            string        = "assets/static"
+	staticDir            string        = "dist"
 	sprintDuration       time.Duration = time.Hour * 24 * 14
 	sessionDuration      time.Duration = 1 * time.Hour
 	allowClearSessionAPI bool          = false
@@ -230,7 +230,7 @@ func redirectRootPathMiddleware(h http.Handler) http.Handler {
 }
 
 func init() {
-	file, err := os.OpenFile(logPath, os.O_APPEND|os.O_WRONLY, 0644)
+	file, err := os.OpenFile(path.Join("../..", logPath), os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
 		panic(err)
 	}
@@ -245,7 +245,7 @@ func init() {
 func main() {
 
 	// special case handlers
-	fs := http.FileServer(http.Dir(path.Join("..", staticDir)))
+	fs := http.FileServer(http.Dir(path.Join("../..", staticDir)))
 	http.Handle("/", sessionMiddleware(
 		redirectRootPathMiddleware(
 			matchIdRedirMiddleware(fs),
