@@ -13,6 +13,9 @@ import {
 	formatDate,
 	NULL_STORY_IDENTIFIER,
 } from "./common.js";
+import * as DOMPurify from "dompurify";
+import { marked } from "marked";
+
 (async function () {
 	const path = window.location.pathname;
 	const taskIdFromPath = path.substring(path.lastIndexOf("/") + 1);

@@ -19,6 +19,8 @@ import {
 	createTagAssignment,
 	destroyTagAssignment,
 } from "./common.js";
+import * as DOMPurify from "dompurify";
+import { marked } from "marked";
 
 (async function () {
 	let serverConfig;
