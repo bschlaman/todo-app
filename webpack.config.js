@@ -14,6 +14,7 @@ module.exports = {
 		path: path.resolve(__dirname, publicDir),
 	},
 	mode: "none", // remove warning msg
+	devtool: "inline-source-map",
 	module: {
 		rules: [
 			{

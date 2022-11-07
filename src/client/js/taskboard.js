@@ -15,6 +15,7 @@ import {
 	sprintToString,
 	formatDate,
 	updateTaskById,
+	updateStoryById,
 	clearInputValues,
 	createTagAssignment,
 	destroyTagAssignment,
