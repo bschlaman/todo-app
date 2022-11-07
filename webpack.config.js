@@ -13,6 +13,7 @@ module.exports = {
 		filename: "./[name]/[name].bundle.js",
 		path: path.resolve(__dirname, publicDir),
 	},
+	mode: "none", // remove warning msg
 	module: {
 		rules: [
 			{
