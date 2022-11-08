@@ -60,72 +60,93 @@ document.addEventListener("visibilitychange", _ => {
 
 // API
 
+// I currently want to bail if anything goes wrong
 export async function checkSession(): Promise<JSON> {
 	try {
 		const res = await fetch(routes.checkSession, { method: "GET" });
 		return await handleApiRes(res);
 	} catch (err) {
-		return handleApiErr(err);
+		if (err instanceof Error) handleApiErr(err);
+		throw err;
 	}
 }
 
-export async function simulateLatency(): Promise<JSON | Error> {
+export async function simulateLatency(): Promise<JSON> {
 	try {
 		const res = await fetch(routes.simulateLatency, { method: "GET" });
 		return await handleApiRes(res);
 	} catch (err) {
-		return handleApiErr(err);
+		if (err instanceof Error) handleApiErr(err);
+		throw err;
 	}
 }
 
-export function getConfig() {
-	return fetch(routes.getConfig, { method: "GET" })
-		.then(handleApiRes)
-		.then(res => res.json())
-		.catch(handleApiErr);
+export async function getConfig(): Promise<JSON> {
+	try {
+		const res = await fetch(routes.getConfig, { method: "GET" });
+		return await handleApiRes(res);
+	} catch (err) {
+		if (err instanceof Error) handleApiErr(err);
+		throw err;
+	}
 }
 
-export function getTasks() {
-	return fetch(routes.getTasks, { method: "GET" })
-		.then(handleApiRes)
-		.then(res => res.json())
-		.catch(handleApiErr);
+export async function getTasks(): Promise<JSON> {
+	try {
+		const res = await fetch(routes.getTasks, { method: "GET" });
+		return await handleApiRes(res);
+	} catch (err) {
+		if (err instanceof Error) handleApiErr(err);
+		throw err;
+	}
 }
 
-export function getStories() {
-	return fetch(routes.getStories, { method: "GET" })
-		.then(handleApiRes)
-		.then(res => res.json())
-		.catch(handleApiErr);
+export async function getStories(): Promise<JSON> {
+	try {
+		const res = await fetch(routes.getStories, { method: "GET" });
+		return await handleApiRes(res);
+	} catch (err) {
+		if (err instanceof Error) handleApiErr(err);
+		throw err;
+	}
 }
 
-export function getSprints() {
-	return fetch(routes.getSprints, { method: "GET" })
-		.then(handleApiRes)
-		.then(res => res.json())
-		.catch(handleApiErr);
+export async function getSprints(): Promise<JSON> {
+	try {
+		const res = await fetch(routes.getSprints, { method: "GET" });
+		return await handleApiRes(res);
+	} catch (err) {
+		if (err instanceof Error) handleApiErr(err);
+		throw err;
+	}
 }
 
-export function getTags() {
-	return fetch(routes.getTags, { method: "GET" })
-		.then(handleApiRes)
-		.then(res => res.json())
-		.catch(handleApiErr);
+export async function getTags(): Promise<JSON> {
+	try {
+		const res = await fetch(routes.getTags, { method: "GET" });
+		return await handlreApiRes(res);
+	} catch (err) {
+		if (err instanceof Error) handleApiErr(err);
+		throw err;
+	}
 }
 
-export function getTagAssignments() {
-	return fetch(routes.getTagAssignments, { method: "GET" })
-		.then(handleApiRes)
-		.then(res => res.json())
-		.catch(handleApiErr);
+export async function getTagAssignments(): Promise<JSON> {
+	try {
+		const res = await fetch(routes.getTagAssignments, { method: "GET" });
+		return await handleApiRes(res);
+	} catch (err) {
+		if (err instanceof Error) handleApiErr(err);
+		throw err;
+	}
 }
 
-export function createTask(title, description, storyId, bulkTask = false) {
+export async function createTask(title: string, description: string, storyId: string, bulkTask = false): Promise<JSON> {
 	if (!title) {
 		console.error("task creation failed");
-		return;
+		throw new Error("no task title");
 	}
-	return fetch(routes.createTask, {
+	const res = await fetch(routes.createTask, {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
@@ -136,15 +157,16 @@ export function createTask(title, description, storyId, bulkTask = false) {
 			story_id: storyId,
 			bulk_task: bulkTask,
 		}),
-	}).then(handleApiRes);
+	});
+	return await handleApiRes(res);
 }
 
-export function createStory(title, description, sprintId) {
+export async function createStory(title: string, description: string, sprintId: string): Promise<JSON> {
 	if (!title || !description || !sprintId) {
 		console.error("story creation failed");
-		return;
+		throw new Error("some story creation input parameters missing");
 	}
-	return fetch(routes.createStory, {
+	const res = await fetch(routes.createStory, {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
@@ -154,15 +176,16 @@ export function createStory(title, description, sprintId) {
 			description: description,
 			sprint_id: sprintId,
 		}),
-	}).then(handleApiRes);
+	});
+	return await handleApiRes(res);
 }
 
-export function createSprint(title, startdate, enddate) {
+export async function createSprint(title: string, startdate: Date, enddate: Date): Promise<JSON> {
 	if (!title || !startdate || !enddate) {
 		console.error("story creation failed");
-		return;
+		throw new Error("some sprint creation parameters missing");
 	}
-	return fetch(routes.createSprint, {
+	const res = await fetch(routes.createSprint, {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
@@ -172,15 +195,16 @@ export function createSprint(title, startdate, enddate) {
 			start_date: new Date(startdate),
 			end_date: new Date(enddate),
 		}),
-	}).then(handleApiRes);
+	});
+	return handleApiRes(res);
 }
 
-export function createTag(title, description) {
+export async function createTag(title, description): Promise<JSON> {
 	if (!title || !description) {
 		console.error("tag creation failed");
 		return;
 	}
-	return fetch(routes.createTag, {
+	const res = await fetch(routes.createTag, {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
@@ -189,15 +213,16 @@ export function createTag(title, description) {
 			title: title,
 			description: description,
 		}),
-	}).then(handleApiRes);
+	});
+	return handleApiRes(res);
 }
 
-export function createTagAssignment(tag_id, story_id) {
+export async function createTagAssignment(tag_id, story_id): Promise<JSON> {
 	if (!tag_id || !story_id) {
 		console.error("tag assignment failed");
 		return;
 	}
-	return fetch(routes.createTagAssignment, {
+	const res = await fetch(routes.createTagAssignment, {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
@@ -206,15 +231,16 @@ export function createTagAssignment(tag_id, story_id) {
 			tag_id: tag_id,
 			story_id: story_id,
 		}),
-	}).then(handleApiRes);
+	});
+	return handleApiRes(res);
 }
 
-export function destroyTagAssignment(tag_id, story_id) {
+export async function destroyTagAssignment(tag_id, story_id): Promise<JSON> {
 	if (!tag_id || !story_id) {
 		console.error("tag assignment failed");
 		return;
 	}
-	return fetch(routes.destroyTagAssignment, {
+	const res = await fetch(routes.destroyTagAssignment, {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
@@ -223,87 +249,106 @@ export function destroyTagAssignment(tag_id, story_id) {
 			tag_id: tag_id,
 			story_id: story_id,
 		}),
-	}).then(handleApiRes);
+	});
+	return handleApiRes(res);
 }
 
-export function updateTaskById(id, status, title, description, storyId) {
+export async function updateTaskById(id, status, title, description, storyId): Promise<JSON> {
 	if (!id || !status || !title) {
 		console.error("could not update task");
 		return;
 	}
-	return fetch(routes.updateTask, {
-		method: "PUT",
-		headers: {
-			"Content-Type": "application/json",
-		},
-		body: JSON.stringify({
-			id: id,
-			status: status,
-			title: title,
-			description: description,
-			story_id: storyId,
-		}),
-	})
-		.then(handleApiRes)
-		.catch(handleApiErr);
+	try {
+		const res = await fetch(routes.updateTask, {
+			method: "PUT",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({
+				id: id,
+				status: status,
+				title: title,
+				description: description,
+				story_id: storyId,
+			}),
+		});
+		return handleApiRes(res);
+	} catch (err) {
+		return handleApiErr(err);
+	}
 }
 
-export function updateStoryById(id, status, title, description, sprintId) {
+export async function updateStoryById(id, status, title, description, sprintId): Promise<JSON> {
 	if (!id || !status || !title || !description || !sprintId) {
 		console.error("could not update story");
 		return;
 	}
-	return fetch(routes.updateStory, {
-		method: "PUT",
-		headers: {
-			"Content-Type": "application/json",
-		},
-		body: JSON.stringify({
-			id: id,
-			status: status,
-			title: title,
-			description: description,
-			sprint_id: sprintId,
-		}),
-	})
-		.then(handleApiRes)
-		.catch(handleApiErr);
+	try {
+		const res = await fetch(routes.updateStory, {
+			method: "PUT",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({
+				id: id,
+				status: status,
+				title: title,
+				description: description,
+				sprint_id: sprintId,
+			}),
+		});
+		return handleApiRes(res);
+	} catch (err) {
+		return handleApiErr(err);
+	}
 }
 
-export function getTaskById(id) {
-	return fetch(`${routes.getTaskById}?id=${id}`, { method: "GET" })
-		.then(handleApiRes)
-		.then(res => res.json())
-		.catch(handleApiErr);
+export async function getTaskById(id): Promise<JSON> {
+	try {
+		const res = await fetch(`${routes.getTaskById}?id=${id}`, { method: "GET" });
+		const res_1 = await handleApiRes(res);
+		return res_1.json();
+	} catch (err) {
+		return handleApiErr(err);
+	}
 }
 
-export function getCommentsByTaskId(id) {
-	return fetch(`${routes.getCommentsByTaskId}?id=${id}`, { method: "GET" })
-		.then(handleApiRes)
-		.then(res => res.json())
-		.catch(handleApiErr);
+export async function getCommentsByTaskId(id): Promise<JSON> {
+	try {
+		const res = await fetch(`${routes.getCommentsByTaskId}?id=${id}`, { method: "GET" });
+		const res_1 = await handleApiRes(res);
+		return res_1.json();
+	} catch (err) {
+		return handleApiErr(err);
+	}
 }
 
-export function getStoryById(id) {
-	return fetch(`${routes.getStoryById}?id=${id}`, { method: "GET" })
-		.then(handleApiRes)
-		.then(res => res.json())
-		.catch(handleApiErr);
+export async function getStoryById(id): Promise<JSON> {
+	try {
+		const res = await fetch(`${routes.getStoryById}?id=${id}`, { method: "GET" });
+		const res_1 = await handleApiRes(res);
+		return res_1.json();
+	} catch (err) {
+		return handleApiErr(err);
+	}
 }
 
-export function createComment(taskId, text) {
-	return fetch(`${routes.createComment}`, {
-		method: "POST",
-		headers: {
-			"Content-Type": "application/json",
-		},
-		body: JSON.stringify({
-			text: text,
-			task_id: taskId,
-		}),
-	})
-		.then(handleApiRes)
-		.catch(handleApiErr);
+export async function createComment(taskId, text): Promise<JSON> {
+	try {
+		const res = await fetch(`${routes.createComment}`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({
+				text: text,
+				task_id: taskId,
+			}),
+		});
+		return handleApiRes(res);
+	} catch (err) {
+		return handleApiErr(err);
+	}
 }
 
 // UTIL FUNCTIONS
@@ -335,16 +380,20 @@ export function formatId(id) {
 	return id.split("-")[0] + "...";
 }
 
+// handleApiRes handles the common happy path for API calls.
+// right now, that means 1) checking status code and 2) converting res to json
 async function handleApiRes(res: Response): Promise<JSON> {
-	// only accept 200 response
 	if (res.ok) return await res.json();
 	const msg = `bad res code (${res.status}) from: ${res.url}`;
 	throw new Error(msg);
 }
 
-// catch actual networking errors
+// handleApiRes handles the common error path for API calls.
 function handleApiErr(err: Error) {
 	console.error("(handleApiErr) error occured:", err);
+	// TODO (2022.11.07): alert visually in DOM
 	alert(err);
-	return Promise.reject(err);
+	// TODO (2022.11.07): should I rethrow the error?
+	// I lean towards no, since I don't necessarily want this
+	// function to encasulate flow control behavior
 }
