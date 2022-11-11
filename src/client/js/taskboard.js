@@ -982,7 +982,7 @@ import { marked } from "marked";
 				prefix + commonTitle,
 				commonDescription,
 				storyId,
-				(bulkTask = true)
+				true
 			).then(_ => {
 				console.log("Created task", prefix + commonTitle);
 			});
