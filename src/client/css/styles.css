@@ -112,12 +112,17 @@ code {
 	/* white-space: pre-wrap; */
 }
 .task .task-created-at,
-.task .task-status,
-.task .task-id,
 .task .task-story-title {
 	text-align: right;
-	font-size: 1rem;
 	color: grey;
+}
+.task .task-story-title {
+	display: block;
+	text-decoration: underline;
+	font-size: 1rem;
+}
+.task .task-created-at {
+	font-size: 0.7rem;
 }
 .task .task-edit-link {
 	position: absolute;

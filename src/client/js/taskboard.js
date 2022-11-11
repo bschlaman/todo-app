@@ -717,24 +717,17 @@ import { marked } from "marked";
 				taskDesc.classList.add("rendered-markdown");
 				taskDesc.innerHTML = DOMPurify.sanitize(marked.parse(task.description));
 
-				const taskId = document.createElement("p");
-				taskId.classList.add("task-id");
-				taskId.textContent = task.id;
-
-				const taskStatus = document.createElement("p");
-				taskStatus.classList.add("task-status");
-				taskStatus.textContent = task.status;
-
 				const taskCreatedAt = document.createElement("p");
 				taskCreatedAt.classList.add("task-created-at");
 				taskCreatedAt.textContent = formatDate(new Date(task.created_at));
 
-				const taskStoryTitle = document.createElement("p");
+				const taskStoryTitle = document.createElement("a");
 				taskStoryTitle.classList.add("task-story-title");
 				taskStoryTitle.textContent =
 					task.story_id === null
 						? NULL_STORY_IDENTIFIER
 						: storyDataCache.get(task.story_id).title;
+				taskStoryTitle.href = `#${task.story_id}`;
 
 				const taskTags = document.createElement("div");
 				taskTags.classList.add("task-tags");
@@ -759,8 +752,8 @@ import { marked } from "marked";
 				taskDiv.appendChild(taskTitle);
 				taskDiv.appendChild(taskDesc);
 				taskDiv.appendChild(taskTags);
-				taskDiv.appendChild(taskCreatedAt);
 				taskDiv.appendChild(taskStoryTitle);
+				taskDiv.appendChild(taskCreatedAt);
 				taskDiv.appendChild(taskBulkTaskIndicator);
 
 				taskHandle.addEventListener("mousedown", e => {
@@ -818,6 +811,8 @@ import { marked } from "marked";
 			.forEach((story, _) => {
 				const storyDiv = document.createElement("div");
 				storyDiv.classList.add("story");
+				// storyURIFragment
+				storyDiv.id = story.id;
 
 				const storyTitle = document.createElement("h4");
 				storyTitle.classList.add("story-title");
