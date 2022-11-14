@@ -762,6 +762,13 @@ import { marked } from "marked";
 				taskHandle.addEventListener("mouseup", e => {
 					taskDiv.setAttribute("draggable", false);
 				});
+				// not currently working, since drag api doesn't work with touch
+				taskHandle.addEventListener("touchstart", e => {
+					taskDiv.setAttribute("draggable", true);
+				});
+				taskHandle.addEventListener("touchend", e => {
+					taskDiv.setAttribute("draggable", false);
+				});
 
 				taskDiv.addEventListener("dragstart", _ => {
 					taskDiv.classList.add("dragging");

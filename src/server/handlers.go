@@ -4,10 +4,98 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"net/url"
 	"strings"
+	"time"
 
 	"github.com/bschlaman/todo-app/model"
 )
+
+func loginHandle() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// TODO: branching based on method seems clunky...
+		// if GET, we want to serve the login/index.html page
+		// if r.Method == http.MethodGet {
+		// 	// this also seems bad
+		// 	http.ServeFile(w, r, "index.html")
+		// 	return
+		// }
+		// if r.Method == http.MethodPost {
+		pass := r.FormValue("pass")
+		if pass == env.LoginPw {
+			log.Info("login successful!")
+			id := createSaveNewSession()
+			cookie := &http.Cookie{
+				Name:     "session",
+				Value:    id,
+				SameSite: http.SameSiteDefaultMode,
+				Path:     "/",
+			}
+			http.SetCookie(w, cookie)
+			log.Infof("setting cookie: %v\n", cookie)
+
+			u, err := url.Parse(r.Header.Get("Referer"))
+			if err != nil {
+				delete(sessions, id)
+				log.Infof("invalid ref url: %v\n", r.Header.Get("Referer"))
+				http.Error(w, "invalid ref url", http.StatusBadRequest)
+				return
+			}
+			ref, err := url.PathUnescape(u.Query().Get("ref"))
+			if err != nil {
+				delete(sessions, id)
+				log.Infof("invalid ref url: %v\n", r.Header.Get("Referer"))
+				http.Error(w, "invalid ref url", http.StatusBadRequest)
+				return
+			}
+			http.Redirect(w, r, ref, http.StatusSeeOther)
+			return
+		}
+		log.Infof("incorrect pw: %v\n", pass)
+		http.Error(w, "incorrect pw", http.StatusUnauthorized)
+		return
+		// }
+	})
+}
+
+func checkSessionHandle() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// if the call makes it this far, we know the session is valid
+		cookie, _ := r.Cookie("session")
+		s, _ := sessions[cookie.Value]
+
+		timeRemaining := sessionDuration - time.Now().Sub(s.CreatedAt)
+
+		res, err := json.Marshal(&struct {
+			TimeRemainingSeconds int `json:"session_time_remaining_seconds"`
+		}{
+			int(timeRemaining.Seconds()),
+		})
+		if err != nil {
+			http.Error(w, "error getting session", http.StatusInternalServerError)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(res)
+		return
+	})
+}
+
+func clearSessionsHandle() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		sessions = make(map[string]Session)
+		res, err := json.Marshal(&struct {
+			Message string `json:"message"`
+		}{
+			"ok",
+		})
+		if err != nil {
+			http.Error(w, "error clearing sessions", http.StatusInternalServerError)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(res)
+		return
+	})
+}
 
 func getConfigHandle() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
