@@ -37,7 +37,7 @@ func sessionMiddleware(h http.Handler) http.Handler {
 		// "session" not present in cookie, or cookie not present at all
 		cookie, err := r.Cookie("session")
 		if err != nil {
-			log.Infof("invalid cookie: no session in cookie")
+			log.Info("invalid cookie: no session in cookie")
 			if strings.HasPrefix(r.URL.Path, "/api") {
 				http.Error(w, "invalid cookie", http.StatusUnauthorized)
 			} else {
@@ -49,7 +49,7 @@ func sessionMiddleware(h http.Handler) http.Handler {
 		// id not found in sessions data structure
 		_, ok := sessions[cookie.Value]
 		if !ok {
-			log.Infof("invalid cookie: session not recognized")
+			log.Info("invalid cookie: session not recognized")
 			if strings.HasPrefix(r.URL.Path, "/api") {
 				http.Error(w, "invalid cookie", http.StatusUnauthorized)
 			} else {
@@ -60,7 +60,7 @@ func sessionMiddleware(h http.Handler) http.Handler {
 
 		// session expired
 		if time.Now().Sub(sessions[cookie.Value].CreatedAt) > sessionDuration {
-			log.Infof("invalid cookie: session expired")
+			log.Info("invalid cookie: session expired")
 			if strings.HasPrefix(r.URL.Path, "/api") {
 				http.Error(w, "invalid cookie", http.StatusUnauthorized)
 			} else {

@@ -101,7 +101,7 @@ func (e InputError) Error() string {
 func GetConfig(log *logger.BLogger) (map[string]interface{}, error) {
 	conn, err := database.GetPgxConn()
 	if err != nil {
-		log.Errorf("unable to connect to database: %v\n", err)
+		log.Errorf("unable to connect to database: %v", err)
 		return nil, err
 	}
 	defer conn.Close(context.Background())
@@ -115,7 +115,7 @@ func GetConfig(log *logger.BLogger) (map[string]interface{}, error) {
 				FROM config`,
 	)
 	if err != nil {
-		log.Errorf("Query failed: %v\n", err)
+		log.Errorf("Query failed: %v", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -130,7 +130,7 @@ func GetConfig(log *logger.BLogger) (map[string]interface{}, error) {
 	}
 
 	if rows.Err() != nil {
-		log.Errorf("Query failed: %v\n", rows.Err())
+		log.Errorf("Query failed: %v", rows.Err())
 		return nil, rows.Err()
 	}
 
@@ -152,7 +152,7 @@ func GetConfig(log *logger.BLogger) (map[string]interface{}, error) {
 func GetCommentsByTaskId(log *logger.BLogger, taskId string) ([]Comment, error) {
 	conn, err := database.GetPgxConn()
 	if err != nil {
-		log.Errorf("unable to connect to database: %v\n", err)
+		log.Errorf("unable to connect to database: %v", err)
 		return nil, err
 	}
 	defer conn.Close(context.Background())
@@ -169,7 +169,7 @@ func GetCommentsByTaskId(log *logger.BLogger, taskId string) ([]Comment, error) 
 		taskId,
 	)
 	if err != nil {
-		log.Errorf("Query failed: %v\n", err)
+		log.Errorf("Query failed: %v", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -184,7 +184,7 @@ func GetCommentsByTaskId(log *logger.BLogger, taskId string) ([]Comment, error) 
 		comments = append(comments, Comment{id, taskId, cAt, uAt, text, edited})
 	}
 	if rows.Err() != nil {
-		log.Errorf("Query failed: %v\n", rows.Err())
+		log.Errorf("Query failed: %v", rows.Err())
 		return nil, rows.Err()
 	}
 
@@ -194,7 +194,7 @@ func GetCommentsByTaskId(log *logger.BLogger, taskId string) ([]Comment, error) 
 func GetTaskByIdHandle(log *logger.BLogger, taskId string) (*Task, error) {
 	conn, err := database.GetPgxConn()
 	if err != nil {
-		log.Errorf("unable to connect to database: %v\n", err)
+		log.Errorf("unable to connect to database: %v", err)
 		return nil, err
 	}
 	defer conn.Close(context.Background())
@@ -220,7 +220,7 @@ func GetTaskByIdHandle(log *logger.BLogger, taskId string) (*Task, error) {
 		taskId,
 	).Scan(&id, &cAt, &uAt, &title, &desc, &status, &storyId, &edited, &bulkTask)
 	if err != nil {
-		log.Errorf("Query failed: %v\n", err)
+		log.Errorf("Query failed: %v", err)
 		return nil, err
 	}
 
@@ -230,7 +230,7 @@ func GetTaskByIdHandle(log *logger.BLogger, taskId string) (*Task, error) {
 func GetStoryById(log *logger.BLogger, storyId string) (*Story, error) {
 	conn, err := database.GetPgxConn()
 	if err != nil {
-		log.Errorf("unable to connect to database: %v\n", err)
+		log.Errorf("unable to connect to database: %v", err)
 		return nil, err
 	}
 	defer conn.Close(context.Background())
@@ -254,7 +254,7 @@ func GetStoryById(log *logger.BLogger, storyId string) (*Story, error) {
 		storyId,
 	).Scan(&id, &cAt, &uAt, &title, &desc, &status, &sprintId, &edited)
 	if err != nil {
-		log.Errorf("Query failed: %v\n", err)
+		log.Errorf("Query failed: %v", err)
 		return nil, err
 	}
 
@@ -264,7 +264,7 @@ func GetStoryById(log *logger.BLogger, storyId string) (*Story, error) {
 func GetTasks(log *logger.BLogger) ([]Task, error) {
 	conn, err := database.GetPgxConn()
 	if err != nil {
-		log.Errorf("unable to connect to database: %v\n", err)
+		log.Errorf("unable to connect to database: %v", err)
 		return nil, err
 	}
 	defer conn.Close(context.Background())
@@ -283,7 +283,7 @@ func GetTasks(log *logger.BLogger) ([]Task, error) {
 				FROM tasks`,
 	)
 	if err != nil {
-		log.Errorf("Query failed: %v\n", err)
+		log.Errorf("Query failed: %v", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -298,7 +298,7 @@ func GetTasks(log *logger.BLogger) ([]Task, error) {
 		tasks = append(tasks, Task{id, cAt, uAt, title, desc, status, storyId, edited, bulkTask})
 	}
 	if rows.Err() != nil {
-		log.Errorf("Query failed: %v\n", rows.Err())
+		log.Errorf("Query failed: %v", rows.Err())
 		return nil, rows.Err()
 	}
 
@@ -308,7 +308,7 @@ func GetTasks(log *logger.BLogger) ([]Task, error) {
 func CreateTask(log *logger.BLogger, createReq CreateTaskReq) error {
 	conn, err := database.GetPgxConn()
 	if err != nil {
-		log.Errorf("unable to connect to database: %v\n", err)
+		log.Errorf("unable to connect to database: %v", err)
 		return err
 	}
 	defer conn.Close(context.Background())
@@ -333,7 +333,7 @@ func CreateTask(log *logger.BLogger, createReq CreateTaskReq) error {
 		createReq.BulkTask,
 	)
 	if err != nil {
-		log.Errorf("Exec failed: %v\n", err)
+		log.Errorf("Exec failed: %v", err)
 		return err
 	}
 
@@ -348,7 +348,7 @@ func CreateComment(log *logger.BLogger, createReq CreateCommentReq) error {
 
 	conn, err := database.GetPgxConn()
 	if err != nil {
-		log.Errorf("unable to connect to database: %v\n", err)
+		log.Errorf("unable to connect to database: %v", err)
 		return err
 	}
 	defer conn.Close(context.Background())
@@ -367,7 +367,7 @@ func CreateComment(log *logger.BLogger, createReq CreateCommentReq) error {
 		createReq.TaskId,
 	)
 	if err != nil {
-		log.Errorf("Exec failed: %v\n", err)
+		log.Errorf("Exec failed: %v", err)
 		return err
 	}
 
@@ -377,7 +377,7 @@ func CreateComment(log *logger.BLogger, createReq CreateCommentReq) error {
 func PutStory(log *logger.BLogger, putReq PutStoryReq) error {
 	conn, err := database.GetPgxConn()
 	if err != nil {
-		log.Errorf("unable to connect to database: %v\n", err)
+		log.Errorf("unable to connect to database: %v", err)
 		return err
 	}
 	defer conn.Close(context.Background())
@@ -398,7 +398,7 @@ func PutStory(log *logger.BLogger, putReq PutStoryReq) error {
 		putReq.Id,
 	)
 	if err != nil {
-		log.Errorf("Exec failed: %v\n", err)
+		log.Errorf("Exec failed: %v", err)
 		return err
 	}
 
@@ -407,7 +407,7 @@ func PutStory(log *logger.BLogger, putReq PutStoryReq) error {
 func PutTask(log *logger.BLogger, putReq PutTaskReq) error {
 	conn, err := database.GetPgxConn()
 	if err != nil {
-		log.Errorf("unable to connect to database: %v\n", err)
+		log.Errorf("unable to connect to database: %v", err)
 		return err
 	}
 	defer conn.Close(context.Background())
@@ -428,7 +428,7 @@ func PutTask(log *logger.BLogger, putReq PutTaskReq) error {
 		putReq.Id,
 	)
 	if err != nil {
-		log.Errorf("Exec failed: %v\n", err)
+		log.Errorf("Exec failed: %v", err)
 		return err
 	}
 
@@ -438,7 +438,7 @@ func PutTask(log *logger.BLogger, putReq PutTaskReq) error {
 func GetSprints(log *logger.BLogger) ([]Sprint, error) {
 	conn, err := database.GetPgxConn()
 	if err != nil {
-		log.Errorf("unable to connect to database: %v\n", err)
+		log.Errorf("unable to connect to database: %v", err)
 		return nil, err
 	}
 	defer conn.Close(context.Background())
@@ -455,7 +455,7 @@ func GetSprints(log *logger.BLogger) ([]Sprint, error) {
 				FROM sprints`,
 	)
 	if err != nil {
-		log.Errorf("Query failed: %v\n", err)
+		log.Errorf("Query failed: %v", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -469,7 +469,7 @@ func GetSprints(log *logger.BLogger) ([]Sprint, error) {
 		sprints = append(sprints, Sprint{id, cAt, uAt, title, sd, ed, edited})
 	}
 	if rows.Err() != nil {
-		log.Errorf("Query failed: %v\n", rows.Err())
+		log.Errorf("Query failed: %v", rows.Err())
 		return nil, rows.Err()
 	}
 
@@ -479,7 +479,7 @@ func GetSprints(log *logger.BLogger) ([]Sprint, error) {
 func CreateSprint(log *logger.BLogger, createReq CreateSprintReq) error {
 	conn, err := database.GetPgxConn()
 	if err != nil {
-		log.Errorf("unable to connect to database: %v\n", err)
+		log.Errorf("unable to connect to database: %v", err)
 		return err
 	}
 	defer conn.Close(context.Background())
@@ -502,7 +502,7 @@ func CreateSprint(log *logger.BLogger, createReq CreateSprintReq) error {
 		createReq.EndDate,
 	)
 	if err != nil {
-		log.Errorf("Exec failed: %v\n", err)
+		log.Errorf("Exec failed: %v", err)
 		return err
 	}
 
@@ -512,7 +512,7 @@ func CreateSprint(log *logger.BLogger, createReq CreateSprintReq) error {
 func GetStories(log *logger.BLogger) ([]Story, error) {
 	conn, err := database.GetPgxConn()
 	if err != nil {
-		log.Errorf("unable to connect to database: %v\n", err)
+		log.Errorf("unable to connect to database: %v", err)
 		return nil, err
 	}
 	defer conn.Close(context.Background())
@@ -530,7 +530,7 @@ func GetStories(log *logger.BLogger) ([]Story, error) {
 				FROM stories`,
 	)
 	if err != nil {
-		log.Errorf("Query failed: %v\n", err)
+		log.Errorf("Query failed: %v", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -545,7 +545,7 @@ func GetStories(log *logger.BLogger) ([]Story, error) {
 	}
 
 	if rows.Err() != nil {
-		log.Errorf("Query failed: %v\n", rows.Err())
+		log.Errorf("Query failed: %v", rows.Err())
 		return nil, rows.Err()
 	}
 
@@ -555,7 +555,7 @@ func GetStories(log *logger.BLogger) ([]Story, error) {
 func CreateStory(log *logger.BLogger, createReq CreateStoryReq) error {
 	conn, err := database.GetPgxConn()
 	if err != nil {
-		log.Errorf("unable to connect to database: %v\n", err)
+		log.Errorf("unable to connect to database: %v", err)
 		return err
 	}
 	defer conn.Close(context.Background())
@@ -577,7 +577,7 @@ func CreateStory(log *logger.BLogger, createReq CreateStoryReq) error {
 		createReq.SprintId,
 	)
 	if err != nil {
-		log.Errorf("Exec failed: %v\n", err)
+		log.Errorf("Exec failed: %v", err)
 		return err
 	}
 
@@ -587,7 +587,7 @@ func CreateStory(log *logger.BLogger, createReq CreateStoryReq) error {
 func GetTags(log *logger.BLogger) ([]Tag, error) {
 	conn, err := database.GetPgxConn()
 	if err != nil {
-		log.Errorf("unable to connect to database: %v\n", err)
+		log.Errorf("unable to connect to database: %v", err)
 		return nil, err
 	}
 	defer conn.Close(context.Background())
@@ -604,7 +604,7 @@ func GetTags(log *logger.BLogger) ([]Tag, error) {
 				FROM tags`,
 	)
 	if err != nil {
-		log.Errorf("Query failed: %v\n", err)
+		log.Errorf("Query failed: %v", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -618,7 +618,7 @@ func GetTags(log *logger.BLogger) ([]Tag, error) {
 		tags = append(tags, Tag{id, cAt, uAt, title, desc, isParent, edited})
 	}
 	if rows.Err() != nil {
-		log.Errorf("Query failed: %v\n", rows.Err())
+		log.Errorf("Query failed: %v", rows.Err())
 		return nil, rows.Err()
 	}
 
@@ -628,7 +628,7 @@ func GetTags(log *logger.BLogger) ([]Tag, error) {
 func GetTagAssignments(log *logger.BLogger) ([]TagAssignment, error) {
 	conn, err := database.GetPgxConn()
 	if err != nil {
-		log.Errorf("unable to connect to database: %v\n", err)
+		log.Errorf("unable to connect to database: %v", err)
 		return nil, err
 	}
 	defer conn.Close(context.Background())
@@ -642,7 +642,7 @@ func GetTagAssignments(log *logger.BLogger) ([]TagAssignment, error) {
 				FROM tag_assignments`,
 	)
 	if err != nil {
-		log.Errorf("Query failed: %v\n", err)
+		log.Errorf("Query failed: %v", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -656,7 +656,7 @@ func GetTagAssignments(log *logger.BLogger) ([]TagAssignment, error) {
 		tagAssignments = append(tagAssignments, TagAssignment{id, cAt, tagId, storyId})
 	}
 	if rows.Err() != nil {
-		log.Errorf("Query failed: %v\n", rows.Err())
+		log.Errorf("Query failed: %v", rows.Err())
 		return nil, rows.Err()
 	}
 
@@ -671,7 +671,7 @@ func CreateTagAssignment(log *logger.BLogger, createReq CreateTagAssignmentReq) 
 
 	conn, err := database.GetPgxConn()
 	if err != nil {
-		log.Errorf("unable to connect to database: %v\n", err)
+		log.Errorf("unable to connect to database: %v", err)
 		return err
 	}
 	defer conn.Close(context.Background())
@@ -688,7 +688,7 @@ func CreateTagAssignment(log *logger.BLogger, createReq CreateTagAssignmentReq) 
 		createReq.StoryId,
 	)
 	if err != nil {
-		log.Errorf("Exec failed: %v\n", err)
+		log.Errorf("Exec failed: %v", err)
 		return err
 	}
 
@@ -703,7 +703,7 @@ func DestroyTagAssignment(log *logger.BLogger, destroyReq DestroyTagAssignmentRe
 
 	conn, err := database.GetPgxConn()
 	if err != nil {
-		log.Errorf("unable to connect to database: %v\n", err)
+		log.Errorf("unable to connect to database: %v", err)
 		return err
 	}
 	defer conn.Close(context.Background())
@@ -719,7 +719,7 @@ func DestroyTagAssignment(log *logger.BLogger, destroyReq DestroyTagAssignmentRe
 		destroyReq.StoryId,
 	)
 	if err != nil {
-		log.Errorf("Exec failed: %v\n", err)
+		log.Errorf("Exec failed: %v", err)
 		return err
 	}
 
@@ -734,7 +734,7 @@ func CreateTag(log *logger.BLogger, createReq CreateTagReq) error {
 
 	conn, err := database.GetPgxConn()
 	if err != nil {
-		log.Errorf("unable to connect to database: %v\n", err)
+		log.Errorf("unable to connect to database: %v", err)
 		return err
 	}
 	defer conn.Close(context.Background())
@@ -753,7 +753,7 @@ func CreateTag(log *logger.BLogger, createReq CreateTagReq) error {
 		createReq.Description,
 	)
 	if err != nil {
-		log.Errorf("Exec failed: %v\n", err)
+		log.Errorf("Exec failed: %v", err)
 		return err
 	}
 

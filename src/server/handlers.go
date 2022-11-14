@@ -32,26 +32,26 @@ func loginHandle() http.Handler {
 				Path:     "/",
 			}
 			http.SetCookie(w, cookie)
-			log.Infof("setting cookie: %v\n", cookie)
+			log.Infof("setting cookie: %v", cookie)
 
 			u, err := url.Parse(r.Header.Get("Referer"))
 			if err != nil {
 				delete(sessions, id)
-				log.Infof("invalid ref url: %v\n", r.Header.Get("Referer"))
+				log.Infof("invalid ref url: %v", r.Header.Get("Referer"))
 				http.Error(w, "invalid ref url", http.StatusBadRequest)
 				return
 			}
 			ref, err := url.PathUnescape(u.Query().Get("ref"))
 			if err != nil {
 				delete(sessions, id)
-				log.Infof("invalid ref url: %v\n", r.Header.Get("Referer"))
+				log.Infof("invalid ref url: %v", r.Header.Get("Referer"))
 				http.Error(w, "invalid ref url", http.StatusBadRequest)
 				return
 			}
 			http.Redirect(w, r, ref, http.StatusSeeOther)
 			return
 		}
-		log.Infof("incorrect pw: %v\n", pass)
+		log.Infof("incorrect pw: %v", pass)
 		http.Error(w, "incorrect pw", http.StatusUnauthorized)
 		return
 		// }
@@ -107,7 +107,7 @@ func getConfigHandle() http.Handler {
 
 		js, err := json.Marshal(serverConfig)
 		if err != nil {
-			log.Errorf("json.Marshal failed: %v\n", err)
+			log.Errorf("json.Marshal failed: %v", err)
 			http.Error(w, "something went wrong", http.StatusInternalServerError)
 			return
 		}
@@ -134,7 +134,7 @@ func getCommentsByTaskIdHandle() http.Handler {
 
 		js, err := json.Marshal(comments)
 		if err != nil {
-			log.Errorf("json.Marshal failed: %v\n", err)
+			log.Errorf("json.Marshal failed: %v", err)
 			http.Error(w, "something went wrong", http.StatusInternalServerError)
 			return
 		}
@@ -162,7 +162,7 @@ func getTaskByIdHandle() http.Handler {
 
 		js, err := json.Marshal(task)
 		if err != nil {
-			log.Errorf("json.Marshal failed: %v\n", err)
+			log.Errorf("json.Marshal failed: %v", err)
 			http.Error(w, "something went wrong", http.StatusInternalServerError)
 			return
 		}
@@ -190,7 +190,7 @@ func getStoryByIdHandle() http.Handler {
 
 		js, err := json.Marshal(story)
 		if err != nil {
-			log.Errorf("json.Marshal failed: %v\n", err)
+			log.Errorf("json.Marshal failed: %v", err)
 			http.Error(w, "something went wrong", http.StatusInternalServerError)
 			return
 		}
@@ -210,7 +210,7 @@ func getTasksHandle() http.Handler {
 
 		js, err := json.Marshal(tasks)
 		if err != nil {
-			log.Errorf("json.Marshal failed: %v\n", err)
+			log.Errorf("json.Marshal failed: %v", err)
 			http.Error(w, "something went wrong", http.StatusInternalServerError)
 			return
 		}
@@ -224,14 +224,14 @@ func createTaskHandle() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		createReq := model.CreateTaskReq{}
 		if err := json.NewDecoder(r.Body).Decode(&createReq); err != nil {
-			log.Errorf("unable to decode json: %v\n", err)
+			log.Errorf("unable to decode json: %v", err)
 			http.Error(w, "something went wrong", http.StatusBadRequest)
 			return
 		}
 
 		err := model.CreateTask(env.Log, createReq)
 		if err != nil {
-			log.Errorf("task creation failed: %v\n", err)
+			log.Errorf("task creation failed: %v", err)
 			http.Error(w, "something went wrong", http.StatusInternalServerError)
 			return
 		}
@@ -242,14 +242,14 @@ func createCommentHandle() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		createReq := model.CreateCommentReq{}
 		if err := json.NewDecoder(r.Body).Decode(&createReq); err != nil {
-			log.Errorf("unable to decode json: %v\n", err)
+			log.Errorf("unable to decode json: %v", err)
 			http.Error(w, "something went wrong", http.StatusBadRequest)
 			return
 		}
 
 		err := model.CreateComment(env.Log, createReq)
 		if err != nil {
-			log.Errorf("comment creation failed: %v\n", err)
+			log.Errorf("comment creation failed: %v", err)
 			if errors.Is(err, model.InputError{}) {
 				http.Error(w, "something went wrong", http.StatusBadRequest)
 			} else {
@@ -264,14 +264,14 @@ func putStoryHandle() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		putReq := model.PutStoryReq{}
 		if err := json.NewDecoder(r.Body).Decode(&putReq); err != nil {
-			log.Errorf("unable to decode json: %v\n", err)
+			log.Errorf("unable to decode json: %v", err)
 			http.Error(w, "something went wrong", http.StatusBadRequest)
 			return
 		}
 
 		err := model.PutStory(env.Log, putReq)
 		if err != nil {
-			log.Errorf("story update failed: %v\n", err)
+			log.Errorf("story update failed: %v", err)
 			http.Error(w, "something went wrong", http.StatusInternalServerError)
 			return
 		}
@@ -282,14 +282,14 @@ func putTaskHandle() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		putReq := model.PutTaskReq{}
 		if err := json.NewDecoder(r.Body).Decode(&putReq); err != nil {
-			log.Errorf("unable to decode json: %v\n", err)
+			log.Errorf("unable to decode json: %v", err)
 			http.Error(w, "something went wrong", http.StatusBadRequest)
 			return
 		}
 
 		err := model.PutTask(env.Log, putReq)
 		if err != nil {
-			log.Errorf("story update failed: %v\n", err)
+			log.Errorf("story update failed: %v", err)
 			http.Error(w, "something went wrong", http.StatusInternalServerError)
 			return
 		}
@@ -306,7 +306,7 @@ func getSprintsHandle() http.Handler {
 
 		js, err := json.Marshal(sprints)
 		if err != nil {
-			log.Errorf("json.Marshal failed: %v\n", err)
+			log.Errorf("json.Marshal failed: %v", err)
 			http.Error(w, "something went wrong", http.StatusInternalServerError)
 			return
 		}
@@ -320,14 +320,14 @@ func createSprintHandle() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		createReq := model.CreateSprintReq{}
 		if err := json.NewDecoder(r.Body).Decode(&createReq); err != nil {
-			log.Errorf("unable to decode json: %v\n", err)
+			log.Errorf("unable to decode json: %v", err)
 			http.Error(w, "something went wrong", http.StatusBadRequest)
 			return
 		}
 
 		err := model.CreateSprint(env.Log, createReq)
 		if err != nil {
-			log.Errorf("task creation failed: %v\n", err)
+			log.Errorf("task creation failed: %v", err)
 			http.Error(w, "something went wrong", http.StatusInternalServerError)
 			return
 		}
@@ -344,7 +344,7 @@ func getStoriesHandle() http.Handler {
 
 		js, err := json.Marshal(stories)
 		if err != nil {
-			log.Errorf("json.Marshal failed: %v\n", err)
+			log.Errorf("json.Marshal failed: %v", err)
 			http.Error(w, "something went wrong", http.StatusInternalServerError)
 			return
 		}
@@ -358,14 +358,14 @@ func createStoryHandle() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		createReq := model.CreateStoryReq{}
 		if err := json.NewDecoder(r.Body).Decode(&createReq); err != nil {
-			log.Errorf("unable to decode json: %v\n", err)
+			log.Errorf("unable to decode json: %v", err)
 			http.Error(w, "something went wrong", http.StatusBadRequest)
 			return
 		}
 
 		err := model.CreateStory(env.Log, createReq)
 		if err != nil {
-			log.Errorf("task creation failed: %v\n", err)
+			log.Errorf("task creation failed: %v", err)
 			http.Error(w, "something went wrong", http.StatusInternalServerError)
 			return
 		}
@@ -383,7 +383,7 @@ func getTagsHandle() http.Handler {
 
 		js, err := json.Marshal(tags)
 		if err != nil {
-			log.Errorf("json.Marshal failed: %v\n", err)
+			log.Errorf("json.Marshal failed: %v", err)
 			http.Error(w, "something went wrong", http.StatusInternalServerError)
 			return
 		}
@@ -403,7 +403,7 @@ func getTagAssignmentsHandle() http.Handler {
 
 		js, err := json.Marshal(tagAssignments)
 		if err != nil {
-			log.Errorf("json.Marshal failed: %v\n", err)
+			log.Errorf("json.Marshal failed: %v", err)
 			http.Error(w, "something went wrong", http.StatusInternalServerError)
 			return
 		}
@@ -417,14 +417,14 @@ func createTagAssignmentHandle() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		createReq := model.CreateTagAssignmentReq{}
 		if err := json.NewDecoder(r.Body).Decode(&createReq); err != nil {
-			log.Errorf("unable to decode json: %v\n", err)
+			log.Errorf("unable to decode json: %v", err)
 			http.Error(w, "something went wrong", http.StatusBadRequest)
 			return
 		}
 
 		err := model.CreateTagAssignment(env.Log, createReq)
 		if err != nil {
-			log.Errorf("tag assignment creation failed: %v\n", err)
+			log.Errorf("tag assignment creation failed: %v", err)
 			if errors.Is(err, model.InputError{}) {
 				http.Error(w, "something went wrong", http.StatusBadRequest)
 			} else {
@@ -439,14 +439,14 @@ func destroyTagAssignmentHandle() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		destroyReq := model.DestroyTagAssignmentReq{}
 		if err := json.NewDecoder(r.Body).Decode(&destroyReq); err != nil {
-			log.Errorf("unable to decode json: %v\n", err)
+			log.Errorf("unable to decode json: %v", err)
 			http.Error(w, "something went wrong", http.StatusBadRequest)
 			return
 		}
 
 		err := model.DestroyTagAssignment(env.Log, destroyReq)
 		if err != nil {
-			log.Errorf("tag assignment destruction failed: %v\n", err)
+			log.Errorf("tag assignment destruction failed: %v", err)
 			if errors.Is(err, model.InputError{}) {
 				http.Error(w, "something went wrong", http.StatusBadRequest)
 			} else {
@@ -461,14 +461,14 @@ func createTagHandle() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		createReq := model.CreateTagReq{}
 		if err := json.NewDecoder(r.Body).Decode(&createReq); err != nil {
-			log.Errorf("unable to decode json: %v\n", err)
+			log.Errorf("unable to decode json: %v", err)
 			http.Error(w, "something went wrong", http.StatusBadRequest)
 			return
 		}
 
 		err := model.CreateTag(env.Log, createReq)
 		if err != nil {
-			log.Errorf("tag creation failed: %v\n", err)
+			log.Errorf("tag creation failed: %v", err)
 			if errors.Is(err, model.InputError{}) {
 				http.Error(w, "something went wrong", http.StatusBadRequest)
 			} else {
