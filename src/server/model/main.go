@@ -47,8 +47,6 @@ type TagAssignment struct {
 	StoryId   string    `json:"story_id"`
 }
 
-// TODO: change the order so cAt is up top
-// or use field names during construction
 type Sprint struct {
 	Id        string    `json:"id"`
 	CreatedAt time.Time `json:"created_at"`
@@ -79,14 +77,14 @@ type ServerConfigRow struct {
 
 // TODO: this is unused in favor of a map[string]interface{}
 type ServerConfig struct {
-	ServerName            string    `json:"server_name"`
-	SprintDurationSeconds time.Time `json:"sprint_duration_seconds"`
-	SprintTitleMaxLen     int       `json:"sprint_title_max_len"`
-	StoryTitleMaxLen      int       `json:"story_title_max_len"`
-	TaskTitleMaxLen       int       `json:"task_title_max_len"`
-	StoryDescMaxLen       int       `json:"story_desc_max_len"`
-	TaskDescMaxLen        int       `json:"task_desc_max_len"`
-	CommentMaxLen         int       `json:"comment_max_len"`
+	ServerName            string `json:"server_name"`
+	SprintDurationSeconds int    `json:"sprint_duration_seconds"`
+	SprintTitleMaxLen     int    `json:"sprint_title_max_len"`
+	StoryTitleMaxLen      int    `json:"story_title_max_len"`
+	TaskTitleMaxLen       int    `json:"task_title_max_len"`
+	StoryDescMaxLen       int    `json:"story_desc_max_len"`
+	TaskDescMaxLen        int    `json:"task_desc_max_len"`
+	CommentMaxLen         int    `json:"comment_max_len"`
 }
 
 type InputError struct{}
