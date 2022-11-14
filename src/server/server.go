@@ -11,6 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/cloudwatch"
+	"github.com/aws/aws-sdk-go-v2/service/sts"
 	"github.com/bschlaman/b-utils/pkg/logger"
 	"github.com/bschlaman/b-utils/pkg/utils"
 	"github.com/google/uuid"
@@ -151,6 +152,19 @@ func main() {
 			),
 		))
 	}
+
+	// Make sure we're authenticated
+	stsClient := sts.NewFromConfig(env.AWSCfg)
+	res, err := stsClient.GetCallerIdentity(context.TODO(), &sts.GetCallerIdentityInput{})
+	if err != nil {
+		panic(err)
+	}
+	id := struct {
+		Account string
+		Arn     string
+		UserId  string
+	}{*res.Account, *res.Arn, *res.UserId}
+	log.Infof("using aws creds: %+v", id)
 
 	port := os.Getenv("SERVER_PORT")
 	if port == "" {
