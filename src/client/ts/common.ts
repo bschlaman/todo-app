@@ -50,10 +50,10 @@ export const hoverClass = "droppable-hover";
 // if the session is still valid
 document.addEventListener("visibilitychange", _ => {
 	if (document.visibilityState === "visible")
-		checkSession().then(res => res.json()).then(res => {
+		checkSession().then(res => {
 			console.log(
 				"session time remaining (s):",
-				res.session_time_remaining_seconds,
+				res.sessionTimeRemainingSeconds
 			);
 		});
 });
@@ -61,10 +61,10 @@ document.addEventListener("visibilitychange", _ => {
 // API
 
 // I currently want to bail if anything goes wrong
-export async function checkSession(): Promise<JSON> {
+export async function checkSession(): Promise<CheckSessionRes> {
 	try {
 		const res = await fetch(routes.checkSession, { method: "GET" });
-		return await handleApiRes(res);
+		return (await handleApiRes(res)) as CheckSessionRes;
 	} catch (err) {
 		if (err instanceof Error) handleApiErr(err);
 		throw err;
@@ -81,7 +81,7 @@ export async function simulateLatency(): Promise<JSON> {
 	}
 }
 
-export async function getConfig(): Promise<JSON> {
+export async function getConfig(): Promise<Config> {
 	try {
 		const res = await fetch(routes.getConfig, { method: "GET" });
 		return await handleApiRes(res);
@@ -91,7 +91,7 @@ export async function getConfig(): Promise<JSON> {
 	}
 }
 
-export async function getTasks(): Promise<JSON> {
+export async function getTasks(): Promise<Task[]> {
 	try {
 		const res = await fetch(routes.getTasks, { method: "GET" });
 		return await handleApiRes(res);
@@ -101,7 +101,7 @@ export async function getTasks(): Promise<JSON> {
 	}
 }
 
-export async function getStories(): Promise<JSON> {
+export async function getStories(): Promise<Story[]> {
 	try {
 		const res = await fetch(routes.getStories, { method: "GET" });
 		return await handleApiRes(res);
@@ -111,7 +111,7 @@ export async function getStories(): Promise<JSON> {
 	}
 }
 
-export async function getSprints(): Promise<JSON> {
+export async function getSprints(): Promise<Sprint[]> {
 	try {
 		const res = await fetch(routes.getSprints, { method: "GET" });
 		return await handleApiRes(res);
@@ -121,17 +121,17 @@ export async function getSprints(): Promise<JSON> {
 	}
 }
 
-export async function getTags(): Promise<JSON> {
+export async function getTags(): Promise<Tag[]> {
 	try {
 		const res = await fetch(routes.getTags, { method: "GET" });
-		return await handlreApiRes(res);
+		return await handleApiRes(res);
 	} catch (err) {
 		if (err instanceof Error) handleApiErr(err);
 		throw err;
 	}
 }
 
-export async function getTagAssignments(): Promise<JSON> {
+export async function getTagAssignments(): Promise<TagAssignment> {
 	try {
 		const res = await fetch(routes.getTagAssignments, { method: "GET" });
 		return await handleApiRes(res);
@@ -141,11 +141,13 @@ export async function getTagAssignments(): Promise<JSON> {
 	}
 }
 
-export async function createTask(title: string, description: string, storyId: string, bulkTask = false): Promise<JSON> {
-	if (!title) {
-		console.error("task creation failed");
-		throw new Error("no task title");
-	}
+export async function createTask(
+	title: string,
+	description: string,
+	storyId: string,
+	bulkTask = false
+): Promise<JSON> {
+	if (!title) throw new Error("task creation failed: parameters missing");
 	const res = await fetch(routes.createTask, {
 		method: "POST",
 		headers: {
@@ -161,11 +163,13 @@ export async function createTask(title: string, description: string, storyId: st
 	return await handleApiRes(res);
 }
 
-export async function createStory(title: string, description: string, sprintId: string): Promise<JSON> {
-	if (!title || !description || !sprintId) {
-		console.error("story creation failed");
-		throw new Error("some story creation input parameters missing");
-	}
+export async function createStory(
+	title: string,
+	description: string,
+	sprintId: string
+): Promise<JSON> {
+	if (!title || !description || !sprintId)
+		throw new Error("story creation failed: parameters missing");
 	const res = await fetch(routes.createStory, {
 		method: "POST",
 		headers: {
@@ -180,11 +184,13 @@ export async function createStory(title: string, description: string, sprintId: 
 	return await handleApiRes(res);
 }
 
-export async function createSprint(title: string, startdate: Date, enddate: Date): Promise<JSON> {
-	if (!title || !startdate || !enddate) {
-		console.error("story creation failed");
-		throw new Error("some sprint creation parameters missing");
-	}
+export async function createSprint(
+	title: string,
+	startdate: Date,
+	enddate: Date
+): Promise<JSON> {
+	if (!title || !startdate || !enddate)
+		throw new Error("sprint creation failed: parameters missing");
 	const res = await fetch(routes.createSprint, {
 		method: "POST",
 		headers: {
@@ -199,11 +205,12 @@ export async function createSprint(title: string, startdate: Date, enddate: Date
 	return handleApiRes(res);
 }
 
-export async function createTag(title, description): Promise<JSON> {
-	if (!title || !description) {
-		console.error("tag creation failed");
-		return;
-	}
+export async function createTag(
+	title: string,
+	description: string
+): Promise<JSON> {
+	if (!title || !description)
+		throw new Error("tag creation failed: fields missing");
 	const res = await fetch(routes.createTag, {
 		method: "POST",
 		headers: {
@@ -217,11 +224,12 @@ export async function createTag(title, description): Promise<JSON> {
 	return handleApiRes(res);
 }
 
-export async function createTagAssignment(tag_id, story_id): Promise<JSON> {
-	if (!tag_id || !story_id) {
-		console.error("tag assignment failed");
-		return;
-	}
+export async function createTagAssignment(
+	tag_id: string,
+	story_id: string
+): Promise<JSON> {
+	if (!tag_id || !story_id)
+		throw new Error("tag assignment creation failed: parameters missing");
 	const res = await fetch(routes.createTagAssignment, {
 		method: "POST",
 		headers: {
@@ -235,11 +243,12 @@ export async function createTagAssignment(tag_id, story_id): Promise<JSON> {
 	return handleApiRes(res);
 }
 
-export async function destroyTagAssignment(tag_id, story_id): Promise<JSON> {
-	if (!tag_id || !story_id) {
-		console.error("tag assignment failed");
-		return;
-	}
+export async function destroyTagAssignment(
+	tag_id: string,
+	story_id: string
+): Promise<JSON> {
+	if (!tag_id || !story_id)
+		throw new Error("tag assignment destruction failed: parameters missing");
 	const res = await fetch(routes.destroyTagAssignment, {
 		method: "POST",
 		headers: {
@@ -253,11 +262,15 @@ export async function destroyTagAssignment(tag_id, story_id): Promise<JSON> {
 	return handleApiRes(res);
 }
 
-export async function updateTaskById(id, status, title, description, storyId): Promise<JSON> {
-	if (!id || !status || !title) {
-		console.error("could not update task");
-		return;
-	}
+export async function updateTaskById(
+	id: string,
+	status: string,
+	title: string,
+	description: string,
+	storyId: string
+): Promise<JSON> {
+	if (!id || !status || !title)
+		throw new Error("cannot update task: fields missing");
 	try {
 		const res = await fetch(routes.updateTask, {
 			method: "PUT",
@@ -274,15 +287,20 @@ export async function updateTaskById(id, status, title, description, storyId): P
 		});
 		return handleApiRes(res);
 	} catch (err) {
-		return handleApiErr(err);
+		if (err instanceof Error) handleApiErr(err);
+		throw err;
 	}
 }
 
-export async function updateStoryById(id, status, title, description, sprintId): Promise<JSON> {
-	if (!id || !status || !title || !description || !sprintId) {
-		console.error("could not update story");
-		return;
-	}
+export async function updateStoryById(
+	id: string,
+	status: string,
+	title: string,
+	description: string,
+	sprintId: string
+): Promise<JSON> {
+	if (!id || !status || !title || !description || !sprintId)
+		throw new Error("story updarte failed: parameters missing");
 	try {
 		const res = await fetch(routes.updateStory, {
 			method: "PUT",
@@ -299,41 +317,54 @@ export async function updateStoryById(id, status, title, description, sprintId):
 		});
 		return handleApiRes(res);
 	} catch (err) {
-		return handleApiErr(err);
+		if (err instanceof Error) handleApiErr(err);
+		throw err;
 	}
 }
 
-export async function getTaskById(id): Promise<JSON> {
+export async function getTaskById(id: string): Promise<JSON> {
 	try {
-		const res = await fetch(`${routes.getTaskById}?id=${id}`, { method: "GET" });
+		const res = await fetch(`${routes.getTaskById}?id=${id}`, {
+			method: "GET",
+		});
 		const res_1 = await handleApiRes(res);
 		return res_1.json();
 	} catch (err) {
-		return handleApiErr(err);
+		if (err instanceof Error) handleApiErr(err);
+		throw err;
 	}
 }
 
-export async function getCommentsByTaskId(id): Promise<JSON> {
+export async function getCommentsByTaskId(id: string): Promise<TaskComment[]> {
 	try {
-		const res = await fetch(`${routes.getCommentsByTaskId}?id=${id}`, { method: "GET" });
+		const res = await fetch(`${routes.getCommentsByTaskId}?id=${id}`, {
+			method: "GET",
+		});
 		const res_1 = await handleApiRes(res);
 		return res_1.json();
 	} catch (err) {
-		return handleApiErr(err);
+		if (err instanceof Error) handleApiErr(err);
+		throw err;
 	}
 }
 
-export async function getStoryById(id): Promise<JSON> {
+export async function getStoryById(id: string): Promise<Story> {
 	try {
-		const res = await fetch(`${routes.getStoryById}?id=${id}`, { method: "GET" });
+		const res = await fetch(`${routes.getStoryById}?id=${id}`, {
+			method: "GET",
+		});
 		const res_1 = await handleApiRes(res);
 		return res_1.json();
 	} catch (err) {
-		return handleApiErr(err);
+		if (err instanceof Error) handleApiErr(err);
+		throw err;
 	}
 }
 
-export async function createComment(taskId, text): Promise<JSON> {
+export async function createComment(
+	taskId: string,
+	text: string
+): Promise<JSON> {
 	try {
 		const res = await fetch(`${routes.createComment}`, {
 			method: "POST",
@@ -347,33 +378,38 @@ export async function createComment(taskId, text): Promise<JSON> {
 		});
 		return handleApiRes(res);
 	} catch (err) {
-		return handleApiErr(err);
+		if (err instanceof Error) handleApiErr(err);
+		throw err;
 	}
 }
 
 // UTIL FUNCTIONS
 
-export function clearInputValues(...inputElements) {
+export function clearInputValues(...inputElements: HTMLInputElement[]) {
 	inputElements.forEach(inputElement => {
 		inputElement.value = "";
 	});
 }
 
-export function formatDate(date) {
-	return `${date.toDateString()}`;
+export function formatDate(date: Date) {
+	return date.toDateString();
 }
 
-export function formatDateCompact(date) {
+export function formatDateCompact(date: Date) {
 	return `${date.getMonth() + 1}.${date.getUTCDate()}`;
 }
 
-export function sprintToString(sprint) {
+export function sprintToString(sprint: {
+	title: string;
+	start_date: Date;
+	end_date: Date;
+}) {
 	return `${sprint.title} (${formatDateCompact(
 		new Date(sprint.start_date)
 	)} - ${formatDateCompact(new Date(sprint.end_date))})`;
 }
 
-export function formatId(id) {
+export function formatId(id: string) {
 	// expect postgres style id
 	if (id.split("-").length != 5)
 		console.error("id seems to be wrong format:", id);
@@ -382,7 +418,7 @@ export function formatId(id) {
 
 // handleApiRes handles the common happy path for API calls.
 // right now, that means 1) checking status code and 2) converting res to json
-async function handleApiRes(res: Response): Promise<JSON> {
+async function handleApiRes(res: Response) {
 	if (res.ok) return await res.json();
 	const msg = `bad res code (${res.status}) from: ${res.url}`;
 	throw new Error(msg);
