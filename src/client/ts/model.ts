@@ -2,7 +2,7 @@ interface CheckSessionRes {
 	sessionTimeRemainingSeconds: number;
 }
 
-type Config = {
+interface Config {
 	comment_max_len: number;
 	server_name: string;
 	sprint_duration_seconds: number;
@@ -13,9 +13,9 @@ type Config = {
 	tag_title_max_len: number;
 	task_desc_max_len: number;
 	task_title_max_len: number;
-};
+}
 
-type Task = {
+interface Task {
 	id: string;
 	created_at: string;
 	updated_at: string;
@@ -25,18 +25,18 @@ type Task = {
 	story_id: string;
 	edited: string;
 	bulk_task: string;
-};
+}
 
-type TaskComment = {
+interface TaskComment {
 	id: string;
 	task_id: string;
 	created_at: string;
 	updated_at: string;
 	text: string;
 	edited: string;
-};
+}
 
-type Tag = {
+interface Tag {
 	id: string;
 	created_at: string;
 	updated_at: string;
@@ -44,16 +44,16 @@ type Tag = {
 	description: string;
 	is_parent: string;
 	edited: string;
-};
+}
 
-type TagAssignment = {
+interface TagAssignment {
 	id: string;
 	created_at: string;
 	tag_id: string;
 	story_id: string;
-};
+}
 
-type Sprint = {
+interface Sprint {
 	id: string;
 	created_at: string;
 	updated_at: string;
@@ -61,9 +61,9 @@ type Sprint = {
 	start_date: string;
 	end_date: string;
 	edited: string;
-};
+}
 
-type Story = {
+interface Story {
 	id: string;
 	created_at: string;
 	updated_at: string;
@@ -72,4 +72,4 @@ type Story = {
 	status: string;
 	sprint_id: string;
 	edited: string;
-};
+}
