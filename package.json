@@ -30,6 +30,8 @@
     "webpack-cli": "^4.10.0"
   },
   "devDependencies": {
+    "@types/dompurify": "^2.4.0",
+    "@types/marked": "^4.0.7",
     "@typescript-eslint/eslint-plugin": "^5.42.1",
     "eslint": "^8.27.0",
     "eslint-config-prettier": "^8.5.0",
