@@ -1,30 +1,30 @@
 // GLOBAL CONSTS
 
 const routes = {
-	checkSession: `/api/check_session`,
-	simulateLatency: `/api/echodelay?t=2`,
+	checkSession: "/api/check_session",
+	simulateLatency: "/api/echodelay?t=2",
 
-	getConfig: `/api/get_config`,
+	getConfig: "/api/get_config",
 
-	getTasks: `/api/get_tasks`,
-	createTask: `/api/create_task`,
-	updateTask: `/api/put_task`,
-	updateStory: `/api/put_story`,
-	getStories: `/api/get_stories`,
-	getSprints: `/api/get_sprints`,
-	createStory: `/api/create_story`,
-	createSprint: `/api/create_sprint`,
+	getTasks: "/api/get_tasks",
+	createTask: "/api/create_task",
+	updateTask: "/api/put_task",
+	updateStory: "/api/put_story",
+	getStories: "/api/get_stories",
+	getSprints: "/api/get_sprints",
+	createStory: "/api/create_story",
+	createSprint: "/api/create_sprint",
 
-	getTaskById: `/api/get_task`,
-	getCommentsByTaskId: `/api/get_comments_by_task_id`,
-	createComment: `/api/create_comment`,
-	getStoryById: `/api/get_story`,
+	getTaskById: "/api/get_task",
+	getCommentsByTaskId: "/api/get_comments_by_task_id",
+	createComment: "/api/create_comment",
+	getStoryById: "/api/get_story",
 
-	getTags: `/api/get_tags`,
-	getTagAssignments: `/api/get_tag_assignments`,
-	createTagAssignment: `/api/create_tag_assignment`,
-	destroyTagAssignment: `/api/destroy_tag_assignment`,
-	createTag: `/api/create_tag`,
+	getTags: "/api/get_tags",
+	getTagAssignments: "/api/get_tag_assignments",
+	createTagAssignment: "/api/create_tag_assignment",
+	destroyTagAssignment: "/api/destroy_tag_assignment",
+	createTag: "/api/create_tag",
 };
 
 export const STATUSES = [
@@ -49,13 +49,14 @@ export const hoverClass = "droppable-hover";
 // detect when user navigates back to page and check
 // if the session is still valid
 document.addEventListener("visibilitychange", _ => {
-	if (document.visibilityState === "visible")
-		checkSession().then(res => {
+	if (document.visibilityState === "visible") {
+		void checkSession().then(res => {
 			console.log(
 				"session time remaining (s):",
 				res.sessionTimeRemainingSeconds
 			);
 		});
+	}
 });
 
 // API
@@ -84,7 +85,7 @@ export async function simulateLatency(): Promise<JSON> {
 export async function getConfig(): Promise<Config> {
 	try {
 		const res = await fetch(routes.getConfig, { method: "GET" });
-		return await handleApiRes(res);
+		return (await handleApiRes(res)) as Config;
 	} catch (err) {
 		if (err instanceof Error) handleApiErr(err);
 		throw err;
@@ -94,7 +95,7 @@ export async function getConfig(): Promise<Config> {
 export async function getTasks(): Promise<Task[]> {
 	try {
 		const res = await fetch(routes.getTasks, { method: "GET" });
-		return await handleApiRes(res);
+		return (await handleApiRes(res)) as Task[];
 	} catch (err) {
 		if (err instanceof Error) handleApiErr(err);
 		throw err;
@@ -104,7 +105,7 @@ export async function getTasks(): Promise<Task[]> {
 export async function getStories(): Promise<Story[]> {
 	try {
 		const res = await fetch(routes.getStories, { method: "GET" });
-		return await handleApiRes(res);
+		return (await handleApiRes(res)) as Story[];
 	} catch (err) {
 		if (err instanceof Error) handleApiErr(err);
 		throw err;
@@ -114,7 +115,7 @@ export async function getStories(): Promise<Story[]> {
 export async function getSprints(): Promise<Sprint[]> {
 	try {
 		const res = await fetch(routes.getSprints, { method: "GET" });
-		return await handleApiRes(res);
+		return (await handleApiRes(res)) as Sprint[];
 	} catch (err) {
 		if (err instanceof Error) handleApiErr(err);
 		throw err;
@@ -124,7 +125,7 @@ export async function getSprints(): Promise<Sprint[]> {
 export async function getTags(): Promise<Tag[]> {
 	try {
 		const res = await fetch(routes.getTags, { method: "GET" });
-		return await handleApiRes(res);
+		return (await handleApiRes(res)) as Tag[];
 	} catch (err) {
 		if (err instanceof Error) handleApiErr(err);
 		throw err;
@@ -134,7 +135,7 @@ export async function getTags(): Promise<Tag[]> {
 export async function getTagAssignments(): Promise<TagAssignment> {
 	try {
 		const res = await fetch(routes.getTagAssignments, { method: "GET" });
-		return await handleApiRes(res);
+		return (await handleApiRes(res)) as TagAssignment;
 	} catch (err) {
 		if (err instanceof Error) handleApiErr(err);
 		throw err;
@@ -147,15 +148,14 @@ export async function createTask(
 	storyId: string,
 	bulkTask = false
 ): Promise<JSON> {
-	if (!title) throw new Error("task creation failed: parameters missing");
 	const res = await fetch(routes.createTask, {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
 		},
 		body: JSON.stringify({
-			title: title,
-			description: description,
+			title,
+			description,
 			story_id: storyId,
 			bulk_task: bulkTask,
 		}),
@@ -168,16 +168,14 @@ export async function createStory(
 	description: string,
 	sprintId: string
 ): Promise<JSON> {
-	if (!title || !description || !sprintId)
-		throw new Error("story creation failed: parameters missing");
 	const res = await fetch(routes.createStory, {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
 		},
 		body: JSON.stringify({
-			title: title,
-			description: description,
+			title,
+			description,
 			sprint_id: sprintId,
 		}),
 	});
@@ -189,77 +187,69 @@ export async function createSprint(
 	startdate: Date,
 	enddate: Date
 ): Promise<JSON> {
-	if (!title || !startdate || !enddate)
-		throw new Error("sprint creation failed: parameters missing");
 	const res = await fetch(routes.createSprint, {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
 		},
 		body: JSON.stringify({
-			title: title,
+			title,
 			start_date: new Date(startdate),
 			end_date: new Date(enddate),
 		}),
 	});
-	return handleApiRes(res);
+	return await handleApiRes(res);
 }
 
 export async function createTag(
 	title: string,
 	description: string
 ): Promise<JSON> {
-	if (!title || !description)
-		throw new Error("tag creation failed: fields missing");
 	const res = await fetch(routes.createTag, {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
 		},
 		body: JSON.stringify({
-			title: title,
-			description: description,
+			title,
+			description,
 		}),
 	});
-	return handleApiRes(res);
+	return await handleApiRes(res);
 }
 
 export async function createTagAssignment(
-	tag_id: string,
-	story_id: string
+	tagId: string,
+	storyId: string
 ): Promise<JSON> {
-	if (!tag_id || !story_id)
-		throw new Error("tag assignment creation failed: parameters missing");
 	const res = await fetch(routes.createTagAssignment, {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
 		},
 		body: JSON.stringify({
-			tag_id: tag_id,
-			story_id: story_id,
+			tag_id: tagId,
+			story_id: storyId,
 		}),
 	});
-	return handleApiRes(res);
+	return await handleApiRes(res);
 }
 
 export async function destroyTagAssignment(
-	tag_id: string,
-	story_id: string
+	tagId: string,
+	storyId: string
 ): Promise<JSON> {
-	if (!tag_id || !story_id)
-		throw new Error("tag assignment destruction failed: parameters missing");
 	const res = await fetch(routes.destroyTagAssignment, {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
 		},
 		body: JSON.stringify({
-			tag_id: tag_id,
-			story_id: story_id,
+			tag_id: tagId,
+			story_id: storyId,
 		}),
 	});
-	return handleApiRes(res);
+	return await handleApiRes(res);
 }
 
 export async function updateTaskById(
@@ -269,8 +259,6 @@ export async function updateTaskById(
 	description: string,
 	storyId: string
 ): Promise<JSON> {
-	if (!id || !status || !title)
-		throw new Error("cannot update task: fields missing");
 	try {
 		const res = await fetch(routes.updateTask, {
 			method: "PUT",
@@ -278,14 +266,14 @@ export async function updateTaskById(
 				"Content-Type": "application/json",
 			},
 			body: JSON.stringify({
-				id: id,
-				status: status,
-				title: title,
-				description: description,
+				id,
+				status,
+				title,
+				description,
 				story_id: storyId,
 			}),
 		});
-		return handleApiRes(res);
+		return await handleApiRes(res);
 	} catch (err) {
 		if (err instanceof Error) handleApiErr(err);
 		throw err;
@@ -299,8 +287,6 @@ export async function updateStoryById(
 	description: string,
 	sprintId: string
 ): Promise<JSON> {
-	if (!id || !status || !title || !description || !sprintId)
-		throw new Error("story updarte failed: parameters missing");
 	try {
 		const res = await fetch(routes.updateStory, {
 			method: "PUT",
@@ -308,27 +294,26 @@ export async function updateStoryById(
 				"Content-Type": "application/json",
 			},
 			body: JSON.stringify({
-				id: id,
-				status: status,
-				title: title,
-				description: description,
+				id,
+				status,
+				title,
+				description,
 				sprint_id: sprintId,
 			}),
 		});
-		return handleApiRes(res);
+		return await handleApiRes(res);
 	} catch (err) {
 		if (err instanceof Error) handleApiErr(err);
 		throw err;
 	}
 }
 
-export async function getTaskById(id: string): Promise<JSON> {
+export async function getTaskById(id: string): Promise<Task> {
 	try {
 		const res = await fetch(`${routes.getTaskById}?id=${id}`, {
 			method: "GET",
 		});
-		const res_1 = await handleApiRes(res);
-		return res_1.json();
+		return (await handleApiRes(res)) as Task;
 	} catch (err) {
 		if (err instanceof Error) handleApiErr(err);
 		throw err;
@@ -340,8 +325,7 @@ export async function getCommentsByTaskId(id: string): Promise<TaskComment[]> {
 		const res = await fetch(`${routes.getCommentsByTaskId}?id=${id}`, {
 			method: "GET",
 		});
-		const res_1 = await handleApiRes(res);
-		return res_1.json();
+		return (await handleApiRes(res)) as TaskComment[];
 	} catch (err) {
 		if (err instanceof Error) handleApiErr(err);
 		throw err;
@@ -353,8 +337,7 @@ export async function getStoryById(id: string): Promise<Story> {
 		const res = await fetch(`${routes.getStoryById}?id=${id}`, {
 			method: "GET",
 		});
-		const res_1 = await handleApiRes(res);
-		return res_1.json();
+		return (await handleApiRes(res)) as Story;
 	} catch (err) {
 		if (err instanceof Error) handleApiErr(err);
 		throw err;
@@ -372,11 +355,11 @@ export async function createComment(
 				"Content-Type": "application/json",
 			},
 			body: JSON.stringify({
-				text: text,
+				text,
 				task_id: taskId,
 			}),
 		});
-		return handleApiRes(res);
+		return await handleApiRes(res);
 	} catch (err) {
 		if (err instanceof Error) handleApiErr(err);
 		throw err;
@@ -399,11 +382,7 @@ export function formatDateCompact(date: Date) {
 	return `${date.getMonth() + 1}.${date.getUTCDate()}`;
 }
 
-export function sprintToString(sprint: {
-	title: string;
-	start_date: Date;
-	end_date: Date;
-}) {
+export function sprintToString(sprint: Sprint) {
 	return `${sprint.title} (${formatDateCompact(
 		new Date(sprint.start_date)
 	)} - ${formatDateCompact(new Date(sprint.end_date))})`;
@@ -411,9 +390,9 @@ export function sprintToString(sprint: {
 
 export function formatId(id: string) {
 	// expect postgres style id
-	if (id.split("-").length != 5)
+	if (id.split("-").length !== 5)
 		console.error("id seems to be wrong format:", id);
-	return id.split("-")[0] + "...";
+	return String(id.split("-")[0]) + "...";
 }
 
 // handleApiRes handles the common happy path for API calls.
