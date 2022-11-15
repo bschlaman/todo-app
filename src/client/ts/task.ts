@@ -20,27 +20,27 @@ const path = window.location.pathname;
 const taskIdFromPath = path.substring(path.lastIndexOf("/") + 1);
 
 // query DOM objects
-const taskTitle = document.querySelector(".task-title");
-const taskId = document.querySelector(".task-id");
-const taskCreatedAt = document.querySelector(".task-created-at");
-const taskStatus = document.querySelector(".task-status");
-const taskDesc = document.querySelector(".task-desc");
-const taskDescPreview = document.querySelector(".task-desc-preview");
-const taskStorySelector = document.querySelector(".task-story-selector");
-const taskComments = document.querySelector(".task-comments");
-const taskSave = document.querySelector(".task-save");
+const taskTitle = document.querySelector(".task-title") as HTMLHeadingElement;
+const taskId = document.querySelector(".task-id") as HTMLParagraphElement;
+const taskCreatedAt = document.querySelector(".task-created-at") as HTMLParagraphElement;
+const taskStatus = document.querySelector(".task-status") as HTMLSelectElement;
+const taskDesc = document.querySelector(".task-desc") as HTMLDivElement;
+const taskDescPreview = document.querySelector(".task-desc-preview") as HTMLDivElement;
+const taskStorySelector = document.querySelector(".task-story-selector") as HTMLSelectElement;
+const taskComments = document.querySelector(".task-comments") as HTMLDivElement;
+const taskSave = document.querySelector(".task-save") as HTMLButtonElement;
 
 const taskDescPreviewToggle = document.querySelector(
 	".task-desc-preview-toggle"
-);
-const taskDescPreviewLabel = taskDescPreviewToggle!.querySelector("label");
-const taskDescCheckBox = taskDescPreviewToggle!.querySelector("input");
+) as HTMLInputElement;
+const taskDescPreviewLabel = taskDescPreviewToggle.querySelector("label") as HTMLLabelElement;
+const taskDescCheckBox = taskDescPreviewToggle.querySelector("input") as HTMLInputElement;
 
-const createCommentForm = document.querySelector(".new-comment form");
-const createCommentTextInput = createCommentForm!.querySelector("textarea");
+const createCommentForm = document.querySelector(".new-comment form") as HTMLFormElement;
+const createCommentTextInput = createCommentForm.querySelector("textarea") as HTMLTextAreaElement;
 const createCommentCharIndicator =
-	createCommentForm!.querySelector(".char-indicator");
-const createCommentButton = createCommentForm!.querySelector("button");
+	createCommentForm.querySelector(".char-indicator") as HTMLParagraphElement;
+const createCommentButton = createCommentForm.querySelector("button") as HTMLButtonElement;
 
 let serverConfig = {} as Config;
 // stores story data by story_id
@@ -53,7 +53,7 @@ STATUSES.forEach(status => {
 	const option = document.createElement("option");
 	option.setAttribute("value", status);
 	option.textContent = status;
-	taskStatus!.appendChild(option);
+	taskStatus.appendChild(option);
 });
 
 console.time("api_calls");
@@ -120,7 +120,7 @@ taskSave.addEventListener("click", async _ => {
 });
 
 // TODO (2022.09.29): ideally, I grab the whole url, but for now that is a security concern
-const copyToClipboardButton = document.querySelector(".copy-to-clipboard");
+const copyToClipboardButton = document.querySelector(".copy-to-clipboard") as HTMLButtonElement;
 copyToClipboardButton.onclick = _ => {
 	navigator.clipboard.writeText(window.location.pathname);
 };
@@ -139,7 +139,7 @@ createCommentForm.addEventListener("submit", async e => {
 });
 
 createCommentTextInput.addEventListener("keydown", e => {
-	if (e.keyCode === 13 && e.ctrlKey) {
+	if (e.key === "Enter" && e.ctrlKey) {
 		e.preventDefault(); // prevent dialog not closing weirdness
 		createCommentButton.click();
 	}
@@ -148,7 +148,7 @@ createCommentTextInput.addEventListener("keydown", e => {
 // Character limits
 createCommentTextInput.setAttribute(
 	"maxlength",
-	serverConfig.comment_max_len
+	String(serverConfig.comment_max_len)
 );
 createCommentTextInput.addEventListener("input", _ => {
 	createCommentCharIndicator.textContent = `
@@ -159,7 +159,7 @@ createCommentTextInput.addEventListener("input", _ => {
 });
 createCommentTextInput.dispatchEvent(new Event("input")); // render once at startup
 
-function renderTask(task) {
+function renderTask(task: Task) {
 	document.title = task.title;
 	taskTitle.textContent = task.title;
 	taskId.textContent = formatId(task.id);
@@ -168,8 +168,8 @@ function renderTask(task) {
 	taskDescPreview.innerHTML = DOMPurify.sanitize(
 		marked.parse(task.description)
 	);
-	taskTitle.setAttribute("maxlength", serverConfig.task_title_max_len);
-	taskDesc.setAttribute("maxlength", serverConfig.task_desc_max_len);
+	taskTitle.setAttribute("maxlength", String(serverConfig.task_title_max_len));
+	taskDesc.setAttribute("maxlength", String(serverConfig.task_desc_max_len));
 	// status selector
 	for (let i = 0; i < taskStatus.options.length; i++) {
 		if (taskStatus.options[i].value === task.status) {
@@ -209,7 +209,6 @@ function renderTask(task) {
 			sprintBuckets.get(sprintId).forEach(story => {
 				const option = document.createElement("option");
 				option.setAttribute("value", story.id);
-				const sprintTitle = sprintDataCache.get(story.sprint_id).title;
 				option.textContent = story.title;
 				optGroup.appendChild(option);
 				if (story.id === task.story_id) option.selected = true;
@@ -218,7 +217,7 @@ function renderTask(task) {
 		});
 }
 
-function renderCommentsFromJSON(comments) {
+function renderCommentsFromJSON(comments: TaskComment[]) {
 	if (!comments) {
 		console.warn("no comments to render");
 		return;

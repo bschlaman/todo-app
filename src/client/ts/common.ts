@@ -368,7 +368,7 @@ export async function createComment(
 
 // UTIL FUNCTIONS
 
-export function clearInputValues(...inputElements: HTMLInputElement[]) {
+export function clearInputValues(...inputElements: HTMLElement[]) {
 	inputElements.forEach(inputElement => {
 		inputElement.value = "";
 	});
