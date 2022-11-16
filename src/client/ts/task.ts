@@ -44,9 +44,9 @@ const createCommentButton = createCommentForm.querySelector("button") as HTMLBut
 
 let serverConfig = {} as Config;
 // stores story data by story_id
-const storyDataCache = new Map();
+const storyDataCache = new Map<string, Story>();
 // stores sprint data by sprint_id
-const sprintDataCache = new Map();
+const sprintDataCache = new Map<string, Sprint>();
 
 // renderTask depends on these being set
 STATUSES.forEach(status => {
@@ -109,7 +109,7 @@ taskSave.addEventListener("click", async _ => {
 	const res = await updateTaskById(
 		taskIdFromPath,
 		taskStatus.value,
-		taskTitle.textContent, // no newlines should be present
+		taskTitle.textContent!, // no newlines should be present
 		taskDesc.innerText, // possible newlines
 		taskStorySelector.value === NULL_STORY_IDENTIFIER
 			? null
@@ -171,12 +171,18 @@ function renderTask(task: Task) {
 	taskTitle.setAttribute("maxlength", String(serverConfig.task_title_max_len));
 	taskDesc.setAttribute("maxlength", String(serverConfig.task_desc_max_len));
 	// status selector
-	for (let i = 0; i < taskStatus.options.length; i++) {
-		if (taskStatus.options[i].value === task.status) {
-			taskStatus.options[i].selected = true;
+	for (const option of taskStatus.options) {
+		if (option.value === task.status) {
+			option.selected = true;
 			break;
 		}
 	}
+	// for (let i = 0; i < taskStatus.options.length; i++) {
+	// 	if (taskStatus.options[i]?.value === task.status) {
+	// 		taskStatus.options[i].selected = true;
+	// 		break;
+	// 	}
+	// }
 	// parent story selector
 	while (taskStorySelector.firstChild)
 		taskStorySelector.removeChild(taskStorySelector.firstChild);
@@ -189,24 +195,24 @@ function renderTask(task: Task) {
 	taskStorySelector.appendChild(option);
 
 	// bucketize the stories by sprint
-	const sprintBuckets = new Map();
+	const sprintBuckets = new Map<string, Story[]>();
 	Array.from(storyDataCache.values()).forEach(story => {
 		if (!sprintBuckets.has(story.sprint_id))
 			sprintBuckets.set(story.sprint_id, []);
-		sprintBuckets.get(story.sprint_id).push(story);
+		sprintBuckets.get(story.sprint_id)!.push(story);
 	});
 	// loop through the sorted keys (sprintIds)
 	Array.from(sprintBuckets.keys())
 		.sort((sprintId0, sprintId1) => {
 			return (
-				new Date(sprintDataCache.get(sprintId1).start_date) -
-				new Date(sprintDataCache.get(sprintId0).start_date)
+				new Date(sprintDataCache.get(sprintId1)!.start_date).getSeconds() -
+				new Date(sprintDataCache.get(sprintId0)!.start_date).getSeconds()
 			);
 		})
 		.forEach(sprintId => {
 			const optGroup = document.createElement("optgroup");
-			optGroup.setAttribute("label", sprintDataCache.get(sprintId).title);
-			sprintBuckets.get(sprintId).forEach(story => {
+			optGroup.setAttribute("label", sprintDataCache.get(sprintId)!.title);
+			sprintBuckets.get(sprintId)!.forEach(story => {
 				const option = document.createElement("option");
 				option.setAttribute("value", story.id);
 				option.textContent = story.title;
@@ -226,7 +232,7 @@ function renderCommentsFromJSON(comments: TaskComment[]) {
 		taskComments.removeChild(taskComments.firstChild);
 	comments
 		.sort((c0, c1) => {
-			return new Date(c0.created_at) - new Date(c1.created_at);
+			return new Date(c0.created_at).getSeconds() - new Date(c1.created_at).getSeconds();
 		})
 		.forEach(comment => {
 			const commentWrapper = document.createElement("div");

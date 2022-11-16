@@ -257,7 +257,7 @@ export async function updateTaskById(
 	status: string,
 	title: string,
 	description: string,
-	storyId: string
+	storyId: string | null
 ): Promise<JSON> {
 	try {
 		const res = await fetch(routes.updateTask, {
@@ -368,7 +368,7 @@ export async function createComment(
 
 // UTIL FUNCTIONS
 
-export function clearInputValues(...inputElements: HTMLElement[]) {
+export function clearInputValues(...inputElements: { value: string }[]) {
 	inputElements.forEach(inputElement => {
 		inputElement.value = "";
 	});
