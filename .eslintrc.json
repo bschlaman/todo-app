@@ -4,6 +4,7 @@
 		"es2021": true
 	},
 	"extends": ["eslint:recommended", "standard-with-typescript", "prettier"],
+	"plugins": ["prettier"],
 	"overrides": [],
 	"parserOptions": {
 		"ecmaVersion": "latest",
@@ -11,8 +12,13 @@
 		"project": "./tsconfig.json"
 	},
 	"rules": {
+		"prettier/prettier": "error",
 		"consistent-return": "error",
 		"no-else-return": "error",
+		"block-scoped-var": "error",
+		"eqeqeq": "error",
+		"no-var": "error",
+		"prefer-const": "error",
 		"@typescript-eslint/explicit-function-return-type": "off"
 	}
 }
