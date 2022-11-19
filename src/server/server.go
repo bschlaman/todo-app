@@ -145,12 +145,15 @@ func main() {
 	}
 	for _, route := range apiRoutes {
 		http.Handle(route.Path, utils.LogReq(log)(
-			incrementAPIMetricMiddleware(
-				sessionMiddleware(route.Handler()),
+			putAPILatencyMetricMiddleware(
+				incrementAPIMetricMiddleware(
+					sessionMiddleware(route.Handler()),
+					route.ApiName,
+					route.ApiType,
+				),
 				route.ApiName,
 				route.ApiType,
-			),
-		))
+			)))
 	}
 
 	// Make sure we're authenticated

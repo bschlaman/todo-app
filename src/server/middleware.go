@@ -98,10 +98,17 @@ func redirectRootPathMiddleware(h http.Handler) http.Handler {
 	})
 }
 
-// TODO (2022.11.13) make this async!
 func incrementAPIMetricMiddleware(h http.Handler, apiName, apiType string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		go incrementAPIMetric(apiName, apiType)
 		h.ServeHTTP(w, r)
+	})
+}
+
+func putAPILatencyMetricMiddleware(h http.Handler, apiName, apiType string) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+		h.ServeHTTP(w, r)
+		go putLatencyMetric(time.Since(start), apiName, apiType)
 	})
 }

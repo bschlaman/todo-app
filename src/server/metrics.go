@@ -32,6 +32,33 @@ func incrementAPIMetric(apiName, apiType string) {
 		},
 	})
 	if err != nil {
-		log.Errorf("Error adding metrics: %v", err)
+		log.Errorf("Metric put error: %v", err)
+	}
+}
+
+func putLatencyMetric(latency time.Duration, apiName, apiType string) {
+	_, err := env.AWSCWClient.PutMetricData(context.TODO(), &cloudwatch.PutMetricDataInput{
+		Namespace: aws.String(metricNamespace),
+		MetricData: []types.MetricDatum{
+			{
+				MetricName: aws.String("ApiLatency"),
+				Timestamp:  aws.Time(time.Now()),
+				Unit:       types.StandardUnitMilliseconds,
+				Value:      aws.Float64(float64(latency.Milliseconds())),
+				Dimensions: []types.Dimension{
+					{
+						Name:  aws.String("api_name"),
+						Value: aws.String(apiName),
+					},
+					{
+						Name:  aws.String("api_type"),
+						Value: aws.String(apiType),
+					},
+				},
+			},
+		},
+	})
+	if err != nil {
+		log.Errorf("Metric put error: %v", err)
 	}
 }
