@@ -79,7 +79,9 @@ console.timeEnd("api_calls");
 console.table(serverConfig);
 
 // render sprint selector (must be before task render)
-const sprintSelect = document.querySelector(".sprint-select-wrapper select") as HTMLSelectElement;
+const sprintSelect = document.querySelector(
+  ".sprint-select-wrapper select"
+) as HTMLSelectElement;
 sprintSelect.addEventListener("change", (_) => {
   renderTasksFromJSON(Array.from(taskDataCache.values()));
   renderStories();
@@ -118,7 +120,8 @@ sprintDataCache.forEach((sprint, _) => {
       tagCheckBox.click();
     };
     tagCheckBoxLabel.setAttribute("for", tag.title);
-    tagCheckBoxLabel.style.color = TAG_COLORS[tag.title as keyof typeof TAG_COLORS];
+    tagCheckBoxLabel.style.color =
+      TAG_COLORS[tag.title as keyof typeof TAG_COLORS];
     tagCheckBoxLabel.textContent = tag.title;
     const tagContainer = document.createElement("span");
     tagContainer.appendChild(tagCheckBox);
@@ -157,8 +160,12 @@ renderTasksFromJSON(Array.from(taskDataCache.values()));
 renderStories();
 
 // CODE SECTION: CREATE TASK MODAL ============================
-const createTaskButton = document.querySelector(".create-task-button") as HTMLButtonElement;
-const createTaskModal = document.querySelector(".create-task-modal") as HTMLDialogElement;
+const createTaskButton = document.querySelector(
+  ".create-task-button"
+) as HTMLButtonElement;
+const createTaskModal = document.querySelector(
+  ".create-task-modal"
+) as HTMLDialogElement;
 const createTaskTitleInput = createTaskModal.querySelector(
   'input[name="title"]'
 ) as HTMLInputElement;
@@ -174,7 +181,9 @@ const createTaskDescCharIndicator = createTaskModal.querySelector(
 const createTaskSelectInput = createTaskModal.querySelector(
   'select[name="story"]'
 ) as HTMLSelectElement;
-const createTaskSaveButton = createTaskModal.querySelector(".modal-save") as HTMLButtonElement;
+const createTaskSaveButton = createTaskModal.querySelector(
+  ".modal-save"
+) as HTMLButtonElement;
 // Create button
 createTaskButton.onclick = (_) => {
   createTaskModal.showModal();
@@ -207,7 +216,10 @@ createTaskTitleInput.setAttribute(
   "maxlength",
   String(serverConfig.task_title_max_len)
 );
-createTaskDescInput.setAttribute("maxlength", String(serverConfig.task_desc_max_len));
+createTaskDescInput.setAttribute(
+  "maxlength",
+  String(serverConfig.task_desc_max_len)
+);
 createTaskTitleInput.addEventListener("input", (_) => {
   createTaskTitleCharIndicator.textContent = `
 			${createTaskTitleInput.value.length}
@@ -221,9 +233,10 @@ createTaskDescInput.addEventListener("input", (_) => {
 createTaskTitleInput.dispatchEvent(new Event("input")); // render once at startup
 createTaskDescInput.dispatchEvent(new Event("input")); // render once at startup
 // Close (x) button
-(createTaskModal.querySelector(".modal-close") as HTMLButtonElement).onclick = () => {
-  createTaskModal.close();
-};
+(createTaskModal.querySelector(".modal-close") as HTMLButtonElement).onclick =
+  () => {
+    createTaskModal.close();
+  };
 // CTRL-Enter to save
 createTaskModal.addEventListener("keydown", (e) => {
   if (e.key === "Enter" && e.ctrlKey) {
@@ -238,17 +251,20 @@ createTaskSaveButton.addEventListener("click", (_) => {
     createTaskSelectInput.value === NULL_STORY_IDENTIFIER
       ? null
       : createTaskSelectInput.value
-  ).then(()=>{
-  clearInputValues(createTaskTitleInput, createTaskDescInput);
-  location.reload();
-  
+  ).then(() => {
+    clearInputValues(createTaskTitleInput, createTaskDescInput);
+    location.reload();
   });
 });
 // END CREATE TASK MODAL ============================
 
 // CODE SECTION: CREATE STORY MODAL ============================
-const createStoryButton = document.querySelector(".create-story-button") as HTMLButtonElement;
-const createStoryModal = document.querySelector(".create-story-modal") as HTMLDialogElement;
+const createStoryButton = document.querySelector(
+  ".create-story-button"
+) as HTMLButtonElement;
+const createStoryModal = document.querySelector(
+  ".create-story-modal"
+) as HTMLDialogElement;
 const createStoryTitleInput = createStoryModal.querySelector(
   'input[name="title"]'
 ) as HTMLInputElement;
@@ -264,8 +280,12 @@ const createStoryDescCharIndicator = createStoryModal.querySelector(
 const createStorySelectInput = createStoryModal.querySelector(
   'select[name="sprint"]'
 ) as HTMLSelectElement;
-const createStoryTags = createStoryModal.querySelector(".story-tags");
-const createStorySaveButton = createStoryModal.querySelector(".modal-save");
+const createStoryTags = createStoryModal.querySelector(
+  ".story-tags"
+) as HTMLDivElement;
+const createStorySaveButton = createStoryModal.querySelector(
+  ".modal-save"
+) as HTMLButtonElement;
 // Create button
 createStoryButton.onclick = (_) => {
   createStoryModal.showModal();
@@ -279,9 +299,11 @@ createStoryButton.onclick = (_) => {
     option.textContent = sprint.title;
     // select the latest sprint by default
     if (
-      (createStorySelectInput.value === "") ||
+      createStorySelectInput.value === "" ||
       new Date(sprint.start_date) >
-        new Date(sprintDataCache.get(createStorySelectInput.value)?.start_date ?? 0)
+        new Date(
+          sprintDataCache.get(createStorySelectInput.value)?.start_date ?? 0
+        )
     ) {
       option.selected = true;
     }
@@ -293,7 +315,10 @@ createStoryTitleInput.setAttribute(
   "maxlength",
   String(serverConfig.story_title_max_len)
 );
-createStoryDescInput.setAttribute("maxlength", String(serverConfig.story_desc_max_len));
+createStoryDescInput.setAttribute(
+  "maxlength",
+  String(serverConfig.story_desc_max_len)
+);
 createStoryTitleInput.addEventListener("input", (_) => {
   createStoryTitleCharIndicator.textContent = `
 			${createStoryTitleInput.value.length}
@@ -311,9 +336,10 @@ createStoryDescInput.addEventListener("input", (_) => {
 createStoryTitleInput.dispatchEvent(new Event("input")); // render once at startup
 createStoryDescInput.dispatchEvent(new Event("input")); // render once at startup
 // Close (x) button
-(createStoryModal.querySelector(".modal-close") as HTMLButtonElement).onclick = (_) => {
-  createStoryModal.close();
-};
+(createStoryModal.querySelector(".modal-close") as HTMLButtonElement).onclick =
+  (_) => {
+    createStoryModal.close();
+  };
 // story tag check boxes
 tagDataCache.forEach((tag, _) => {
   const tagCheckBox = document.createElement("input");
@@ -332,30 +358,33 @@ tagDataCache.forEach((tag, _) => {
   // 	if (ta.story_id === story.id && ta.tag_id === tag.id)
   // 		tagCheckBox.checked = true;
   // });
-  const tagCheckBoxLabel = document.createElement("label") as HTMLLabelElement;
+  const tagCheckBoxLabel = document.createElement("label");
   tagCheckBoxLabel.onclick = (_) => {
     tagCheckBox.click();
   };
   tagCheckBoxLabel.setAttribute("for", tag.title);
-  tagCheckBoxLabel.style.color = TAG_COLORS[tag.title];
+  tagCheckBoxLabel.style.color =
+    TAG_COLORS[tag.title as keyof typeof TAG_COLORS];
   tagCheckBoxLabel.textContent = tag.title;
   createStoryTags.appendChild(tagCheckBox);
   createStoryTags.appendChild(tagCheckBoxLabel);
 });
 // CTRL-Enter to save
 createStoryModal.addEventListener("keydown", (e) => {
-  if (e.keyCode === 13 && e.ctrlKey) {
+  if (e.key === "Enter" && e.ctrlKey) {
     e.preventDefault(); // prevent dialog not closing weirdness
     createStorySaveButton.click();
   }
 });
-createStorySaveButton.addEventListener("click", async (_) => {
-  const res = await createStory(
+createStorySaveButton.addEventListener("click", (_) => {
+  void createStory(
     createStoryTitleInput.value,
     createStoryDescInput.value,
     createStorySelectInput.value
-  );
-  if (!res) return;
+  ).then(() => {
+    clearInputValues(createStoryTitleInput, createStoryDescInput);
+    location.reload();
+  });
   // TODO (2022.10.24): this will require a change to the model
   // wherein I receive the story id back from story creation
   // create the tag assignments
@@ -372,27 +401,31 @@ createStorySaveButton.addEventListener("click", async (_) => {
   // 			}
   // 		);
   // 	});
-  clearInputValues(createStoryTitleInput, createStoryDescInput);
-  location.reload();
 });
 // END CREATE STORY MODAL ============================
 
 // CODE SECTION: CREATE SPRINT MODAL ============================
-const createSprintButton = document.querySelector(".create-sprint-button");
-const createSprintModal = document.querySelector(".create-sprint-modal");
+const createSprintButton = document.querySelector(
+  ".create-sprint-button"
+) as HTMLButtonElement;
+const createSprintModal = document.querySelector(
+  ".create-sprint-modal"
+) as HTMLDialogElement;
 const createSprintTitleInput = createSprintModal.querySelector(
   'input[name="title"]'
-);
+) as HTMLInputElement;
 const createSprintTitleCharIndicator = createSprintModal.querySelector(
   ".title-char-indicator"
-);
+) as HTMLParagraphElement;
 const createSprintStartdateInput = createSprintModal.querySelector(
   'input[name="startdate"]'
-);
+) as HTMLInputElement;
 const createSprintEnddateInput = createSprintModal.querySelector(
   'input[name="enddate"]'
-);
-const createSprintSaveButton = createSprintModal.querySelector(".modal-save");
+) as HTMLInputElement;
+const createSprintSaveButton = createSprintModal.querySelector(
+  ".modal-save"
+) as HTMLButtonElement;
 // Create button
 createSprintButton.onclick = (_) => {
   createSprintModal.showModal();
@@ -401,119 +434,128 @@ createSprintButton.onclick = (_) => {
 // Character limits
 createSprintTitleInput.setAttribute(
   "maxlength",
-  serverConfig.sprint_title_max_len
+  String(serverConfig.sprint_title_max_len)
 );
 createSprintTitleInput.addEventListener("input", (_) => {
-  createSprintTitleCharIndicator.textContent = `
-			${createSprintTitleInput.value.length}
-			/
-			${serverConfig.sprint_title_max_len}
-		`;
+  createSprintTitleCharIndicator.textContent = `${createSprintTitleInput.value.length}/${serverConfig.sprint_title_max_len}`;
 });
 createSprintTitleInput.dispatchEvent(new Event("input")); // render once at startup
 // Close (x) button
-createSprintModal.querySelector(".modal-close").onclick = (_) => {
-  createSprintModal.close();
-};
+(createSprintModal.querySelector(".modal-close") as HTMLButtonElement).onclick =
+  (_) => {
+    createSprintModal.close();
+  };
 // CTRL-Enter to save
 createSprintModal.addEventListener("keydown", (e) => {
-  if (e.keyCode === 13 && e.ctrlKey) {
+  if (e.key === "Enter" && e.ctrlKey) {
     e.preventDefault(); // prevent dialog not closing weirdness
     createSprintSaveButton.click();
   }
 });
-createSprintSaveButton.addEventListener("click", async (_) => {
-  const res = await createSprint(
+createSprintSaveButton.addEventListener("click", (_) => {
+  void createSprint(
     createSprintTitleInput.value,
-    createSprintStartdateInput.value,
-    createSprintEnddateInput.value
-  );
-  if (!res) return;
-  clearInputValues(createSprintTitleInput);
-  location.reload();
+    new Date(createSprintStartdateInput.value),
+    new Date(createSprintEnddateInput.value)
+  ).then(() => {
+    clearInputValues(createSprintTitleInput);
+    location.reload();
+  });
 });
 // END CREATE SPRINT MODAL ============================
 
 // CODE SECTION: CREATE TAG MODAL ============================
-const createTagButton = document.querySelector(".create-tag-button");
-const createTagModal = document.querySelector(".create-tag-modal");
-const createTagTitleInput = createTagModal.querySelector('input[name="title"]');
+const createTagButton = document.querySelector(
+  ".create-tag-button"
+) as HTMLButtonElement;
+const createTagModal = document.querySelector(
+  ".create-tag-modal"
+) as HTMLDialogElement;
+const createTagTitleInput = createTagModal.querySelector(
+  'input[name="title"]'
+) as HTMLInputElement;
 const createTagDescInput = createTagModal.querySelector(
   'textarea[name="description"]'
-);
+) as HTMLInputElement;
 const createTagTitleCharIndicator = createTagModal.querySelector(
   ".title-char-indicator"
-);
+) as HTMLInputElement;
 const createTagDescCharIndicator = createTagModal.querySelector(
   ".desc-char-indicator"
-);
-const createTagSaveButton = createTagModal.querySelector(".modal-save");
+) as HTMLParagraphElement;
+const createTagSaveButton = createTagModal.querySelector(
+  ".modal-save"
+) as HTMLButtonElement;
 // Create button
 createTagButton.onclick = (_) => {
   createTagModal.showModal();
   createTagTitleInput.focus();
 };
 // Character limits
-createTagTitleInput.setAttribute("maxlength", serverConfig.tag_title_max_len);
-createTagDescInput.setAttribute("maxlength", serverConfig.tag_desc_max_len);
+createTagTitleInput.setAttribute(
+  "maxlength",
+  String(serverConfig.tag_title_max_len)
+);
+createTagDescInput.setAttribute(
+  "maxlength",
+  String(serverConfig.tag_desc_max_len)
+);
 createTagTitleInput.addEventListener("input", (_) => {
-  createTagTitleCharIndicator.textContent = `
-			${createTagTitleInput.value.length}
-			/
-			${serverConfig.tag_title_max_len}
-		`;
+  createTagTitleCharIndicator.textContent = `${createTagTitleInput.value.length}/${serverConfig.tag_title_max_len}`;
 });
 createTagDescInput.addEventListener("input", (_) => {
-  createTagDescCharIndicator.textContent = `
-			${createTagDescInput.value.length}
-			/
-			${serverConfig.tag_desc_max_len}
-		`;
+  createTagDescCharIndicator.textContent = `${createTagDescInput.value.length}/${serverConfig.tag_desc_max_len}`;
 });
 createTagTitleInput.dispatchEvent(new Event("input")); // render once at startup
 createTagDescInput.dispatchEvent(new Event("input")); // render once at startup
 // Close (x) button
-createTagModal.querySelector(".modal-close").onclick = (_) => {
+(createTagModal.querySelector(".modal-close") as HTMLButtonElement).onclick = (
+  _
+) => {
   createTagModal.close();
 };
 // CTRL-Enter to save
 createTagModal.addEventListener("keydown", (e) => {
-  if (e.keyCode === 13 && e.ctrlKey) {
+  if (e.key === "Enter" && e.ctrlKey) {
     e.preventDefault(); // prevent dialog not closing weirdness
     createTagSaveButton.click();
   }
 });
-createTagSaveButton.addEventListener("click", async (_) => {
-  const res = await createTag(
-    createTagTitleInput.value,
-    createTagDescInput.value
+createTagSaveButton.addEventListener("click", (_) => {
+  void createTag(createTagTitleInput.value, createTagDescInput.value).then(
+    () => {
+      clearInputValues(createTagTitleInput, createTagDescInput);
+      location.reload();
+    }
   );
-  if (!res) return;
-  clearInputValues(createTagTitleInput, createTagDescInput);
-  location.reload();
 });
 // END CREATE TAG MODAL ============================
 
 // CODE SECTION: BULK CREATE TASK MODAL ============================
-const bulkCreateTaskButton = document.querySelector(".bulk-create-task-button");
-const bulkCreateTaskModal = document.querySelector(".bulk-create-task-modal");
+const bulkCreateTaskButton = document.querySelector(
+  ".bulk-create-task-button"
+) as HTMLButtonElement;
+const bulkCreateTaskModal = document.querySelector(
+  ".bulk-create-task-modal"
+) as HTMLDialogElement;
 const bulkCreateTaskTitleInput = bulkCreateTaskModal.querySelector(
   'input[name="title"]'
-);
+) as HTMLInputElement;
 const bulkCreateTaskDescInput = bulkCreateTaskModal.querySelector(
   'textarea[name="description"]'
-);
+) as HTMLInputElement;
 const bulkCreateTaskTitleCharIndicator = bulkCreateTaskModal.querySelector(
   ".title-char-indicator"
-);
+) as HTMLInputElement;
 const bulkCreateTaskDescCharIndicator = bulkCreateTaskModal.querySelector(
   ".desc-char-indicator"
-);
+) as HTMLInputElement;
 const bulkCreateTaskSelectInput = bulkCreateTaskModal.querySelector(
   'select[name="story"]'
-);
-const bulkCreateTaskSaveButton =
-  bulkCreateTaskModal.querySelector(".modal-save");
+) as HTMLInputElement;
+const bulkCreateTaskSaveButton = bulkCreateTaskModal.querySelector(
+  ".modal-save"
+) as HTMLButtonElement;
 // Create button
 bulkCreateTaskButton.onclick = (_) => {
   bulkCreateTaskModal.showModal();
@@ -523,8 +565,8 @@ bulkCreateTaskButton.onclick = (_) => {
     bulkCreateTaskSelectInput.removeChild(bulkCreateTaskSelectInput.firstChild);
   Array.from(storyDataCache.values())
     .filter((s) => {
-      // if for some reason sprintSelect.value is falsey, dont filter
-      if (!sprintSelect.value) return true;
+      // if for some reason sprintSelect.value is blank, dont filter
+      if (sprintSelect.value === "") return true;
       return s.sprint_id === sprintSelect.value;
     })
     .forEach((story) => {
@@ -537,11 +579,11 @@ bulkCreateTaskButton.onclick = (_) => {
 // Character limits
 bulkCreateTaskTitleInput.setAttribute(
   "maxlength",
-  serverConfig.task_title_max_len
+  String(serverConfig.task_title_max_len)
 );
 bulkCreateTaskDescInput.setAttribute(
   "maxlength",
-  serverConfig.task_desc_max_len
+  String(serverConfig.task_desc_max_len)
 );
 bulkCreateTaskTitleInput.addEventListener("input", (_) => {
   bulkCreateTaskTitleCharIndicator.textContent = `
@@ -560,24 +602,27 @@ bulkCreateTaskDescInput.addEventListener("input", (_) => {
 bulkCreateTaskTitleInput.dispatchEvent(new Event("input")); // render once at startup
 bulkCreateTaskDescInput.dispatchEvent(new Event("input")); // render once at startup
 // Close (x) button
-bulkCreateTaskModal.querySelector(".modal-close").onclick = (_) => {
+(
+  bulkCreateTaskModal.querySelector(".modal-close") as HTMLButtonElement
+).onclick = (_) => {
   bulkCreateTaskModal.close();
 };
 // CTRL-Enter to save
 bulkCreateTaskModal.addEventListener("keydown", (e) => {
-  if (e.keyCode === 13 && e.ctrlKey) {
+  if (e.key === "Enter" && e.ctrlKey) {
     e.preventDefault(); // prevent dialog not closing weirdness
     bulkCreateTaskSaveButton.click();
   }
 });
-bulkCreateTaskSaveButton.addEventListener("click", async (_) => {
+bulkCreateTaskSaveButton.addEventListener("click", (_) => {
   // TODO: partial success handling
-  await bulkCreateTasks(
+  void bulkCreateTasks(
     bulkCreateTaskTitleInput.value,
     bulkCreateTaskDescInput.value,
     bulkCreateTaskSelectInput.value
-  );
-  location.reload();
+  ).then(() => {
+    location.reload();
+  });
 });
 // END BULK CREATE TASK MODAL ============================
 
@@ -587,9 +632,12 @@ buckets.forEach((bucket) => {
   bucket.addEventListener("dragover", (e) => {
     e.preventDefault();
 
-    const dragging = document.querySelector(".task.dragging");
+    const dragging = document.querySelector(".task.dragging") as HTMLDivElement;
     // TODO: do I really need vertical sorting functionality?
-    const belowTask = getClosestTaskBelowCursor(bucket, e.clientY);
+    const belowTask = getClosestTaskBelowCursor(
+      bucket,
+      (e as DragEvent).clientY
+    );
 
     // hack: avoid using "dragenter" & "dragleave" events
     // which do not play nicely with child nodes
@@ -612,7 +660,7 @@ buckets.forEach((bucket) => {
   // });
 });
 
-function getClosestTaskBelowCursor(bucket, y) {
+function getClosestTaskBelowCursor(bucket: HTMLDivElement, y: number) {
   const nonDraggingTasks = [...bucket.querySelectorAll(".task:not(.dragging)")];
 
   return nonDraggingTasks.reduce(
@@ -627,12 +675,12 @@ function getClosestTaskBelowCursor(bucket, y) {
   ).element;
 }
 
-function renderTasksFromJSON(tasks) {
-  if (!tasks) {
+function renderTasksFromJSON(tasks: Task[]) {
+  if (tasks.length === 0) {
     console.warn("no tasks to render!");
   }
-  if (!sprintSelect.value) {
-    console.err(
+  if (sprintSelect.value === "") {
+    console.error(
       "couldn't get sprint from dropdown, therefore cannot render tasks"
     );
     return;
@@ -642,9 +690,12 @@ function renderTasksFromJSON(tasks) {
     task.remove();
   });
 
-  const selectedTagIds = new Set();
+  const selectedTagIds = new Set<string>();
   document.querySelectorAll(".tags-wrapper input").forEach((tagCheckBox) => {
-    if (tagCheckBox.checked) selectedTagIds.add(tagCheckBox.dataset.tag_id);
+    if ((tagCheckBox as HTMLInputElement).checked)
+      selectedTagIds.add(
+        (tagCheckBox as HTMLInputElement).dataset["tag_id"] ?? ""
+      );
   });
   tasks
     .filter((t) => {
@@ -653,7 +704,7 @@ function renderTasksFromJSON(tasks) {
 
       // only render tasks whose story is in the selected sprint
       const story = storyDataCache.get(t.story_id);
-      if (story.sprint_id !== sprintSelect.value) return false;
+      if (story?.sprint_id !== sprintSelect.value) return false;
 
       // only render tasks whose story is tagged with a selected tag
       // TODO: this is inefficient; is there a better way?
@@ -697,17 +748,18 @@ function renderTasksFromJSON(tasks) {
       taskStoryTitle.textContent =
         task.story_id === null
           ? NULL_STORY_IDENTIFIER
-          : storyDataCache.get(task.story_id).title;
+          : storyDataCache.get(task.story_id)?.title ?? null;
       taskStoryTitle.href = `#${task.story_id}`;
 
       const taskTags = document.createElement("div");
       taskTags.classList.add("task-tags");
       tagAssignmentDataCache.forEach((ta, _) => {
         if (ta.story_id !== task.story_id) return;
-        const tag = tagDataCache.get(ta.tag_id);
+        const tag = tagDataCache.get(ta.tag_id) as Tag;
         const taskTag = document.createElement("span");
-        taskTag.style.background = TAG_COLORS[tag.title];
-        taskTag.textContent = tag.title;
+        taskTag.style.background =
+          TAG_COLORS[tag.title as keyof typeof TAG_COLORS];
+        taskTag.textContent = tag?.title ?? null;
         taskTags.appendChild(taskTag);
       });
 
@@ -726,17 +778,17 @@ function renderTasksFromJSON(tasks) {
       taskDiv.appendChild(taskBulkTaskIndicator);
 
       taskHandle.addEventListener("mousedown", (e) => {
-        taskDiv.setAttribute("draggable", true);
+        taskDiv.setAttribute("draggable", String(true));
       });
       taskHandle.addEventListener("mouseup", (e) => {
-        taskDiv.setAttribute("draggable", false);
+        taskDiv.setAttribute("draggable", String(false));
       });
       // not currently working, since drag api doesn't work with touch
       taskHandle.addEventListener("touchstart", (e) => {
-        taskDiv.setAttribute("draggable", true);
+        taskDiv.setAttribute("draggable", String(true));
       });
       taskHandle.addEventListener("touchend", (e) => {
-        taskDiv.setAttribute("draggable", false);
+        taskDiv.setAttribute("draggable", String(false));
       });
 
       taskDiv.addEventListener("dragstart", (_) => {
@@ -744,13 +796,14 @@ function renderTasksFromJSON(tasks) {
       });
       taskDiv.addEventListener("dragend", (_) => {
         // just in case not caught by mouseup
-        taskDiv.setAttribute("draggable", false);
+        taskDiv.setAttribute("draggable", String(false));
         taskDiv.classList.remove("dragging");
         buckets.forEach((b) => {
           b.classList.remove(hoverClass);
         });
-        const destinationStatus = taskDiv.parentNode.dataset.status;
-        updateTaskById(
+        const destinationStatus = (taskDiv.parentNode as HTMLDivElement)
+          .dataset["status"];
+        void updateTaskById(
           task.id,
           destinationStatus,
           task.title,
@@ -768,8 +821,8 @@ function renderTasksFromJSON(tasks) {
 }
 
 function renderStories() {
-  if (!sprintSelect.value) {
-    console.err(
+  if (sprintSelect.value === "") {
+    console.error(
       "couldn't get sprint from dropdown, therefore cannot render stories"
     );
     return;
@@ -809,7 +862,8 @@ function renderStories() {
 
       const storySprintTitle = document.createElement("p");
       storySprintTitle.classList.add("story-sprint-title");
-      storySprintTitle.textContent = sprintDataCache.get(story.sprint_id).title;
+      storySprintTitle.textContent =
+        sprintDataCache.get(story.sprint_id)?.title ?? null;
 
       const storyCreatedAt = document.createElement("p");
       storyCreatedAt.classList.add("story-created-at");
@@ -824,12 +878,12 @@ function renderStories() {
         const tagCheckBox = document.createElement("input");
         tagCheckBox.setAttribute("type", "checkbox");
         tagCheckBox.setAttribute("name", tag.title);
-        tagCheckBox.dataset.tag_id = tag.id;
+        tagCheckBox.dataset["tag_id"] = tag.id;
         tagCheckBox.addEventListener("change", (_) => {
           if (tagCheckBox.checked) {
-            createTagAssignment(tag.id, story.id);
+            void createTagAssignment(tag.id, story.id);
           } else {
-            destroyTagAssignment(tag.id, story.id);
+            void destroyTagAssignment(tag.id, story.id);
           }
         });
         // this is an expensive O(n) operation, but I dont care
@@ -842,7 +896,8 @@ function renderStories() {
           tagCheckBox.click();
         };
         tagCheckBoxLabel.setAttribute("for", tag.title);
-        tagCheckBoxLabel.style.color = TAG_COLORS[tag.title];
+        tagCheckBoxLabel.style.color =
+          TAG_COLORS[tag.title as keyof typeof TAG_COLORS];
         tagCheckBoxLabel.textContent = tag.title;
         storyTags.appendChild(tagCheckBox);
         storyTags.appendChild(tagCheckBoxLabel);
@@ -856,16 +911,16 @@ function renderStories() {
         if (story.sprint_id === sprint.id) option.selected = true;
         storySprintSelect.appendChild(option);
       });
-      storySprintSelect.addEventListener("change", async (_) => {
-        const res = await updateStoryById(
+      storySprintSelect.addEventListener("change", (_) => {
+        void updateStoryById(
           story.id,
           story.status,
           story.title,
           story.description,
           storySprintSelect.value
-        );
-        if (!res) return;
-        location.reload();
+        ).then(() => {
+          location.reload();
+        });
       });
 
       const openTasksListWrapper = document.createElement("div");
@@ -897,8 +952,10 @@ function renderStories() {
         Array.from(storyTags.querySelectorAll("input"))
           .filter((tagCheckBox) => tagCheckBox.checked)
           .forEach((tagCheckBox) => {
-            createStoryTags.querySelector(
-              `[data-tag_id="${tagCheckBox.dataset.tag_id}"]`
+            (
+              createStoryTags.querySelector(
+                `[data-tag_id="${tagCheckBox.dataset["tag_id"] ?? ""}"]`
+              ) as HTMLInputElement
             ).checked = true;
           });
       };
@@ -914,7 +971,9 @@ function renderStories() {
       // already captured by the sprint select
       // storyDiv.appendChild(storyMetadataContainer);
 
-      const storiesWrapper = document.querySelector(".stories-wrapper");
+      const storiesWrapper = document.querySelector(
+        ".stories-wrapper"
+      ) as HTMLDivElement;
       storiesWrapper.appendChild(storyDiv);
     });
 }
@@ -922,18 +981,25 @@ function renderStories() {
 function setLocalStorageSelectedTags() {
   const selectedTagIds = [...document.querySelectorAll(".tags-wrapper input")]
     .filter((tagCheckBox) => {
-      return tagCheckBox.checked;
+      return (tagCheckBox as HTMLInputElement).checked;
     })
     .map((e) => {
-      return e.dataset.tag_id;
+      return (e as HTMLInputElement).dataset["tag_id"];
     });
 
-  localStorage.setItem(LOCAL_STORAGE_KEYS.selectedTagIds, selectedTagIds);
+  localStorage.setItem(
+    LOCAL_STORAGE_KEYS.selectedTagIds,
+    selectedTagIds.toString()
+  );
 }
 
-async function bulkCreateTasks(commonTitle, commonDescription, storyId) {
-  const story = storyDataCache.get(storyId);
-  const sprint = sprintDataCache.get(story.sprint_id);
+async function bulkCreateTasks(
+  commonTitle: string,
+  commonDescription: string,
+  storyId: string
+) {
+  const story = storyDataCache.get(storyId) as Story;
+  const sprint = sprintDataCache.get(story.sprint_id) as Sprint;
   const sprintStart = new Date(sprint.start_date);
   const sprintEnd = new Date(sprint.end_date);
   for (let d = sprintStart; d <= sprintEnd; d.setUTCDate(d.getUTCDate() + 1)) {

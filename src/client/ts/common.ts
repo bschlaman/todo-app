@@ -38,6 +38,7 @@ const routes = {
   createTag: "/api/create_tag",
 };
 
+// TODO 2022.11.19: make this an enum or type
 export const STATUSES = [
   "BACKLOG",
   "DOING",
@@ -217,8 +218,8 @@ export async function createSprint(
     },
     body: JSON.stringify({
       title,
-      start_date: new Date(startdate),
-      end_date: new Date(enddate),
+      start_date: startdate,
+      end_date: enddate,
     }),
   });
   return await handleApiRes(res);

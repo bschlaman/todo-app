@@ -24,7 +24,7 @@ export interface Task {
   status: string;
   story_id: string;
   edited: string;
-  bulk_task: string;
+  bulk_task: boolean;
 }
 
 export interface TaskComment {
