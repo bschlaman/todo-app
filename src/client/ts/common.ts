@@ -77,7 +77,7 @@ document.addEventListener("visibilitychange", (_) => {
     void checkSession().then((res) => {
       console.log(
         "session time remaining (s):",
-        res.sessionTimeRemainingSeconds
+        res.session_time_remaining_seconds
       );
     });
   }
@@ -422,9 +422,15 @@ export function formatId(id: string) {
 // handleApiRes handles the common happy path for API calls.
 // right now, that means 1) checking status code and 2) converting res to json
 async function handleApiRes(res: Response) {
-  if (res.ok) return await res.json();
-  const msg = `bad res code (${res.status}) from: ${res.url}`;
-  throw new Error(msg);
+  if (!res.ok) {
+    const msg = `bad res code (${res.status}) from: ${res.url}`;
+    throw new Error(msg);
+  }
+  try {
+    return await res.json();
+  } catch (err) {
+    console.warn("response was not json:", new URL(res.url).pathname);
+  }
 }
 
 // handleApiRes handles the common error path for API calls.

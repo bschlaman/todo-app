@@ -6,9 +6,12 @@ const publicDir = "dist";
 
 module.exports = {
 	entry: pages.reduce((config, page) => {
-		config[page] = `./src/client/js/${page}.js`;
+		config[page] = `./src/client/ts/${page}.ts`;
 		return config;
 	}, {}),
+	resolve: {
+		extensions: [".ts"],
+	},
 	output: {
 		filename: "./[name]/[name].bundle.js",
 		path: path.resolve(__dirname, publicDir),
@@ -21,7 +24,15 @@ module.exports = {
 				test: /\.css$/i,
 				use: ["style-loader", "css-loader"],
 			},
+			{
+				test: /\.tsx?$/,
+				use: "ts-loader",
+				exclude: /node_modules/,
+			},
 		],
+	},
+	experiments: {
+		topLevelAwait: true,
 	},
 	// only using one type of plugin, so could remove this concat
 	plugins: [].concat(

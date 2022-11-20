@@ -12,7 +12,7 @@ import {
   formatId,
   formatDate,
   NULL_STORY_IDENTIFIER,
-} from "./common.js";
+} from "./common";
 import { Story, Sprint, Task, TaskComment, Config } from "./model";
 
 import DOMPurify from "dompurify";

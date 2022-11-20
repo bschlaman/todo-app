@@ -1,5 +1,5 @@
 export interface CheckSessionRes {
-  sessionTimeRemainingSeconds: number;
+  session_time_remaining_seconds: number;
 }
 
 export interface Config {

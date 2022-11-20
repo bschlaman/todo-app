@@ -20,7 +20,7 @@ import {
   createTagAssignment,
   destroyTagAssignment,
   TAG_COLORS,
-} from "./common.js";
+} from "./common";
 import { Config, Sprint, Story, Tag, TagAssignment, Task } from "./model";
 
 import DOMPurify from "dompurify";
@@ -635,7 +635,7 @@ buckets.forEach((bucket) => {
     const dragging = document.querySelector(".task.dragging") as HTMLDivElement;
     // TODO: do I really need vertical sorting functionality?
     const belowTask = getClosestTaskBelowCursor(
-      bucket,
+      bucket as HTMLDivElement,
       (e as DragEvent).clientY
     );
 
@@ -777,17 +777,17 @@ function renderTasksFromJSON(tasks: Task[]) {
       taskDiv.appendChild(taskCreatedAt);
       taskDiv.appendChild(taskBulkTaskIndicator);
 
-      taskHandle.addEventListener("mousedown", (e) => {
+      taskHandle.addEventListener("mousedown", (_) => {
         taskDiv.setAttribute("draggable", String(true));
       });
-      taskHandle.addEventListener("mouseup", (e) => {
+      taskHandle.addEventListener("mouseup", (_) => {
         taskDiv.setAttribute("draggable", String(false));
       });
       // not currently working, since drag api doesn't work with touch
-      taskHandle.addEventListener("touchstart", (e) => {
+      taskHandle.addEventListener("touchstart", (_) => {
         taskDiv.setAttribute("draggable", String(true));
       });
-      taskHandle.addEventListener("touchend", (e) => {
+      taskHandle.addEventListener("touchend", (_) => {
         taskDiv.setAttribute("draggable", String(false));
       });
 
@@ -802,7 +802,7 @@ function renderTasksFromJSON(tasks: Task[]) {
           b.classList.remove(hoverClass);
         });
         const destinationStatus = (taskDiv.parentNode as HTMLDivElement)
-          .dataset["status"];
+          .dataset["status"]!;
         void updateTaskById(
           task.id,
           destinationStatus,
