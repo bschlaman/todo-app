@@ -14,6 +14,7 @@ import {
   NULL_STORY_IDENTIFIER,
 } from "./common.js";
 import { Story, Sprint, Task, TaskComment, Config } from "./model";
+
 import DOMPurify from "dompurify";
 import { marked } from "marked";
 

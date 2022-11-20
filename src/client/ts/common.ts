@@ -48,6 +48,18 @@ export const STATUSES = [
   "DEADLINE PASSED",
 ];
 
+export const TAG_COLORS = {
+  "Todo App": "green",
+  Work: "blue",
+  Music: "red",
+  "Chess Engine": "darkgoldenrod",
+  Life: "purple",
+  Piano: "darkgrey",
+  Guitar: "brown",
+  "Intellectual Pursuits": "darkblue",
+  "Machine Learning": "darkred",
+} as const;
+
 // since tasks may not have a parent story, we need something
 // to display as a stand-in in UI elements such as task cards
 // and the story selector during task creation.  Note that this
@@ -143,10 +155,10 @@ export async function getTags(): Promise<Tag[]> {
   }
 }
 
-export async function getTagAssignments(): Promise<TagAssignment> {
+export async function getTagAssignments(): Promise<TagAssignment[]> {
   try {
     const res = await fetch(routes.getTagAssignments, { method: "GET" });
-    return (await handleApiRes(res)) as TagAssignment;
+    return (await handleApiRes(res)) as TagAssignment[];
   } catch (err) {
     if (err instanceof Error) handleApiErr(err);
     throw err;
@@ -156,7 +168,7 @@ export async function getTagAssignments(): Promise<TagAssignment> {
 export async function createTask(
   title: string,
   description: string,
-  storyId: string,
+  storyId: string | null,
   bulkTask = false
 ): Promise<JSON> {
   const res = await fetch(routes.createTask, {
