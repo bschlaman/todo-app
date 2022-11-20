@@ -14,6 +14,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/sts"
 	"github.com/bschlaman/b-utils/pkg/logger"
 	"github.com/bschlaman/b-utils/pkg/utils"
+	"github.com/bschlaman/todo-app/database"
 	"github.com/google/uuid"
 )
 
@@ -22,8 +23,8 @@ const (
 	serverName           string        = "TODO-APP-SERVER"
 	logPath              string        = "logs/output.log"
 	staticDir            string        = "dist"
-	sprintDuration       time.Duration = time.Hour * 24 * 14
-	sessionDuration      time.Duration = 1 * time.Hour
+	sprintDuration       time.Duration = 24 * 14 * time.Hour
+	sessionDuration      time.Duration = 2 * time.Hour
 	allowClearSessionAPI bool          = false
 	metricNamespace      string        = "todo-app/api"
 )
@@ -81,6 +82,7 @@ func init() {
 		panic(err)
 	}
 	mw := io.MultiWriter(file, os.Stdout)
+
 	// aws config and clients
 	cfg, err := config.LoadDefaultConfig(context.TODO())
 	if err != nil {
@@ -90,8 +92,7 @@ func init() {
 
 	// init globals
 	sessions = make(map[string]Session)
-	loginPw := os.Getenv("LOGIN_PW")
-	env = &Env{logger.New(mw), cfg, cwClient, loginPw}
+	env = &Env{logger.New(mw), cfg, cwClient, os.Getenv("LOGIN_PW")}
 	log = env.Log
 }
 
@@ -108,11 +109,6 @@ func main() {
 	if allowClearSessionAPI {
 		http.Handle("/api/clear_sessions", clearSessionsHandle())
 	}
-
-	// currently using schlamalama.com/favicon.ico
-	// http.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
-	// 	http.ServeFile(w, r, path.Join("..", staticDir, "favicon.png"))
-	// })
 
 	apiRoutes := []struct {
 		Path    string
@@ -156,11 +152,20 @@ func main() {
 			)))
 	}
 
-	// Make sure we're authenticated
+	// Make sure we can connect to the database
+	conn, err := database.GetPgxConn()
+	if err != nil || conn.Ping(context.Background()) != nil {
+		log.Fatal(err)
+	}
+	log.Infof("using db: %+v", database.PrintableConnDetails(conn.Config()))
+
+	log.Infof("using aws region: %s", env.AWSCfg.Region)
+
+	// Make sure we're authenticated with aws
 	stsClient := sts.NewFromConfig(env.AWSCfg)
 	res, err := stsClient.GetCallerIdentity(context.TODO(), &sts.GetCallerIdentityInput{})
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	id := struct {
 		Account string
@@ -169,9 +174,10 @@ func main() {
 	}{*res.Account, *res.Arn, *res.UserId}
 	log.Infof("using aws creds: %+v", id)
 
+	// Start the server
 	port := os.Getenv("SERVER_PORT")
 	if port == "" {
-		panic("SERVER_PORT env var not set")
+		log.Fatal("SERVER_PORT env var not set")
 	}
 	log.Info("starting http server on port", port)
 	log.Fatal(http.ListenAndServe(port, nil))
