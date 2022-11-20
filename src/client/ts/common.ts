@@ -1,5 +1,16 @@
 // GLOBAL CONSTS
 
+import {
+  CheckSessionRes,
+  Task,
+  Story,
+  Sprint,
+  Tag,
+  TagAssignment,
+  TaskComment,
+  Config,
+} from "./model";
+
 const routes = {
   checkSession: "/api/check_session",
   simulateLatency: "/api/echodelay?t=2",

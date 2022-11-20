@@ -1,8 +1,8 @@
-interface CheckSessionRes {
+export interface CheckSessionRes {
   sessionTimeRemainingSeconds: number;
 }
 
-interface Config {
+export interface Config {
   comment_max_len: number;
   server_name: string;
   sprint_duration_seconds: number;
@@ -15,7 +15,7 @@ interface Config {
   task_title_max_len: number;
 }
 
-interface Task {
+export interface Task {
   id: string;
   created_at: string;
   updated_at: string;
@@ -27,7 +27,7 @@ interface Task {
   bulk_task: string;
 }
 
-interface TaskComment {
+export interface TaskComment {
   id: string;
   task_id: string;
   created_at: string;
@@ -36,7 +36,7 @@ interface TaskComment {
   edited: string;
 }
 
-interface Tag {
+export interface Tag {
   id: string;
   created_at: string;
   updated_at: string;
@@ -46,14 +46,14 @@ interface Tag {
   edited: string;
 }
 
-interface TagAssignment {
+export interface TagAssignment {
   id: string;
   created_at: string;
   tag_id: string;
   story_id: string;
 }
 
-interface Sprint {
+export interface Sprint {
   id: string;
   created_at: string;
   updated_at: string;
@@ -63,7 +63,7 @@ interface Sprint {
   edited: string;
 }
 
-interface Story {
+export interface Story {
   id: string;
   created_at: string;
   updated_at: string;

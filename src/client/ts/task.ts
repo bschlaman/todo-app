@@ -13,6 +13,7 @@ import {
   formatDate,
   NULL_STORY_IDENTIFIER,
 } from "./common.js";
+import { Story, Sprint, Task, TaskComment, Config } from "./model";
 import DOMPurify from "dompurify";
 import { marked } from "marked";
 
@@ -59,7 +60,7 @@ const createCommentButton = createCommentForm.querySelector(
   "button"
 ) as HTMLButtonElement;
 
-let serverConfig = {} as Config;
+let serverConfig: Config = {}; // not exactly sure how to fix this in ts yet
 // stores story data by story_id
 const storyDataCache = new Map<string, Story>();
 // stores sprint data by sprint_id
@@ -122,18 +123,18 @@ taskDescCheckBox.addEventListener("change", (_) => {
   }
 });
 
-taskSave.addEventListener("click", async (_) => {
-  const res = await updateTaskById(
+taskSave.addEventListener("click", (_) => {
+  void updateTaskById(
     taskIdFromPath,
     taskStatus.value,
-    taskTitle.textContent!, // no newlines should be present
+    taskTitle.innerText.trim(), // no newlines should be present
     taskDesc.innerText, // possible newlines
     taskStorySelector.value === NULL_STORY_IDENTIFIER
       ? null
       : taskStorySelector.value
-  );
-  if (!res) return;
-  location.reload();
+  ).then((_) => {
+    location.reload();
+  });
 });
 
 // TODO (2022.09.29): ideally, I grab the whole url, but for now that is a security concern
@@ -141,20 +142,19 @@ const copyToClipboardButton = document.querySelector(
   ".copy-to-clipboard"
 ) as HTMLButtonElement;
 copyToClipboardButton.onclick = (_) => {
-  navigator.clipboard.writeText(window.location.pathname);
+  void navigator.clipboard.writeText(window.location.pathname);
 };
 
-createCommentForm.addEventListener("submit", async (e) => {
+createCommentForm.addEventListener("submit", (e) => {
   e.preventDefault(); // prevent submit default behavior
-  const res = await createComment(
-    taskIdFromPath,
-    String(createCommentTextInput.value)
+  void createComment(taskIdFromPath, String(createCommentTextInput.value)).then(
+    (_) => {
+      clearInputValues(createCommentTextInput);
+      void getCommentsByTaskId(taskIdFromPath).then((comments) => {
+        renderCommentsFromJSON(comments);
+      });
+    }
   );
-  if (!res) return;
-  clearInputValues(createCommentTextInput);
-  getCommentsByTaskId(taskIdFromPath).then((comments) => {
-    renderCommentsFromJSON(comments);
-  });
 });
 
 createCommentTextInput.addEventListener("keydown", (e) => {
@@ -218,20 +218,23 @@ function renderTask(task: Task) {
   Array.from(storyDataCache.values()).forEach((story) => {
     if (!sprintBuckets.has(story.sprint_id))
       sprintBuckets.set(story.sprint_id, []);
-    sprintBuckets.get(story.sprint_id)!.push(story);
+    sprintBuckets.get(story.sprint_id)?.push(story);
   });
   // loop through the sorted keys (sprintIds)
   Array.from(sprintBuckets.keys())
     .sort((sprintId0, sprintId1) => {
       return (
-        new Date(sprintDataCache.get(sprintId1)!.start_date).getSeconds() -
-        new Date(sprintDataCache.get(sprintId0)!.start_date).getSeconds()
+        new Date(sprintDataCache.get(sprintId1)?.start_date ?? 0).getSeconds() -
+        new Date(sprintDataCache.get(sprintId0)?.start_date ?? 0).getSeconds()
       );
     })
     .forEach((sprintId) => {
       const optGroup = document.createElement("optgroup");
-      optGroup.setAttribute("label", sprintDataCache.get(sprintId)!.title);
-      sprintBuckets.get(sprintId)!.forEach((story) => {
+      optGroup.setAttribute(
+        "label",
+        sprintDataCache.get(sprintId)?.title ?? ""
+      );
+      sprintBuckets.get(sprintId)?.forEach((story) => {
         const option = document.createElement("option");
         option.setAttribute("value", story.id);
         option.textContent = story.title;
@@ -243,7 +246,7 @@ function renderTask(task: Task) {
 }
 
 function renderCommentsFromJSON(comments: TaskComment[]) {
-  if (!comments) {
+  if (comments.length === 0) {
     console.warn("no comments to render");
     return;
   }
