@@ -225,8 +225,8 @@ function renderTask(task: Task) {
   Array.from(sprintBuckets.keys())
     .sort((sprintId0, sprintId1) => {
       return (
-        new Date(sprintDataCache.get(sprintId1)?.start_date ?? 0).getSeconds() -
-        new Date(sprintDataCache.get(sprintId0)?.start_date ?? 0).getSeconds()
+        new Date(sprintDataCache.get(sprintId1)?.start_date ?? 0).getTime() -
+        new Date(sprintDataCache.get(sprintId0)?.start_date ?? 0).getTime()
       );
     })
     .forEach((sprintId) => {
@@ -258,8 +258,8 @@ function renderCommentsFromJSON(comments: TaskComment[]) {
   comments
     .sort((c0, c1) => {
       return (
-        new Date(c0.created_at).getSeconds() -
-        new Date(c1.created_at).getSeconds()
+        new Date(c0.created_at).getTime() -
+        new Date(c1.created_at).getTime()
       );
     })
     .forEach((comment) => {
