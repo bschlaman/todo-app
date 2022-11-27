@@ -21,7 +21,7 @@ import {
   destroyTagAssignment,
   TAG_COLORS,
 } from "./common";
-import { Config, Sprint, Story, Tag, TagAssignment, Task } from "./model";
+import { Config, Sprint, Story, Tag, TagAssignment, Task } from "./model/domain";
 
 import DOMPurify from "dompurify";
 import { marked } from "marked";
@@ -693,17 +693,15 @@ function renderTasksFromJSON(tasks: Task[]) {
   });
 
   const selectedTagIds = new Set<string>();
-  (
-    document.querySelectorAll(
-      ".tags-wrapper input"
-    ) as any as HTMLInputElement[]
-  )
-    .filter((tagCheckBox) => tagCheckBox.checked)
-    .forEach((tagCheckBox) => {
-      if (tagCheckBox.dataset["tag_id"] === undefined)
-        throw new Error("tag_id not set in tag checkbox dataset");
-      selectedTagIds.add(tagCheckBox.dataset["tag_id"]);
-    });
+  const tagCheckBoxes: NodeListOf<HTMLInputElement> = document.querySelectorAll(
+    ".tags-wrapper input"
+  );
+  tagCheckBoxes.forEach((tagCheckBox) => {
+    if (!tagCheckBox.checked) return;
+    if (tagCheckBox.dataset["tag_id"] === undefined)
+      throw new Error("tag_id not set in tag checkbox dataset");
+    selectedTagIds.add(tagCheckBox.dataset["tag_id"]);
+  });
   tasks
     .filter((t) => {
       // if there is no parent story, render it always
@@ -1011,7 +1009,11 @@ async function bulkCreateTasks(
   const sprint = sprintDataCache.get(story.sprint_id) as Sprint;
   const sprintStart = new Date(sprint.start_date);
   const sprintEnd = new Date(sprint.end_date);
-  for (let d = sprintStart; d <= sprintEnd; d.setUTCDate(d.getUTCDate() + 1)) {
+  for (
+    const d = sprintStart;
+    d <= sprintEnd;
+    d.setUTCDate(d.getUTCDate() + 1)
+  ) {
     const monthString = String(d.getUTCMonth() + 1).padStart(2, "0");
     const dateString = String(d.getUTCDate()).padStart(2, "0");
     const prefix = `[${monthString}.${dateString}] `;

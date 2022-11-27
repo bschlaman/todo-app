@@ -13,7 +13,7 @@ import {
   formatDate,
   NULL_STORY_IDENTIFIER,
 } from "./common";
-import { Story, Sprint, Task, TaskComment, Config } from "./model";
+import { Story, Sprint, Task, TaskComment, Config } from "./model/domain";
 
 import DOMPurify from "dompurify";
 import { marked } from "marked";

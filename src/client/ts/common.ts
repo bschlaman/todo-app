@@ -9,7 +9,8 @@ import {
   TagAssignment,
   TaskComment,
   Config,
-} from "./model";
+} from "./model/domain";
+import { CreateStoryRes } from "./model/responses";
 
 const routes = {
   checkSession: "/api/check_session",
@@ -191,7 +192,7 @@ export async function createStory(
   title: string,
   description: string,
   sprintId: string
-): Promise<JSON> {
+): Promise<CreateStoryRes> {
   const res = await fetch(routes.createStory, {
     method: "POST",
     headers: {
