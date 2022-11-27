@@ -550,15 +550,17 @@ func GetStories(log *logger.BLogger) ([]Story, error) {
 	return stories, nil
 }
 
-func CreateStory(log *logger.BLogger, createReq CreateStoryReq) error {
+func CreateStory(log *logger.BLogger, createReq CreateStoryReq) (string, error) {
 	conn, err := database.GetPgxConn()
 	if err != nil {
 		log.Errorf("unable to connect to database: %v", err)
-		return err
+		return "", err
 	}
 	defer conn.Close(context.Background())
 
-	_, err = conn.Exec(context.Background(),
+	var id string
+
+	err = conn.QueryRow(context.Background(),
 		`INSERT INTO stories (
 				updated_at,
 				title,
@@ -569,17 +571,17 @@ func CreateStory(log *logger.BLogger, createReq CreateStoryReq) error {
 				$1,
 				$2,
 				$3
-			);`,
+			) RETURNING id`,
 		createReq.Title,
 		createReq.Description,
 		createReq.SprintId,
-	)
+	).Scan(&id)
 	if err != nil {
 		log.Errorf("Exec failed: %v", err)
-		return err
+		return "", err
 	}
 
-	return nil
+	return id, nil
 }
 
 func GetTags(log *logger.BLogger) ([]Tag, error) {

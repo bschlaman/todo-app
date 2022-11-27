@@ -381,26 +381,24 @@ createStorySaveButton.addEventListener("click", (_) => {
     createStoryTitleInput.value,
     createStoryDescInput.value,
     createStorySelectInput.value
-  ).then(() => {
+  ).then(async (res) => {
+    await Array.from(createStoryTags.querySelectorAll("input"))
+      .filter(tagCheckBox => (tagCheckBox as HTMLInputElement).checked)
+      .forEach(async tagCheckBox => {
+        await createTagAssignment(tagCheckBox.dataset["tag_id"]!, res.id).then(
+          _ => {
+            console.log(
+              "Created tag assignment",
+              tagCheckBox.dataset["tag_id"],
+              res.id
+            );
+          }
+        );
+      });
+  }).then(_ => {
     clearInputValues(createStoryTitleInput, createStoryDescInput);
     location.reload();
   });
-  // TODO (2022.10.24): this will require a change to the model
-  // wherein I receive the story id back from story creation
-  // create the tag assignments
-  // Array.from(createStoryTags.querySelectorAll("input"))
-  // 	.filter(tagCheckBox => tagCheckBox.checked)
-  // 	.forEach(async tagCheckBox => {
-  // 		await createTagAssignment(tagCheckBox.dataset.tag_id, story.id).then(
-  // 			_ => {
-  // 				console.log(
-  // 					"Created tag assignment",
-  // 					tagCheckBox.dataset.tag_id,
-  // 					story.id
-  // 				);
-  // 			}
-  // 		);
-  // 	});
 });
 // END CREATE STORY MODAL ============================
 

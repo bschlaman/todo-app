@@ -363,12 +363,22 @@ func createStoryHandle() http.Handler {
 			return
 		}
 
-		err := model.CreateStory(env.Log, createReq)
+		id, err := model.CreateStory(env.Log, createReq)
 		if err != nil {
 			log.Errorf("task creation failed: %v", err)
 			http.Error(w, "something went wrong", http.StatusInternalServerError)
 			return
 		}
+
+		js, err := json.Marshal(&model.CreateStoryResponse{id})
+		if err != nil {
+			log.Errorf("json.Marshal failed: %v", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(js)
 	})
 }
 
