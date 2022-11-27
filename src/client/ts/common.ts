@@ -1,7 +1,6 @@
 // GLOBAL CONSTS
 
 import {
-  CheckSessionRes,
   Task,
   Story,
   Sprint,
@@ -10,7 +9,7 @@ import {
   TaskComment,
   Config,
 } from "./model/domain";
-import { CreateStoryRes } from "./model/responses";
+import { CheckSessionRes, CreateStoryRes } from "./model/responses";
 
 const routes = {
   checkSession: "/api/check_session",

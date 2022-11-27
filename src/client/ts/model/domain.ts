@@ -1,7 +1,3 @@
-export interface CheckSessionRes {
-  session_time_remaining_seconds: number;
-}
-
 export interface Config {
   comment_max_len: number;
   server_name: string;
