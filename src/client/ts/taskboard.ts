@@ -21,7 +21,14 @@ import {
   destroyTagAssignment,
   TAG_COLORS,
 } from "./common";
-import { Config, Sprint, Story, Tag, TagAssignment, Task } from "./model/domain";
+import {
+  Config,
+  Sprint,
+  Story,
+  Tag,
+  TagAssignment,
+  Task,
+} from "./model/domain";
 
 import DOMPurify from "dompurify";
 import { marked } from "marked";
@@ -1011,6 +1018,7 @@ async function bulkCreateTasks(
   const sprintEnd = new Date(sprint.end_date);
   for (
     const d = sprintStart;
+    // eslint-disable-next-line no-unmodified-loop-condition
     d <= sprintEnd;
     d.setUTCDate(d.getUTCDate() + 1)
   ) {

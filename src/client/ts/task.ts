@@ -258,8 +258,7 @@ function renderCommentsFromJSON(comments: TaskComment[]) {
   comments
     .sort((c0, c1) => {
       return (
-        new Date(c0.created_at).getTime() -
-        new Date(c1.created_at).getTime()
+        new Date(c0.created_at).getTime() - new Date(c1.created_at).getTime()
       );
     })
     .forEach((comment) => {
