@@ -381,12 +381,15 @@ createStorySaveButton.addEventListener("click", (_) => {
     createStoryTitleInput.value,
     createStoryDescInput.value,
     createStorySelectInput.value
-  ).then(async (res) => {
-    await Array.from(createStoryTags.querySelectorAll("input"))
-      .filter(tagCheckBox => (tagCheckBox as HTMLInputElement).checked)
-      .forEach(async tagCheckBox => {
-        await createTagAssignment(tagCheckBox.dataset["tag_id"]!, res.id).then(
-          _ => {
+  )
+    .then(async (res) => {
+      for (const tagCheckBox of Array.from(
+        createStoryTags.querySelectorAll("input")
+      ).filter((tcb) => tcb.checked)) {
+        if (tagCheckBox.dataset["tag_id"] === undefined)
+          throw new Error("tag_id not set in tag checkbox dataset");
+        await createTagAssignment(tagCheckBox.dataset["tag_id"], res.id).then(
+          (_) => {
             console.log(
               "Created tag assignment",
               tagCheckBox.dataset["tag_id"],
@@ -394,11 +397,12 @@ createStorySaveButton.addEventListener("click", (_) => {
             );
           }
         );
-      });
-  }).then(_ => {
-    clearInputValues(createStoryTitleInput, createStoryDescInput);
-    location.reload();
-  });
+      }
+    })
+    .then((_) => {
+      clearInputValues(createStoryTitleInput, createStoryDescInput);
+      location.reload();
+    });
 });
 // END CREATE STORY MODAL ============================
 
@@ -689,12 +693,17 @@ function renderTasksFromJSON(tasks: Task[]) {
   });
 
   const selectedTagIds = new Set<string>();
-  document.querySelectorAll(".tags-wrapper input").forEach((tagCheckBox) => {
-    if ((tagCheckBox as HTMLInputElement).checked)
-      selectedTagIds.add(
-        (tagCheckBox as HTMLInputElement).dataset["tag_id"] ?? ""
-      );
-  });
+  (
+    document.querySelectorAll(
+      ".tags-wrapper input"
+    ) as any as HTMLInputElement[]
+  )
+    .filter((tagCheckBox) => tagCheckBox.checked)
+    .forEach((tagCheckBox) => {
+      if (tagCheckBox.dataset["tag_id"] === undefined)
+        throw new Error("tag_id not set in tag checkbox dataset");
+      selectedTagIds.add(tagCheckBox.dataset["tag_id"]);
+    });
   tasks
     .filter((t) => {
       // if there is no parent story, render it always
@@ -800,7 +809,9 @@ function renderTasksFromJSON(tasks: Task[]) {
           b.classList.remove(hoverClass);
         });
         const destinationStatus = (taskDiv.parentNode as HTMLDivElement)
-          .dataset["status"]!;
+          .dataset["status"];
+        if (destinationStatus === undefined)
+          throw new Error("status not set in bucket dataset");
         void updateTaskById(
           task.id,
           destinationStatus,
@@ -977,12 +988,12 @@ function renderStories() {
 }
 
 function setLocalStorageSelectedTags() {
-  const selectedTagIds = [...document.querySelectorAll(".tags-wrapper input")]
-    .filter((tagCheckBox) => {
-      return (tagCheckBox as HTMLInputElement).checked;
-    })
+  const selectedTagIds = (
+    [...document.querySelectorAll(".tags-wrapper input")] as HTMLInputElement[]
+  )
+    .filter((tagCheckBox) => tagCheckBox.checked)
     .map((e) => {
-      return (e as HTMLInputElement).dataset["tag_id"];
+      return e.dataset["tag_id"];
     });
 
   localStorage.setItem(
