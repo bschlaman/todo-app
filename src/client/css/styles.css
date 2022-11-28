@@ -153,16 +153,17 @@ code {
 	border-left: 5px solid var(--color3);
 }
 .task.bulk-task
-	:not(.task-title, .task-created-at, .task-edit-link, .task-handle, .task-bulk-task-indicator) {
+	:not(.task-title, .task-edit-link, .task-handle, .task-bulk-task-indicator, .task-tags, .task-tags
+		> *) {
 	display: none;
 }
 .task.bulk-task .task-title {
 	display: inline-block;
-	margin: 0;
+	margin: 0 0 0.5rem 0;
 }
-.task.bulk-task .task-created-at,
 .task.bulk-task .task-bulk-task-indicator {
-	float: right;
+	position: absolute;
+	top: 0;
 	font-size: 0.8rem;
 }
 

@@ -687,6 +687,7 @@ function getClosestTaskBelowCursor(bucket: HTMLDivElement, y: number) {
 function renderTasksFromJSON(tasks: Task[]) {
   if (tasks.length === 0) {
     console.warn("no tasks to render!");
+    return;
   }
   if (sprintSelect.value === "") {
     console.error(
@@ -727,6 +728,11 @@ function renderTasksFromJSON(tasks: Task[]) {
 
       // default: don't render the task
       return false;
+    })
+    .sort((t0, t1) => {
+      if(t0.bulk_task && t1.bulk_task)
+        return t0.title.localeCompare(t1.title)
+      return t0.bulk_task ? 1 : 0;
     })
     .forEach((task) => {
       const taskDiv = document.createElement("div");

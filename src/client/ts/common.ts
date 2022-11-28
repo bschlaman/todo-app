@@ -431,7 +431,6 @@ async function handleApiRes(res: Response) {
   } catch (err) {
     console.warn("response was not json:", new URL(res.url).pathname);
   }
-  return await res.text(); // gotta return something
 }
 
 // handleApiRes handles the common error path for API calls.
