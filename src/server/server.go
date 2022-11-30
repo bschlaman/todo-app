@@ -27,6 +27,8 @@ const (
 	sessionDuration      time.Duration = 2 * time.Hour
 	allowClearSessionAPI bool          = false
 	metricNamespace      string        = "todo-app/api"
+	referenceIdKey       string        = "refIdKey"
+	getRequestBytesKey   string        = "getReqKey"
 )
 
 // global variables for dependence injection
@@ -143,6 +145,7 @@ func main() {
 	}
 	for _, route := range apiRoutes {
 		http.Handle(route.Path, utils.LogReq(log)(
+			// TODO (2022.11.30): chain middleware; don't nest
 			logEventMiddleware(
 				putAPILatencyMetricMiddleware(
 					incrementAPIMetricMiddleware(
@@ -156,7 +159,6 @@ func main() {
 				route.ApiName,
 				route.ApiType,
 				env.CallerId,
-				"TODO",
 			)))
 	}
 

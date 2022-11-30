@@ -113,10 +113,18 @@ func putAPILatencyMetricMiddleware(h http.Handler, apiName, apiType string) http
 	})
 }
 
-func logEventMiddleware(h http.Handler, apiName, apiType, callerId, referenceId string) http.Handler {
+func logEventMiddleware(h http.Handler, apiName, apiType, callerId string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
+
 		h.ServeHTTP(w, r)
-		go logEvent(env.Log, time.Since(start), apiName, apiType, callerId, referenceId)
+
+		// TODO (2022.11.30): implement for all Create type apis
+		// additionally, set the response json size in the request context in handlers
+		referenceId, _ := r.Context().Value(referenceIdKey).(string)
+
+		getRequestBytes, _ := r.Context().Value(getRequestBytesKey).(int)
+
+		go logEvent(env.Log, time.Since(start), apiName, apiType, callerId, &referenceId, &getRequestBytes)
 	})
 }

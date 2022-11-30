@@ -8,7 +8,14 @@ import (
 	"github.com/bschlaman/todo-app/database"
 )
 
-func logEvent(log *logger.BLogger, latency time.Duration, apiName, apiType, callerId, referenceId string) error {
+// TODO (2022.11.30): this should belong to the model
+func logEvent(
+	log *logger.BLogger,
+	latency time.Duration,
+	apiName, apiType, callerId string,
+	createEntityId *string,
+	getResponseBytes *int,
+) error {
 	conn, err := database.GetPgxConn()
 	if err != nil {
 		log.Errorf("unable to connect to database: %v", err)
@@ -21,19 +28,22 @@ func logEvent(log *logger.BLogger, latency time.Duration, apiName, apiType, call
 				caller_id,
 				action,
 				action_type,
-				reference_id,
+				create_entity_id,
+				get_response_bytes,
 				latency
 			) VALUES (
 				$1,
 				$2,
 				$3,
 				$4,
-				$5
+				$5,
+				$6
 			);`,
 		callerId,
 		apiName,
 		apiType,
-		referenceId,
+		createEntityId,
+		getResponseBytes,
 		latency,
 	)
 	if err != nil {

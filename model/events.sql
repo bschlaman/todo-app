@@ -46,6 +46,7 @@ CREATE TABLE IF NOT EXISTS public.events
 		caller_id character varying(150) NOT NULL,
 		action event_action NOT NULL,
 		action_type event_action_type NOT NULL,
-		reference_id character varying(150) NOT NULL,
+		create_entity_id character varying(150),
+		get_response_bytes bigint,
 		latency interval NOT NULL
 );

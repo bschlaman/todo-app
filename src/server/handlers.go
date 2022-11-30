@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -215,6 +216,8 @@ func getTasksHandle() http.Handler {
 			return
 		}
 
+		*r = *r.WithContext(context.WithValue(r.Context(), getRequestBytesKey, len(js)))
+
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(js)
 	})
@@ -370,12 +373,16 @@ func createStoryHandle() http.Handler {
 			return
 		}
 
+		*r = *r.WithContext(context.WithValue(r.Context(), referenceIdKey, id))
+
 		js, err := json.Marshal(&model.CreateStoryResponse{id})
 		if err != nil {
 			log.Errorf("json.Marshal failed: %v", err)
 			http.Error(w, "something went wrong", http.StatusInternalServerError)
 			return
 		}
+
+		*r = *r.WithContext(context.WithValue(r.Context(), getRequestBytesKey, len(js)))
 
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(js)
