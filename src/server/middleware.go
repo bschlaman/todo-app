@@ -37,7 +37,7 @@ func sessionMiddleware(h http.Handler) http.Handler {
 		// "session" not present in cookie, or cookie not present at all
 		cookie, err := r.Cookie("session")
 		if err != nil {
-			log.Info("invalid cookie: no session in cookie")
+			log.Infof("invalid cookie: no session in cookie: %s %s", r.RemoteAddr, r.UserAgent())
 			if strings.HasPrefix(r.URL.Path, "/api") {
 				http.Error(w, "invalid cookie", http.StatusUnauthorized)
 			} else {
@@ -110,5 +110,13 @@ func putAPILatencyMetricMiddleware(h http.Handler, apiName, apiType string) http
 		start := time.Now()
 		h.ServeHTTP(w, r)
 		go putLatencyMetric(time.Since(start), apiName, apiType)
+	})
+}
+
+func logEventMiddleware(h http.Handler, apiName, apiType, callerId, referenceId string) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+		h.ServeHTTP(w, r)
+		go logEvent(env.Log, time.Since(start), apiName, apiType, callerId, referenceId)
 	})
 }

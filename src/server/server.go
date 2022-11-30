@@ -35,6 +35,7 @@ type Env struct {
 	AWSCfg      aws.Config
 	AWSCWClient *cloudwatch.Client
 	LoginPw     string
+	CallerId    string
 	// future state: possibly store db connection here
 }
 
@@ -92,7 +93,7 @@ func init() {
 
 	// init globals
 	sessions = make(map[string]Session)
-	env = &Env{logger.New(mw), cfg, cwClient, os.Getenv("LOGIN_PW")}
+	env = &Env{logger.New(mw), cfg, cwClient, os.Getenv("LOGIN_PW"), os.Getenv("CALLER_ID")}
 	log = env.Log
 }
 
@@ -110,6 +111,7 @@ func main() {
 		http.Handle("/api/clear_sessions", clearSessionsHandle())
 	}
 
+	// TODO (2022.11.29): should this mapping be part of config, or at the very least the model?
 	apiRoutes := []struct {
 		Path    string
 		Handler func() http.Handler
@@ -141,14 +143,20 @@ func main() {
 	}
 	for _, route := range apiRoutes {
 		http.Handle(route.Path, utils.LogReq(log)(
-			putAPILatencyMetricMiddleware(
-				incrementAPIMetricMiddleware(
-					sessionMiddleware(route.Handler()),
+			logEventMiddleware(
+				putAPILatencyMetricMiddleware(
+					incrementAPIMetricMiddleware(
+						sessionMiddleware(route.Handler()),
+						route.ApiName,
+						route.ApiType,
+					),
 					route.ApiName,
 					route.ApiType,
 				),
 				route.ApiName,
 				route.ApiType,
+				env.CallerId,
+				"TODO",
 			)))
 	}
 
@@ -173,6 +181,11 @@ func main() {
 		UserId  string
 	}{*res.Account, *res.Arn, *res.UserId}
 	log.Infof("using aws creds: %+v", id)
+
+	if env.CallerId == "" {
+		log.Fatal("CALLER_ID env var not set")
+	}
+	log.Infof("using caller identity: %s", env.CallerId)
 
 	// Start the server
 	port := os.Getenv("SERVER_PORT")
