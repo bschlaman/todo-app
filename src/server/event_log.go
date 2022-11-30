@@ -53,3 +53,11 @@ func logEvent(
 
 	return nil
 }
+
+func logEventApplicationStartup(
+	log *logger.BLogger,
+	latency time.Duration,
+	callerId string,
+) error {
+	return logEvent(log, latency, "AppStartup", "Util", callerId, nil, nil)
+}

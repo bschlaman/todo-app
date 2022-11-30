@@ -31,6 +31,8 @@ const (
 	getRequestBytesKey   string        = "getReqKey"
 )
 
+var serverStart = time.Now()
+
 // global variables for dependence injection
 type Env struct {
 	Log         *logger.BLogger
@@ -188,6 +190,11 @@ func main() {
 		log.Fatal("CALLER_ID env var not set")
 	}
 	log.Infof("using caller identity: %s", env.CallerId)
+
+	// server startup event log
+	serverStartDuration := time.Since(serverStart)
+	logEventApplicationStartup(log, serverStartDuration, env.CallerId)
+	log.Infof("server start duration: %s", serverStartDuration)
 
 	// Start the server
 	port := os.Getenv("SERVER_PORT")
