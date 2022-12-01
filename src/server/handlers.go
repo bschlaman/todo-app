@@ -54,7 +54,6 @@ func loginHandle() http.Handler {
 		}
 		log.Infof("incorrect pw: %v", pass)
 		http.Error(w, "incorrect pw", http.StatusUnauthorized)
-		return
 		// }
 	})
 }
@@ -67,7 +66,7 @@ func checkSessionHandle() http.Handler {
 
 		timeRemaining := sessionDuration - time.Now().Sub(s.CreatedAt)
 
-		res, err := json.Marshal(&struct {
+		js, err := json.Marshal(&struct {
 			TimeRemainingSeconds int `json:"session_time_remaining_seconds"`
 		}{
 			int(timeRemaining.Seconds()),
@@ -75,16 +74,18 @@ func checkSessionHandle() http.Handler {
 		if err != nil {
 			http.Error(w, "error getting session", http.StatusInternalServerError)
 		}
+
+		*r = *r.WithContext(context.WithValue(r.Context(), getRequestBytesKey, len(js)))
+
 		w.Header().Set("Content-Type", "application/json")
-		w.Write(res)
-		return
+		w.Write(js)
 	})
 }
 
 func clearSessionsHandle() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		sessions = make(map[string]Session)
-		res, err := json.Marshal(&struct {
+		js, err := json.Marshal(&struct {
 			Message string `json:"message"`
 		}{
 			"ok",
@@ -92,9 +93,11 @@ func clearSessionsHandle() http.Handler {
 		if err != nil {
 			http.Error(w, "error clearing sessions", http.StatusInternalServerError)
 		}
+
+		*r = *r.WithContext(context.WithValue(r.Context(), getRequestBytesKey, len(js)))
+
 		w.Header().Set("Content-Type", "application/json")
-		w.Write(res)
-		return
+		w.Write(js)
 	})
 }
 
@@ -112,6 +115,8 @@ func getConfigHandle() http.Handler {
 			http.Error(w, "something went wrong", http.StatusInternalServerError)
 			return
 		}
+
+		*r = *r.WithContext(context.WithValue(r.Context(), getRequestBytesKey, len(js)))
 
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(js)
@@ -139,6 +144,8 @@ func getCommentsByTaskIdHandle() http.Handler {
 			http.Error(w, "something went wrong", http.StatusInternalServerError)
 			return
 		}
+
+		*r = *r.WithContext(context.WithValue(r.Context(), getRequestBytesKey, len(js)))
 
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(js)
@@ -168,6 +175,8 @@ func getTaskByIdHandle() http.Handler {
 			return
 		}
 
+		*r = *r.WithContext(context.WithValue(r.Context(), getRequestBytesKey, len(js)))
+
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(js)
 	})
@@ -195,6 +204,8 @@ func getStoryByIdHandle() http.Handler {
 			http.Error(w, "something went wrong", http.StatusInternalServerError)
 			return
 		}
+
+		*r = *r.WithContext(context.WithValue(r.Context(), getRequestBytesKey, len(js)))
 
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(js)
@@ -232,12 +243,26 @@ func createTaskHandle() http.Handler {
 			return
 		}
 
-		err := model.CreateTask(env.Log, createReq)
+		entity, err := model.CreateTask(env.Log, createReq)
 		if err != nil {
 			log.Errorf("task creation failed: %v", err)
 			http.Error(w, "something went wrong", http.StatusInternalServerError)
 			return
 		}
+
+		*r = *r.WithContext(context.WithValue(r.Context(), referenceIdKey, entity.Id))
+
+		js, err := json.Marshal(entity)
+		if err != nil {
+			log.Errorf("json.Marshal failed: %v", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+
+		*r = *r.WithContext(context.WithValue(r.Context(), getRequestBytesKey, len(js)))
+
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(js)
 	})
 }
 
@@ -250,7 +275,7 @@ func createCommentHandle() http.Handler {
 			return
 		}
 
-		err := model.CreateComment(env.Log, createReq)
+		entity, err := model.CreateComment(env.Log, createReq)
 		if err != nil {
 			log.Errorf("comment creation failed: %v", err)
 			if errors.Is(err, model.InputError{}) {
@@ -260,6 +285,20 @@ func createCommentHandle() http.Handler {
 			}
 			return
 		}
+
+		*r = *r.WithContext(context.WithValue(r.Context(), referenceIdKey, entity.Id))
+
+		js, err := json.Marshal(entity)
+		if err != nil {
+			log.Errorf("json.Marshal failed: %v", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+
+		*r = *r.WithContext(context.WithValue(r.Context(), getRequestBytesKey, len(js)))
+
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(js)
 	})
 }
 
@@ -314,6 +353,8 @@ func getSprintsHandle() http.Handler {
 			return
 		}
 
+		*r = *r.WithContext(context.WithValue(r.Context(), getRequestBytesKey, len(js)))
+
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(js)
 	})
@@ -328,12 +369,26 @@ func createSprintHandle() http.Handler {
 			return
 		}
 
-		err := model.CreateSprint(env.Log, createReq)
+		entity, err := model.CreateSprint(env.Log, createReq)
 		if err != nil {
-			log.Errorf("task creation failed: %v", err)
+			log.Errorf("sprint creation failed: %v", err)
 			http.Error(w, "something went wrong", http.StatusInternalServerError)
 			return
 		}
+
+		*r = *r.WithContext(context.WithValue(r.Context(), referenceIdKey, entity.Id))
+
+		js, err := json.Marshal(entity)
+		if err != nil {
+			log.Errorf("json.Marshal failed: %v", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+
+		*r = *r.WithContext(context.WithValue(r.Context(), getRequestBytesKey, len(js)))
+
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(js)
 	})
 }
 
@@ -352,6 +407,8 @@ func getStoriesHandle() http.Handler {
 			return
 		}
 
+		*r = *r.WithContext(context.WithValue(r.Context(), getRequestBytesKey, len(js)))
+
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(js)
 	})
@@ -366,16 +423,16 @@ func createStoryHandle() http.Handler {
 			return
 		}
 
-		id, err := model.CreateStory(env.Log, createReq)
+		entity, err := model.CreateStory(env.Log, createReq)
 		if err != nil {
-			log.Errorf("task creation failed: %v", err)
+			log.Errorf("story creation failed: %v", err)
 			http.Error(w, "something went wrong", http.StatusInternalServerError)
 			return
 		}
 
-		*r = *r.WithContext(context.WithValue(r.Context(), referenceIdKey, id))
+		*r = *r.WithContext(context.WithValue(r.Context(), referenceIdKey, entity.Id))
 
-		js, err := json.Marshal(&model.CreateStoryResponse{id})
+		js, err := json.Marshal(entity)
 		if err != nil {
 			log.Errorf("json.Marshal failed: %v", err)
 			http.Error(w, "something went wrong", http.StatusInternalServerError)
@@ -405,6 +462,8 @@ func getTagsHandle() http.Handler {
 			return
 		}
 
+		*r = *r.WithContext(context.WithValue(r.Context(), getRequestBytesKey, len(js)))
+
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(js)
 	})
@@ -425,6 +484,8 @@ func getTagAssignmentsHandle() http.Handler {
 			return
 		}
 
+		*r = *r.WithContext(context.WithValue(r.Context(), getRequestBytesKey, len(js)))
+
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(js)
 	})
@@ -439,7 +500,7 @@ func createTagAssignmentHandle() http.Handler {
 			return
 		}
 
-		err := model.CreateTagAssignment(env.Log, createReq)
+		entity, err := model.CreateTagAssignment(env.Log, createReq)
 		if err != nil {
 			log.Errorf("tag assignment creation failed: %v", err)
 			if errors.Is(err, model.InputError{}) {
@@ -449,6 +510,20 @@ func createTagAssignmentHandle() http.Handler {
 			}
 			return
 		}
+
+		*r = *r.WithContext(context.WithValue(r.Context(), referenceIdKey, entity.Id))
+
+		js, err := json.Marshal(entity)
+		if err != nil {
+			log.Errorf("json.Marshal failed: %v", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+
+		*r = *r.WithContext(context.WithValue(r.Context(), getRequestBytesKey, len(js)))
+
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(js)
 	})
 }
 
@@ -483,7 +558,7 @@ func createTagHandle() http.Handler {
 			return
 		}
 
-		err := model.CreateTag(env.Log, createReq)
+		entity, err := model.CreateTag(env.Log, createReq)
 		if err != nil {
 			log.Errorf("tag creation failed: %v", err)
 			if errors.Is(err, model.InputError{}) {
@@ -493,5 +568,19 @@ func createTagHandle() http.Handler {
 			}
 			return
 		}
+
+		*r = *r.WithContext(context.WithValue(r.Context(), referenceIdKey, entity.Id))
+
+		js, err := json.Marshal(entity)
+		if err != nil {
+			log.Errorf("json.Marshal failed: %v", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+
+		*r = *r.WithContext(context.WithValue(r.Context(), getRequestBytesKey, len(js)))
+
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(js)
 	})
 }

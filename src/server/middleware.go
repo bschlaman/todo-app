@@ -119,12 +119,10 @@ func logEventMiddleware(h http.Handler, apiName, apiType, callerId string) http.
 
 		h.ServeHTTP(w, r)
 
-		// TODO (2022.11.30): implement for all Create type apis
-		// additionally, set the response json size in the request context in handlers
-		referenceId, _ := r.Context().Value(referenceIdKey).(string)
+		referenceId, _ := r.Context().Value(referenceIdKey).(*string)
 
-		getRequestBytes, _ := r.Context().Value(getRequestBytesKey).(int)
+		getRequestBytes, _ := r.Context().Value(getRequestBytesKey).(*int)
 
-		go logEvent(env.Log, time.Since(start), apiName, apiType, callerId, &referenceId, &getRequestBytes)
+		go logEvent(env.Log, time.Since(start), apiName, apiType, callerId, referenceId, getRequestBytes)
 	})
 }

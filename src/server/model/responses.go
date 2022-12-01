@@ -1,5 +1,5 @@
 package model
 
-type CreateStoryResponse struct {
+type CreateEntityResponse struct {
 	Id string `json:"id"`
 }
