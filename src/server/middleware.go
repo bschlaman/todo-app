@@ -119,10 +119,12 @@ func logEventMiddleware(h http.Handler, apiName, apiType, callerId string) http.
 
 		h.ServeHTTP(w, r)
 
-		referenceId, _ := r.Context().Value(referenceIdKey).(*string)
+		// TODO (2022.12.01): this results in 0 value strings / ints
+		// being sent to the db - figure out a better way
+		referenceId, _ := r.Context().Value(referenceIdKey).(string)
 
-		getRequestBytes, _ := r.Context().Value(getRequestBytesKey).(*int)
+		getRequestBytes, _ := r.Context().Value(getRequestBytesKey).(int)
 
-		go logEvent(env.Log, time.Since(start), apiName, apiType, callerId, referenceId, getRequestBytes)
+		go logEvent(env.Log, time.Since(start), apiName, apiType, callerId, &referenceId, &getRequestBytes)
 	})
 }
