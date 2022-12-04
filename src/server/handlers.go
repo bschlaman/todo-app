@@ -250,7 +250,7 @@ func createTaskHandle() http.Handler {
 			return
 		}
 
-		*r = *r.WithContext(context.WithValue(r.Context(), referenceIdKey, entity.Id))
+		*r = *r.WithContext(context.WithValue(r.Context(), createEntityIdKey, entity.Id))
 
 		js, err := json.Marshal(entity)
 		if err != nil {
@@ -286,7 +286,7 @@ func createCommentHandle() http.Handler {
 			return
 		}
 
-		*r = *r.WithContext(context.WithValue(r.Context(), referenceIdKey, entity.Id))
+		*r = *r.WithContext(context.WithValue(r.Context(), createEntityIdKey, entity.Id))
 
 		js, err := json.Marshal(entity)
 		if err != nil {
@@ -376,7 +376,7 @@ func createSprintHandle() http.Handler {
 			return
 		}
 
-		*r = *r.WithContext(context.WithValue(r.Context(), referenceIdKey, entity.Id))
+		*r = *r.WithContext(context.WithValue(r.Context(), createEntityIdKey, entity.Id))
 
 		js, err := json.Marshal(entity)
 		if err != nil {
@@ -430,7 +430,7 @@ func createStoryHandle() http.Handler {
 			return
 		}
 
-		*r = *r.WithContext(context.WithValue(r.Context(), referenceIdKey, entity.Id))
+		*r = *r.WithContext(context.WithValue(r.Context(), createEntityIdKey, entity.Id))
 
 		js, err := json.Marshal(entity)
 		if err != nil {
@@ -511,7 +511,7 @@ func createTagAssignmentHandle() http.Handler {
 			return
 		}
 
-		*r = *r.WithContext(context.WithValue(r.Context(), referenceIdKey, entity.Id))
+		*r = *r.WithContext(context.WithValue(r.Context(), createEntityIdKey, entity.Id))
 
 		js, err := json.Marshal(entity)
 		if err != nil {
@@ -569,7 +569,7 @@ func createTagHandle() http.Handler {
 			return
 		}
 
-		*r = *r.WithContext(context.WithValue(r.Context(), referenceIdKey, entity.Id))
+		*r = *r.WithContext(context.WithValue(r.Context(), createEntityIdKey, entity.Id))
 
 		js, err := json.Marshal(entity)
 		if err != nil {

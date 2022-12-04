@@ -27,7 +27,7 @@ const (
 	sessionDuration      time.Duration = 2 * time.Hour
 	allowClearSessionAPI bool          = false
 	metricNamespace      string        = "todo-app/api"
-	referenceIdKey       string        = "refIdKey"
+	createEntityIdKey    string        = "createReqIdKey"
 	getRequestBytesKey   string        = "getReqKey"
 )
 
@@ -105,11 +105,11 @@ func main() {
 
 	// special case handlers
 	fs := http.FileServer(http.Dir(path.Join("../..", staticDir)))
-	http.Handle("/", sessionMiddleware(
+	http.Handle("/", utils.LogReq(log)(sessionMiddleware(
 		redirectRootPathMiddleware(
 			matchIdRedirMiddleware(fs),
 		),
-	))
+	)))
 
 	if allowClearSessionAPI {
 		http.Handle("/api/clear_sessions", clearSessionsHandle())

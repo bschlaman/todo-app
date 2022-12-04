@@ -37,7 +37,8 @@ func sessionMiddleware(h http.Handler) http.Handler {
 		// "session" not present in cookie, or cookie not present at all
 		cookie, err := r.Cookie("session")
 		if err != nil {
-			log.Infof("invalid cookie: no session in cookie: %s %s", r.RemoteAddr, r.UserAgent())
+			log.Infof("invalid cookie: no session in cookie")
+			// log.Infof("request details: %s, %s, %s", r.URL.Path, r.RemoteAddr, r.UserAgent())
 			if strings.HasPrefix(r.URL.Path, "/api") {
 				http.Error(w, "invalid cookie", http.StatusUnauthorized)
 			} else {
@@ -121,10 +122,10 @@ func logEventMiddleware(h http.Handler, apiName, apiType, callerId string) http.
 
 		// TODO (2022.12.01): this results in 0 value strings / ints
 		// being sent to the db - figure out a better way
-		referenceId, _ := r.Context().Value(referenceIdKey).(string)
+		createEntityId, _ := r.Context().Value(createEntityIdKey).(string)
 
 		getRequestBytes, _ := r.Context().Value(getRequestBytesKey).(int)
 
-		go logEvent(env.Log, time.Since(start), apiName, apiType, callerId, &referenceId, &getRequestBytes)
+		go logEvent(env.Log, time.Since(start), apiName, apiType, callerId, &createEntityId, &getRequestBytes)
 	})
 }
