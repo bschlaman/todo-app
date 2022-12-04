@@ -151,7 +151,7 @@ func main() {
 			logEventMiddleware(
 				putAPILatencyMetricMiddleware(
 					incrementAPIMetricMiddleware(
-						sessionMiddleware(route.Handler()),
+						sessionMiddleware(enforceJSONHandler(route.Handler())),
 						route.ApiName,
 						route.ApiType,
 					),

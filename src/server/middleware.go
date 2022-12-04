@@ -1,6 +1,7 @@
 package main
 
 import (
+	"mime"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -127,5 +128,33 @@ func logEventMiddleware(h http.Handler, apiName, apiType, callerId string) http.
 		getRequestBytes, _ := r.Context().Value(getRequestBytesKey).(int)
 
 		go logEvent(env.Log, time.Since(start), apiName, apiType, callerId, &createEntityId, &getRequestBytes)
+	})
+}
+
+// TODO (2022.12.03): is this middleware really necessary?
+func enforceJSONHandler(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// don't enforce on GET requests
+		if r.Method == "GET" || r.URL.Path == "/api/login" {
+			h.ServeHTTP(w, r)
+			return
+		}
+
+		contentType := r.Header.Get("Content-Type")
+
+		if contentType != "" {
+			mt, _, err := mime.ParseMediaType(contentType)
+			if err != nil {
+				http.Error(w, "malformed Content-Type header", http.StatusBadRequest)
+				return
+			}
+
+			if mt != "application/json" {
+				http.Error(w, "Content-Type header must be application/json", http.StatusUnsupportedMediaType)
+				return
+			}
+		}
+
+		h.ServeHTTP(w, r)
 	})
 }
