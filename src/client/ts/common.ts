@@ -403,7 +403,7 @@ export function formatDate(date: Date) {
 }
 
 export function formatDateCompact(date: Date) {
-  return `${date.getMonth() + 1}.${date.getUTCDate()}`;
+  return `${date.getUTCMonth() + 1}.${date.getUTCDate()}`;
 }
 
 export function sprintToString(sprint: Sprint) {
