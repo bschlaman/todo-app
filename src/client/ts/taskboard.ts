@@ -731,7 +731,7 @@ function renderTasksFromJSON(tasks: Task[]) {
     })
     .sort((t0, t1) => {
       if(t0.bulk_task && t1.bulk_task)
-        return t0.title.localeCompare(t1.title)
+        return new Date(t0.created_at).getTime() - new Date(t1.created_at).getTime();
       return t0.bulk_task ? 1 : 0;
     })
     .forEach((task) => {
