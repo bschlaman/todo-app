@@ -70,6 +70,11 @@ export const NULL_STORY_IDENTIFIER = "NONE";
 
 export const hoverClass = "droppable-hover";
 
+let ERROR_MESSAGE_PARENT_DIV: HTMLDivElement | undefined = undefined;
+export function setErrorMessageParentDiv(div: HTMLDivElement){
+  ERROR_MESSAGE_PARENT_DIV = div;
+}
+
 // detect when user navigates back to page and check
 // if the session is still valid
 document.addEventListener("visibilitychange", (_) => {
@@ -436,9 +441,12 @@ async function handleApiRes(res: Response) {
 // handleApiRes handles the common error path for API calls.
 function handleApiErr(err: Error) {
   console.error("(handleApiErr) error occured:", err);
-  // TODO (2022.11.07): alert visually in DOM
-  alert(err);
-  // TODO (2022.11.07): should I rethrow the error?
-  // I lean towards no, since I don't necessarily want this
-  // function to encasulate flow control behavior
+  if (ERROR_MESSAGE_PARENT_DIV instanceof HTMLDivElement) {
+    const errorDiv = document.createElement("div");
+    errorDiv.classList.add("error-message");
+    errorDiv.textContent = err.message;
+    ERROR_MESSAGE_PARENT_DIV.appendChild(errorDiv);
+  } else {
+    alert(err);
+  }
 }

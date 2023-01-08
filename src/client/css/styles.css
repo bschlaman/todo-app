@@ -68,6 +68,17 @@ code {
 	### CONTENT
 */
 
+/* error message */
+.error-message {
+	background: #ffcccb;
+	border-radius: 0.5rem;
+	padding: 1rem;
+	border: 2px solid red;
+	font-size: 1rem;
+	margin-bottom: 1rem;
+	text-align: center;
+}
+
 /* buckets */
 .bucket-wrapper {
 	display: flex;

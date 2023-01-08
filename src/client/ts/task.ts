@@ -12,6 +12,7 @@ import {
   formatId,
   formatDate,
   NULL_STORY_IDENTIFIER,
+  setErrorMessageParentDiv,
 } from "./common";
 import { Story, Sprint, Task, TaskComment, Config } from "./model/domain";
 
@@ -20,6 +21,11 @@ import { marked } from "marked";
 
 const path = window.location.pathname;
 const taskIdFromPath = path.substring(path.lastIndexOf("/") + 1);
+
+// tells common.ts where to place the error message
+setErrorMessageParentDiv(
+  document.querySelector(".error-message-parent") as HTMLDivElement
+);
 
 // query DOM objects
 const taskTitle = document.querySelector(".task-title") as HTMLHeadingElement;

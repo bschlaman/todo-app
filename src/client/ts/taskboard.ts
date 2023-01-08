@@ -20,6 +20,7 @@ import {
   createTagAssignment,
   destroyTagAssignment,
   TAG_COLORS,
+  setErrorMessageParentDiv,
 } from "./common";
 import {
   Config,
@@ -33,6 +34,19 @@ import {
 import DOMPurify from "dompurify";
 import { marked } from "marked";
 
+const LOCAL_STORAGE_KEYS = {
+  selectedSprintId: "viewing_sprint_id",
+  selectedTagIds: "selected_tag_ids",
+};
+
+// used as a reference for length assertion
+const BULK_TASK_PREFIX = "[mm.dd] ";
+
+// tells common.ts where to place the error message
+setErrorMessageParentDiv(
+  document.querySelector(".error-message-parent") as HTMLDivElement
+);
+
 let serverConfig: Config = {};
 // stores story data by story_id
 const storyDataCache = new Map<string, Story>();
@@ -42,14 +56,6 @@ const sprintDataCache = new Map<string, Sprint>();
 const taskDataCache = new Map<string, Task>();
 const tagDataCache = new Map<string, Tag>();
 const tagAssignmentDataCache = new Map<string, TagAssignment>();
-
-const LOCAL_STORAGE_KEYS = {
-  selectedSprintId: "viewing_sprint_id",
-  selectedTagIds: "selected_tag_ids",
-};
-
-// used as a reference for length assertion
-const BULK_TASK_PREFIX = "[mm.dd] ";
 
 console.time("api_calls");
 await Promise.all([
@@ -730,8 +736,10 @@ function renderTasksFromJSON(tasks: Task[]) {
       return false;
     })
     .sort((t0, t1) => {
-      if(t0.bulk_task && t1.bulk_task)
-        return new Date(t0.created_at).getTime() - new Date(t1.created_at).getTime();
+      if (t0.bulk_task && t1.bulk_task)
+        return (
+          new Date(t0.created_at).getTime() - new Date(t1.created_at).getTime()
+        );
       return t0.bulk_task ? 1 : 0;
     })
     .forEach((task) => {
