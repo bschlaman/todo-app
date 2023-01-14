@@ -8,8 +8,8 @@ import {
   TagAssignment,
   TaskComment,
   Config,
-} from "./model/domain";
-import { CheckSessionRes, CreateStoryRes } from "./model/responses";
+} from "../model/domain";
+import { CheckSessionRes, CreateStoryRes } from "../model/responses";
 
 const routes = {
   checkSession: "/api/check_session",
@@ -38,55 +38,10 @@ const routes = {
   createTag: "/api/create_tag",
 };
 
-// TODO 2022.11.19: make this an enum or type
-export const STATUSES = [
-  "BACKLOG",
-  "DOING",
-  "DONE",
-  "DEPRIORITIZED",
-  "ARCHIVE",
-  "DUPLICATE",
-  "DEADLINE PASSED",
-];
-
-export const TAG_COLORS = {
-  "Todo App": "green",
-  Work: "blue",
-  Music: "red",
-  "Chess Engine": "darkgoldenrod",
-  Life: "purple",
-  Piano: "darkgrey",
-  Guitar: "brown",
-  "Intellectual Pursuits": "darkblue",
-  "Machine Learning": "darkred",
-} as const;
-
-// since tasks may not have a parent story, we need something
-// to display as a stand-in in UI elements such as task cards
-// and the story selector during task creation.  Note that this
-// value is also used as "value" in story selector options as a
-// standin for null
-export const NULL_STORY_IDENTIFIER = "NONE";
-
-export const hoverClass = "droppable-hover";
-
-let ERROR_MESSAGE_PARENT_DIV: HTMLDivElement | undefined = undefined;
-export function setErrorMessageParentDiv(div: HTMLDivElement){
+let ERROR_MESSAGE_PARENT_DIV: HTMLDivElement | undefined;
+export function setErrorMessageParentDiv(div: HTMLDivElement) {
   ERROR_MESSAGE_PARENT_DIV = div;
 }
-
-// detect when user navigates back to page and check
-// if the session is still valid
-document.addEventListener("visibilitychange", (_) => {
-  if (document.visibilityState === "visible") {
-    void checkSession().then((res) => {
-      console.log(
-        "session time remaining (s):",
-        res.session_time_remaining_seconds
-      );
-    });
-  }
-});
 
 // API
 
@@ -395,34 +350,7 @@ export async function createComment(
   }
 }
 
-// UTIL FUNCTIONS
-
-export function clearInputValues(...inputElements: Array<{ value: string }>) {
-  inputElements.forEach((inputElement) => {
-    inputElement.value = "";
-  });
-}
-
-export function formatDate(date: Date) {
-  return date.toDateString();
-}
-
-export function formatDateCompact(date: Date) {
-  return `${date.getUTCMonth() + 1}.${date.getUTCDate()}`;
-}
-
-export function sprintToString(sprint: Sprint) {
-  return `${sprint.title} (${formatDateCompact(
-    new Date(sprint.start_date)
-  )} - ${formatDateCompact(new Date(sprint.end_date))})`;
-}
-
-export function formatId(id: string) {
-  // expect postgres style id
-  if (id.split("-").length !== 5)
-    console.error("id seems to be wrong format:", id);
-  return String(id.split("-")[0]) + "...";
-}
+// API response handling
 
 // handleApiRes handles the common happy path for API calls.
 // right now, that means 1) checking status code and 2) converting res to json

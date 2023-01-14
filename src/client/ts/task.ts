@@ -1,20 +1,17 @@
 import "../css/styles.css";
 import {
-  updateTaskById,
-  getConfig,
-  getCommentsByTaskId,
   createComment,
-  clearInputValues,
+  getCommentsByTaskId,
+  getConfig,
   getSprints,
   getStories,
-  STATUSES,
   getTaskById,
-  formatId,
-  formatDate,
-  NULL_STORY_IDENTIFIER,
   setErrorMessageParentDiv,
-} from "./common";
-import { Story, Sprint, Task, TaskComment, Config } from "./model/domain";
+  updateTaskById,
+} from "./lib/api";
+import { NULL_STORY_IDENTIFIER, STATUSES } from "./lib/common";
+import { clearInputValues, formatDate, formatId } from "./lib/utils";
+import { Config, Sprint, Story, Task, TaskComment } from "./model/domain";
 
 import DOMPurify from "dompurify";
 import { marked } from "marked";

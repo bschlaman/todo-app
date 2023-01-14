@@ -1,27 +1,23 @@
 import "../css/styles.css";
 import {
-  createTask,
-  createStory,
   createSprint,
+  createStory,
   createTag,
-  NULL_STORY_IDENTIFIER,
-  hoverClass,
+  createTagAssignment,
+  createTask,
+  destroyTagAssignment,
   getConfig,
   getSprints,
   getStories,
   getTagAssignments,
   getTags,
   getTasks,
-  sprintToString,
-  formatDate,
-  updateTaskById,
-  updateStoryById,
-  clearInputValues,
-  createTagAssignment,
-  destroyTagAssignment,
-  TAG_COLORS,
   setErrorMessageParentDiv,
-} from "./common";
+  updateStoryById,
+  updateTaskById,
+} from "./lib/api";
+import { hoverClass, NULL_STORY_IDENTIFIER, TAG_COLORS } from "./lib/common";
+import { clearInputValues, formatDate, sprintToString } from "./lib/utils";
 import {
   Config,
   Sprint,
