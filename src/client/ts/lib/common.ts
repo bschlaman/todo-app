@@ -52,9 +52,10 @@ export function replaceDateTextsWithSpans() {
   // since we cant change an element's parent's innerHTML
   // during tree traversal, we store a ref to it and update it
   // later.  We assume that no two text nodes share a parent
+
   const domUpdatesQueue = new Map<
-    Element,
-    { match: string; spanContent: string }
+    { elem: HTMLElement; match: string },
+    string
   >();
 
   const tw = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
@@ -65,20 +66,26 @@ export function replaceDateTextsWithSpans() {
 
     const matches = (node.textContent as string).match(isoDateRegex);
     if (matches === null) continue;
+    // technically, we don't have to do this, since
+    // storing updates in a map already guarantees
+    // uniqueness of the (elem, match) tuple
     const uniqueMatches = new Set(matches);
 
     for (const match of uniqueMatches) {
       const span = document.createElement("span");
       span.setAttribute("data-iso-date", match);
       span.textContent = match;
-      domUpdatesQueue.set(node.parentElement, {
-        match,
-        spanContent: span.outerHTML,
-      });
+      domUpdatesQueue.set(
+        {
+          elem: node.parentElement,
+          match,
+        },
+        span.outerHTML
+      );
     }
   }
 
-  for (const [elem, { match, spanContent }] of domUpdatesQueue) {
+  for (const [{ elem, match }, spanContent] of domUpdatesQueue) {
     elem.innerHTML = elem.innerHTML.replace(match, spanContent);
   }
 }
