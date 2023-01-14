@@ -81,8 +81,8 @@ code {
 
 /* date strings */
 span[data-iso-date] {
-	color: cornflowerblue;
-	font-weight: bold;
+	color: rgb(53, 68, 87);
+	text-decoration: underline;
 }
 
 /* buckets */
