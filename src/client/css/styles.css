@@ -270,7 +270,7 @@ code {
 	font-size: 2rem;
 	margin: 1rem 0;
 }
-.create-modal input,
+.create-modal input[type="text"],
 .create-modal textarea {
 	width: 100%;
 	box-sizing: border-box;
@@ -289,6 +289,13 @@ code {
 .create-modal .char-indicator {
 	text-align: right;
 	margin: 0;
+}
+/* modals: create story modal */
+.create-story-modal .story-tags {
+	margin: 1rem 0;
+}
+.create-story-modal .story-tags label {
+	margin-right: 1rem;
 }
 /* sprint view */
 .story {
@@ -311,7 +318,7 @@ code {
 .story-created-at {
 	color: var(--transp-black);
 }
-.story-tags label {
+.story .story-tags label {
 	margin-right: 1rem;
 }
 

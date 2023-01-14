@@ -359,18 +359,6 @@ tagDataCache.forEach((tag, _) => {
   tagCheckBox.setAttribute("type", "checkbox");
   tagCheckBox.setAttribute("name", tag.title);
   tagCheckBox.dataset["tag_id"] = tag.id;
-  // tagCheckBox.addEventListener("change", _ => {
-  // 	if (tagCheckBox.checked) {
-  // 		createTagAssignment(tag.id, story.id);
-  // 	} else {
-  // 		destroyTagAssignment(tag.id, story.id);
-  // 	}
-  // });
-  // // this is an expensive O(n) operation, but I dont care
-  // tagAssignmentDataCache.forEach((ta, _) => {
-  // 	if (ta.story_id === story.id && ta.tag_id === tag.id)
-  // 		tagCheckBox.checked = true;
-  // });
   const tagCheckBoxLabel = document.createElement("label");
   tagCheckBoxLabel.onclick = (_) => {
     tagCheckBox.click();
@@ -379,8 +367,10 @@ tagDataCache.forEach((tag, _) => {
   tagCheckBoxLabel.style.color =
     TAG_COLORS[tag.title as keyof typeof TAG_COLORS];
   tagCheckBoxLabel.textContent = tag.title;
-  createStoryTags.appendChild(tagCheckBox);
-  createStoryTags.appendChild(tagCheckBoxLabel);
+  const tagContainer = document.createElement("span");
+  tagContainer.appendChild(tagCheckBox);
+  tagContainer.appendChild(tagCheckBoxLabel);
+  createStoryTags.appendChild(tagContainer);
 });
 // CTRL-Enter to save
 createStoryModal.addEventListener("keydown", (e) => {
@@ -927,8 +917,10 @@ function renderStories() {
         tagCheckBoxLabel.style.color =
           TAG_COLORS[tag.title as keyof typeof TAG_COLORS];
         tagCheckBoxLabel.textContent = tag.title;
-        storyTags.appendChild(tagCheckBox);
-        storyTags.appendChild(tagCheckBoxLabel);
+        const tagContainer = document.createElement("span");
+        tagContainer.appendChild(tagCheckBox);
+        tagContainer.appendChild(tagCheckBoxLabel);
+        storyTags.appendChild(tagContainer);
       });
 
       const storySprintSelect = document.createElement("select");
