@@ -9,7 +9,11 @@ import {
   setErrorMessageParentDiv,
   updateTaskById,
 } from "./lib/api";
-import { NULL_STORY_IDENTIFIER, STATUSES } from "./lib/common";
+import {
+  NULL_STORY_IDENTIFIER,
+  replaceDateTextsWithSpans,
+  STATUSES,
+} from "./lib/common";
 import { clearInputValues, formatDate, formatId } from "./lib/utils";
 import { Config, Sprint, Story, Task, TaskComment } from "./model/domain";
 
@@ -181,6 +185,9 @@ createCommentTextInput.addEventListener("input", (_) => {
 	`;
 });
 createCommentTextInput.dispatchEvent(new Event("input")); // render once at startup
+
+// parse ISO dates (must be done at the end)
+replaceDateTextsWithSpans();
 
 function renderTask(task: Task) {
   document.title = task.title;

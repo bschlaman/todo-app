@@ -79,6 +79,12 @@ code {
 	text-align: center;
 }
 
+/* date strings */
+span[data-iso-date] {
+	color: cornflowerblue;
+	font-weight: bold;
+}
+
 /* buckets */
 .bucket-wrapper {
 	display: flex;

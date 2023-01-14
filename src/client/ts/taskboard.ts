@@ -16,7 +16,12 @@ import {
   updateStoryById,
   updateTaskById,
 } from "./lib/api";
-import { hoverClass, NULL_STORY_IDENTIFIER, TAG_COLORS } from "./lib/common";
+import {
+  hoverClass,
+  NULL_STORY_IDENTIFIER,
+  replaceDateTextsWithSpans,
+  TAG_COLORS,
+} from "./lib/common";
 import { clearInputValues, formatDate, sprintToString } from "./lib/utils";
 import {
   Config,
@@ -660,6 +665,9 @@ buckets.forEach((bucket) => {
   // 	bucket.classList.remove(hoverClass);
   // });
 });
+
+// parse ISO dates (must be done at the end)
+replaceDateTextsWithSpans();
 
 function getClosestTaskBelowCursor(bucket: HTMLDivElement, y: number) {
   const nonDraggingTasks = [...bucket.querySelectorAll(".task:not(.dragging)")];

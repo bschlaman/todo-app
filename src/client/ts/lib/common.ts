@@ -44,3 +44,29 @@ document.addEventListener("visibilitychange", (_) => {
     });
   }
 });
+
+// must be called after the api calls!
+export function replaceDateTextsWithSpans() {
+  console.log("halooooo");
+  const isoDateRegex = /\d{4}[-.]\d{2}[-.]\d{2}/g;
+  const tw = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  let node;
+  while ((node = tw.nextNode()) !== null){
+    if (node.parentElement === null) continue;
+    let text = node.textContent as string;
+
+    const matches = text.match(isoDateRegex);
+    if (matches === null) continue;
+
+    for (const match of matches) {
+      console.log("found match", match);
+      const span = document.createElement("span");
+      span.setAttribute("data-iso-date", match);
+      span.textContent = match;
+      text = text.replace(match, span.outerHTML);
+    }
+    // TODO (2023.01.14): this is currently broken
+    // as changing the innerHTML stops the tw traversal
+    node.parentElement.innerHTML = text;
+  }
+}
