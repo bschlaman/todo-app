@@ -190,7 +190,8 @@ span[data-iso-date] {
 }
 .todo-app-bucket[data-status="DONE"]
 	.task
-	:not(.task-title, .task-created-at, .task-edit-link, .task-handle) {
+	:not(.task-title, .task-title
+		*, .task-created-at, .task-edit-link, .task-handle) {
 	display: none;
 }
 .todo-app-bucket[data-status="DONE"] .task-title {
