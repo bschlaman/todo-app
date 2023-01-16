@@ -231,6 +231,9 @@ function renderTask(task: Task) {
       sprintBuckets.set(story.sprint_id, []);
     sprintBuckets.get(story.sprint_id)?.push(story);
   });
+  // only render 3 sprints once the task is found to de-clutter the UI
+  let taskSprintFound = false;
+  let sprintsToRenderAfterTaskInSelect = 3;
   // loop through the sorted keys (sprintIds)
   Array.from(sprintBuckets.keys())
     .sort((sprintId0, sprintId1) => {
@@ -240,6 +243,8 @@ function renderTask(task: Task) {
       );
     })
     .forEach((sprintId) => {
+      if (sprintsToRenderAfterTaskInSelect === 0) return;
+      if (taskSprintFound) sprintsToRenderAfterTaskInSelect -= 1;
       const optGroup = document.createElement("optgroup");
       optGroup.setAttribute(
         "label",
@@ -250,7 +255,11 @@ function renderTask(task: Task) {
         option.setAttribute("value", story.id);
         option.textContent = story.title;
         optGroup.appendChild(option);
-        if (story.id === task.story_id) option.selected = true;
+        if (story.id === task.story_id) {
+          option.selected = true;
+          taskSprintFound = true;
+          sprintsToRenderAfterTaskInSelect -= 1;
+        }
       });
       taskStorySelector.appendChild(optGroup);
     });

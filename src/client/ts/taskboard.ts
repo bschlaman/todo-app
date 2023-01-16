@@ -101,14 +101,25 @@ sprintSelect.addEventListener("change", (_) => {
   renderStories();
   localStorage.setItem(LOCAL_STORAGE_KEYS.selectedSprintId, sprintSelect.value);
 });
-sprintDataCache.forEach((sprint, _) => {
-  const option = document.createElement("option");
-  option.setAttribute("value", sprint.id);
-  option.textContent = sprintToString(sprint);
-  sprintSelect.appendChild(option);
-  if (localStorage.getItem(LOCAL_STORAGE_KEYS.selectedSprintId) === sprint.id)
-    option.selected = true;
-});
+[...sprintDataCache]
+  // sprints are returned in chronological order typically, but this
+  // is not guaranteed
+  .sort(([_0, sprint0], [_1, sprint1]) => {
+    return (
+      new Date(sprint0.created_at).getTime() -
+      new Date(sprint1.created_at).getTime()
+    );
+  })
+  // take only the latest 5 sprints to de-clutter the UI
+  .slice(-5)
+  .forEach(([_, sprint]) => {
+    const option = document.createElement("option");
+    option.setAttribute("value", sprint.id);
+    option.textContent = sprintToString(sprint);
+    sprintSelect.appendChild(option);
+    if (localStorage.getItem(LOCAL_STORAGE_KEYS.selectedSprintId) === sprint.id)
+      option.selected = true;
+  });
 
 // render tag selector
 // wrapping in a function for now so I can call it from
