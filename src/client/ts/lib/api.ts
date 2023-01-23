@@ -9,6 +9,7 @@ import {
   TaskComment,
   Config,
   StoryRelationship,
+  STORY_RELATIONSHIP,
 } from "../model/entities";
 import { CheckSessionRes, CreateStoryRes } from "../model/responses";
 
@@ -358,7 +359,7 @@ export async function createComment(
 export async function createStoryRelationship(
   storyIdA: string,
   storyIdB: string,
-  relation: string
+  relation: STORY_RELATIONSHIP
 ): Promise<JSON> {
   const res = await fetch(routes.createStoryRelationship, {
     method: "POST",

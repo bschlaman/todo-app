@@ -1,16 +1,5 @@
 import { checkSession } from "./api";
 
-// TODO 2022.11.19: make this an enum or type
-export const STATUSES = [
-  "BACKLOG",
-  "DOING",
-  "DONE",
-  "DEPRIORITIZED",
-  "ARCHIVE",
-  "DUPLICATE",
-  "DEADLINE PASSED",
-];
-
 export const TAG_COLORS = {
   "Todo App": "green",
   Work: "blue",

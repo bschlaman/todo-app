@@ -9,6 +9,7 @@ import {
   getConfig,
   getSprints,
   getStories,
+  getStoryRelationships,
   getTagAssignments,
   getTags,
   getTasks,
@@ -27,6 +28,7 @@ import {
   Config,
   Sprint,
   Story,
+  StoryRelationship,
   Tag,
   TagAssignment,
   Task,
@@ -48,6 +50,10 @@ setErrorMessageParentDiv(
   document.querySelector(".error-message-parent") as HTMLDivElement
 );
 
+// TODO (2023.01.22): one way to get rid of this is
+// to make it type Config | undefined and then add
+// an undefined check after the get requests.  This still doesn't
+// solve the problem fully for callbacks
 let serverConfig: Config = {};
 // stores story data by story_id
 const storyDataCache = new Map<string, Story>();
@@ -57,6 +63,7 @@ const sprintDataCache = new Map<string, Sprint>();
 const taskDataCache = new Map<string, Task>();
 const tagDataCache = new Map<string, Tag>();
 const tagAssignmentDataCache = new Map<number, TagAssignment>();
+const storyRelationshipsDataCache = new Map<number, StoryRelationship>();
 
 console.time("api_calls");
 await Promise.all([
@@ -88,7 +95,14 @@ await Promise.all([
       tagAssignmentDataCache.set(tagAssignment.id, tagAssignment);
     });
   }),
+  getStoryRelationships().then((storyRelationships) => {
+    if (storyRelationships === null) return;
+    storyRelationships.forEach((storyRelationship) => {
+      storyRelationshipsDataCache.set(storyRelationship.id, storyRelationship);
+    });
+  }),
 ]);
+// if (serverConfig === undefined) throw new Error("serverConfig is undefined")
 console.timeEnd("api_calls");
 console.table(serverConfig);
 
@@ -302,9 +316,15 @@ const createStoryTitleCharIndicator = createStoryModal.querySelector(
 const createStoryDescCharIndicator = createStoryModal.querySelector(
   ".desc-char-indicator"
 ) as HTMLParagraphElement;
-const createStorySelectInput = createStoryModal.querySelector(
+const createStorySelectSprintInput = createStoryModal.querySelector(
   'select[name="sprint"]'
 ) as HTMLSelectElement;
+const createStoryContinuesStoryCheckboxLabel = createStoryModal.querySelector(
+  'label[for="continues-story"]'
+) as HTMLLabelElement;
+const createStoryContinuesStoryCheckbox = createStoryModal.querySelector(
+  'input[name="continues-story"]'
+) as HTMLInputElement;
 const createStoryTags = createStoryModal.querySelector(
   ".story-tags"
 ) as HTMLDivElement;
@@ -315,24 +335,27 @@ const createStorySaveButton = createStoryModal.querySelector(
 createStoryButton.onclick = (_) => {
   createStoryModal.showModal();
   createStoryTitleInput.focus();
-  // Remove option from <select> and call /get_stories
-  while (createStorySelectInput.firstChild != null)
-    createStorySelectInput.removeChild(createStorySelectInput.firstChild);
+  // Remove option from <select> and update from cache
+  while (createStorySelectSprintInput.firstChild != null)
+    createStorySelectSprintInput.removeChild(
+      createStorySelectSprintInput.firstChild
+    );
   sprintDataCache.forEach((sprint, _) => {
     const option = document.createElement("option");
     option.setAttribute("value", sprint.id);
     option.textContent = sprint.title;
     // select the latest sprint by default
     if (
-      createStorySelectInput.value === "" ||
+      createStorySelectSprintInput.value === "" ||
       new Date(sprint.start_date) >
         new Date(
-          sprintDataCache.get(createStorySelectInput.value)?.start_date ?? 0
+          sprintDataCache.get(createStorySelectSprintInput.value)?.start_date ??
+            0
         )
     ) {
       option.selected = true;
     }
-    createStorySelectInput.appendChild(option);
+    createStorySelectSprintInput.appendChild(option);
   });
 };
 // Character limits
@@ -360,6 +383,9 @@ createStoryDescInput.addEventListener("input", (_) => {
 });
 createStoryTitleInput.dispatchEvent(new Event("input")); // render once at startup
 createStoryDescInput.dispatchEvent(new Event("input")); // render once at startup
+// continues story disabled and unselected by default
+createStoryContinuesStoryCheckbox.disabled = true;
+createStoryContinuesStoryCheckbox.checked = false;
 // Close (x) button
 (createStoryModal.querySelector(".modal-close") as HTMLButtonElement).onclick =
   (_) => {
@@ -395,7 +421,7 @@ createStorySaveButton.addEventListener("click", (_) => {
   void createStory(
     createStoryTitleInput.value,
     createStoryDescInput.value,
-    createStorySelectInput.value
+    createStorySelectSprintInput.value
   )
     .then(async (res) => {
       for (const tagCheckBox of Array.from(
@@ -997,6 +1023,9 @@ function renderStories() {
               ) as HTMLInputElement
             ).checked = true;
           });
+        createStoryContinuesStoryCheckbox.disabled = false;
+        createStoryContinuesStoryCheckbox.checked = true;
+        createStoryContinuesStoryCheckboxLabel.textContent = `This story will be a continuation of: ${story.title}`;
       };
 
       storyDiv.appendChild(storyTitle);

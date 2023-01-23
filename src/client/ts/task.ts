@@ -9,13 +9,16 @@ import {
   setErrorMessageParentDiv,
   updateTaskById,
 } from "./lib/api";
-import {
-  NULL_STORY_IDENTIFIER,
-  replaceDateTextsWithSpans,
-  STATUSES,
-} from "./lib/common";
+import { NULL_STORY_IDENTIFIER, replaceDateTextsWithSpans } from "./lib/common";
 import { clearInputValues, formatDate, formatId } from "./lib/utils";
-import { Config, Sprint, Story, Task, TaskComment } from "./model/entities";
+import {
+  Config,
+  Sprint,
+  Story,
+  Task,
+  TaskComment,
+  STATUSES,
+} from "./model/entities";
 
 import DOMPurify from "dompurify";
 import { marked } from "marked";

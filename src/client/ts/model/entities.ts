@@ -1,3 +1,18 @@
+// TODO 2022.11.19: make this an enum or type
+export const STATUSES = [
+  "BACKLOG",
+  "DOING",
+  "DONE",
+  "DEPRIORITIZED",
+  "ARCHIVE",
+  "DUPLICATE",
+  "DEADLINE PASSED",
+];
+
+export enum STORY_RELATIONSHIP {
+  ContinuedBy = "CONTINUED_BY",
+}
+
 export interface Config {
   comment_max_len: number;
   server_name: string;

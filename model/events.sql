@@ -21,7 +21,10 @@ CREATE TYPE event_action AS ENUM (
 	'DestroyTagAssignment',
 	'GetTags',
 	'GetTagAssignments',
-	'CreateTag'
+	'CreateTag',
+	'GetStoryRelationships',
+	'CreateStoryRelationship',
+	'DestroyStoryRelationship'
 );
 
 CREATE TYPE event_action_type AS ENUM (
