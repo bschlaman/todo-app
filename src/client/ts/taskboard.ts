@@ -364,6 +364,11 @@ createStoryButton.onclick = (_) => {
     }
     createStorySelectSprintInput.appendChild(option);
   });
+  // continues story disabled and unselected by default
+  createStoryContinuesStoryCheckbox.disabled = true;
+  createStoryContinuesStoryCheckbox.checked = false;
+  createStoryContinuesStoryCheckbox.dataset["story_id"] = undefined;
+  createStoryContinuesStoryCheckboxLabel.innerHTML = "";
 };
 // Character limits
 createStoryTitleInput.setAttribute(
@@ -390,9 +395,6 @@ createStoryDescInput.addEventListener("input", (_) => {
 });
 createStoryTitleInput.dispatchEvent(new Event("input")); // render once at startup
 createStoryDescInput.dispatchEvent(new Event("input")); // render once at startup
-// continues story disabled and unselected by default
-createStoryContinuesStoryCheckbox.disabled = true;
-createStoryContinuesStoryCheckbox.checked = false;
 // Close (x) button
 (createStoryModal.querySelector(".modal-close") as HTMLButtonElement).onclick =
   (_) => {
