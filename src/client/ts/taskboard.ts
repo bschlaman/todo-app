@@ -2,6 +2,7 @@ import "../css/styles.css";
 import {
   createSprint,
   createStory,
+  createStoryRelationship,
   createTag,
   createTagAssignment,
   createTask,
@@ -23,12 +24,18 @@ import {
   replaceDateTextsWithSpans,
   TAG_COLORS,
 } from "./lib/common";
-import { clearInputValues, formatDate, sprintToString } from "./lib/utils";
+import {
+  clearInputValues,
+  formatDate,
+  inProgress,
+  sprintToString,
+} from "./lib/utils";
 import {
   Config,
   Sprint,
   Story,
   StoryRelationship,
+  STORY_RELATIONSHIP,
   Tag,
   TagAssignment,
   Task,
@@ -424,19 +431,44 @@ createStorySaveButton.addEventListener("click", (_) => {
     createStorySelectSprintInput.value
   )
     .then(async (res) => {
+      // story relationship
+      if (!createStoryContinuesStoryCheckbox.checked) return res;
+      const continuedStoryId =
+        createStoryContinuesStoryCheckbox.dataset["story_id"];
+      if (continuedStoryId === undefined) throw new Error("story_id not set");
+      if (!storyDataCache.has(continuedStoryId)) return res;
+      await createStoryRelationship(
+        continuedStoryId,
+        res.id,
+        STORY_RELATIONSHIP.ContinuedBy
+      );
+      console.log("Created story relationship", continuedStoryId, res.id);
+      for (const task of taskDataCache.values()) {
+        if (task.story_id !== continuedStoryId) continue;
+        if (!inProgress(task)) continue;
+        await updateTaskById(
+          task.id,
+          task.status,
+          task.title,
+          task.description,
+          res.id
+        );
+        console.log("moved task", task.title);
+      }
+      return res;
+    })
+    .then(async (res) => {
+      // tag checkboxes
       for (const tagCheckBox of Array.from(
         createStoryTags.querySelectorAll("input")
       ).filter((tcb) => tcb.checked)) {
         if (tagCheckBox.dataset["tag_id"] === undefined)
           throw new Error("tag_id not set in tag checkbox dataset");
-        await createTagAssignment(tagCheckBox.dataset["tag_id"], res.id).then(
-          (_) => {
-            console.log(
-              "Created tag assignment",
-              tagCheckBox.dataset["tag_id"],
-              res.id
-            );
-          }
+        await createTagAssignment(tagCheckBox.dataset["tag_id"], res.id);
+        console.log(
+          "Created tag assignment",
+          tagCheckBox.dataset["tag_id"],
+          res.id
         );
       }
     })
@@ -1025,7 +1057,12 @@ function renderStories() {
           });
         createStoryContinuesStoryCheckbox.disabled = false;
         createStoryContinuesStoryCheckbox.checked = true;
-        createStoryContinuesStoryCheckboxLabel.textContent = `This story will be a continuation of: ${story.title}`;
+        const boldText = document.createElement("strong");
+        boldText.textContent = story.title;
+        createStoryContinuesStoryCheckboxLabel.innerHTML = DOMPurify.sanitize(
+          `This story will be a continuation of: ${boldText.outerHTML}`
+        );
+        createStoryContinuesStoryCheckbox.dataset["story_id"] = story.id;
       };
 
       storyDiv.appendChild(storyTitle);

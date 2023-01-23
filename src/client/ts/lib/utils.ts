@@ -1,4 +1,4 @@
-import { Sprint } from "../model/entities";
+import { Sprint, Task } from "../model/entities";
 
 // UTIL FUNCTIONS
 
@@ -27,4 +27,8 @@ export function formatId(id: string) {
   if (id.split("-").length !== 5)
     console.error("id seems to be wrong format:", id);
   return String(id.split("-")[0]) + "...";
+}
+
+export function inProgress(task: Task) {
+  return ["BACKLOG", "DOING"].includes(task.status);
 }
