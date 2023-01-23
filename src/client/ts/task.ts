@@ -15,7 +15,7 @@ import {
   STATUSES,
 } from "./lib/common";
 import { clearInputValues, formatDate, formatId } from "./lib/utils";
-import { Config, Sprint, Story, Task, TaskComment } from "./model/domain";
+import { Config, Sprint, Story, Task, TaskComment } from "./model/entities";
 
 import DOMPurify from "dompurify";
 import { marked } from "marked";

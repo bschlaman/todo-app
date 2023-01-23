@@ -626,6 +626,7 @@ func CreateTagAssignment(log *logger.BLogger, createReq CreateTagAssignmentReq) 
 }
 
 func DestroyTagAssignment(log *logger.BLogger, destroyReq DestroyTagAssignmentReq) error {
+	// TODO (2023.01.22): can delete this check once using Id
 	if destroyReq.TagId == "" || destroyReq.StoryId == "" {
 		log.Error("destroyTagAssignment: TagId or StoryId blank")
 		return InputError{}
@@ -690,4 +691,103 @@ func CreateTag(log *logger.BLogger, createReq CreateTagReq) (*CreateEntityRespon
 	}
 
 	return &CreateEntityResponse{id}, nil
+}
+
+func CreateStoryRelationship(log *logger.BLogger, createReq CreateStoryRelationshipReq) (*CreateEntityResponse, error) {
+	if createReq.StoryIdA == "" || createReq.StoryIdB == "" || createReq.Relation == "" {
+		log.Error("createStoryRelationship: parameter(s) blank")
+		return nil, InputError{}
+	}
+
+	conn, err := database.GetPgxConn()
+	if err != nil {
+		log.Errorf("unable to connect to database: %v", err)
+		return nil, err
+	}
+	defer conn.Close(context.Background())
+
+	var id string
+
+	err = conn.QueryRow(context.Background(),
+		`INSERT INTO story_relationships (
+				story_id_a,
+				story_id_b,
+				relation
+			) VALUES (
+				$1,
+				$2,
+				$3
+			) RETURNING id::text`, // TODO (2022.12.01): is there a cleaner way than casting to text?
+		createReq.StoryIdA,
+		createReq.StoryIdB,
+		createReq.Relation,
+	).Scan(&id)
+	if err != nil {
+		log.Errorf("Exec failed: %v", err)
+		return nil, err
+	}
+
+	return &CreateEntityResponse{id}, nil
+}
+
+func DestroyStoryRelationshipById(log *logger.BLogger, destroyReq DestroyStoryRelationshipByIdReq) error {
+	conn, err := database.GetPgxConn()
+	if err != nil {
+		log.Errorf("unable to connect to database: %v", err)
+		return err
+	}
+	defer conn.Close(context.Background())
+
+	_, err = conn.Exec(context.Background(),
+		`DELETE FROM tag_assignments
+				WHERE
+				id = $1
+			;`,
+		destroyReq.Id,
+	)
+	if err != nil {
+		log.Errorf("Exec failed: %v", err)
+		return err
+	}
+
+	return nil
+}
+
+func GetStoryRelationships(log *logger.BLogger) ([]StoryRelationship, error) {
+	conn, err := database.GetPgxConn()
+	if err != nil {
+		log.Errorf("unable to connect to database: %v", err)
+		return nil, err
+	}
+	defer conn.Close(context.Background())
+
+	rows, err := conn.Query(context.Background(),
+		`SELECT
+				id,
+				created_at,
+				story_id_a,
+				story_id_b,
+				relation
+				FROM story_relationships`,
+	)
+	if err != nil {
+		log.Errorf("Query failed: %v", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var StoryRelationships []StoryRelationship
+	for rows.Next() {
+		var id int
+		var storyIdA, storyIdB, relation string
+		var cAt time.Time
+		rows.Scan(&id, &cAt, &storyIdA, &storyIdB, &relation)
+		StoryRelationships = append(StoryRelationships, StoryRelationship{id, cAt, storyIdA, storyIdB, relation})
+	}
+	if rows.Err() != nil {
+		log.Errorf("Query failed: %v", rows.Err())
+		return nil, rows.Err()
+	}
+
+	return StoryRelationships, nil
 }

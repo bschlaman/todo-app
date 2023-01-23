@@ -61,6 +61,14 @@ type Story struct {
 	Edited      bool      `json:"edited"`
 }
 
+type StoryRelationship struct {
+	Id        int       `json:"id"`
+	CreatedAt time.Time `json:"created_at"`
+	StoryIdA  string    `json:"story_id_a"`
+	StoryIdB  string    `json:"story_id_b"`
+	Relation  string    `json:"relation"`
+}
+
 type ServerConfigRow struct {
 	Id        string    `json:"id"`
 	CreatedAt time.Time `json:"created_at"`

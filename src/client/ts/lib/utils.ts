@@ -1,4 +1,4 @@
-import { Sprint } from "../model/domain";
+import { Sprint } from "../model/entities";
 
 // UTIL FUNCTIONS
 

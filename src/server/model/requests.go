@@ -47,6 +47,7 @@ type CreateTagAssignmentReq struct {
 	StoryId string `json:"story_id"`
 }
 
+// TODO (2023.01.22): this should be by Id
 type DestroyTagAssignmentReq struct {
 	TagId   string `json:"tag_id"`
 	StoryId string `json:"story_id"`
@@ -55,4 +56,14 @@ type DestroyTagAssignmentReq struct {
 type CreateTagReq struct {
 	Title       string `json:"title"`
 	Description string `json:"description"`
+}
+
+type CreateStoryRelationshipReq struct {
+	StoryIdA string `json:"story_id_a"`
+	StoryIdB string `json:"story_id_b"`
+	Relation string `json:"relation"`
+}
+
+type DestroyStoryRelationshipByIdReq struct {
+	Id int `json:"id"`
 }

@@ -20,16 +20,18 @@ import (
 
 // TODO: pull these from config table
 const (
-	serverName           string        = "TODO-APP-SERVER"
-	logPath              string        = "logs/output.log"
-	staticDir            string        = "dist"
-	sprintDuration       time.Duration = 24 * 14 * time.Hour
-	sessionDuration      time.Duration = 2 * time.Hour
-	allowClearSessionAPI bool          = false
-	metricNamespace      string        = "todo-app/api"
-	createEntityIdKey    string        = "createReqIdKey"
-	getRequestBytesKey   string        = "getReqKey"
+	serverName           string           = "TODO-APP-SERVER"
+	logPath              string           = "logs/output.log"
+	staticDir            string           = "dist"
+	sprintDuration       time.Duration    = 24 * 14 * time.Hour
+	sessionDuration      time.Duration    = 2 * time.Hour
+	allowClearSessionAPI bool             = false
+	metricNamespace      string           = "todo-app/api"
+	createEntityIdKey    CustomContextKey = "createReqIdKey"
+	getRequestBytesKey   CustomContextKey = "getReqKey"
 )
+
+type CustomContextKey string
 
 var serverStart = time.Now()
 
@@ -127,23 +129,33 @@ func main() {
 		{"/api/login", loginHandle, "Login", ApiType.Auth},
 		{"/api/check_session", checkSessionHandle, "CheckSession", ApiType.Auth},
 		{"/api/get_config", getConfigHandle, "GetConfig", ApiType.Get},
+		// tasks
 		{"/api/get_tasks", getTasksHandle, "GetTasks", ApiType.GetMany},
 		{"/api/get_task", getTaskByIdHandle, "GetTaskById", ApiType.Get},
 		{"/api/put_task", putTaskHandle, "PutTask", ApiType.Put},
-		{"/api/put_story", putStoryHandle, "PutStory", ApiType.Put},
 		{"/api/create_task", createTaskHandle, "CreateTask", ApiType.Create},
+		// comments
 		{"/api/create_comment", createCommentHandle, "CreateComment", ApiType.Create},
 		{"/api/get_comments_by_task_id", getCommentsByTaskIdHandle, "GetCommentsByTaskId", ApiType.GetMany},
+		// stories
 		{"/api/get_stories", getStoriesHandle, "GetStories", ApiType.GetMany},
 		{"/api/get_story", getStoryByIdHandle, "GetStoryById", ApiType.Get},
 		{"/api/create_story", createStoryHandle, "CreateStory", ApiType.Create},
+		{"/api/put_story", putStoryHandle, "PutStory", ApiType.Put},
+		// sprints
 		{"/api/get_sprints", getSprintsHandle, "GetSprints", ApiType.GetMany},
 		{"/api/create_sprint", createSprintHandle, "CreateSprint", ApiType.Create},
+		// tag_assignments
+		{"/api/get_tag_assignments", getTagAssignmentsHandle, "GetTagAssignments", ApiType.GetMany},
 		{"/api/create_tag_assignment", createTagAssignmentHandle, "CreateTagAssignment", ApiType.Create},
 		{"/api/destroy_tag_assignment", destroyTagAssignmentHandle, "DestroyTagAssignment", ApiType.Destroy},
+		// tags
 		{"/api/get_tags", getTagsHandle, "GetTags", ApiType.GetMany},
-		{"/api/get_tag_assignments", getTagAssignmentsHandle, "GetTagAssignments", ApiType.GetMany},
 		{"/api/create_tag", createTagHandle, "CreateTag", ApiType.Create},
+		// story_relationships
+		{"/api/get_story_relationships", getStoryRelationshipsHandle, "GetStoryRelationships", ApiType.GetMany},
+		{"/api/create_story_relationship", createStoryRelationshipHandle, "CreateStoryRelationship", ApiType.Create},
+		{"/api/destroy_story_relationship", destroyStoryRelationshipByIdHandle, "DestroyStoryRelationship", ApiType.Destroy},
 	}
 	for _, route := range apiRoutes {
 		http.Handle(route.Path, utils.LogReq(log)(

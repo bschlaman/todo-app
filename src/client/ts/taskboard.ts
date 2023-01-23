@@ -30,7 +30,7 @@ import {
   Tag,
   TagAssignment,
   Task,
-} from "./model/domain";
+} from "./model/entities";
 
 import DOMPurify from "dompurify";
 import { marked } from "marked";
@@ -56,7 +56,7 @@ const sprintDataCache = new Map<string, Sprint>();
 // stores task data by task_id
 const taskDataCache = new Map<string, Task>();
 const tagDataCache = new Map<string, Tag>();
-const tagAssignmentDataCache = new Map<string, TagAssignment>();
+const tagAssignmentDataCache = new Map<number, TagAssignment>();
 
 console.time("api_calls");
 await Promise.all([
@@ -664,7 +664,7 @@ buckets.forEach((bucket) => {
 
     bucket.classList.add(hoverClass);
 
-    if (belowTask === null) {
+    if (belowTask === undefined) {
       bucket.appendChild(dragging);
     } else {
       bucket.insertBefore(dragging, belowTask);
@@ -691,7 +691,11 @@ function getClosestTaskBelowCursor(bucket: HTMLDivElement, y: number) {
         return { offset, element: task };
       return closestTask;
     },
-    { offset: Number.NEGATIVE_INFINITY }
+    {
+      offset: Number.NEGATIVE_INFINITY,
+      // unused; just satisfies the type checker
+      element: nonDraggingTasks[0],
+    }
   ).element;
 }
 

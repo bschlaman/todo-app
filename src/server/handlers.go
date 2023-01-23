@@ -62,9 +62,9 @@ func checkSessionHandle() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// if the call makes it this far, we know the session is valid
 		cookie, _ := r.Cookie("session")
-		s, _ := sessions[cookie.Value]
+		s := sessions[cookie.Value]
 
-		timeRemaining := sessionDuration - time.Now().Sub(s.CreatedAt)
+		timeRemaining := sessionDuration - time.Since(s.CreatedAt)
 
 		js, err := json.Marshal(&struct {
 			TimeRemainingSeconds int `json:"session_time_remaining_seconds"`
@@ -582,5 +582,85 @@ func createTagHandle() http.Handler {
 
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(js)
+	})
+}
+
+func getStoryRelationshipsHandle() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		StoryRelationships, err := model.GetStoryRelationships(env.Log)
+		if err != nil {
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+
+		js, err := json.Marshal(StoryRelationships)
+		if err != nil {
+			log.Errorf("json.Marshal failed: %v", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+
+		*r = *r.WithContext(context.WithValue(r.Context(), getRequestBytesKey, len(js)))
+
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(js)
+	})
+}
+
+func createStoryRelationshipHandle() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		createReq := model.CreateStoryRelationshipReq{}
+		if err := json.NewDecoder(r.Body).Decode(&createReq); err != nil {
+			log.Errorf("unable to decode json: %v", err)
+			http.Error(w, "something went wrong", http.StatusBadRequest)
+			return
+		}
+
+		entity, err := model.CreateStoryRelationship(env.Log, createReq)
+		if err != nil {
+			log.Errorf("story relationship creation failed: %v", err)
+			if errors.Is(err, model.InputError{}) {
+				http.Error(w, "something went wrong", http.StatusBadRequest)
+			} else {
+				http.Error(w, "something went wrong", http.StatusInternalServerError)
+			}
+			return
+		}
+
+		*r = *r.WithContext(context.WithValue(r.Context(), createEntityIdKey, entity.Id))
+
+		js, err := json.Marshal(entity)
+		if err != nil {
+			log.Errorf("json.Marshal failed: %v", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+
+		*r = *r.WithContext(context.WithValue(r.Context(), getRequestBytesKey, len(js)))
+
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(js)
+	})
+}
+
+func destroyStoryRelationshipByIdHandle() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		destroyReq := model.DestroyStoryRelationshipByIdReq{}
+		if err := json.NewDecoder(r.Body).Decode(&destroyReq); err != nil {
+			log.Errorf("unable to decode json: %v", err)
+			http.Error(w, "something went wrong", http.StatusBadRequest)
+			return
+		}
+
+		err := model.DestroyStoryRelationshipById(env.Log, destroyReq)
+		if err != nil {
+			log.Errorf("story relationship destruction failed: %v", err)
+			if errors.Is(err, model.InputError{}) {
+				http.Error(w, "something went wrong", http.StatusBadRequest)
+			} else {
+				http.Error(w, "something went wrong", http.StatusInternalServerError)
+			}
+			return
+		}
 	})
 }

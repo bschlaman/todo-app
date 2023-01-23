@@ -43,7 +43,7 @@ export interface Tag {
 }
 
 export interface TagAssignment {
-  id: string;
+  id: number;
   created_at: string;
   tag_id: string;
   story_id: string;
@@ -68,4 +68,12 @@ export interface Story {
   status: string;
   sprint_id: string;
   edited: string;
+}
+
+export interface StoryRelationship {
+  id: number;
+  created_at: string;
+  story_id_a: string;
+  story_id_b: string;
+  relation: string;
 }

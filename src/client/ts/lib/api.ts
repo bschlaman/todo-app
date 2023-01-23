@@ -8,7 +8,8 @@ import {
   TagAssignment,
   TaskComment,
   Config,
-} from "../model/domain";
+  StoryRelationship,
+} from "../model/entities";
 import { CheckSessionRes, CreateStoryRes } from "../model/responses";
 
 const routes = {
@@ -32,10 +33,14 @@ const routes = {
   getStoryById: "/api/get_story",
 
   getTags: "/api/get_tags",
+  createTag: "/api/create_tag",
   getTagAssignments: "/api/get_tag_assignments",
   createTagAssignment: "/api/create_tag_assignment",
   destroyTagAssignment: "/api/destroy_tag_assignment",
-  createTag: "/api/create_tag",
+
+  getStoryRelationships: "/api/get_story_relationships",
+  createStoryRelationship: "/api/create_story_relationship",
+  destroyStoryRelationshipById: "/api/destroy_story_relationship_by_id",
 };
 
 let ERROR_MESSAGE_PARENT_DIV: HTMLDivElement | undefined;
@@ -344,6 +349,48 @@ export async function createComment(
       }),
     });
     return await handleApiRes(res);
+  } catch (err) {
+    if (err instanceof Error) handleApiErr(err);
+    throw err;
+  }
+}
+
+export async function createStoryRelationship(
+  storyIdA: string,
+  storyIdB: string,
+  relation: string
+): Promise<JSON> {
+  const res = await fetch(routes.createStoryRelationship, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      story_id_a: storyIdA,
+      story_id_b: storyIdB,
+      relation,
+    }),
+  });
+  return await handleApiRes(res);
+}
+
+export async function destroyStoryRelationshipById(id: string): Promise<JSON> {
+  const res = await fetch(routes.destroyStoryRelationshipById, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      id,
+    }),
+  });
+  return await handleApiRes(res);
+}
+
+export async function getStoryRelationships(): Promise<StoryRelationship[]> {
+  try {
+    const res = await fetch(routes.getStoryRelationships, { method: "GET" });
+    return (await handleApiRes(res)) as StoryRelationship[];
   } catch (err) {
     if (err instanceof Error) handleApiErr(err);
     throw err;
