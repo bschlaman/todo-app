@@ -754,7 +754,7 @@ function getClosestTaskBelowCursor(bucket: HTMLDivElement, y: number) {
     {
       offset: Number.NEGATIVE_INFINITY,
       // unused; just satisfies the type checker
-      element: nonDraggingTasks[0],
+      element: nonDraggingTasks[-1],
     }
   ).element;
 }
