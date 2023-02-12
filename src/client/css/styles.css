@@ -30,11 +30,9 @@ html {
 	/* -webkit-tap-highlight-color: transparent;*/
 	box-sizing: border-box;
 }
-a {
+a, a:visited {
 	text-decoration: none;
-}
-a:visited {
-	color: blue;
+	color: #1b48aa;
 }
 input,
 select,
@@ -242,7 +240,7 @@ span[data-iso-date] {
 /* tag selector */
 .tags-wrapper {
 	font-size: 1rem;
-	max-width: 15rem;
+	max-width: 24rem;
 }
 .tags-wrapper span {
 	white-space: nowrap;
