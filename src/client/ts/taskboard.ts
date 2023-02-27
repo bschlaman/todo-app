@@ -1067,6 +1067,51 @@ function renderStories() {
         createStoryContinuesStoryCheckbox.dataset["story_id"] = story.id;
       };
 
+      const storyRelationshipsTable = document.createElement("table");
+      const createTrWithInnerHTMLs = (...innerHTMLs: string[]) => {
+        const tr = document.createElement("tr");
+        for (const ih of innerHTMLs) {
+          const td = document.createElement("td");
+          td.innerHTML = ih;
+          tr.appendChild(td);
+        }
+        return tr;
+      };
+      storyRelationshipsDataCache.forEach((sr, _) => {
+        if (sr.relation !== STORY_RELATIONSHIP.ContinuedBy) return;
+        if (sr.story_id_b === story.id) {
+          const otherStory = storyDataCache.get(sr.story_id_a);
+          if (otherStory === undefined)
+            throw new Error("couldn't find story: " + sr.story_id_a);
+          const otherStorySprint = sprintDataCache.get(otherStory.sprint_id);
+          if (otherStorySprint === undefined)
+            throw new Error("couldn't find sprint: " + otherStory.sprint_id);
+          storyRelationshipsTable.appendChild(
+            createTrWithInnerHTMLs(
+              "Continues",
+              `<strong>${otherStory.title}</strong>`,
+              "from sprint",
+              `<strong>${otherStorySprint.title}</strong>`
+            )
+          );
+        } else if (sr.story_id_a === story.id) {
+          const otherStory = storyDataCache.get(sr.story_id_b);
+          if (otherStory === undefined)
+            throw new Error("couldn't find story: " + sr.story_id_b);
+          const otherStorySprint = sprintDataCache.get(otherStory.sprint_id);
+          if (otherStorySprint === undefined)
+            throw new Error("couldn't find sprint: " + otherStory.sprint_id);
+          storyRelationshipsTable.appendChild(
+            createTrWithInnerHTMLs(
+              "Continued by",
+              `<strong>${otherStory.title}</strong>`,
+              "in sprint",
+              `<strong>${otherStorySprint.title}</strong>`
+            )
+          );
+        }
+      });
+
       storyDiv.appendChild(storyTitle);
       storyDiv.appendChild(storyDesc);
       storyDiv.appendChild(storyEditLink);
@@ -1074,6 +1119,7 @@ function renderStories() {
       storyDiv.appendChild(storySprintSelect);
       storyDiv.appendChild(openTasksListWrapper);
       storyDiv.appendChild(copyToNewButton);
+      storyDiv.appendChild(storyRelationshipsTable);
       // don't need to display this info for now, the sprint is
       // already captured by the sprint select
       // storyDiv.appendChild(storyMetadataContainer);
