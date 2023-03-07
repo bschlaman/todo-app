@@ -4,7 +4,7 @@ export const TAG_COLORS = {
   "Todo App": "green",
   Work: "blue",
   Music: "red",
-  "Chess Engine": "darkgoldenrod",
+  "Research Dashboard": "darkgoldenrod",
   Life: "purple",
   Piano: "darkgrey",
   Guitar: "brown",
