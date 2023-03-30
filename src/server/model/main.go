@@ -657,6 +657,30 @@ func DestroyTagAssignment(log *logger.BLogger, destroyReq DestroyTagAssignmentRe
 	return nil
 }
 
+func DestroyTagAssignmentById(log *logger.BLogger, destroyReq DestroyTagAssignmentByIdReq) error {
+	conn, err := database.GetPgxConn()
+	if err != nil {
+		log.Errorf("unable to connect to database: %v", err)
+		return err
+	}
+	defer conn.Close(context.Background())
+
+	_, err = conn.Exec(context.Background(),
+		`DELETE FROM tag_assignments
+				WHERE
+				id = $1
+			;`,
+		destroyReq.Id,
+	)
+	if err != nil {
+		log.Errorf("Exec failed: %v", err)
+		return err
+	}
+
+	return nil
+}
+
+
 func CreateTag(log *logger.BLogger, createReq CreateTagReq) (*CreateEntityResponse, error) {
 	if createReq.Title == "" || createReq.Description == "" {
 		log.Error("createTag: Title or Description blank")
@@ -739,7 +763,7 @@ func DestroyStoryRelationshipById(log *logger.BLogger, destroyReq DestroyStoryRe
 	defer conn.Close(context.Background())
 
 	_, err = conn.Exec(context.Background(),
-		`DELETE FROM tag_assignments
+		`DELETE FROM story_relationships
 				WHERE
 				id = $1
 			;`,

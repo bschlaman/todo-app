@@ -549,6 +549,28 @@ func destroyTagAssignmentHandle() http.Handler {
 	})
 }
 
+func destroyTagAssignmentByIdHandle() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		destroyReq := model.DestroyTagAssignmentByIdReq{}
+		if err := json.NewDecoder(r.Body).Decode(&destroyReq); err != nil {
+			log.Errorf("unable to decode json: %v", err)
+			http.Error(w, "something went wrong", http.StatusBadRequest)
+			return
+		}
+
+		err := model.DestroyTagAssignmentById(env.Log, destroyReq)
+		if err != nil {
+			log.Errorf("tag assignment destruction failed: %v", err)
+			if errors.Is(err, model.InputError{}) {
+				http.Error(w, "something went wrong", http.StatusBadRequest)
+			} else {
+				http.Error(w, "something went wrong", http.StatusInternalServerError)
+			}
+			return
+		}
+	})
+}
+
 func createTagHandle() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		createReq := model.CreateTagReq{}

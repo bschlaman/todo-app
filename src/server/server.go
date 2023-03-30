@@ -149,6 +149,7 @@ func main() {
 		{"/api/get_tag_assignments", getTagAssignmentsHandle, "GetTagAssignments", ApiType.GetMany},
 		{"/api/create_tag_assignment", createTagAssignmentHandle, "CreateTagAssignment", ApiType.Create},
 		{"/api/destroy_tag_assignment", destroyTagAssignmentHandle, "DestroyTagAssignment", ApiType.Destroy},
+		{"/api/destroy_tag_assignment_by_id", destroyTagAssignmentByIdHandle, "DestroyTagAssignmentById", ApiType.Destroy},
 		// tags
 		{"/api/get_tags", getTagsHandle, "GetTags", ApiType.GetMany},
 		{"/api/create_tag", createTagHandle, "CreateTag", ApiType.Create},

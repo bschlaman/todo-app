@@ -53,6 +53,10 @@ type DestroyTagAssignmentReq struct {
 	StoryId string `json:"story_id"`
 }
 
+type DestroyTagAssignmentByIdReq struct {
+	Id int `json:"id"`
+}
+
 type CreateTagReq struct {
 	Title       string `json:"title"`
 	Description string `json:"description"`

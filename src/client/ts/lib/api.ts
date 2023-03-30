@@ -38,6 +38,7 @@ const routes = {
   getTagAssignments: "/api/get_tag_assignments",
   createTagAssignment: "/api/create_tag_assignment",
   destroyTagAssignment: "/api/destroy_tag_assignment",
+  destroyTagAssignmentById: "/api/destroy_tag_assignment_by_id",
 
   getStoryRelationships: "/api/get_story_relationships",
   createStoryRelationship: "/api/create_story_relationship",
@@ -237,6 +238,19 @@ export async function destroyTagAssignment(
     body: JSON.stringify({
       tag_id: tagId,
       story_id: storyId,
+    }),
+  });
+  return await handleApiRes(res);
+}
+
+export async function destroyTagAssignmentById(id: string): Promise<JSON> {
+  const res = await fetch(routes.destroyTagAssignmentById, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      id,
     }),
   });
   return await handleApiRes(res);
