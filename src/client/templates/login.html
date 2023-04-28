@@ -18,17 +18,6 @@
 		<title>Login | Todosky</title>
 	</head>
 	<body class="login">
-		<!-- workaround for FOUC -->
-		<script>
-			let FF_FOUC_FIX;
-		</script>
-		<div class="login-wrapper">
-			<form action="/api/login" method="POST">
-				<label for="pass">Enter Password:</label>
-				<input type="password" required name="pass" />
-				<button>Login</button>
-			</form>
-			<!-- end of wrapper div -->
-		</div>
+		<div id="root"></div>
 	</body>
 </html>

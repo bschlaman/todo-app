@@ -23,11 +23,15 @@
   "homepage": "https://github.com/bschlaman/todo-app#readme",
   "dependencies": {
     "dompurify": "^2.4.0",
-    "marked": "^4.2.1"
+    "marked": "^4.2.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@types/dompurify": "^2.4.0",
     "@types/marked": "^4.0.7",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.1",
     "@typescript-eslint/eslint-plugin": "^5.42.1",
     "css-loader": "^6.7.2",
     "eslint": "^8.27.0",
@@ -39,8 +43,8 @@
     "eslint-plugin-promise": "^6.1.1",
     "html-webpack-plugin": "^5.5.0",
     "style-loader": "^3.3.1",
-    "ts-loader": "^9.4.1",
-    "typescript": "^4.8.4",
+    "ts-loader": "^9.4.2",
+    "typescript": "^4.9.5",
     "webpack": "^5.75.0",
     "webpack-cli": "^5.0.0"
   }

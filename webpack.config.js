@@ -5,18 +5,22 @@ const pages = ["task", "taskboard", "login"];
 const publicDir = "dist";
 
 module.exports = {
-	entry: pages.reduce((config, page) => {
-		config[page] = `./src/client/ts/${page}.ts`;
-		return config;
-	}, {}),
+	entry: Object.assign(
+		{},
+		pages.reduce((config, page) => {
+			config[page] = `./src/client/ts/${page}.ts`;
+			return config;
+		}, {}),
+		{ login: `./src/client/index.tsx` }
+	),
 	resolve: {
-		extensions: [".ts"],
+		extensions: [".ts", ".tsx"],
 	},
 	output: {
 		filename: "./[name]/[name].bundle.js",
 		path: path.resolve(__dirname, publicDir),
 	},
-	mode: "none", // remove warning msg
+	mode: "development",
 	devtool: "inline-source-map",
 	module: {
 		rules: [
