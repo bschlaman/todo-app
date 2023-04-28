@@ -710,6 +710,10 @@ buckets.forEach((bucket) => {
     e.preventDefault();
 
     const dragging = document.querySelector(".task.dragging") as HTMLDivElement;
+
+    // return if the element we are dragging is not a task
+    if (dragging === null) return;
+
     // TODO: do I really need vertical sorting functionality?
     const belowTask = getClosestTaskBelowCursor(
       bucket as HTMLDivElement,
