@@ -1,7 +1,8 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
-const pages = ["task", "taskboard", "login"];
+const pages = ["task", "taskboard"];
+const pages_v2 = ["login", "task_v2"];
 const publicDir = "dist";
 
 module.exports = {
@@ -11,7 +12,8 @@ module.exports = {
 			config[page] = `./src/client/ts/${page}.ts`;
 			return config;
 		}, {}),
-		{ login: `./src/client/index.tsx` }
+		{ login: `./src/client/pages/login/index.tsx` },
+		{ task_v2: `./src/client/pages/task/index.tsx` }
 	),
 	resolve: {
 		extensions: [".ts", ".tsx"],
@@ -39,15 +41,27 @@ module.exports = {
 		topLevelAwait: true,
 	},
 	// only using one type of plugin, so could remove this concat
-	plugins: [].concat(
-		pages.map(
-			page =>
-				new HtmlWebpackPlugin({
-					inject: true, // default
-					template: `./src/client/templates/${page}.html`,
-					filename: `./${page}/index.html`,
-					chunks: [page],
-				})
+	plugins: []
+		.concat(
+			pages.map(
+				page =>
+					new HtmlWebpackPlugin({
+						inject: true, // default
+						template: `./src/client/templates/${page}.html`,
+						filename: `./${page}/index.html`,
+						chunks: [page],
+					})
+			)
 		)
-	),
+		.concat(
+			pages_v2.map(
+				page =>
+					new HtmlWebpackPlugin({
+						template: `./src/client/templates/root.html`,
+						filename: `./${page}/index.html`,
+						chunks: [page],
+						title: `Todosky | ${page}`,
+					})
+			)
+		),
 };
