@@ -16,6 +16,10 @@
 			href="https://www.schlamalama.com/favicon.png"
 		/>
 		<title><%= htmlWebpackPlugin.options.title %></title>
+		<script>
+			<!-- disable devtools console messages -->
+			window.__REACT_DEVTOOLS_GLOBAL_HOOK__ = {};
+		</script>
 	</head>
 	<body>
 		<div id="root"></div>
