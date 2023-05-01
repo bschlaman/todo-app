@@ -84,6 +84,12 @@ func matchIdRedirMiddleware(h http.Handler) http.Handler {
 		if match {
 			r.URL.Path = "/task/"
 		}
+		match_v2, _ := regexp.MatchString(
+			"/task_v2/([0-9a-z]+-){4}[0-9a-z]+",
+			r.URL.Path)
+		if match_v2 {
+			r.URL.Path = "/task_v2/"
+		}
 		h.ServeHTTP(w, r)
 	})
 }

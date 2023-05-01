@@ -425,6 +425,7 @@ async function handleApiRes(res: Response) {
     return await res.json();
   } catch (err) {
     console.warn("response was not json:", new URL(res.url).pathname);
+    return null;
   }
 }
 
