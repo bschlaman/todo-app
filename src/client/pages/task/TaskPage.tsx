@@ -1,6 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import ErrorBanner from "../../components/banners";
-import { Sprint, Story, Task, TaskComment } from "../../ts/model/entities";
+import {
+  STATUSES,
+  Sprint,
+  Story,
+  Task,
+  TaskComment,
+} from "../../ts/model/entities";
 import {
   getCommentsByTaskId,
   getSprints,
@@ -50,7 +56,26 @@ function TaskMetadata({ task }: { task: Task }) {
     );
   }
 
-  function renderStoryDropdown(stories: Story[], sprints: Sprint[]) {
+  function renderStatusDropdown(taskStatus: string) {
+    return (
+      <select value={taskStatus}>
+        {/* this list will not change, so fine to depend on it */}
+        {STATUSES.map((status) => {
+          return (
+            <option key={status} value={status}>
+              {status}
+            </option>
+          );
+        })}
+      </select>
+    );
+  }
+
+  function renderStoryDropdown(
+    taskStoryId: string,
+    stories: Story[],
+    sprints: Sprint[]
+  ) {
     // bucketize the stories by sprint
     const sprintBuckets = new Map<string, Story[]>();
     for (const story of stories) {
@@ -78,24 +103,20 @@ function TaskMetadata({ task }: { task: Task }) {
         if (sprintsBeforeTask === 0) return;
         if (taskSprintFound) sprintsBeforeTask--;
         sprintBuckets.get(sprint.id)?.forEach((story) => {
-          if (story.id === task.story_id) taskSprintFound = true;
+          if (story.id === taskStoryId) taskSprintFound = true;
         });
         sprintsToRender.push(sprint);
       });
 
     return (
-      <select>
+      <select value={taskStoryId}>
         <option value={NULL_STORY_IDENTIFIER}>{NULL_STORY_IDENTIFIER}</option>
         {sprintsToRender.map((sprint) => {
           return (
             <optgroup key={sprint.id} label={sprint.title}>
               {sprintBuckets.get(sprint.id)?.map((story) => {
                 return (
-                  <option
-                    key={story.id}
-                    value={story.id}
-                    selected={story.id === task.story_id}
-                  >
+                  <option key={story.id} value={story.id}>
                     {story.title}
                   </option>
                 );
@@ -113,9 +134,10 @@ function TaskMetadata({ task }: { task: Task }) {
     <div>
       {renderTaskMetadataPair("Id", formatId(task.id))}
       {renderTaskMetadataPair("Created", formatDate(new Date(task.created_at)))}
-      {renderTaskMetadataPair("Status", task.status)}
-      <p>Parent:</p>
-      {renderStoryDropdown(stories, sprints)}
+      <p>Status:</p>
+      {renderStatusDropdown(task.status)}
+      <p>Parent story:</p>
+      {renderStoryDropdown(task.story_id, stories, sprints)}
     </div>
   );
 }
@@ -165,12 +187,20 @@ function CommentsSection({ taskId }: { taskId: string }) {
     </>
   );
 }
+
 export default function TaskPage() {
   const path = window.location.pathname;
   const taskIdFromPath = path.substring(path.lastIndexOf("/") + 1);
 
   const [task, setTask] = useState<Task>();
   const [error, setError] = useState();
+
+  const renderCount = useRef(0);
+
+  useEffect(() => {
+    renderCount.current = renderCount.current + 1;
+    console.log("render count", renderCount.current);
+  });
 
   useEffect(() => {
     void (async () => {
@@ -183,7 +213,7 @@ export default function TaskPage() {
           setError(e.message);
         });
     })();
-  }, []);
+  }, [taskIdFromPath]);
 
   if (error !== undefined) return <ErrorBanner message={error} />;
 
