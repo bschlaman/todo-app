@@ -261,7 +261,7 @@ function renderTask(task: Task) {
         if (story.id === task.story_id) {
           option.selected = true;
           taskSprintFound = true;
-          sprintsToRenderAfterTaskInSelect -= 1;
+          sprintsToRenderAfterTaskInSelect--;
         }
       });
       taskStorySelector.appendChild(optGroup);
