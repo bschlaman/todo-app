@@ -8,8 +8,8 @@
     "prebuild": "rm -r dist",
     "build": "webpack",
     "clean": "rm -r dist",
-    "lint": "eslint . --ext .ts --ext .tsx",
-    "fix": "eslint . --ext .ts --ext .tsx --fix"
+    "lint": "eslint . --ext .ts,.tsx",
+    "fix": "eslint . --ext .ts,.tsx --fix"
   },
   "repository": {
     "type": "git",
@@ -41,6 +41,8 @@
     "eslint-plugin-n": "^15.5.1",
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-promise": "^6.1.1",
+    "eslint-plugin-react": "^7.32.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
     "html-webpack-plugin": "^5.5.0",
     "style-loader": "^3.3.1",
     "ts-loader": "^9.4.2",

@@ -3,7 +3,7 @@
 		"browser": true,
 		"es2021": true
 	},
-	"extends": ["eslint:recommended", "standard-with-typescript", "prettier"],
+	"extends": ["eslint:recommended", "standard-with-typescript", "prettier", "plugin:react/recommended", "plugin:react-hooks/recommended"],
 	"plugins": ["prettier"],
 	"overrides": [],
 	"parserOptions": {
