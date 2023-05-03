@@ -8,6 +8,7 @@ import {
   TaskComment,
 } from "../../ts/model/entities";
 import {
+  createComment,
   getCommentsByTaskId,
   getSprints,
   getStories,
@@ -21,7 +22,7 @@ function TaskMetadata({ task }: { task: Task }) {
   const [stories, setStories] = useState<Story[]>([]);
   const [sprints, setSprints] = useState<Sprint[]>([]);
   // const [sprintsById, setSprintsById] = useState<Map<string, Sprint>>();
-  const [error, setError] = useState();
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     void (async () => {
@@ -45,7 +46,7 @@ function TaskMetadata({ task }: { task: Task }) {
           setError(e.message);
         });
     })();
-  }, []);
+  }, [task]);
 
   function renderTaskMetadataPair(label: string, value: string) {
     return (
@@ -128,7 +129,7 @@ function TaskMetadata({ task }: { task: Task }) {
     );
   }
 
-  if (error !== undefined) return <ErrorBanner message={error} />;
+  if (error !== null) return <ErrorBanner message={error} />;
 
   return (
     <div>
@@ -155,7 +156,9 @@ function TaskView({ task }: { task: Task }) {
 
 function CommentsSection({ taskId }: { taskId: string }) {
   const [comments, setComments] = useState<TaskComment[]>([]);
-  const [error, setError] = useState();
+  const [inputText, setInputText] = useState("");
+  const [error, setError] = useState(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     void (async () => {
@@ -167,11 +170,19 @@ function CommentsSection({ taskId }: { taskId: string }) {
           setError(e.message);
         });
     })();
-  }, []);
+  }, [taskId]);
 
-  if (error !== undefined) return <ErrorBanner message={error} />;
+  if (error !== null) return <ErrorBanner message={error} />;
 
-  if (comments === undefined) return <Loading />;
+  function handleCreateComment() {
+    void (async () => {
+      if (inputText.trim() === "") return;
+      const comment = await createComment(taskId, inputText);
+      setComments([...comments, comment]);
+      setInputText("");
+      inputRef.current?.focus();
+    })();
+  }
 
   return (
     <>
@@ -184,6 +195,22 @@ function CommentsSection({ taskId }: { taskId: string }) {
           </div>
         );
       })}
+      <div>
+        <textarea
+          value={inputText}
+          onChange={(e) => {
+            setInputText(e.target.value);
+          }}
+          onKeyDown={(e) => {
+            if (e.ctrlKey && e.key === "Enter") {
+              handleCreateComment();
+            }
+          }}
+          ref={inputRef}
+          placeholder="Type new comment (ctrl+&#9166; to save)"
+        ></textarea>
+        <button onClick={handleCreateComment}>Post</button>
+      </div>
     </>
   );
 }
@@ -193,7 +220,7 @@ export default function TaskPage() {
   const taskIdFromPath = path.substring(path.lastIndexOf("/") + 1);
 
   const [task, setTask] = useState<Task>();
-  const [error, setError] = useState();
+  const [error, setError] = useState(null);
 
   const renderCount = useRef(0);
 
@@ -215,7 +242,7 @@ export default function TaskPage() {
     })();
   }, [taskIdFromPath]);
 
-  if (error !== undefined) return <ErrorBanner message={error} />;
+  if (error !== null) return <ErrorBanner message={error} />;
 
   if (task === undefined) return <Loading />;
 

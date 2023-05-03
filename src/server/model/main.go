@@ -262,7 +262,7 @@ func CreateTask(log *logger.BLogger, createReq CreateTaskReq) (*CreateEntityResp
 	return &CreateEntityResponse{id}, nil
 }
 
-func CreateComment(log *logger.BLogger, createReq CreateCommentReq) (*CreateEntityResponse, error) {
+func CreateComment(log *logger.BLogger, createReq CreateCommentReq) (*Comment, error) {
 	if createReq.Text == "" || createReq.TaskID == "" {
 		log.Error("createComment: Text or TaskID blank")
 		return nil, InputError{}
@@ -275,7 +275,10 @@ func CreateComment(log *logger.BLogger, createReq CreateCommentReq) (*CreateEnti
 	}
 	defer conn.Close(context.Background())
 
-	var id string
+	var id int
+	var text string
+	var edited bool
+	var cAt, uAt time.Time
 
 	err = conn.QueryRow(context.Background(),
 		`INSERT INTO comments (
@@ -286,16 +289,21 @@ func CreateComment(log *logger.BLogger, createReq CreateCommentReq) (*CreateEnti
 				CURRENT_TIMESTAMP,
 				$1,
 				$2
-			) RETURNING id::text`, // TODO (2022.12.01): is there a cleaner way than casting to text?
+			) RETURNING
+				id,
+				created_at,
+				updated_at,
+				text,
+				edited`,
 		createReq.Text,
 		createReq.TaskID,
-	).Scan(&id)
+	).Scan(&id, &cAt, &uAt, &text, &edited)
 	if err != nil {
 		log.Errorf("Exec failed: %v", err)
 		return nil, err
 	}
 
-	return &CreateEntityResponse{id}, nil
+	return &Comment{id, createReq.TaskID, cAt, uAt, text, edited}, nil
 }
 
 func PutStory(log *logger.BLogger, putReq PutStoryReq) error {
@@ -679,7 +687,6 @@ func DestroyTagAssignmentByID(log *logger.BLogger, destroyReq DestroyTagAssignme
 
 	return nil
 }
-
 
 func CreateTag(log *logger.BLogger, createReq CreateTagReq) (*CreateEntityResponse, error) {
 	if createReq.Title == "" || createReq.Description == "" {

@@ -275,7 +275,7 @@ func createCommentHandle() http.Handler {
 			return
 		}
 
-		entity, err := model.CreateComment(env.Log, createReq)
+		comment, err := model.CreateComment(env.Log, createReq)
 		if err != nil {
 			log.Errorf("comment creation failed: %v", err)
 			if errors.Is(err, model.InputError{}) {
@@ -286,9 +286,9 @@ func createCommentHandle() http.Handler {
 			return
 		}
 
-		*r = *r.WithContext(context.WithValue(r.Context(), createEntityIDKey, entity.ID))
+		*r = *r.WithContext(context.WithValue(r.Context(), createEntityIDKey, comment.ID))
 
-		js, err := json.Marshal(entity)
+		js, err := json.Marshal(comment)
 		if err != nil {
 			log.Errorf("json.Marshal failed: %v", err)
 			http.Error(w, "something went wrong", http.StatusInternalServerError)

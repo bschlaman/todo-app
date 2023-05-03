@@ -351,7 +351,7 @@ export async function getStoryById(id: string): Promise<Story> {
 export async function createComment(
   taskId: string,
   text: string
-): Promise<JSON> {
+): Promise<TaskComment> {
   try {
     const res = await fetch(`${routes.createComment}`, {
       method: "POST",
@@ -363,7 +363,7 @@ export async function createComment(
         task_id: taskId,
       }),
     });
-    return await handleApiRes(res);
+    return (await handleApiRes(res)) as TaskComment;
   } catch (err) {
     if (err instanceof Error) handleApiErr(err);
     throw err;
