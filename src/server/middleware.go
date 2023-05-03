@@ -75,7 +75,7 @@ func sessionMiddleware(h http.Handler) http.Handler {
 	})
 }
 
-func matchIdRedirMiddleware(h http.Handler) http.Handler {
+func matchIDRedirMiddleware(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// TODO: really really don't like this strategy
 		match, _ := regexp.MatchString(
@@ -84,10 +84,10 @@ func matchIdRedirMiddleware(h http.Handler) http.Handler {
 		if match {
 			r.URL.Path = "/task/"
 		}
-		match_v2, _ := regexp.MatchString(
+		matchV2, _ := regexp.MatchString(
 			"/task_v2/([0-9a-z]+-){4}[0-9a-z]+",
 			r.URL.Path)
-		if match_v2 {
+		if matchV2 {
 			r.URL.Path = "/task_v2/"
 		}
 		h.ServeHTTP(w, r)
@@ -121,7 +121,7 @@ func putAPILatencyMetricMiddleware(h http.Handler, apiName, apiType string) http
 	})
 }
 
-func logEventMiddleware(h http.Handler, apiName, apiType, callerId string) http.Handler {
+func logEventMiddleware(h http.Handler, apiName, apiType, callerID string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 
@@ -129,11 +129,11 @@ func logEventMiddleware(h http.Handler, apiName, apiType, callerId string) http.
 
 		// TODO (2022.12.01): this results in 0 value strings / ints
 		// being sent to the db - figure out a better way
-		createEntityId, _ := r.Context().Value(createEntityIdKey).(string)
+		createEntityID, _ := r.Context().Value(createEntityIDKey).(string)
 
 		getRequestBytes, _ := r.Context().Value(getRequestBytesKey).(int)
 
-		go logEvent(env.Log, time.Since(start), apiName, apiType, callerId, &createEntityId, &getRequestBytes)
+		go logEvent(env.Log, time.Since(start), apiName, apiType, callerID, &createEntityID, &getRequestBytes)
 	})
 }
 

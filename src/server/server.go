@@ -27,21 +27,23 @@ const (
 	sessionDuration      time.Duration    = 2 * time.Hour
 	allowClearSessionAPI bool             = false
 	metricNamespace      string           = "todo-app/api"
-	createEntityIdKey    CustomContextKey = "createReqIdKey"
+	createEntityIDKey    CustomContextKey = "createReqIDKey"
 	getRequestBytesKey   CustomContextKey = "getReqKey"
 )
 
+// CustomContextKey is a type that represents
+// context keys, of which happen to be strings
 type CustomContextKey string
 
 var serverStart = time.Now()
 
-// global variables for dependence injection
+// Env stores global variables for dependence injection
 type Env struct {
 	Log         *logger.BLogger
 	AWSCfg      aws.Config
 	AWSCWClient *cloudwatch.Client
 	LoginPw     string
-	CallerId    string
+	CallerID    string
 	// future state: possibly store db connection here
 }
 
@@ -51,14 +53,17 @@ var env *Env
 // i.e. avoid e.Log
 var log *logger.BLogger
 
+// Session is stored in memory and used to manage logged in
+// users
 type Session struct {
-	Id        string
+	ID        string
 	CreatedAt time.Time
 }
 
 var sessions map[string]Session
 
-var ApiType = struct {
+// APIType is a kind of enum for classifications of api calls
+var APIType = struct {
 	Util    string
 	Auth    string
 	Get     string
@@ -109,7 +114,7 @@ func main() {
 	fs := http.FileServer(http.Dir(path.Join("../..", staticDir)))
 	http.Handle("/", utils.LogReq(log)(sessionMiddleware(
 		redirectRootPathMiddleware(
-			matchIdRedirMiddleware(fs),
+			matchIDRedirMiddleware(fs),
 		),
 	)))
 
@@ -121,42 +126,42 @@ func main() {
 	apiRoutes := []struct {
 		Path    string
 		Handler func() http.Handler
-		ApiName string
-		ApiType string
+		APIName string
+		APIType string
 	}{
-		{"/api/echo", utils.EchoHandle, "Echo", ApiType.Util},
-		{"/api/echodelay", utils.EchoDelayHandle, "EchoDelay", ApiType.Util},
-		{"/api/login", loginHandle, "Login", ApiType.Auth},
-		{"/api/check_session", checkSessionHandle, "CheckSession", ApiType.Auth},
-		{"/api/get_config", getConfigHandle, "GetConfig", ApiType.Get},
+		{"/api/echo", utils.EchoHandle, "Echo", APIType.Util},
+		{"/api/echodelay", utils.EchoDelayHandle, "EchoDelay", APIType.Util},
+		{"/api/login", loginHandle, "Login", APIType.Auth},
+		{"/api/check_session", checkSessionHandle, "CheckSession", APIType.Auth},
+		{"/api/get_config", getConfigHandle, "GetConfig", APIType.Get},
 		// tasks
-		{"/api/get_tasks", getTasksHandle, "GetTasks", ApiType.GetMany},
-		{"/api/get_task", getTaskByIdHandle, "GetTaskById", ApiType.Get},
-		{"/api/put_task", putTaskHandle, "PutTask", ApiType.Put},
-		{"/api/create_task", createTaskHandle, "CreateTask", ApiType.Create},
+		{"/api/get_tasks", getTasksHandle, "GetTasks", APIType.GetMany},
+		{"/api/get_task", getTaskByIDHandle, "GetTaskByID", APIType.Get},
+		{"/api/put_task", putTaskHandle, "PutTask", APIType.Put},
+		{"/api/create_task", createTaskHandle, "CreateTask", APIType.Create},
 		// comments
-		{"/api/create_comment", createCommentHandle, "CreateComment", ApiType.Create},
-		{"/api/get_comments_by_task_id", getCommentsByTaskIdHandle, "GetCommentsByTaskId", ApiType.GetMany},
+		{"/api/create_comment", createCommentHandle, "CreateComment", APIType.Create},
+		{"/api/get_comments_by_task_id", getCommentsByTaskIDHandle, "GetCommentsByTaskID", APIType.GetMany},
 		// stories
-		{"/api/get_stories", getStoriesHandle, "GetStories", ApiType.GetMany},
-		{"/api/get_story", getStoryByIdHandle, "GetStoryById", ApiType.Get},
-		{"/api/create_story", createStoryHandle, "CreateStory", ApiType.Create},
-		{"/api/put_story", putStoryHandle, "PutStory", ApiType.Put},
+		{"/api/get_stories", getStoriesHandle, "GetStories", APIType.GetMany},
+		{"/api/get_story", getStoryByIDHandle, "GetStoryByID", APIType.Get},
+		{"/api/create_story", createStoryHandle, "CreateStory", APIType.Create},
+		{"/api/put_story", putStoryHandle, "PutStory", APIType.Put},
 		// sprints
-		{"/api/get_sprints", getSprintsHandle, "GetSprints", ApiType.GetMany},
-		{"/api/create_sprint", createSprintHandle, "CreateSprint", ApiType.Create},
+		{"/api/get_sprints", getSprintsHandle, "GetSprints", APIType.GetMany},
+		{"/api/create_sprint", createSprintHandle, "CreateSprint", APIType.Create},
 		// tag_assignments
-		{"/api/get_tag_assignments", getTagAssignmentsHandle, "GetTagAssignments", ApiType.GetMany},
-		{"/api/create_tag_assignment", createTagAssignmentHandle, "CreateTagAssignment", ApiType.Create},
-		{"/api/destroy_tag_assignment", destroyTagAssignmentHandle, "DestroyTagAssignment", ApiType.Destroy},
-		{"/api/destroy_tag_assignment_by_id", destroyTagAssignmentByIdHandle, "DestroyTagAssignmentById", ApiType.Destroy},
+		{"/api/get_tag_assignments", getTagAssignmentsHandle, "GetTagAssignments", APIType.GetMany},
+		{"/api/create_tag_assignment", createTagAssignmentHandle, "CreateTagAssignment", APIType.Create},
+		{"/api/destroy_tag_assignment", destroyTagAssignmentHandle, "DestroyTagAssignment", APIType.Destroy},
+		{"/api/destroy_tag_assignment_by_id", destroyTagAssignmentByIDHandle, "DestroyTagAssignmentByID", APIType.Destroy},
 		// tags
-		{"/api/get_tags", getTagsHandle, "GetTags", ApiType.GetMany},
-		{"/api/create_tag", createTagHandle, "CreateTag", ApiType.Create},
+		{"/api/get_tags", getTagsHandle, "GetTags", APIType.GetMany},
+		{"/api/create_tag", createTagHandle, "CreateTag", APIType.Create},
 		// story_relationships
-		{"/api/get_story_relationships", getStoryRelationshipsHandle, "GetStoryRelationships", ApiType.GetMany},
-		{"/api/create_story_relationship", createStoryRelationshipHandle, "CreateStoryRelationship", ApiType.Create},
-		{"/api/destroy_story_relationship", destroyStoryRelationshipByIdHandle, "DestroyStoryRelationship", ApiType.Destroy},
+		{"/api/get_story_relationships", getStoryRelationshipsHandle, "GetStoryRelationships", APIType.GetMany},
+		{"/api/create_story_relationship", createStoryRelationshipHandle, "CreateStoryRelationship", APIType.Create},
+		{"/api/destroy_story_relationship", destroyStoryRelationshipByIDHandle, "DestroyStoryRelationship", APIType.Destroy},
 	}
 	for _, route := range apiRoutes {
 		http.Handle(route.Path, utils.LogReq(log)(
@@ -165,15 +170,15 @@ func main() {
 				putAPILatencyMetricMiddleware(
 					incrementAPIMetricMiddleware(
 						sessionMiddleware(enforceJSONHandler(route.Handler())),
-						route.ApiName,
-						route.ApiType,
+						route.APIName,
+						route.APIType,
 					),
-					route.ApiName,
-					route.ApiType,
+					route.APIName,
+					route.APIType,
 				),
-				route.ApiName,
-				route.ApiType,
-				env.CallerId,
+				route.APIName,
+				route.APIType,
+				env.CallerID,
 			)))
 	}
 
@@ -195,18 +200,18 @@ func main() {
 	id := struct {
 		Account string
 		Arn     string
-		UserId  string
+		UserID  string
 	}{*res.Account, *res.Arn, *res.UserId}
 	log.Infof("using aws creds: %+v", id)
 
-	if env.CallerId == "" {
+	if env.CallerID == "" {
 		log.Fatal("CALLER_ID env var not set")
 	}
-	log.Infof("using caller identity: %s", env.CallerId)
+	log.Infof("using caller identity: %s", env.CallerID)
 
 	// server startup event log
 	serverStartDuration := time.Since(serverStart)
-	logEventApplicationStartup(log, serverStartDuration, env.CallerId)
+	logEventApplicationStartup(log, serverStartDuration, env.CallerID)
 	log.Infof("server start duration: %s", serverStartDuration)
 
 	// Start the server

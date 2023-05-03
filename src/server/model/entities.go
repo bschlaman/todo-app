@@ -3,20 +3,20 @@ package model
 import "time"
 
 type Task struct {
-	Id          string    `json:"id"`
+	ID          string    `json:"id"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 	Title       string    `json:"title"`
 	Description string    `json:"description"`
 	Status      string    `json:"status"`
-	StoryId     *string   `json:"story_id"`
+	StoryID     *string   `json:"story_id"`
 	Edited      bool      `json:"edited"`
 	BulkTask    bool      `json:"bulk_task"`
 }
 
 type Comment struct {
-	Id        int       `json:"id"`
-	TaskId    string    `json:"task_id"`
+	ID        int       `json:"id"`
+	TaskID    string    `json:"task_id"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 	Text      string    `json:"text"`
@@ -24,7 +24,7 @@ type Comment struct {
 }
 
 type Tag struct {
-	Id          string    `json:"id"`
+	ID          string    `json:"id"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 	Title       string    `json:"title"`
@@ -34,14 +34,14 @@ type Tag struct {
 }
 
 type TagAssignment struct {
-	Id        int       `json:"id"`
+	ID        int       `json:"id"`
 	CreatedAt time.Time `json:"created_at"`
-	TagId     string    `json:"tag_id"`
-	StoryId   string    `json:"story_id"`
+	TagID     string    `json:"tag_id"`
+	StoryID   string    `json:"story_id"`
 }
 
 type Sprint struct {
-	Id        string    `json:"id"`
+	ID        string    `json:"id"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 	Title     string    `json:"title"`
@@ -51,26 +51,26 @@ type Sprint struct {
 }
 
 type Story struct {
-	Id          string    `json:"id"`
+	ID          string    `json:"id"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 	Title       string    `json:"title"`
 	Description string    `json:"description"`
 	Status      string    `json:"status"`
-	SprintId    string    `json:"sprint_id"`
+	SprintID    string    `json:"sprint_id"`
 	Edited      bool      `json:"edited"`
 }
 
 type StoryRelationship struct {
-	Id        int       `json:"id"`
+	ID        int       `json:"id"`
 	CreatedAt time.Time `json:"created_at"`
-	StoryIdA  string    `json:"story_id_a"`
-	StoryIdB  string    `json:"story_id_b"`
+	StoryIDA  string    `json:"story_id_a"`
+	StoryIDB  string    `json:"story_id_b"`
 	Relation  string    `json:"relation"`
 }
 
 type ServerConfigRow struct {
-	Id        string    `json:"id"`
+	ID        string    `json:"id"`
 	CreatedAt time.Time `json:"created_at"`
 	Key       string    `json:"key"`
 	Value     string    `json:"value"`

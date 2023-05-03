@@ -5,29 +5,29 @@ import "time"
 type CreateTaskReq struct {
 	Title       string  `json:"title"`
 	Description string  `json:"description"`
-	StoryId     *string `json:"story_id"`  // ptr allows for null values
+	StoryID     *string `json:"story_id"`  // ptr allows for null values
 	BulkTask    *bool   `json:"bulk_task"` // ptr allows for null values
 }
 
 type CreateCommentReq struct {
 	Text   string `json:"text"`
-	TaskId string `json:"task_id"`
+	TaskID string `json:"task_id"`
 }
 
 type PutStoryReq struct {
-	Id          string `json:"id"`
+	ID          string `json:"id"`
 	Status      string `json:"status"`
 	Title       string `json:"title"`
 	Description string `json:"description"`
-	SprintId    string `json:"sprint_id"`
+	SprintID    string `json:"sprint_id"`
 }
 
 type PutTaskReq struct {
-	Id          string  `json:"id"`
+	ID          string  `json:"id"`
 	Status      string  `json:"status"`
 	Title       string  `json:"title"`
 	Description string  `json:"description"`
-	StoryId     *string `json:"story_id"`
+	StoryID     *string `json:"story_id"`
 }
 
 type CreateSprintReq struct {
@@ -39,22 +39,22 @@ type CreateSprintReq struct {
 type CreateStoryReq struct {
 	Title       string `json:"title"`
 	Description string `json:"description"`
-	SprintId    string `json:"sprint_id"`
+	SprintID    string `json:"sprint_id"`
 }
 
 type CreateTagAssignmentReq struct {
-	TagId   string `json:"tag_id"`
-	StoryId string `json:"story_id"`
+	TagID   string `json:"tag_id"`
+	StoryID string `json:"story_id"`
 }
 
-// TODO (2023.01.22): this should be by Id
+// TODO (2023.01.22): this should be by ID
 type DestroyTagAssignmentReq struct {
-	TagId   string `json:"tag_id"`
-	StoryId string `json:"story_id"`
+	TagID   string `json:"tag_id"`
+	StoryID string `json:"story_id"`
 }
 
-type DestroyTagAssignmentByIdReq struct {
-	Id int `json:"id"`
+type DestroyTagAssignmentByIDReq struct {
+	ID int `json:"id"`
 }
 
 type CreateTagReq struct {
@@ -63,11 +63,11 @@ type CreateTagReq struct {
 }
 
 type CreateStoryRelationshipReq struct {
-	StoryIdA string `json:"story_id_a"`
-	StoryIdB string `json:"story_id_b"`
+	StoryIDA string `json:"story_id_a"`
+	StoryIDB string `json:"story_id_b"`
 	Relation string `json:"relation"`
 }
 
-type DestroyStoryRelationshipByIdReq struct {
-	Id int `json:"id"`
+type DestroyStoryRelationshipByIDReq struct {
+	ID int `json:"id"`
 }

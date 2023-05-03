@@ -123,16 +123,16 @@ func getConfigHandle() http.Handler {
 	})
 }
 
-func getCommentsByTaskIdHandle() http.Handler {
+func getCommentsByTaskIDHandle() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		taskId := r.URL.Query().Get("id")
-		if strings.Count(taskId, "-") != 4 {
-			log.Errorf("taskId seems incorrect: %s\n", taskId)
+		taskID := r.URL.Query().Get("id")
+		if strings.Count(taskID, "-") != 4 {
+			log.Errorf("taskID seems incorrect: %s\n", taskID)
 			http.Error(w, "bad task id", http.StatusBadRequest)
 			return
 		}
 
-		comments, err := model.GetCommentsByTaskId(env.Log, taskId)
+		comments, err := model.GetCommentsByTaskID(env.Log, taskID)
 		if err != nil {
 			http.Error(w, "something went wrong", http.StatusInternalServerError)
 			return
@@ -152,17 +152,17 @@ func getCommentsByTaskIdHandle() http.Handler {
 	})
 }
 
-func getTaskByIdHandle() http.Handler {
+func getTaskByIDHandle() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		taskId := r.URL.Query().Get("id")
+		taskID := r.URL.Query().Get("id")
 		// TODO: strongly coupled to id format
-		if strings.Count(taskId, "-") != 4 {
-			log.Errorf("taskId seems incorrect: %s\n", taskId)
+		if strings.Count(taskID, "-") != 4 {
+			log.Errorf("taskID seems incorrect: %s\n", taskID)
 			http.Error(w, "bad task id", http.StatusBadRequest)
 			return
 		}
 
-		task, err := model.GetTaskByIdHandle(env.Log, taskId)
+		task, err := model.GetTaskByIDHandle(env.Log, taskID)
 		if err != nil {
 			http.Error(w, "something went wrong", http.StatusInternalServerError)
 			return
@@ -182,17 +182,17 @@ func getTaskByIdHandle() http.Handler {
 	})
 }
 
-func getStoryByIdHandle() http.Handler {
+func getStoryByIDHandle() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		storyId := r.URL.Query().Get("id")
+		storyID := r.URL.Query().Get("id")
 		// TODO: strongly coupled to id format
-		if strings.Count(storyId, "-") != 4 {
-			log.Errorf("storyId seems incorrect: %s\n", storyId)
+		if strings.Count(storyID, "-") != 4 {
+			log.Errorf("storyID seems incorrect: %s\n", storyID)
 			http.Error(w, "bad story id", http.StatusBadRequest)
 			return
 		}
 
-		story, err := model.GetStoryById(env.Log, storyId)
+		story, err := model.GetStoryByID(env.Log, storyID)
 		if err != nil {
 			http.Error(w, "something went wrong", http.StatusInternalServerError)
 			return
@@ -250,7 +250,7 @@ func createTaskHandle() http.Handler {
 			return
 		}
 
-		*r = *r.WithContext(context.WithValue(r.Context(), createEntityIdKey, entity.Id))
+		*r = *r.WithContext(context.WithValue(r.Context(), createEntityIDKey, entity.ID))
 
 		js, err := json.Marshal(entity)
 		if err != nil {
@@ -286,7 +286,7 @@ func createCommentHandle() http.Handler {
 			return
 		}
 
-		*r = *r.WithContext(context.WithValue(r.Context(), createEntityIdKey, entity.Id))
+		*r = *r.WithContext(context.WithValue(r.Context(), createEntityIDKey, entity.ID))
 
 		js, err := json.Marshal(entity)
 		if err != nil {
@@ -376,7 +376,7 @@ func createSprintHandle() http.Handler {
 			return
 		}
 
-		*r = *r.WithContext(context.WithValue(r.Context(), createEntityIdKey, entity.Id))
+		*r = *r.WithContext(context.WithValue(r.Context(), createEntityIDKey, entity.ID))
 
 		js, err := json.Marshal(entity)
 		if err != nil {
@@ -430,7 +430,7 @@ func createStoryHandle() http.Handler {
 			return
 		}
 
-		*r = *r.WithContext(context.WithValue(r.Context(), createEntityIdKey, entity.Id))
+		*r = *r.WithContext(context.WithValue(r.Context(), createEntityIDKey, entity.ID))
 
 		js, err := json.Marshal(entity)
 		if err != nil {
@@ -511,7 +511,7 @@ func createTagAssignmentHandle() http.Handler {
 			return
 		}
 
-		*r = *r.WithContext(context.WithValue(r.Context(), createEntityIdKey, entity.Id))
+		*r = *r.WithContext(context.WithValue(r.Context(), createEntityIDKey, entity.ID))
 
 		js, err := json.Marshal(entity)
 		if err != nil {
@@ -549,16 +549,16 @@ func destroyTagAssignmentHandle() http.Handler {
 	})
 }
 
-func destroyTagAssignmentByIdHandle() http.Handler {
+func destroyTagAssignmentByIDHandle() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		destroyReq := model.DestroyTagAssignmentByIdReq{}
+		destroyReq := model.DestroyTagAssignmentByIDReq{}
 		if err := json.NewDecoder(r.Body).Decode(&destroyReq); err != nil {
 			log.Errorf("unable to decode json: %v", err)
 			http.Error(w, "something went wrong", http.StatusBadRequest)
 			return
 		}
 
-		err := model.DestroyTagAssignmentById(env.Log, destroyReq)
+		err := model.DestroyTagAssignmentByID(env.Log, destroyReq)
 		if err != nil {
 			log.Errorf("tag assignment destruction failed: %v", err)
 			if errors.Is(err, model.InputError{}) {
@@ -591,7 +591,7 @@ func createTagHandle() http.Handler {
 			return
 		}
 
-		*r = *r.WithContext(context.WithValue(r.Context(), createEntityIdKey, entity.Id))
+		*r = *r.WithContext(context.WithValue(r.Context(), createEntityIDKey, entity.ID))
 
 		js, err := json.Marshal(entity)
 		if err != nil {
@@ -649,7 +649,7 @@ func createStoryRelationshipHandle() http.Handler {
 			return
 		}
 
-		*r = *r.WithContext(context.WithValue(r.Context(), createEntityIdKey, entity.Id))
+		*r = *r.WithContext(context.WithValue(r.Context(), createEntityIDKey, entity.ID))
 
 		js, err := json.Marshal(entity)
 		if err != nil {
@@ -665,16 +665,16 @@ func createStoryRelationshipHandle() http.Handler {
 	})
 }
 
-func destroyStoryRelationshipByIdHandle() http.Handler {
+func destroyStoryRelationshipByIDHandle() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		destroyReq := model.DestroyStoryRelationshipByIdReq{}
+		destroyReq := model.DestroyStoryRelationshipByIDReq{}
 		if err := json.NewDecoder(r.Body).Decode(&destroyReq); err != nil {
 			log.Errorf("unable to decode json: %v", err)
 			http.Error(w, "something went wrong", http.StatusBadRequest)
 			return
 		}
 
-		err := model.DestroyStoryRelationshipById(env.Log, destroyReq)
+		err := model.DestroyStoryRelationshipByID(env.Log, destroyReq)
 		if err != nil {
 			log.Errorf("story relationship destruction failed: %v", err)
 			if errors.Is(err, model.InputError{}) {

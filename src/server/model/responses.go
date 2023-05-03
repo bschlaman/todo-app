@@ -1,5 +1,5 @@
 package model
 
 type CreateEntityResponse struct {
-	Id string `json:"id"`
+	ID string `json:"id"`
 }

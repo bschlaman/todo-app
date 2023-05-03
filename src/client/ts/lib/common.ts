@@ -10,6 +10,7 @@ export const TAG_COLORS = {
   Guitar: "brown",
   "Intellectual Pursuits": "darkblue",
   "Machine Learning": "darkred",
+  "Career and Brand": "indigo",
 } as const;
 
 // since tasks may not have a parent story, we need something

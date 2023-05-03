@@ -12,8 +12,8 @@ import (
 func logEvent(
 	log *logger.BLogger,
 	latency time.Duration,
-	apiName, apiType, callerId string,
-	createEntityId *string,
+	apiName, apiType, callerID string,
+	createEntityID *string,
 	getResponseBytes *int,
 ) error {
 	conn, err := database.GetPgxConn()
@@ -39,10 +39,10 @@ func logEvent(
 				$5,
 				$6
 			);`,
-		callerId,
+		callerID,
 		apiName,
 		apiType,
-		createEntityId,
+		createEntityID,
 		getResponseBytes,
 		latency,
 	)
@@ -57,7 +57,7 @@ func logEvent(
 func logEventApplicationStartup(
 	log *logger.BLogger,
 	latency time.Duration,
-	callerId string,
+	callerID string,
 ) error {
-	return logEvent(log, latency, "AppStartup", "Util", callerId, nil, nil)
+	return logEvent(log, latency, "AppStartup", "Util", callerID, nil, nil)
 }
