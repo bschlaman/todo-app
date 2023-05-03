@@ -29,6 +29,7 @@ const (
 	metricNamespace      string           = "todo-app/api"
 	createEntityIDKey    CustomContextKey = "createReqIDKey"
 	getRequestBytesKey   CustomContextKey = "getReqKey"
+	cacheTTLSeconds      int              = 2
 )
 
 // CustomContextKey is a type that represents
@@ -61,6 +62,8 @@ type Session struct {
 }
 
 var sessions map[string]Session
+
+var cache *cacheStore
 
 // APIType is a kind of enum for classifications of api calls
 var APIType = struct {
@@ -104,6 +107,7 @@ func init() {
 
 	// init globals
 	sessions = make(map[string]Session)
+	cache = &cacheStore{items: make(map[string]*cacheItem)}
 	env = &Env{logger.New(mw), cfg, cwClient, os.Getenv("LOGIN_PW"), os.Getenv("CALLER_ID")}
 	log = env.Log
 }
@@ -166,19 +170,23 @@ func main() {
 	for _, route := range apiRoutes {
 		http.Handle(route.Path, utils.LogReq(log)(
 			// TODO (2022.11.30): chain middleware; don't nest
-			logEventMiddleware(
-				putAPILatencyMetricMiddleware(
-					incrementAPIMetricMiddleware(
-						sessionMiddleware(enforceJSONHandler(route.Handler())),
+			cachingMiddleware(
+				logEventMiddleware(
+					putAPILatencyMetricMiddleware(
+						incrementAPIMetricMiddleware(
+							sessionMiddleware(enforceJSONHandler(route.Handler())),
+							route.APIName,
+							route.APIType,
+						),
 						route.APIName,
 						route.APIType,
 					),
 					route.APIName,
 					route.APIType,
+					env.CallerID,
 				),
-				route.APIName,
 				route.APIType,
-				env.CallerID,
+				cache,
 			)))
 	}
 

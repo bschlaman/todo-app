@@ -1,11 +1,13 @@
 package main
 
 import (
+	"bytes"
 	"mime"
 	"net/http"
 	"net/url"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -162,5 +164,35 @@ func enforceJSONHandler(h http.Handler) http.Handler {
 		}
 
 		h.ServeHTTP(w, r)
+	})
+}
+
+func cachingMiddleware(h http.Handler, apiType string, cache *cacheStore) http.Handler {
+	cacheMutex := &sync.Mutex{}
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// if it's not a get request, don't do anything
+		if apiType != APIType.Get && apiType != APIType.GetMany {
+			h.ServeHTTP(w, r)
+			return
+		}
+
+		cacheKey := r.URL.String()
+		cacheMutex.Lock()
+		response, found := cache.get(cacheKey)
+
+		if found {
+			log.Infof("cache hit for key: %s", cacheKey)
+			cacheMutex.Unlock()
+			w.Header().Set("Content-Type", "application/json")
+			w.Write(response)
+			return
+		}
+
+		recorder := &responseRecorder{w, new(bytes.Buffer)}
+
+		h.ServeHTTP(recorder, r)
+
+		cache.set(cacheKey, recorder.body.Bytes())
+		cacheMutex.Unlock()
 	})
 }
