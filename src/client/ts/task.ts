@@ -271,7 +271,7 @@ function renderTask(task: Task) {
 function renderCommentsFromJSON(comments: TaskComment[]) {
   // TODO (2022.11.22) this should be one or the other.  Right now,
   // the API is returning null, but an empty array may be better
-  if (comments === null || comments.length === 0) {
+  if (comments.length === 0) {
     console.warn("no comments to render");
     return;
   }

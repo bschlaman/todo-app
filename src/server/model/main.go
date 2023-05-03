@@ -94,7 +94,7 @@ func GetCommentsByTaskID(log *logger.BLogger, taskID string) ([]Comment, error) 
 	}
 	defer rows.Close()
 
-	var comments []Comment
+	var comments []Comment = []Comment{}
 	for rows.Next() {
 		var id int
 		var text string
@@ -208,7 +208,7 @@ func GetTasks(log *logger.BLogger) ([]Task, error) {
 	}
 	defer rows.Close()
 
-	var tasks []Task
+	var tasks []Task = []Task{}
 	for rows.Next() {
 		var id, title, desc, status string
 		var storyID *string
@@ -392,7 +392,7 @@ func GetSprints(log *logger.BLogger) ([]Sprint, error) {
 	}
 	defer rows.Close()
 
-	var sprints []Sprint
+	var sprints []Sprint = []Sprint{}
 	for rows.Next() {
 		var id, title string
 		var cAt, uAt, sd, ed time.Time
@@ -469,7 +469,7 @@ func GetStories(log *logger.BLogger) ([]Story, error) {
 	}
 	defer rows.Close()
 
-	var stories []Story
+	var stories []Story = []Story{}
 	for rows.Next() {
 		var id, title, desc, status, sID string
 		var cAt, uAt time.Time
@@ -545,7 +545,7 @@ func GetTags(log *logger.BLogger) ([]Tag, error) {
 	}
 	defer rows.Close()
 
-	var tags []Tag
+	var tags []Tag = []Tag{}
 	for rows.Next() {
 		var id, title, desc string
 		var cAt, uAt time.Time
@@ -583,7 +583,7 @@ func GetTagAssignments(log *logger.BLogger) ([]TagAssignment, error) {
 	}
 	defer rows.Close()
 
-	var tagAssignments []TagAssignment
+	var tagAssignments []TagAssignment = []TagAssignment{}
 	for rows.Next() {
 		var id int
 		var tagID, storyID string
@@ -807,18 +807,18 @@ func GetStoryRelationships(log *logger.BLogger) ([]StoryRelationship, error) {
 	}
 	defer rows.Close()
 
-	var StoryRelationships []StoryRelationship
+	var storyRelationships []StoryRelationship = []StoryRelationship{}
 	for rows.Next() {
 		var id int
 		var storyIDA, storyIDB, relation string
 		var cAt time.Time
 		rows.Scan(&id, &cAt, &storyIDA, &storyIDB, &relation)
-		StoryRelationships = append(StoryRelationships, StoryRelationship{id, cAt, storyIDA, storyIDB, relation})
+		storyRelationships = append(storyRelationships, StoryRelationship{id, cAt, storyIDA, storyIDB, relation})
 	}
 	if rows.Err() != nil {
 		log.Errorf("Query failed: %v", rows.Err())
 		return nil, rows.Err()
 	}
 
-	return StoryRelationships, nil
+	return storyRelationships, nil
 }
