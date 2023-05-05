@@ -1,54 +1,59 @@
 {
-  "name": "todo-app",
-  "version": "1.0.0",
-  "description": "npm used for webpack",
-  "private": true,
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "prebuild": "rm -r dist",
-    "build": "webpack",
-    "clean": "rm -r dist",
-    "lint": "eslint . --ext .ts,.tsx",
-    "fix": "eslint . --ext .ts,.tsx --fix"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/bschlaman/todo-app.git"
-  },
-  "author": "Brendan Schlaman",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/bschlaman/todo-app/issues"
-  },
-  "homepage": "https://github.com/bschlaman/todo-app#readme",
-  "dependencies": {
-    "dompurify": "^2.4.0",
-    "marked": "^4.2.1",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-markdown": "^8.0.7"
-  },
-  "devDependencies": {
-    "@types/dompurify": "^2.4.0",
-    "@types/marked": "^4.0.7",
-    "@types/react": "^18.2.0",
-    "@types/react-dom": "^18.2.1",
-    "@typescript-eslint/eslint-plugin": "^5.42.1",
-    "css-loader": "^6.7.2",
-    "eslint": "^8.27.0",
-    "eslint-config-prettier": "^8.5.0",
-    "eslint-config-standard-with-typescript": "^23.0.0",
-    "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-n": "^15.5.1",
-    "eslint-plugin-prettier": "^4.2.1",
-    "eslint-plugin-promise": "^6.1.1",
-    "eslint-plugin-react": "^7.32.2",
-    "eslint-plugin-react-hooks": "^4.6.0",
-    "html-webpack-plugin": "^5.5.0",
-    "style-loader": "^3.3.1",
-    "ts-loader": "^9.4.2",
-    "typescript": "^4.9.5",
-    "webpack": "^5.75.0",
-    "webpack-cli": "^5.0.0"
-  }
+	"name": "todo-app",
+	"version": "1.0.0",
+	"description": "npm used for webpack",
+	"private": true,
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"build": "webpack",
+		"prebuild": "rm -r dist",
+		"clean": "rm -r dist",
+		"lint": "eslint . --ext .ts,.tsx",
+		"fix": "eslint . --ext .ts,.tsx --fix",
+		"watch": "webpack --watch",
+		"serve": "cd dist && live-server",
+		"start": "npm run build && npm-run-all --parallel watch serve"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/bschlaman/todo-app.git"
+	},
+	"author": "Brendan Schlaman",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/bschlaman/todo-app/issues"
+	},
+	"homepage": "https://github.com/bschlaman/todo-app#readme",
+	"dependencies": {
+		"dompurify": "^2.4.0",
+		"marked": "^4.2.1",
+		"react": "^18.2.0",
+		"react-dom": "^18.2.0",
+		"react-markdown": "^8.0.7"
+	},
+	"devDependencies": {
+		"@types/dompurify": "^2.4.0",
+		"@types/marked": "^4.0.7",
+		"@types/react": "^18.2.0",
+		"@types/react-dom": "^18.2.1",
+		"@typescript-eslint/eslint-plugin": "^5.42.1",
+		"css-loader": "^6.7.2",
+		"eslint": "^8.27.0",
+		"eslint-config-prettier": "^8.5.0",
+		"eslint-config-standard-with-typescript": "^23.0.0",
+		"eslint-plugin-import": "^2.26.0",
+		"eslint-plugin-n": "^15.5.1",
+		"eslint-plugin-prettier": "^4.2.1",
+		"eslint-plugin-promise": "^6.1.1",
+		"eslint-plugin-react": "^7.32.2",
+		"eslint-plugin-react-hooks": "^4.6.0",
+		"html-webpack-plugin": "^5.5.0",
+		"live-server": "^1.2.2",
+		"npm-run-all": "^4.1.5",
+		"style-loader": "^3.3.1",
+		"ts-loader": "^9.4.2",
+		"typescript": "^4.9.5",
+		"webpack": "^5.75.0",
+		"webpack-cli": "^5.0.0"
+	}
 }

@@ -1,0 +1,61 @@
+/* common styles for use in all react components */
+
+:root {
+	/* off white */
+	--color1: #f4f4f4;
+	/* charcoal */
+	--color2: #242729;
+	/* blue highlight */
+	--color3: #2996ed;
+	/* green highlight */
+	--color4: #105c06;
+	/* manilla background */
+	--color5: rgba(191, 182, 153 0.7);
+	--color-beige: rgba(230, 223, 195, 0.7);
+	/* slightly transparent black */
+	--transp-black: rgba(0, 0, 0, 0.9);
+	/* slightly transparent white */
+	--transp-white: rgba(255, 255, 255, 0.9);
+	/*
+	--font: "Avantgarde", "TeX Gyre Adventor", "URW Gothic L", sans-serif;
+	*/
+	--font: "Montserrat", "TeX Gyre Adventor", "URW Gothic L", sans-serif;
+}
+
+/* defaults */
+html {
+	scroll-behavior: smooth;
+	/* -webkit-tap-highlight-color: transparent;*/
+	box-sizing: border-box;
+}
+a, a:visited {
+	text-decoration: none;
+	color: #1b48aa;
+}
+input,
+select,
+textarea,
+button {
+	font-family: inherit;
+	font-size: inherit;
+}
+
+/* global */
+body {
+	font-family: var(--font);
+}
+
+code {
+	background: #f3f3f3;
+	border-radius: 4px;
+	padding: 3px;
+	color: #de3163;
+	margin: 2px;
+}
+
+/* global styles for all rendered markdown */
+.rendered-markdown table,
+.rendered-markdown th,
+.rendered-markdown td {
+	border: 1px solid black;
+}

@@ -1,15 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import ErrorBanner from "../../components/banners";
+import { STATUSES, Sprint, Story, Task } from "../../ts/model/entities";
 import {
-  STATUSES,
-  Sprint,
-  Story,
-  Task,
-  TaskComment,
-} from "../../ts/model/entities";
-import {
-  createComment,
-  getCommentsByTaskId,
   getSprints,
   getStories,
   getTaskById,
@@ -20,7 +12,9 @@ import { formatDate, formatId } from "../../ts/lib/utils";
 import { NULL_STORY_IDENTIFIER } from "../../ts/lib/common";
 import ReactMarkdown from "react-markdown";
 // import styles from "./TaskPage.modules.css";
-import "./TaskPage.modules.css";
+import styles from "./TaskPage.module.css";
+import CommentsSection from "./CommentsSection";
+import "../../css/common.css";
 
 // TODO: maxlength property for contenteditable fields
 function TaskView({
@@ -46,26 +40,34 @@ function TaskView({
         onChange={() => setIsEditing(!isEditing)}
       />
       <label htmlFor="edit-mode">Edit Mode</label>
-      {isEditing ? (
-        <div>
-          <textarea
-            value={description}
-            onChange={(e) => {
-              setDescription(e.target.value);
-            }}
-          />
-          <button
-            onClick={() => {
-              setIsEditing(false);
-              void onTaskUpdate({ ...task, description });
-            }}
-          >
-            Save
-          </button>
-        </div>
-      ) : (
-        <ReactMarkdown>{description}</ReactMarkdown>
-      )}
+      <div
+        style={{
+          background: "lightgrey",
+        }}
+      >
+        {isEditing ? (
+          <div>
+            <textarea
+              value={description}
+              onChange={(e) => {
+                setDescription(e.target.value);
+              }}
+            />
+            <button
+              onClick={() => {
+                setIsEditing(false);
+                void onTaskUpdate({ ...task, description });
+              }}
+            >
+              Save
+            </button>
+          </div>
+        ) : (
+          <ReactMarkdown className="rendered-markdown">
+            {description}
+          </ReactMarkdown>
+        )}
+      </div>
     </>
   );
 }
@@ -201,76 +203,27 @@ function TaskMetadata({
   if (error !== null) return <ErrorBanner message={error} />;
 
   return (
-    <div>
-      {renderTaskMetadataPair("Id", formatId(task.id))}
-      {renderTaskMetadataPair("Created", formatDate(new Date(task.created_at)))}
-      <p>Status:</p>
-      {renderStatusDropdown(task.status)}
-      <p>Parent story:</p>
-      {renderStoryDropdown(task.story_id, stories, sprints)}
-    </div>
-  );
-}
-
-function CommentsSection({ taskId }: { taskId: string }) {
-  const [comments, setComments] = useState<TaskComment[]>([]);
-  const [error, setError] = useState(null);
-  const inputRef = useRef<HTMLTextAreaElement>(null);
-
-  // render count for debugging
-  const renderCount = useRef(0);
-  useEffect(() => {
-    renderCount.current = renderCount.current + 1;
-    console.log("[CommentsSection] render count", renderCount.current);
-  });
-
-  useEffect(() => {
-    void (async () => {
-      await getCommentsByTaskId(taskId)
-        .then((comments) => {
-          setComments(comments);
-        })
-        .catch((e) => {
-          setError(e.message);
-        });
-    })();
-  }, [taskId]);
-
-  if (error !== null) return <ErrorBanner message={error} />;
-
-  function handleCreateComment() {
-    void (async () => {
-      if (inputRef.current?.value === undefined) return;
-      if (inputRef.current?.value.trim() === "") return;
-      const comment = await createComment(taskId, inputRef.current.value);
-      setComments([...comments, comment]);
-      inputRef.current.value = "";
-      inputRef.current.focus();
-    })();
-  }
-
-  return (
     <>
-      {comments.map((comment) => {
-        return (
-          <div key={comment.id}>
-            <p>{comment.id}</p>
-            <p>{formatDate(new Date(comment.created_at))}</p>
-            <ReactMarkdown>{comment.text}</ReactMarkdown>
-          </div>
-        );
-      })}
-      <div>
-        <textarea
-          onKeyDown={(e) => {
-            if (e.ctrlKey && e.key === "Enter") {
-              handleCreateComment();
-            }
-          }}
-          ref={inputRef}
-          placeholder="Type new comment (ctrl+&#9166; to save)"
-        ></textarea>
-        <button onClick={handleCreateComment}>Post</button>
+      <div
+        style={{
+          display: "flex",
+        }}
+      >
+        {renderTaskMetadataPair("Id", formatId(task.id))}
+        {renderTaskMetadataPair(
+          "Created",
+          formatDate(new Date(task.created_at))
+        )}
+      </div>
+      <div
+        style={{
+          display: "flex",
+        }}
+      >
+        <p>Status:</p>
+        {renderStatusDropdown(task.status)}
+        <p>Parent story:</p>
+        {renderStoryDropdown(task.story_id, stories, sprints)}
       </div>
     </>
   );
@@ -319,9 +272,11 @@ export default function TaskPage() {
   if (task === null) return <Loading />;
 
   return (
-    <div className="container">
-      <TaskView task={task} onTaskUpdate={handleTaskUpdate} />
-      <CommentsSection taskId={task.id} />
+    <div className={styles.container}>
+      <div className={styles.content}>
+        <TaskView task={task} onTaskUpdate={handleTaskUpdate} />
+        <CommentsSection taskId={task.id} />
+      </div>
     </div>
   );
 }

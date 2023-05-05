@@ -6,6 +6,8 @@ const pages_v2 = ["login", "task_v2"];
 const publicDir = "dist";
 
 module.exports = {
+	mode: "development",
+	devtool: "inline-source-map",
 	entry: Object.assign(
 		{},
 		pages.reduce((config, page) => {
@@ -22,8 +24,6 @@ module.exports = {
 		filename: "./[name]/[name].bundle.js",
 		path: path.resolve(__dirname, publicDir),
 	},
-	mode: "development",
-	devtool: "inline-source-map",
 	module: {
 		rules: [
 			{
