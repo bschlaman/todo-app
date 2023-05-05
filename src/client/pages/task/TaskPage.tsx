@@ -19,6 +19,8 @@ import Loading from "../../components/loading";
 import { formatDate, formatId } from "../../ts/lib/utils";
 import { NULL_STORY_IDENTIFIER } from "../../ts/lib/common";
 import ReactMarkdown from "react-markdown";
+// import styles from "./TaskPage.modules.css";
+import "./TaskPage.modules.css";
 
 // TODO: maxlength property for contenteditable fields
 function TaskView({
@@ -38,11 +40,12 @@ function TaskView({
       <h3>{task.title}</h3>
       <TaskMetadata task={task} onTaskUpdate={onTaskUpdate} />
       <input
+        id="edit-mode"
         type="checkbox"
         checked={!isEditing}
         onChange={() => setIsEditing(!isEditing)}
       />
-      <label>Edit Mode</label>
+      <label htmlFor="edit-mode">Edit Mode</label>
       {isEditing ? (
         <div>
           <textarea
@@ -316,9 +319,9 @@ export default function TaskPage() {
   if (task === null) return <Loading />;
 
   return (
-    <>
+    <div className="container">
       <TaskView task={task} onTaskUpdate={handleTaskUpdate} />
       <CommentsSection taskId={task.id} />
-    </>
+    </div>
   );
 }
