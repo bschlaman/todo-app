@@ -16,7 +16,7 @@ module.exports = {
 		{ task_v2: `./src/client/pages/task/index.tsx` }
 	),
 	resolve: {
-		extensions: [".ts", ".tsx"],
+		extensions: [".ts", ".tsx", ".js"],
 	},
 	output: {
 		filename: "./[name]/[name].bundle.js",

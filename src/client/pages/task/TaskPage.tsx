@@ -13,15 +13,69 @@ import {
   getSprints,
   getStories,
   getTaskById,
+  updateTaskById,
 } from "../../ts/lib/api";
 import Loading from "../../components/loading";
 import { formatDate, formatId } from "../../ts/lib/utils";
 import { NULL_STORY_IDENTIFIER } from "../../ts/lib/common";
+import ReactMarkdown from "react-markdown";
 
-function TaskMetadata({ task }: { task: Task }) {
+// TODO: maxlength property for contenteditable fields
+function TaskView({
+  task,
+  onTaskUpdate,
+}: {
+  task: Task;
+  onTaskUpdate: (updatedTask: Task) => Promise<void>;
+}) {
+  // const descriptionRef = useRef();
+  const [isEditing, setIsEditing] = useState(false);
+  const [description, setDescription] = useState(task.description);
+
+  return (
+    <>
+      <a href="/">Back</a>
+      <h3>{task.title}</h3>
+      <TaskMetadata task={task} onTaskUpdate={onTaskUpdate} />
+      <input
+        type="checkbox"
+        checked={!isEditing}
+        onChange={() => setIsEditing(!isEditing)}
+      />
+      <label>Edit Mode</label>
+      {isEditing ? (
+        <div>
+          <textarea
+            value={description}
+            onChange={(e) => {
+              setDescription(e.target.value);
+            }}
+          />
+          <button
+            onClick={() => {
+              setIsEditing(false);
+              void onTaskUpdate({ ...task, description });
+            }}
+          >
+            Save
+          </button>
+        </div>
+      ) : (
+        <ReactMarkdown>{description}</ReactMarkdown>
+      )}
+    </>
+  );
+}
+
+function TaskMetadata({
+  task,
+  onTaskUpdate,
+}: {
+  task: Task;
+  onTaskUpdate: (updatedTask: Task) => Promise<void>;
+}) {
   const [stories, setStories] = useState<Story[]>([]);
   const [sprints, setSprints] = useState<Sprint[]>([]);
-  // const [sprintsById, setSprintsById] = useState<Map<string, Sprint>>();
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -36,17 +90,21 @@ function TaskMetadata({ task }: { task: Task }) {
       await getSprints()
         .then((sprints) => {
           setSprints(sprints);
-          // const sprintsById = new Map<string, Sprint>();
-          // sprints.forEach((sprint) => {
-          //   sprintsById.set(sprint.id, sprint);
-          // });
-          // setSprintsById(sprintsById);
         })
         .catch((e) => {
           setError(e.message);
         });
     })();
   }, [task]);
+
+  function handleTaskMetadataChange(
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) {
+    const { name, value } = event.target;
+    const updatedTask = { ...task, [name]: value };
+    console.log(updatedTask, name, value);
+    void onTaskUpdate(updatedTask);
+  }
 
   function renderTaskMetadataPair(label: string, value: string) {
     return (
@@ -59,7 +117,11 @@ function TaskMetadata({ task }: { task: Task }) {
 
   function renderStatusDropdown(taskStatus: string) {
     return (
-      <select value={taskStatus}>
+      <select
+        name="status"
+        value={taskStatus}
+        onChange={handleTaskMetadataChange}
+      >
         {/* this list will not change, so fine to depend on it */}
         {STATUSES.map((status) => {
           return (
@@ -110,7 +172,11 @@ function TaskMetadata({ task }: { task: Task }) {
       });
 
     return (
-      <select value={taskStoryId}>
+      <select
+        name="story_id"
+        value={taskStoryId}
+        onChange={handleTaskMetadataChange}
+      >
         <option value={NULL_STORY_IDENTIFIER}>{NULL_STORY_IDENTIFIER}</option>
         {sprintsToRender.map((sprint) => {
           return (
@@ -143,22 +209,17 @@ function TaskMetadata({ task }: { task: Task }) {
   );
 }
 
-// TODO: maxlength property for contenteditable fields
-function TaskView({ task }: { task: Task }) {
-  return (
-    <>
-      <a href="/">Back</a>
-      <h3>{task.title}</h3>
-      <TaskMetadata task={task} />
-    </>
-  );
-}
-
 function CommentsSection({ taskId }: { taskId: string }) {
   const [comments, setComments] = useState<TaskComment[]>([]);
-  const [inputText, setInputText] = useState("");
   const [error, setError] = useState(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  // render count for debugging
+  const renderCount = useRef(0);
+  useEffect(() => {
+    renderCount.current = renderCount.current + 1;
+    console.log("[CommentsSection] render count", renderCount.current);
+  });
 
   useEffect(() => {
     void (async () => {
@@ -176,11 +237,12 @@ function CommentsSection({ taskId }: { taskId: string }) {
 
   function handleCreateComment() {
     void (async () => {
-      if (inputText.trim() === "") return;
-      const comment = await createComment(taskId, inputText);
+      if (inputRef.current?.value === undefined) return;
+      if (inputRef.current?.value.trim() === "") return;
+      const comment = await createComment(taskId, inputRef.current.value);
       setComments([...comments, comment]);
-      setInputText("");
-      inputRef.current?.focus();
+      inputRef.current.value = "";
+      inputRef.current.focus();
     })();
   }
 
@@ -191,16 +253,12 @@ function CommentsSection({ taskId }: { taskId: string }) {
           <div key={comment.id}>
             <p>{comment.id}</p>
             <p>{formatDate(new Date(comment.created_at))}</p>
-            <p>{comment.text}</p>
+            <ReactMarkdown>{comment.text}</ReactMarkdown>
           </div>
         );
       })}
       <div>
         <textarea
-          value={inputText}
-          onChange={(e) => {
-            setInputText(e.target.value);
-          }}
           onKeyDown={(e) => {
             if (e.ctrlKey && e.key === "Enter") {
               handleCreateComment();
@@ -219,14 +277,14 @@ export default function TaskPage() {
   const path = window.location.pathname;
   const taskIdFromPath = path.substring(path.lastIndexOf("/") + 1);
 
-  const [task, setTask] = useState<Task>();
+  const [task, setTask] = useState<Task | null>(null);
   const [error, setError] = useState(null);
 
+  // render count for debugging
   const renderCount = useRef(0);
-
   useEffect(() => {
     renderCount.current = renderCount.current + 1;
-    console.log("render count", renderCount.current);
+    console.log("[TaskPage] render count", renderCount.current);
   });
 
   useEffect(() => {
@@ -242,13 +300,24 @@ export default function TaskPage() {
     })();
   }, [taskIdFromPath]);
 
+  async function handleTaskUpdate(updatedTask: Task) {
+    await updateTaskById(
+      updatedTask.id,
+      updatedTask.status,
+      updatedTask.title,
+      updatedTask.description,
+      updatedTask.story_id
+    );
+    setTask(updatedTask);
+  }
+
   if (error !== null) return <ErrorBanner message={error} />;
 
-  if (task === undefined) return <Loading />;
+  if (task === null) return <Loading />;
 
   return (
     <>
-      <TaskView task={task} />
+      <TaskView task={task} onTaskUpdate={handleTaskUpdate} />
       <CommentsSection taskId={task.id} />
     </>
   );
