@@ -11,7 +11,6 @@ import Loading from "../../components/loading";
 import { formatDate, formatId } from "../../ts/lib/utils";
 import { NULL_STORY_IDENTIFIER } from "../../ts/lib/common";
 import ReactMarkdown from "react-markdown";
-// import styles from "./TaskPage.modules.css";
 import styles from "./TaskPage.module.css";
 import CommentsSection from "./CommentsSection";
 import "../../css/common.css";
@@ -30,30 +29,56 @@ function TaskView({
 
   return (
     <>
-      <a href="/">Back</a>
-      <h3>{task.title}</h3>
+      <div style={{ display: "flex", gap: "2rem", alignItems: "center" }}>
+        <a
+          style={{
+            border: "2px solid #1b48aa",
+            paddingRight: "10px",
+            borderRadius: "5px",
+            background: "lightgrey",
+          }}
+          href="/"
+        >
+          〈Back
+        </a>
+        <h2>{task.title}</h2>
+      </div>
       <TaskMetadata task={task} onTaskUpdate={onTaskUpdate} />
-      <input
-        id="edit-mode"
-        type="checkbox"
-        checked={!isEditing}
-        onChange={() => setIsEditing(!isEditing)}
-      />
-      <label htmlFor="edit-mode">Edit Mode</label>
       <div
         style={{
           background: "lightgrey",
+          padding: "1rem",
+          fontSize: "1.5rem",
+          borderRadius: "5px",
+          position: "relative",
         }}
       >
         {isEditing ? (
-          <div>
+          <>
             <textarea
+              style={{
+                width: "100%",
+                boxSizing: "border-box",
+                borderRadius: "5px",
+                resize: "none",
+                margin: "1rem 0",
+                background: "lightgrey",
+                height: "180px",
+                fontSize: "1rem",
+              }}
               value={description}
               onChange={(e) => {
                 setDescription(e.target.value);
               }}
             />
             <button
+              style={{
+                position: "absolute",
+                top: 5,
+                right: 200,
+                fontSize: "1rem",
+                borderRadius: "5px",
+              }}
               onClick={() => {
                 setIsEditing(false);
                 void onTaskUpdate({ ...task, description });
@@ -61,12 +86,28 @@ function TaskView({
             >
               Save
             </button>
-          </div>
+          </>
         ) : (
           <ReactMarkdown className="rendered-markdown">
             {description}
           </ReactMarkdown>
         )}
+        <div
+          style={{
+            position: "absolute",
+            top: 5,
+            right: 5,
+            fontSize: "1rem",
+          }}
+        >
+          <input
+            id="preview-md"
+            type="checkbox"
+            checked={!isEditing}
+            onChange={() => setIsEditing(!isEditing)}
+          />
+          <label htmlFor="preview-md">Preview Markdown</label>
+        </div>
       </div>
     </>
   );
@@ -114,7 +155,7 @@ function TaskMetadata({
   function renderTaskMetadataPair(label: string, value: string) {
     return (
       <div style={{ display: "flex", gap: "0.5rem" }}>
-        <p style={{ fontWeight: "bold" }}>{label}:</p>
+        <p className={styles.taskMetadataLabel}>{label}:</p>
         <p>{value}</p>
       </div>
     );
@@ -207,6 +248,7 @@ function TaskMetadata({
       <div
         style={{
           display: "flex",
+          justifyContent: "space-evenly",
         }}
       >
         {renderTaskMetadataPair("Id", formatId(task.id))}
@@ -218,11 +260,12 @@ function TaskMetadata({
       <div
         style={{
           display: "flex",
+          alignItems: "center",
         }}
       >
-        <p>Status:</p>
+        <p className={styles.taskMetadataLabel}>Status:</p>
         {renderStatusDropdown(task.status)}
-        <p>Parent story:</p>
+        <p className={styles.taskMetadataLabel}>Parent story:</p>
         {renderStoryDropdown(task.story_id, stories, sprints)}
       </div>
     </>

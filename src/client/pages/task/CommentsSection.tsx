@@ -48,8 +48,17 @@ export default function CommentsSection({ taskId }: { taskId: string }) {
       {comments.map((comment) => (
         <Comment key={comment.id} comment={comment}></Comment>
       ))}
-      <div>
+      <div style={commentBox}>
         <textarea
+          style={{
+            width: "100%",
+            boxSizing: "border-box",
+            borderRadius: "8px",
+            resize: "none",
+            padding: "1rem",
+            margin: "1rem 0",
+            background: "var(--color5)",
+          }}
           onKeyDown={(e) => {
             if (e.ctrlKey && e.key === "Enter") {
               handleCreateComment();
@@ -57,16 +66,37 @@ export default function CommentsSection({ taskId }: { taskId: string }) {
           }}
           ref={inputRef}
           placeholder="Type new comment (ctrl+&#9166; to save)"
-        ></textarea>
-        <button onClick={handleCreateComment}>Post</button>
+        />
+        <button
+          style={{
+            color: "var(--transp-white)",
+            fontSize: "1.3rem",
+            borderRadius: "3px",
+            background: "var(--color3)",
+          }}
+          onClick={handleCreateComment}
+        >
+          Post
+        </button>
       </div>
     </>
   );
 }
 
+// for comments and new comment div
+const commentBox: React.CSSProperties = {
+  position: "relative",
+  outline: "2px solid grey",
+  borderRadius: "8px",
+  padding: "1rem",
+  margin: "1rem 0",
+  fontSize: "1.5rem",
+  background: "var(--transp-white)",
+};
+
 const commentMetadataStyle: React.CSSProperties = {
-  color: "lightgrey",
   position: "absolute",
+  color: "lightgrey",
   right: "1rem",
   margin: "0.4rem",
   fontSize: "1rem",
@@ -74,17 +104,7 @@ const commentMetadataStyle: React.CSSProperties = {
 
 function Comment({ comment }: { comment: TaskComment }) {
   return (
-    <div
-      style={{
-        outline: "2px solid grey",
-        borderRadius: "8px",
-        padding: "1rem",
-        position: "relative",
-        margin: "1rem 0",
-        fontSize: "1.5rem",
-        background: "var(--transp-white)",
-      }}
-    >
+    <div style={commentBox}>
       <div
         style={{
           display: "flex",
