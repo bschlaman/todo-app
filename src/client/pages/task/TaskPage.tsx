@@ -41,7 +41,14 @@ function TaskView({
         >
           〈Back
         </a>
-        <h2>{task.title}</h2>
+        <h2 contentEditable>{task.title}</h2>
+        <button
+          onClick={() => {
+            void navigator.clipboard.writeText(window.location.pathname);
+          }}
+        >
+          Copy to 📋
+        </button>
       </div>
       <TaskMetadata task={task} onTaskUpdate={onTaskUpdate} />
       <div
@@ -154,9 +161,9 @@ function TaskMetadata({
 
   function renderTaskMetadataPair(label: string, value: string) {
     return (
-      <div style={{ display: "flex", gap: "0.5rem" }}>
+      <div style={{ display: "flex", alignItems: "center" }}>
         <p className={styles.taskMetadataLabel}>{label}:</p>
-        <p>{value}</p>
+        <p style={{ margin: 0 }}>{value}</p>
       </div>
     );
   }
@@ -243,28 +250,26 @@ function TaskMetadata({
 
   if (error !== null) return <ErrorBanner message={error} />;
 
+  const taskMetadataRowStyles: React.CSSProperties = {
+    display: "flex",
+    alignItems: "center",
+    margin: "1rem 0",
+  };
+  // TODO (2023.05.06): this is a weaker part of the UI, could use a redesign
+  // Idea: make a task metadata component, where the value could be any
+  // other component (e.g. <p> or <select>)
   return (
     <>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-evenly",
-        }}
-      >
+      <div style={taskMetadataRowStyles}>
         {renderTaskMetadataPair("Id", formatId(task.id))}
         {renderTaskMetadataPair(
           "Created",
           formatDate(new Date(task.created_at))
         )}
-      </div>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-        }}
-      >
         <p className={styles.taskMetadataLabel}>Status:</p>
         {renderStatusDropdown(task.status)}
+      </div>
+      <div style={taskMetadataRowStyles}>
         <p className={styles.taskMetadataLabel}>Parent story:</p>
         {renderStoryDropdown(task.story_id, stories, sprints)}
       </div>
