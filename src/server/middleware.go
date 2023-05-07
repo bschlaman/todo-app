@@ -16,8 +16,6 @@ func sessionMiddleware(h http.Handler) http.Handler {
 		// authentication not required for these paths
 		skippablePaths := []string{
 			"/login",
-			"/js",
-			"/css",
 			"/favicon.ico",
 			"/api/login",
 			"/api/echo",
@@ -108,14 +106,14 @@ func redirectRootPathMiddleware(h http.Handler) http.Handler {
 	})
 }
 
-func incrementAPIMetricMiddleware(h http.Handler, apiName, apiType string) http.Handler {
+func incrementAPIMetricMiddleware(apiName, apiType string, h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		go incrementAPIMetric(apiName, apiType)
 		h.ServeHTTP(w, r)
 	})
 }
 
-func putAPILatencyMetricMiddleware(h http.Handler, apiName, apiType string) http.Handler {
+func putAPILatencyMetricMiddleware(apiName, apiType string, h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 		h.ServeHTTP(w, r)
@@ -123,7 +121,7 @@ func putAPILatencyMetricMiddleware(h http.Handler, apiName, apiType string) http
 	})
 }
 
-func logEventMiddleware(h http.Handler, apiName, apiType, callerID string) http.Handler {
+func logEventMiddleware(apiName, apiType, callerID string, h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 
@@ -167,7 +165,7 @@ func enforceJSONHandler(h http.Handler) http.Handler {
 	})
 }
 
-func cachingMiddleware(h http.Handler, apiType string, cache *cacheStore) http.Handler {
+func cachingMiddleware(apiType string, cache *cacheStore, h http.Handler) http.Handler {
 	cacheMutex := &sync.Mutex{}
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// if it's not a get request, don't do anything

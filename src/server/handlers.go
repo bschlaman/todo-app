@@ -14,47 +14,46 @@ import (
 
 func loginHandle() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// TODO: branching based on method seems clunky...
-		// if GET, we want to serve the login/index.html page
-		// if r.Method == http.MethodGet {
-		// 	// this also seems bad
-		// 	http.ServeFile(w, r, "index.html")
-		// 	return
-		// }
-		// if r.Method == http.MethodPost {
 		pass := r.FormValue("pass")
-		if pass == env.LoginPw {
-			log.Info("login successful!")
-			id := createSaveNewSession()
-			cookie := &http.Cookie{
-				Name:     "session",
-				Value:    id,
-				SameSite: http.SameSiteDefaultMode,
-				Path:     "/",
-			}
-			http.SetCookie(w, cookie)
-			log.Infof("setting cookie: %v", cookie)
 
-			u, err := url.Parse(r.Header.Get("Referer"))
-			if err != nil {
-				delete(sessions, id)
-				log.Infof("invalid ref url: %v", r.Header.Get("Referer"))
-				http.Error(w, "invalid ref url", http.StatusBadRequest)
-				return
-			}
-			ref, err := url.PathUnescape(u.Query().Get("ref"))
-			if err != nil {
-				delete(sessions, id)
-				log.Infof("invalid ref url: %v", r.Header.Get("Referer"))
-				http.Error(w, "invalid ref url", http.StatusBadRequest)
-				return
-			}
-			http.Redirect(w, r, ref, http.StatusSeeOther)
+		if pass != env.LoginPw {
+			log.Infof("incorrect pw: %v", pass)
+			http.Error(w, "incorrect pw", http.StatusUnauthorized)
 			return
 		}
-		log.Infof("incorrect pw: %v", pass)
-		http.Error(w, "incorrect pw", http.StatusUnauthorized)
-		// }
+
+		log.Info("login successful!")
+		id := createSaveNewSession()
+		cookie := &http.Cookie{
+			Name:     "session",
+			Value:    id,
+			SameSite: http.SameSiteDefaultMode,
+			Path:     "/",
+		}
+		http.SetCookie(w, cookie)
+		log.Infof("setting cookie: %v", cookie)
+
+		u, err := url.Parse(r.Header.Get("Referer"))
+		if err != nil {
+			delete(sessions, id)
+			log.Infof("invalid ref url: %v", r.Header.Get("Referer"))
+			http.Error(w, "invalid ref url", http.StatusBadRequest)
+			return
+		}
+		ref, err := url.PathUnescape(u.Query().Get("ref"))
+		log.Infof("u: %s, ref: %s", u, ref)
+		if err != nil {
+			delete(sessions, id)
+			log.Infof("invalid ref url: %v", r.Header.Get("Referer"))
+			http.Error(w, "invalid ref url", http.StatusBadRequest)
+			return
+		}
+		// redirecting to url = "" causes weirdness
+		if ref == "" {
+			ref = "/"
+		}
+		http.Redirect(w, r, ref, http.StatusSeeOther)
+		return
 	})
 }
 

@@ -25,7 +25,7 @@ const (
 	staticDir            string           = "dist"
 	sprintDuration       time.Duration    = 24 * 14 * time.Hour
 	sessionDuration      time.Duration    = 2 * time.Hour
-	allowClearSessionAPI bool             = false
+	allowClearSessionAPI bool             = true
 	metricNamespace      string           = "todo-app/api"
 	createEntityIDKey    CustomContextKey = "createReqIDKey"
 	getRequestBytesKey   CustomContextKey = "getReqKey"
@@ -171,22 +171,22 @@ func main() {
 		http.Handle(route.Path, utils.LogReq(log)(
 			// TODO (2022.11.30): chain middleware; don't nest
 			cachingMiddleware(
+				route.APIType,
+				cache,
 				logEventMiddleware(
-					putAPILatencyMetricMiddleware(
-						incrementAPIMetricMiddleware(
-							sessionMiddleware(enforceJSONHandler(route.Handler())),
-							route.APIName,
-							route.APIType,
-						),
-						route.APIName,
-						route.APIType,
-					),
 					route.APIName,
 					route.APIType,
 					env.CallerID,
+					putAPILatencyMetricMiddleware(
+						route.APIName,
+						route.APIType,
+						incrementAPIMetricMiddleware(
+							route.APIName,
+							route.APIType,
+							sessionMiddleware(enforceJSONHandler(route.Handler())),
+						),
+					),
 				),
-				route.APIType,
-				cache,
 			)))
 	}
 
