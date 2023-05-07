@@ -1,6 +1,7 @@
 import React from "react";
 import { Story, Task } from "../../ts/model/entities";
 import { ReactMarkdown } from "react-markdown/lib/react-markdown";
+import remarkGfm from "remark-gfm";
 
 export default function TaskCard({
   task,
@@ -19,7 +20,11 @@ export default function TaskCard({
       }}
     >
       <h3>{task.title}</h3>
-      {!task.bulk_task && <ReactMarkdown>{task.description}</ReactMarkdown>}
+      {!task.bulk_task && (
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+          {task.description}
+        </ReactMarkdown>
+      )}
       <a href={story?.id ?? "#"}>{story?.title ?? "-"}</a>
     </div>
   );

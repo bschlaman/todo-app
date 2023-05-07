@@ -11,6 +11,7 @@ import Loading from "../../components/loading";
 import { formatDate, formatId } from "../../ts/lib/utils";
 import { NULL_STORY_IDENTIFIER } from "../../ts/lib/common";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import styles from "./TaskPage.module.css";
 import CommentsSection from "./CommentsSection";
 import "../../css/common.css";
@@ -95,7 +96,10 @@ function TaskView({
             </button>
           </>
         ) : (
-          <ReactMarkdown className="rendered-markdown">
+          <ReactMarkdown
+            className="rendered-markdown"
+            remarkPlugins={[remarkGfm]}
+          >
             {description}
           </ReactMarkdown>
         )}
