@@ -168,7 +168,7 @@ func main() {
 		{"/api/destroy_story_relationship", destroyStoryRelationshipByIDHandle, "DestroyStoryRelationship", APIType.Destroy},
 	}
 	for _, route := range apiRoutes {
-		http.Handle(route.Path, utils.LogReq(log)(
+		http.Handle(route.Path, utils.LogReqSimple(log)(
 			// TODO (2022.11.30): chain middleware; don't nest
 			cachingMiddleware(
 				route.APIType,
