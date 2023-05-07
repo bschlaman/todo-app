@@ -9,6 +9,17 @@ export const STATUSES = [
   "DEADLINE PASSED",
 ];
 
+// TODO (2023.05.06): replace STATUSES with this
+export enum STATUS {
+  BACKLOG = "BACKLOG",
+  DOING = "DOING",
+  DONE = "DONE",
+  DEPRIORITIZED = "DEPRIORITIZED",
+  ARCHIVE = "ARCHIVE",
+  DUPLICATE = "DUPLICATE",
+  "DEADLINE PASSED" = "DEADLINE PASSED",
+}
+
 export enum STORY_RELATIONSHIP {
   ContinuedBy = "CONTINUED_BY",
 }
@@ -32,7 +43,7 @@ export interface Task {
   updated_at: string;
   title: string;
   description: string;
-  status: string;
+  status: STATUS;
   story_id: string;
   edited: string;
   bulk_task: boolean;

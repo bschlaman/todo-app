@@ -2,7 +2,7 @@ const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 const pages = ["task", "taskboard"];
-const pages_v2 = ["login", "task_v2"];
+const pages_v2 = ["login", "task_v2", "sprintboard"];
 const publicDir = "dist";
 
 module.exports = {
@@ -15,7 +15,8 @@ module.exports = {
 			return config;
 		}, {}),
 		{ login: `./src/client/pages/login/index.tsx` },
-		{ task_v2: `./src/client/pages/task/index.tsx` }
+		{ task_v2: `./src/client/pages/task/index.tsx` },
+		{ sprintboard: `./src/client/pages/sprintboard/index.tsx` }
 	),
 	resolve: {
 		extensions: [".ts", ".tsx", ".js"],
