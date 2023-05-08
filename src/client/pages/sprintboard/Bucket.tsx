@@ -15,6 +15,8 @@ export default function Bucket({ status, tasks, storiesById }: BucketProps) {
         background: "lightgrey",
         boxShadow: "inset 0 0 3px",
         overflow: "hidden",
+        width: "100%",
+        padding: "2.5rem 1rem 1rem 1rem",
       }}
     >
       <p style={{ position: "absolute", top: 0 }}>{status}</p>

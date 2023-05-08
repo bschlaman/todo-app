@@ -15,6 +15,7 @@ import remarkGfm from "remark-gfm";
 import styles from "./TaskPage.module.css";
 import CommentsSection from "./CommentsSection";
 import "../../css/common.css";
+import CopyToClipboardButton from "../../components/copy_to_clipboard_button";
 
 // TODO: maxlength property for contenteditable fields
 function TaskView({
@@ -42,14 +43,10 @@ function TaskView({
         >
           〈Back
         </a>
-        <h2 contentEditable>{task.title}</h2>
-        <button
-          onClick={() => {
-            void navigator.clipboard.writeText(window.location.pathname);
-          }}
-        >
-          Copy to 📋
-        </button>
+        <h2>{task.title}</h2>
+        <CopyToClipboardButton
+          value={window.location.pathname}
+        ></CopyToClipboardButton>
       </div>
       <TaskMetadata task={task} onTaskUpdate={onTaskUpdate} />
       <div

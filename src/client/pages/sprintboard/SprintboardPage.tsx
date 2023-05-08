@@ -10,6 +10,21 @@ import { getSprints, getStories, getTasks } from "../../ts/lib/api";
 import { STATUS, Sprint, Story, Task } from "../../ts/model/entities";
 import Bucket from "./Bucket";
 import { sprintToString } from "../../ts/lib/utils";
+import "../../css/common.css";
+
+// determine if a particular task should be rendered
+// based on the currently selected sprint
+function renderTaskFilter(
+  task: Task,
+  storiesById: Map<string, Story>,
+  sprintsById: Map<string, Sprint>,
+  selectedSprintId: string | undefined
+) {
+  if (selectedSprintId === undefined) return false;
+  const sprint = storiesById.get(task.story_id)?.sprint_id;
+  if (sprint === undefined) return false;
+  return sprintsById.get(sprint)?.id === selectedSprintId;
+}
 
 export default function SprintboardPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -31,21 +46,33 @@ export default function SprintboardPage() {
     return _map;
   }, [stories]);
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const sprintsById = useMemo(() => {
     const _map = new Map<string, Sprint>();
     for (const sprint of sprints) _map.set(sprint.id, sprint);
     return _map;
   }, [sprints]);
 
+  const tasksToRender = useMemo(
+    () =>
+      tasks.filter((task) =>
+        renderTaskFilter(
+          task,
+          storiesById,
+          sprintsById,
+          selectedSprintRef.current?.value
+        )
+      ),
+    [tasks, storiesById, sprintsById]
+  );
+
   const taskBucketsByStatus = useMemo(() => {
     const _map = new Map<STATUS, Task[]>();
-    for (const task of tasks) {
+    for (const task of tasksToRender) {
       if (!_map.has(task.status)) _map.set(task.status, []);
       _map.get(task.status)?.push(task);
     }
     return _map;
-  }, [tasks]);
+  }, [tasksToRender]);
 
   useEffect(() => {
     void (async () => {
@@ -99,11 +126,28 @@ export default function SprintboardPage() {
             );
           })}
       </select>
-      <Bucket
-        status={STATUS.BACKLOG}
-        tasks={taskBucketsByStatus.get(STATUS.BACKLOG) ?? []}
-        storiesById={storiesById}
-      ></Bucket>
+      <div
+        style={{
+          display: "flex",
+          gap: "1rem",
+        }}
+      >
+        <Bucket
+          status={STATUS.BACKLOG}
+          tasks={taskBucketsByStatus.get(STATUS.BACKLOG) ?? []}
+          storiesById={storiesById}
+        ></Bucket>
+        <Bucket
+          status={STATUS.DOING}
+          tasks={taskBucketsByStatus.get(STATUS.DOING) ?? []}
+          storiesById={storiesById}
+        ></Bucket>
+        <Bucket
+          status={STATUS.DONE}
+          tasks={taskBucketsByStatus.get(STATUS.DONE) ?? []}
+          storiesById={storiesById}
+        ></Bucket>
+      </div>
     </>
   );
 }
