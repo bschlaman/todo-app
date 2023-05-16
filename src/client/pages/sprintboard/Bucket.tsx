@@ -1,13 +1,21 @@
 import React from "react";
-import { STATUS, Story, Task } from "../../ts/model/entities";
+import { STATUS, Story, Tag, Task } from "../../ts/model/entities";
 import TaskCard from "./TaskCard";
 
 interface BucketProps {
   status: STATUS;
   tasks: Task[];
   storiesById: Map<string, Story>;
+  tagsById: Map<string, Tag>;
+  assocTagIdsByStoryId: Map<string, string[]>;
 }
-export default function Bucket({ status, tasks, storiesById }: BucketProps) {
+export default function Bucket({
+  status,
+  tasks,
+  storiesById,
+  tagsById,
+  assocTagIdsByStoryId,
+}: BucketProps) {
   return (
     <div
       style={{
@@ -25,6 +33,8 @@ export default function Bucket({ status, tasks, storiesById }: BucketProps) {
           key={task.id}
           task={task}
           storiesById={storiesById}
+          tagsById={tagsById}
+          assocTagIdsByStoryId={assocTagIdsByStoryId}
         ></TaskCard>
       ))}
     </div>

@@ -26,18 +26,23 @@ import { sprintToString } from "../../ts/lib/utils";
 import "../../css/common.css";
 import { TagSelectors } from "./tag_selectors";
 
+const LOCAL_STORAGE_KEYS = {
+  selectedSprintId: "viewing_sprint_id",
+  activeTagIds: "active_tag_ids",
+};
+
 // determine if a particular task should be rendered
 // based on the currently selected sprint
-function renderTaskFilter(
+function filterTasks(
   task: Task,
   storiesById: Map<string, Story>,
   sprintsById: Map<string, Sprint>,
-  selectedSprintId: string | undefined,
+  selectedSprintId: string | null,
   assocTagIdsByStoryId: Map<string, string[]>,
   activeTagIds: string[]
 ) {
   // sprint has not been selected yet
-  if (selectedSprintId === undefined) return false;
+  if (selectedSprintId === null) return false;
   const sprint = storiesById.get(task.story_id)?.sprint_id;
   // Task::Story has not loaded yet
   if (sprint === undefined) return false;
@@ -54,12 +59,16 @@ function renderTaskFilter(
 export default function SprintboardPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [stories, setStories] = useState<Story[]>([]);
-  const selectedSprintRef = useRef<HTMLSelectElement>(null);
+  const [selectedSprintId, setSelectedSprintId] = useState(
+    localStorage.getItem(LOCAL_STORAGE_KEYS.selectedSprintId)
+  );
   const [sprints, setSprints] = useState<Sprint[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
   const [tagAssignments, setTagAssignments] = useState<TagAssignment[]>([]);
   const [error, setError] = useState(null);
-  const [activeTagIds, setActiveTagIds] = useState<string[]>([]);
+  const [activeTagIds, setActiveTagIds] = useState<string[]>(
+    JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEYS.activeTagIds) ?? "[]")
+  );
 
   // render count for debugging
   const renderCount = useRef(0);
@@ -67,6 +76,20 @@ export default function SprintboardPage() {
     renderCount.current = renderCount.current + 1;
     console.log(`[SprintboardPage] render count`, renderCount.current);
   });
+
+  // local storage side effects
+  useEffect(() => {
+    localStorage.setItem(
+      LOCAL_STORAGE_KEYS.selectedSprintId,
+      selectedSprintId ?? ""
+    );
+  }, [selectedSprintId]);
+  useEffect(() => {
+    localStorage.setItem(
+      LOCAL_STORAGE_KEYS.activeTagIds,
+      JSON.stringify(activeTagIds)
+    );
+  }, [activeTagIds]);
 
   const storiesById = useMemo(() => {
     const _map = new Map<string, Story>();
@@ -79,6 +102,12 @@ export default function SprintboardPage() {
     for (const sprint of sprints) _map.set(sprint.id, sprint);
     return _map;
   }, [sprints]);
+
+  const tagsById = useMemo(() => {
+    const _map = new Map<string, Tag>();
+    for (const tag of tags) _map.set(tag.id, tag);
+    return _map;
+  }, [tags]);
 
   const assocTagIdsByStoryId = useMemo(() => {
     const _map = new Map<string, string[]>();
@@ -93,16 +122,23 @@ export default function SprintboardPage() {
   const tasksToRender = useMemo(
     () =>
       tasks.filter((task) =>
-        renderTaskFilter(
+        filterTasks(
           task,
           storiesById,
           sprintsById,
-          selectedSprintRef.current?.value,
+          selectedSprintId,
           assocTagIdsByStoryId,
           activeTagIds
         )
       ),
-    [tasks, storiesById, sprintsById, assocTagIdsByStoryId, activeTagIds]
+    [
+      tasks,
+      storiesById,
+      sprintsById,
+      selectedSprintId,
+      assocTagIdsByStoryId,
+      activeTagIds,
+    ]
   );
 
   const taskBucketsByStatus = useMemo(() => {
@@ -167,7 +203,11 @@ export default function SprintboardPage() {
         <CreateSprintButton></CreateSprintButton>
         <CreateBulkTaskButton></CreateBulkTaskButton>
       </div>
-      <select ref={selectedSprintRef}>
+      <select
+        onChange={(e) => {
+          setSelectedSprintId(e.target.value);
+        }}
+      >
         {sprints
           .sort(
             (s0, s1) =>
@@ -185,6 +225,7 @@ export default function SprintboardPage() {
       </select>
       <TagSelectors
         tags={tags}
+        activeTagIds={activeTagIds}
         setActiveTagIds={setActiveTagIds}
       ></TagSelectors>
       <div
@@ -197,16 +238,22 @@ export default function SprintboardPage() {
           status={STATUS.BACKLOG}
           tasks={taskBucketsByStatus.get(STATUS.BACKLOG) ?? []}
           storiesById={storiesById}
+          tagsById={tagsById}
+          assocTagIdsByStoryId={assocTagIdsByStoryId}
         ></Bucket>
         <Bucket
           status={STATUS.DOING}
           tasks={taskBucketsByStatus.get(STATUS.DOING) ?? []}
           storiesById={storiesById}
+          tagsById={tagsById}
+          assocTagIdsByStoryId={assocTagIdsByStoryId}
         ></Bucket>
         <Bucket
           status={STATUS.DONE}
           tasks={taskBucketsByStatus.get(STATUS.DONE) ?? []}
           storiesById={storiesById}
+          tagsById={tagsById}
+          assocTagIdsByStoryId={assocTagIdsByStoryId}
         ></Bucket>
       </div>
     </>
