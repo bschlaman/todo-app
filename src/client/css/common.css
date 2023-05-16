@@ -29,10 +29,7 @@ a, a:visited {
 	text-decoration: none;
 	color: #1b48aa;
 }
-input,
-select,
-textarea,
-button {
+input, select, textarea, button {
 	font-family: inherit;
 	font-size: inherit;
 }

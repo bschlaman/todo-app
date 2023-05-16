@@ -63,7 +63,6 @@ function TaskView({
             <textarea
               style={{
                 width: "100%",
-                boxSizing: "border-box",
                 borderRadius: "5px",
                 resize: "none",
                 margin: "1rem 0",

@@ -47,13 +47,14 @@ export default function CommentsSection({ taskId }: { taskId: string }) {
   return (
     <>
       {comments.map((comment) => (
+        // TODO (2023.05.15): using an integer id (as is also the case with tag_assignments)
+        // is a bad idea, since it may conflict with other entities
         <Comment key={comment.id} comment={comment}></Comment>
       ))}
       <div style={commentBox}>
         <textarea
           style={{
             width: "100%",
-            boxSizing: "border-box",
             borderRadius: "8px",
             resize: "none",
             padding: "1rem",

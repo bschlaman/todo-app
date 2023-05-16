@@ -6,11 +6,25 @@ import {
   CreateTaskButton,
 } from "./modal_buttons";
 import ErrorBanner from "../../components/banners";
-import { getSprints, getStories, getTasks } from "../../ts/lib/api";
-import { STATUS, Sprint, Story, Task } from "../../ts/model/entities";
+import {
+  getSprints,
+  getStories,
+  getTagAssignments,
+  getTags,
+  getTasks,
+} from "../../ts/lib/api";
+import {
+  STATUS,
+  Sprint,
+  Story,
+  Tag,
+  TagAssignment,
+  Task,
+} from "../../ts/model/entities";
 import Bucket from "./Bucket";
 import { sprintToString } from "../../ts/lib/utils";
 import "../../css/common.css";
+import { TagSelectors } from "./tag_selectors";
 
 // determine if a particular task should be rendered
 // based on the currently selected sprint
@@ -18,12 +32,23 @@ function renderTaskFilter(
   task: Task,
   storiesById: Map<string, Story>,
   sprintsById: Map<string, Sprint>,
-  selectedSprintId: string | undefined
+  selectedSprintId: string | undefined,
+  assocTagIdsByStoryId: Map<string, string[]>,
+  activeTagIds: string[]
 ) {
+  // sprint has not been selected yet
   if (selectedSprintId === undefined) return false;
   const sprint = storiesById.get(task.story_id)?.sprint_id;
+  // Task::Story has not loaded yet
   if (sprint === undefined) return false;
-  return sprintsById.get(sprint)?.id === selectedSprintId;
+  // Task::Story::Sprint is not selected
+  if (sprintsById.get(sprint)?.id !== selectedSprintId) return false;
+  // return true when any of Task::Story tag assignments are active
+  for (const tagId of assocTagIdsByStoryId.get(task.story_id) ?? []) {
+    if (activeTagIds.includes(tagId)) return true;
+  }
+  // if none are active, return false
+  return false;
 }
 
 export default function SprintboardPage() {
@@ -31,7 +56,10 @@ export default function SprintboardPage() {
   const [stories, setStories] = useState<Story[]>([]);
   const selectedSprintRef = useRef<HTMLSelectElement>(null);
   const [sprints, setSprints] = useState<Sprint[]>([]);
+  const [tags, setTags] = useState<Tag[]>([]);
+  const [tagAssignments, setTagAssignments] = useState<TagAssignment[]>([]);
   const [error, setError] = useState(null);
+  const [activeTagIds, setActiveTagIds] = useState<string[]>([]);
 
   // render count for debugging
   const renderCount = useRef(0);
@@ -52,6 +80,16 @@ export default function SprintboardPage() {
     return _map;
   }, [sprints]);
 
+  const assocTagIdsByStoryId = useMemo(() => {
+    const _map = new Map<string, string[]>();
+    for (const tagAssignment of tagAssignments) {
+      if (!_map.has(tagAssignment.story_id))
+        _map.set(tagAssignment.story_id, []);
+      _map.get(tagAssignment.story_id)?.push(tagAssignment.tag_id);
+    }
+    return _map;
+  }, [tagAssignments]);
+
   const tasksToRender = useMemo(
     () =>
       tasks.filter((task) =>
@@ -59,10 +97,12 @@ export default function SprintboardPage() {
           task,
           storiesById,
           sprintsById,
-          selectedSprintRef.current?.value
+          selectedSprintRef.current?.value,
+          assocTagIdsByStoryId,
+          activeTagIds
         )
       ),
-    [tasks, storiesById, sprintsById]
+    [tasks, storiesById, sprintsById, assocTagIdsByStoryId, activeTagIds]
   );
 
   const taskBucketsByStatus = useMemo(() => {
@@ -75,6 +115,7 @@ export default function SprintboardPage() {
   }, [tasksToRender]);
 
   useEffect(() => {
+    console.time("api_calls");
     void (async () => {
       await getTasks()
         .then((tasks) => {
@@ -97,7 +138,23 @@ export default function SprintboardPage() {
         .catch((e) => {
           setError(e.message);
         });
-    })();
+      await getTags()
+        .then((tags) => {
+          setTags(tags);
+        })
+        .catch((e) => {
+          setError(e.message);
+        });
+      await getTagAssignments()
+        .then((tagAssignments) => {
+          setTagAssignments(tagAssignments);
+        })
+        .catch((e) => {
+          setError(e.message);
+        });
+    })().then(() => {
+      console.timeEnd("api_calls");
+    });
   }, []);
 
   if (error !== null) return <ErrorBanner message={error} />;
@@ -126,6 +183,10 @@ export default function SprintboardPage() {
             );
           })}
       </select>
+      <TagSelectors
+        tags={tags}
+        setActiveTagIds={setActiveTagIds}
+      ></TagSelectors>
       <div
         style={{
           display: "flex",
