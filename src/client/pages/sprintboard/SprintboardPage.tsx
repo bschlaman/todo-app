@@ -25,6 +25,10 @@ import Bucket from "./Bucket";
 import { sprintToString } from "../../ts/lib/utils";
 import "../../css/common.css";
 import { TagSelectors } from "./tag_selectors";
+import TaskCard from "./TaskCard";
+import Card from "./drag";
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
 
 const LOCAL_STORAGE_KEYS = {
   selectedSprintId: "viewing_sprint_id",
@@ -193,6 +197,18 @@ export default function SprintboardPage() {
     });
   }, []);
 
+  function renderTaskCards(status: STATUS) {
+    return (taskBucketsByStatus.get(status) ?? []).map((task: Task) => (
+      <TaskCard
+        key={task.id}
+        task={task}
+        storiesById={storiesById}
+        tagsById={tagsById}
+        assocTagIdsByStoryId={assocTagIdsByStoryId}
+      />
+    ));
+  }
+
   if (error !== null) return <ErrorBanner message={error} />;
 
   return (
@@ -234,27 +250,18 @@ export default function SprintboardPage() {
           gap: "1rem",
         }}
       >
-        <Bucket
-          status={STATUS.BACKLOG}
-          tasks={taskBucketsByStatus.get(STATUS.BACKLOG) ?? []}
-          storiesById={storiesById}
-          tagsById={tagsById}
-          assocTagIdsByStoryId={assocTagIdsByStoryId}
-        ></Bucket>
-        <Bucket
-          status={STATUS.DOING}
-          tasks={taskBucketsByStatus.get(STATUS.DOING) ?? []}
-          storiesById={storiesById}
-          tagsById={tagsById}
-          assocTagIdsByStoryId={assocTagIdsByStoryId}
-        ></Bucket>
-        <Bucket
-          status={STATUS.DONE}
-          tasks={taskBucketsByStatus.get(STATUS.DONE) ?? []}
-          storiesById={storiesById}
-          tagsById={tagsById}
-          assocTagIdsByStoryId={assocTagIdsByStoryId}
-        ></Bucket>
+        <Bucket status={STATUS.BACKLOG}>
+          <DndProvider backend={HTML5Backend}>
+            <Card
+              name={"test-name"}
+              type={"test-type"}
+              isDropped={false}
+            ></Card>
+          </DndProvider>
+          {renderTaskCards(STATUS.BACKLOG)}
+        </Bucket>
+        <Bucket status={STATUS.DOING}>{renderTaskCards(STATUS.DOING)}</Bucket>
+        <Bucket status={STATUS.DONE}>{renderTaskCards(STATUS.DONE)}</Bucket>
       </div>
     </>
   );

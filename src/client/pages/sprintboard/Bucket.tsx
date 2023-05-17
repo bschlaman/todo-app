@@ -1,21 +1,11 @@
-import React from "react";
-import { STATUS, Story, Tag, Task } from "../../ts/model/entities";
-import TaskCard from "./TaskCard";
+import React, { ReactNode } from "react";
+import { STATUS } from "../../ts/model/entities";
 
 interface BucketProps {
   status: STATUS;
-  tasks: Task[];
-  storiesById: Map<string, Story>;
-  tagsById: Map<string, Tag>;
-  assocTagIdsByStoryId: Map<string, string[]>;
+  children?: ReactNode;
 }
-export default function Bucket({
-  status,
-  tasks,
-  storiesById,
-  tagsById,
-  assocTagIdsByStoryId,
-}: BucketProps) {
+export default function Bucket({ status, children }: BucketProps) {
   return (
     <div
       style={{
@@ -28,15 +18,7 @@ export default function Bucket({
       }}
     >
       <p style={{ position: "absolute", top: 0 }}>{status}</p>
-      {tasks.map((task) => (
-        <TaskCard
-          key={task.id}
-          task={task}
-          storiesById={storiesById}
-          tagsById={tagsById}
-          assocTagIdsByStoryId={assocTagIdsByStoryId}
-        ></TaskCard>
-      ))}
+      {children}
     </div>
   );
 }
