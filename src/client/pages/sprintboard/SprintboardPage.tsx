@@ -209,6 +209,12 @@ export default function SprintboardPage() {
     ));
   }
 
+  function updateTaskStatusById(taskId: string, status: STATUS) {
+    setTasks((tasks) =>
+      tasks.map((task) => (task.id === taskId ? { ...task, status } : task))
+    );
+  }
+
   if (error !== null) return <ErrorBanner message={error} />;
 
   return (
@@ -250,18 +256,21 @@ export default function SprintboardPage() {
           gap: "1rem",
         }}
       >
-        <Bucket status={STATUS.BACKLOG}>
-          <DndProvider backend={HTML5Backend}>
-            <Card
-              name={"test-name"}
-              type={"test-type"}
-              isDropped={false}
-            ></Card>
-          </DndProvider>
-          {renderTaskCards(STATUS.BACKLOG)}
-        </Bucket>
-        <Bucket status={STATUS.DOING}>{renderTaskCards(STATUS.DOING)}</Bucket>
-        <Bucket status={STATUS.DONE}>{renderTaskCards(STATUS.DONE)}</Bucket>
+        <DndProvider backend={HTML5Backend}>
+          <Bucket status={STATUS.BACKLOG}>
+            {tasks.slice(0, 5).map((task) => (
+              <Card
+                key={task.id}
+                task={task}
+                isDropped={false}
+                moveTask={updateTaskStatusById}
+              ></Card>
+            ))}
+            {renderTaskCards(STATUS.BACKLOG)}
+          </Bucket>
+          <Bucket status={STATUS.DOING}>{renderTaskCards(STATUS.DOING)}</Bucket>
+          <Bucket status={STATUS.DONE}>{renderTaskCards(STATUS.DONE)}</Bucket>
+        </DndProvider>
       </div>
     </>
   );
