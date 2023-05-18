@@ -24,6 +24,7 @@ export function TagOption({
         style={{
           color: TAG_COLORS[tag.title as keyof typeof TAG_COLORS],
         }}
+        title={tag.description}
       >
         {tag.title}
       </label>

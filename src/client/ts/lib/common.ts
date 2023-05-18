@@ -1,7 +1,7 @@
 import { checkSession } from "./api";
 
 export const TAG_COLORS = {
-  "Todo App": "green",
+  "Todo App": "crimson",
   Work: "blue",
   Music: "red",
   "Research Dashboard": "darkgoldenrod",
@@ -11,6 +11,7 @@ export const TAG_COLORS = {
   "Intellectual Pursuits": "darkblue",
   "Machine Learning": "darkred",
   "Career and Brand": "indigo",
+  CQF: "darkgreen",
 } as const;
 
 // since tasks may not have a parent story, we need something

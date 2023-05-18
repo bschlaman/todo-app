@@ -7,6 +7,7 @@ import { TAG_COLORS } from "../../ts/lib/common";
 import { DRAG_TYPE } from "./drag";
 import { useDrag } from "react-dnd";
 
+// TODO: move this to the tag related file?
 function TagBadge({ tag }: { tag: Tag }) {
   return (
     <span
@@ -19,6 +20,7 @@ function TagBadge({ tag }: { tag: Tag }) {
         padding: "0.3rem",
         margin: "0.2rem",
       }}
+      title={tag.description}
     >
       {tag.title}
     </span>
