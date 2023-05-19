@@ -8,16 +8,23 @@ interface BucketProps {
   children?: ReactNode;
 }
 export default function Bucket({ status, children }: BucketProps) {
-  const [, drop] = useDrop(() => ({
+  const [{ isOver, canDrop }, drop] = useDrop(() => ({
     accept: DRAG_TYPE.CARD,
+    // canDrop: (item, monitor) => item.status === status,
     drop: () => ({ status }),
+    collect: (monitor) => ({
+      isOver: monitor.isOver(),
+      canDrop: monitor.canDrop(),
+    }),
   }));
+
+  const active = isOver && canDrop;
 
   return (
     <div
       style={{
         position: "relative",
-        background: "lightgrey",
+        background: active ? "darkgrey" : "lightgrey",
         boxShadow: "inset 0 0 3px",
         overflow: "hidden",
         width: "100%",

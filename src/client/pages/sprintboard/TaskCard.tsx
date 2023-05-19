@@ -41,12 +41,12 @@ export default function TaskCard({
   const story = storiesById.get(task.story_id);
   const taskPageRef = `/task_v2/${task.id}`;
 
-  const [, dragRef] = useDrag(
+  const [{ opacity }, dragRef] = useDrag(
     () => ({
       type: DRAG_TYPE.CARD,
       item: { taskId: task.id },
-      collect: (_monitor) => ({
-        // opacity: monitor.isDragging() ? 0.5 : 1,
+      collect: (monitor) => ({
+        opacity: monitor.isDragging() ? 0.5 : 1,
       }),
       end: (draggedItem, monitor) => {
         const dropRes = monitor.getDropResult<{ status: STATUS }>();
@@ -85,6 +85,13 @@ export default function TaskCard({
     return <>{tagBadges}</>;
   }
 
+  function specialStyles(task: Task) {
+    // done status takes precedence over bulk task
+    if (task.status === STATUS.DONE) return { borderLeft: "12px solid green" };
+    if (task.bulk_task) return { borderLeft: "12px solid lightblue" };
+    return {};
+  }
+
   return (
     <div
       ref={dragRef}
@@ -95,6 +102,8 @@ export default function TaskCard({
         padding: "1.2rem 1rem 1rem 1rem",
         background: "var(--transp-white)",
         marginBottom: "1rem",
+        opacity,
+        ...specialStyles(task),
       }}
     >
       <h3>{task.title}</h3>
@@ -118,7 +127,7 @@ export default function TaskCard({
       >
         Edit
       </a>
-      {!task.bulk_task && (
+      {!task.bulk_task && task.status !== STATUS.DONE && (
         <ReactMarkdown remarkPlugins={[remarkGfm]}>
           {task.description}
         </ReactMarkdown>
