@@ -30,6 +30,7 @@ const (
 	createEntityIDKey    CustomContextKey = "createReqIDKey"
 	getRequestBytesKey   CustomContextKey = "getReqKey"
 	cacheTTLSeconds      int              = 2
+	rootServerPath       string           = "/sprintboard"
 )
 
 // CustomContextKey is a type that represents

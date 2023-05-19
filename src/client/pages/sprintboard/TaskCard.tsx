@@ -1,9 +1,11 @@
 import React from "react";
-import { Story, Tag, Task } from "../../ts/model/entities";
+import { STATUS, Story, Tag, Task } from "../../ts/model/entities";
 import CopyToClipboardButton from "../../components/copy_to_clipboard_button";
 import { ReactMarkdown } from "react-markdown/lib/react-markdown";
 import remarkGfm from "remark-gfm";
 import { TAG_COLORS } from "../../ts/lib/common";
+import { DRAG_TYPE } from "./drag";
+import { useDrag } from "react-dnd";
 
 function TagBadge({ tag }: { tag: Tag }) {
   return (
@@ -28,14 +30,31 @@ export default function TaskCard({
   storiesById,
   tagsById,
   assocTagIdsByStoryId,
+  moveTask,
 }: {
   task: Task;
   storiesById: Map<string, Story>;
   tagsById: Map<string, Tag>;
   assocTagIdsByStoryId: Map<string, string[]>;
+  moveTask: (taskId: string, status: STATUS) => void;
 }) {
   const story = storiesById.get(task.story_id);
   const taskPageRef = `/task_v2/${task.id}`;
+
+  const [, dragRef] = useDrag(
+    () => ({
+      type: DRAG_TYPE.CARD,
+      item: { taskId: task.id },
+      collect: (_monitor) => ({
+        // opacity: monitor.isDragging() ? 0.5 : 1,
+      }),
+      end: (draggedItem, monitor) => {
+        const dropRes = monitor.getDropResult<{ status: STATUS }>();
+        if (dropRes !== null) moveTask(draggedItem.taskId, dropRes.status);
+      },
+    }),
+    []
+  );
 
   function renderHandle() {
     return (
@@ -68,6 +87,7 @@ export default function TaskCard({
 
   return (
     <div
+      ref={dragRef}
       style={{
         position: "relative",
         borderRadius: "5px",

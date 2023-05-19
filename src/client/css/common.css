@@ -20,6 +20,9 @@
 }
 
 /* defaults */
+* {
+	box-sizing: border-box;
+}
 html {
 	scroll-behavior: smooth;
 	/* -webkit-tap-highlight-color: transparent;*/

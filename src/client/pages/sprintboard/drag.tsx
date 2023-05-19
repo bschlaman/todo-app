@@ -17,7 +17,6 @@ const style: CSSProperties = {
   padding: "1rem",
   margin: "0.3rem",
   cursor: "move",
-  float: "left",
   background: "lightgreen",
   borderRadius: "4px",
 };

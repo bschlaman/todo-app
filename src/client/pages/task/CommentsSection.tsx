@@ -59,7 +59,6 @@ export default function CommentsSection({ taskId }: { taskId: string }) {
             resize: "none",
             padding: "1rem",
             margin: "1rem 0",
-            background: "var(--color5)",
           }}
           onKeyDown={(e) => {
             if (e.ctrlKey && e.key === "Enter") {

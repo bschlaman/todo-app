@@ -97,9 +97,9 @@ func matchIDRedirMiddleware(h http.Handler) http.Handler {
 func redirectRootPathMiddleware(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/" {
-			// http.FileServer will register /taskboard and /taskboard/;
+			// http.FileServer will register /<root> and /<root>/;
 			// the former redirects to the latter.  Not ideal but whatever
-			http.Redirect(w, r, "/taskboard", http.StatusSeeOther)
+			http.Redirect(w, r, rootServerPath, http.StatusSeeOther)
 			return
 		}
 		h.ServeHTTP(w, r)

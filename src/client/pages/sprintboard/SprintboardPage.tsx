@@ -12,6 +12,7 @@ import {
   getTagAssignments,
   getTags,
   getTasks,
+  updateTaskById,
 } from "../../ts/lib/api";
 import {
   STATUS,
@@ -26,7 +27,6 @@ import { sprintToString } from "../../ts/lib/utils";
 import "../../css/common.css";
 import { TagSelectors } from "./tag_selectors";
 import TaskCard from "./TaskCard";
-import Card from "./drag";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 
@@ -94,6 +94,12 @@ export default function SprintboardPage() {
       JSON.stringify(activeTagIds)
     );
   }, [activeTagIds]);
+
+  const tasksById = useMemo(() => {
+    const _map = new Map<string, Task>();
+    for (const task of tasks) _map.set(task.id, task);
+    return _map;
+  }, [tasks]);
 
   const storiesById = useMemo(() => {
     const _map = new Map<string, Story>();
@@ -197,7 +203,7 @@ export default function SprintboardPage() {
     });
   }, []);
 
-  function renderTaskCards(status: STATUS) {
+  function renderTaskCardsForStatus(status: STATUS) {
     return (taskBucketsByStatus.get(status) ?? []).map((task: Task) => (
       <TaskCard
         key={task.id}
@@ -205,13 +211,25 @@ export default function SprintboardPage() {
         storiesById={storiesById}
         tagsById={tagsById}
         assocTagIdsByStoryId={assocTagIdsByStoryId}
+        moveTask={updateTaskStatusById}
       />
     ));
   }
 
   function updateTaskStatusById(taskId: string, status: STATUS) {
+    const task = tasksById.get(taskId);
+    if (task === undefined) throw new Error("task not found: " + taskId);
+    void updateTaskById(
+      task.id,
+      status,
+      task.title,
+      task.description,
+      task.story_id
+    );
     setTasks((tasks) =>
-      tasks.map((task) => (task.id === taskId ? { ...task, status } : task))
+      tasks.map((_task) =>
+        _task.id === task.id ? { ..._task, status } : _task
+      )
     );
   }
 
@@ -258,18 +276,14 @@ export default function SprintboardPage() {
       >
         <DndProvider backend={HTML5Backend}>
           <Bucket status={STATUS.BACKLOG}>
-            {tasks.slice(0, 5).map((task) => (
-              <Card
-                key={task.id}
-                task={task}
-                isDropped={false}
-                moveTask={updateTaskStatusById}
-              ></Card>
-            ))}
-            {renderTaskCards(STATUS.BACKLOG)}
+            {renderTaskCardsForStatus(STATUS.BACKLOG)}
           </Bucket>
-          <Bucket status={STATUS.DOING}>{renderTaskCards(STATUS.DOING)}</Bucket>
-          <Bucket status={STATUS.DONE}>{renderTaskCards(STATUS.DONE)}</Bucket>
+          <Bucket status={STATUS.DOING}>
+            {renderTaskCardsForStatus(STATUS.DOING)}
+          </Bucket>
+          <Bucket status={STATUS.DONE}>
+            {renderTaskCardsForStatus(STATUS.DONE)}
+          </Bucket>
         </DndProvider>
       </div>
     </>
