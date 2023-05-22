@@ -25,7 +25,7 @@ import {
 import Bucket from "./Bucket";
 import { sprintToString } from "../../ts/lib/utils";
 import "../../css/common.css";
-import { TagSelectors } from "./tag_selectors";
+import { TagOption } from "./tag_selectors";
 import TaskCard from "./TaskCard";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
@@ -263,11 +263,21 @@ export default function SprintboardPage() {
             );
           })}
       </select>
-      <TagSelectors
-        tags={tags}
-        activeTagIds={activeTagIds}
-        setActiveTagIds={setActiveTagIds}
-      ></TagSelectors>
+      <div style={{ width: "20rem", fontSize: "1.3rem" }}>
+        {tags.map((tag) => (
+          <TagOption
+            key={tag.id}
+            tag={tag}
+            checked={activeTagIds.includes(tag.id)}
+            onTagToggle={(tagId: string, checked: boolean) => {
+              setActiveTagIds((prev) => {
+                if (checked) return [...prev, tagId];
+                return prev.filter((id) => id !== tagId);
+              });
+            }}
+          ></TagOption>
+        ))}
+      </div>
       <div
         style={{
           display: "flex",

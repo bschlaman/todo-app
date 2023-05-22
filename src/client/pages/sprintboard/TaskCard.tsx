@@ -6,6 +6,7 @@ import remarkGfm from "remark-gfm";
 import { TAG_COLORS } from "../../ts/lib/common";
 import { DRAG_TYPE } from "./drag";
 import { useDrag } from "react-dnd";
+import styles from "./TaskCard.module.css";
 
 // TODO: move this to the tag related file?
 function TagBadge({ tag }: { tag: Tag }) {
@@ -43,13 +44,11 @@ export default function TaskCard({
   const story = storiesById.get(task.story_id);
   const taskPageRef = `/task_v2/${task.id}`;
 
-  const [{ opacity }, dragRef] = useDrag(
+  const [{ isDragging }, drag, preview] = useDrag(
     () => ({
       type: DRAG_TYPE.CARD,
       item: { taskId: task.id },
-      collect: (monitor) => ({
-        opacity: monitor.isDragging() ? 0.5 : 1,
-      }),
+      collect: (monitor) => ({ isDragging: !!monitor.isDragging() }),
       end: (draggedItem, monitor) => {
         const dropRes = monitor.getDropResult<{ status: STATUS }>();
         if (dropRes !== null) moveTask(draggedItem.taskId, dropRes.status);
@@ -71,6 +70,8 @@ export default function TaskCard({
           margin: "0",
           cursor: "grab",
         }}
+        className={styles.grabable}
+        ref={drag}
       >
         &#8801;
       </p>
@@ -96,7 +97,6 @@ export default function TaskCard({
 
   return (
     <div
-      ref={dragRef}
       style={{
         position: "relative",
         borderRadius: "5px",
@@ -104,9 +104,11 @@ export default function TaskCard({
         padding: "1.2rem 1rem 1rem 1rem",
         background: "var(--transp-white)",
         marginBottom: "1rem",
-        opacity,
+        opacity: isDragging ? 0.5 : 1,
         ...specialStyles(task),
       }}
+      // TODO (2023.05.21): check this issue: https://github.com/react-dnd/react-dnd/issues/3452
+      ref={preview}
     >
       <h3>{task.title}</h3>
       <div

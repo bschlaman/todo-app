@@ -1,0 +1,3 @@
+.grabable:active {
+    cursor: grabbing !important;
+}
