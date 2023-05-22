@@ -3,30 +3,10 @@ import { STATUS, Story, Tag, Task } from "../../ts/model/entities";
 import CopyToClipboardButton from "../../components/copy_to_clipboard_button";
 import { ReactMarkdown } from "react-markdown/lib/react-markdown";
 import remarkGfm from "remark-gfm";
-import { TAG_COLORS } from "../../ts/lib/common";
 import { DRAG_TYPE } from "./drag";
 import { useDrag } from "react-dnd";
 import styles from "./TaskCard.module.css";
-
-// TODO: move this to the tag related file?
-function TagBadge({ tag }: { tag: Tag }) {
-  return (
-    <span
-      style={{
-        background: TAG_COLORS[tag.title as keyof typeof TAG_COLORS],
-        color: "white",
-        borderRadius: "0.4rem",
-        fontSize: "0.7rem",
-        fontWeight: "bold",
-        padding: "0.3rem",
-        margin: "0.2rem",
-      }}
-      title={tag.description}
-    >
-      {tag.title}
-    </span>
-  );
-}
+import { renderTagBadgesForStoryId } from "../../components/tag_badge";
 
 export default function TaskCard({
   task,
@@ -78,16 +58,6 @@ export default function TaskCard({
     );
   }
 
-  function renderTagBadges() {
-    const tagBadges: JSX.Element[] = [];
-    assocTagIdsByStoryId.get(task.story_id)?.forEach((tagId) => {
-      const tag = tagsById.get(tagId);
-      if (tag === undefined) throw new Error("tag not found: " + tagId);
-      tagBadges.push(<TagBadge key={tagId} tag={tag}></TagBadge>);
-    });
-    return <>{tagBadges}</>;
-  }
-
   function specialStyles(task: Task) {
     // done status takes precedence over bulk task
     if (task.status === STATUS.DONE) return { borderLeft: "12px solid green" };
@@ -136,7 +106,7 @@ export default function TaskCard({
           {task.description}
         </ReactMarkdown>
       )}
-      {renderTagBadges()}
+      {renderTagBadgesForStoryId(task.story_id, tagsById, assocTagIdsByStoryId)}
       <a href={story?.id ?? "#"}>{story?.title ?? "-"}</a>
     </div>
   );
