@@ -25,6 +25,9 @@
 	},
 	"homepage": "https://github.com/bschlaman/todo-app#readme",
 	"dependencies": {
+		"@emotion/react": "^11.11.0",
+		"@emotion/styled": "^11.11.0",
+		"@mui/material": "^5.13.2",
 		"dompurify": "^2.4.0",
 		"marked": "^4.2.1",
 		"react": "^18.2.0",

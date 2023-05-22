@@ -1,10 +1,4 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import {
-  CreateBulkTaskButton,
-  CreateSprintButton,
-  CreateStoryButton,
-  CreateTaskButton,
-} from "./modal_buttons";
 import ErrorBanner from "../../components/banners";
 import {
   getSprints,
@@ -29,6 +23,7 @@ import { TagOption } from "./tag_selectors";
 import TaskCard from "./TaskCard";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
+import EntityCreationStation from "./entity_creation";
 
 const LOCAL_STORAGE_KEYS = {
   selectedSprintId: "viewing_sprint_id",
@@ -118,6 +113,15 @@ export default function SprintboardPage() {
     for (const tag of tags) _map.set(tag.id, tag);
     return _map;
   }, [tags]);
+
+  const storiesBySprintId = useMemo(() => {
+    const _map = new Map<string, Story[]>();
+    for (const story of stories) {
+      if (!_map.has(story.sprint_id)) _map.set(story.sprint_id, []);
+      _map.get(story.sprint_id)?.push(story);
+    }
+    return _map;
+  }, [stories]);
 
   const assocTagIdsByStoryId = useMemo(() => {
     const _map = new Map<string, string[]>();
@@ -237,12 +241,11 @@ export default function SprintboardPage() {
 
   return (
     <>
-      <div>
-        <CreateTaskButton></CreateTaskButton>
-        <CreateStoryButton></CreateStoryButton>
-        <CreateSprintButton></CreateSprintButton>
-        <CreateBulkTaskButton></CreateBulkTaskButton>
-      </div>
+      <EntityCreationStation
+        // eh, ?? "" could be better...
+        // if selectedSprintId is null, look for "", which should return undefined
+        stories={storiesBySprintId.get(selectedSprintId ?? "")}
+      />
       <select
         onChange={(e) => {
           setSelectedSprintId(e.target.value);

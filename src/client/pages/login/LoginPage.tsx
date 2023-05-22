@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React from "react";
 
 enum HttpMethod {
   POST = "POST",
@@ -15,19 +15,13 @@ const routes: { login: Route } = {
 };
 
 export default function LoginPage() {
-  const passwordInputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    passwordInputRef.current?.focus();
-  }, []);
-
   return (
-    <div className="login-wrapper">
+    <>
       <form action={routes.login.path} method={routes.login.method}>
         <label htmlFor="pass">Enter Password:</label>
-        <input type="password" required name="pass" ref={passwordInputRef} />
+        <input autoFocus type="password" required name="pass" />
         <button>Login</button>
       </form>
-    </div>
+    </>
   );
 }
