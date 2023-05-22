@@ -42,6 +42,7 @@ body {
 	font-family: var(--font);
 }
 
+/* styling useful for rendered markdown */
 code {
 	background: #f3f3f3;
 	border-radius: 4px;
@@ -50,6 +51,12 @@ code {
 	margin: 2px;
 }
 
+blockquote {
+	border-left: 3px solid lightgray;
+	padding-left: 10px;
+}
+
+/* TODO (2023.05.22): remove this? */
 /* global styles for all rendered markdown */
 .rendered-markdown table,
 .rendered-markdown th,
