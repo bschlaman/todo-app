@@ -42,6 +42,8 @@ function filterTasks(
 ) {
   // sprint has not been selected yet
   if (selectedSprintId === null) return false;
+  // return true if task does not have a story_id
+  if (task.story_id === null) return true;
   const sprint = storiesById.get(task.story_id)?.sprint_id;
   // Task::Story has not loaded yet
   if (sprint === undefined) return false;
@@ -51,20 +53,20 @@ function filterTasks(
   for (const tagId of assocTagIdsByStoryId.get(task.story_id) ?? []) {
     if (activeTagIds.includes(tagId)) return true;
   }
-  // if none are active, return false
+
   return false;
 }
 
 export default function SprintboardPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [stories, setStories] = useState<Story[]>([]);
-  const [selectedSprintId, setSelectedSprintId] = useState(
-    localStorage.getItem(LOCAL_STORAGE_KEYS.selectedSprintId)
-  );
   const [sprints, setSprints] = useState<Sprint[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
   const [tagAssignments, setTagAssignments] = useState<TagAssignment[]>([]);
   const [error, setError] = useState(null);
+  const [selectedSprintId, setSelectedSprintId] = useState(
+    localStorage.getItem(LOCAL_STORAGE_KEYS.selectedSprintId)
+  );
   const [activeTagIds, setActiveTagIds] = useState<string[]>(
     JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEYS.activeTagIds) ?? "[]")
   );
@@ -245,6 +247,11 @@ export default function SprintboardPage() {
         // eh, ?? "" could be better...
         // if selectedSprintId is null, look for "", which should return undefined
         stories={storiesBySprintId.get(selectedSprintId ?? "")}
+        setTasks={setTasks}
+        setStories={setStories}
+        setSprints={setSprints}
+        setTags={setTags}
+        setTagAssignments={setTagAssignments}
       />
       <select
         onChange={(e) => {

@@ -94,7 +94,7 @@ func GetCommentsByTaskID(log *logger.BLogger, taskID string) ([]Comment, error) 
 	}
 	defer rows.Close()
 
-	var comments []Comment = []Comment{}
+	var comments = []Comment{}
 	for rows.Next() {
 		var id int
 		var text string
@@ -111,7 +111,7 @@ func GetCommentsByTaskID(log *logger.BLogger, taskID string) ([]Comment, error) 
 	return comments, nil
 }
 
-func GetTaskByIDHandle(log *logger.BLogger, taskID string) (*Task, error) {
+func GetTaskByID(log *logger.BLogger, taskID string) (*Task, error) {
 	conn, err := database.GetPgxConn()
 	if err != nil {
 		log.Errorf("unable to connect to database: %v", err)
@@ -208,7 +208,7 @@ func GetTasks(log *logger.BLogger) ([]Task, error) {
 	}
 	defer rows.Close()
 
-	var tasks []Task = []Task{}
+	var tasks = []Task{}
 	for rows.Next() {
 		var id, title, desc, status string
 		var storyID *string
@@ -225,7 +225,7 @@ func GetTasks(log *logger.BLogger) ([]Task, error) {
 	return tasks, nil
 }
 
-func CreateTask(log *logger.BLogger, createReq CreateTaskReq) (*CreateEntityResponse, error) {
+func CreateTask(log *logger.BLogger, createReq CreateTaskReq) (*Task, error) {
 	conn, err := database.GetPgxConn()
 	if err != nil {
 		log.Errorf("unable to connect to database: %v", err)
@@ -233,7 +233,10 @@ func CreateTask(log *logger.BLogger, createReq CreateTaskReq) (*CreateEntityResp
 	}
 	defer conn.Close(context.Background())
 
-	var id string
+	var id, title, desc, status string
+	var storyID *string
+	var cAt, uAt time.Time
+	var edited, bulkTask bool
 
 	err = conn.QueryRow(context.Background(),
 		`INSERT INTO tasks (
@@ -248,18 +251,27 @@ func CreateTask(log *logger.BLogger, createReq CreateTaskReq) (*CreateEntityResp
 				$2,
 				$3,
 				$4
-			) RETURNING id`,
+			) RETURNING
+				id,
+				created_at,
+				updated_at,
+				title,
+				description,
+				status,
+				story_id,
+				edited,
+				bulk_task`,
 		createReq.Title,
 		createReq.Description,
 		createReq.StoryID,
 		createReq.BulkTask,
-	).Scan(&id)
+	).Scan(&id, &cAt, &uAt, &title, &desc, &status, &storyID, &edited, &bulkTask)
 	if err != nil {
 		log.Errorf("Exec failed: %v", err)
 		return nil, err
 	}
 
-	return &CreateEntityResponse{id}, nil
+	return &Task{id, cAt, uAt, title, desc, status, storyID, edited, bulkTask}, nil
 }
 
 func CreateComment(log *logger.BLogger, createReq CreateCommentReq) (*Comment, error) {
@@ -392,7 +404,7 @@ func GetSprints(log *logger.BLogger) ([]Sprint, error) {
 	}
 	defer rows.Close()
 
-	var sprints []Sprint = []Sprint{}
+	var sprints = []Sprint{}
 	for rows.Next() {
 		var id, title string
 		var cAt, uAt, sd, ed time.Time
@@ -408,7 +420,7 @@ func GetSprints(log *logger.BLogger) ([]Sprint, error) {
 	return sprints, nil
 }
 
-func CreateSprint(log *logger.BLogger, createReq CreateSprintReq) (*CreateEntityResponse, error) {
+func CreateSprint(log *logger.BLogger, createReq CreateSprintReq) (*Sprint, error) {
 	conn, err := database.GetPgxConn()
 	if err != nil {
 		log.Errorf("unable to connect to database: %v", err)
@@ -416,7 +428,9 @@ func CreateSprint(log *logger.BLogger, createReq CreateSprintReq) (*CreateEntity
 	}
 	defer conn.Close(context.Background())
 
-	var id string
+	var id, title string
+	var cAt, uAt, sd, ed time.Time
+	var edited bool
 
 	err = conn.QueryRow(context.Background(),
 		`INSERT INTO sprints (
@@ -429,18 +443,25 @@ func CreateSprint(log *logger.BLogger, createReq CreateSprintReq) (*CreateEntity
 				$1,
 				$2,
 				$3
-			) RETURNING id`,
+			) RETURNING
+				id,
+				created_at,
+				updated_at,
+				title,
+				start_date,
+				end_date,
+				edited`,
 		createReq.Title,
 		createReq.StartDate,
 		// createReq.StartDate.Add(sprintDuration),
 		createReq.EndDate,
-	).Scan(&id)
+	).Scan(&id, &cAt, &uAt, &title, &sd, &ed, &edited)
 	if err != nil {
 		log.Errorf("Exec failed: %v", err)
 		return nil, err
 	}
 
-	return &CreateEntityResponse{id}, nil
+	return &Sprint{id, cAt, uAt, title, sd, ed, edited}, nil
 }
 
 func GetStories(log *logger.BLogger) ([]Story, error) {
@@ -486,7 +507,7 @@ func GetStories(log *logger.BLogger) ([]Story, error) {
 	return stories, nil
 }
 
-func CreateStory(log *logger.BLogger, createReq CreateStoryReq) (*CreateEntityResponse, error) {
+func CreateStory(log *logger.BLogger, createReq CreateStoryReq) (*Story, error) {
 	conn, err := database.GetPgxConn()
 	if err != nil {
 		log.Errorf("unable to connect to database: %v", err)
@@ -494,7 +515,9 @@ func CreateStory(log *logger.BLogger, createReq CreateStoryReq) (*CreateEntityRe
 	}
 	defer conn.Close(context.Background())
 
-	var id string
+	var id, title, desc, status, sprintID string
+	var cAt, uAt time.Time
+	var edited bool
 
 	err = conn.QueryRow(context.Background(),
 		`INSERT INTO stories (
@@ -511,13 +534,13 @@ func CreateStory(log *logger.BLogger, createReq CreateStoryReq) (*CreateEntityRe
 		createReq.Title,
 		createReq.Description,
 		createReq.SprintID,
-	).Scan(&id)
+	).Scan(&id, &cAt, &uAt, &title, &desc, &status, &sprintID, &edited)
 	if err != nil {
 		log.Errorf("Exec failed: %v", err)
 		return nil, err
 	}
 
-	return &CreateEntityResponse{id}, nil
+	return &Story{id, cAt, uAt, title, desc, status, sprintID, edited}, nil
 }
 
 func GetTags(log *logger.BLogger) ([]Tag, error) {
@@ -545,7 +568,7 @@ func GetTags(log *logger.BLogger) ([]Tag, error) {
 	}
 	defer rows.Close()
 
-	var tags []Tag = []Tag{}
+	var tags = []Tag{}
 	for rows.Next() {
 		var id, title, desc string
 		var cAt, uAt time.Time
@@ -583,7 +606,7 @@ func GetTagAssignments(log *logger.BLogger) ([]TagAssignment, error) {
 	}
 	defer rows.Close()
 
-	var tagAssignments []TagAssignment = []TagAssignment{}
+	var tagAssignments = []TagAssignment{}
 	for rows.Next() {
 		var id int
 		var tagID, storyID string
@@ -599,7 +622,7 @@ func GetTagAssignments(log *logger.BLogger) ([]TagAssignment, error) {
 	return tagAssignments, nil
 }
 
-func CreateTagAssignment(log *logger.BLogger, createReq CreateTagAssignmentReq) (*CreateEntityResponse, error) {
+func CreateTagAssignment(log *logger.BLogger, createReq CreateTagAssignmentReq) (*TagAssignment, error) {
 	if createReq.TagID == "" || createReq.StoryID == "" {
 		log.Error("createTagAssignment: TagID or StoryID blank")
 		return nil, InputError{}
@@ -612,7 +635,9 @@ func CreateTagAssignment(log *logger.BLogger, createReq CreateTagAssignmentReq) 
 	}
 	defer conn.Close(context.Background())
 
-	var id string
+	var id int
+	var tagID, storyID string
+	var cAt time.Time
 
 	err = conn.QueryRow(context.Background(),
 		`INSERT INTO tag_assignments (
@@ -621,16 +646,20 @@ func CreateTagAssignment(log *logger.BLogger, createReq CreateTagAssignmentReq) 
 			) VALUES (
 				$1,
 				$2
-			) RETURNING id::text`, // TODO (2022.12.01): is there a cleaner way than casting to text?
+			) RETURNING
+			  id::text,
+				created_at,
+				tag_id,
+				story_id`, // TODO (2022.12.01): is there a cleaner way than casting to text?
 		createReq.TagID,
 		createReq.StoryID,
-	).Scan(&id)
+	).Scan(&id, &cAt, &tagID, &storyID)
 	if err != nil {
 		log.Errorf("Exec failed: %v", err)
 		return nil, err
 	}
 
-	return &CreateEntityResponse{id}, nil
+	return &TagAssignment{id, cAt, tagID, storyID}, nil
 }
 
 func DestroyTagAssignment(log *logger.BLogger, destroyReq DestroyTagAssignmentReq) error {
@@ -688,7 +717,7 @@ func DestroyTagAssignmentByID(log *logger.BLogger, destroyReq DestroyTagAssignme
 	return nil
 }
 
-func CreateTag(log *logger.BLogger, createReq CreateTagReq) (*CreateEntityResponse, error) {
+func CreateTag(log *logger.BLogger, createReq CreateTagReq) (*Tag, error) {
 	if createReq.Title == "" || createReq.Description == "" {
 		log.Error("createTag: Title or Description blank")
 		return nil, InputError{}
@@ -701,7 +730,9 @@ func CreateTag(log *logger.BLogger, createReq CreateTagReq) (*CreateEntityRespon
 	}
 	defer conn.Close(context.Background())
 
-	var id string
+	var id, title, desc string
+	var cAt, uAt time.Time
+	var isParent, edited bool
 
 	err = conn.QueryRow(context.Background(),
 		`INSERT INTO tags (
@@ -712,19 +743,26 @@ func CreateTag(log *logger.BLogger, createReq CreateTagReq) (*CreateEntityRespon
 				CURRENT_TIMESTAMP,
 				$1,
 				$2
-			) RETURNING id`,
+			) RETURNING
+				id,
+				created_at,
+				updated_at,
+				title,
+				description,
+				is_parent,
+				edited`,
 		createReq.Title,
 		createReq.Description,
-	).Scan(&id)
+	).Scan(&id, &cAt, &uAt, &title, &desc, &isParent, &edited)
 	if err != nil {
 		log.Errorf("Exec failed: %v", err)
 		return nil, err
 	}
 
-	return &CreateEntityResponse{id}, nil
+	return &Tag{id, cAt, uAt, title, desc, isParent, edited}, nil
 }
 
-func CreateStoryRelationship(log *logger.BLogger, createReq CreateStoryRelationshipReq) (*CreateEntityResponse, error) {
+func CreateStoryRelationship(log *logger.BLogger, createReq CreateStoryRelationshipReq) (*StoryRelationship, error) {
 	if createReq.StoryIDA == "" || createReq.StoryIDB == "" || createReq.Relation == "" {
 		log.Error("createStoryRelationship: parameter(s) blank")
 		return nil, InputError{}
@@ -737,7 +775,9 @@ func CreateStoryRelationship(log *logger.BLogger, createReq CreateStoryRelations
 	}
 	defer conn.Close(context.Background())
 
-	var id string
+	var id int
+	var storyIDA, storyIDB, relation string
+	var cAt time.Time
 
 	err = conn.QueryRow(context.Background(),
 		`INSERT INTO story_relationships (
@@ -748,17 +788,22 @@ func CreateStoryRelationship(log *logger.BLogger, createReq CreateStoryRelations
 				$1,
 				$2,
 				$3
-			) RETURNING id::text`, // TODO (2022.12.01): is there a cleaner way than casting to text?
+			) RETURNING
+				id::text,
+				created_at,
+				story_id_a,
+				story_id_b,
+				relation`, // TODO (2022.12.01): is there a cleaner way than casting to text?
 		createReq.StoryIDA,
 		createReq.StoryIDB,
 		createReq.Relation,
-	).Scan(&id)
+	).Scan(&id, &cAt, &storyIDA, &storyIDB, &relation)
 	if err != nil {
 		log.Errorf("Exec failed: %v", err)
 		return nil, err
 	}
 
-	return &CreateEntityResponse{id}, nil
+	return &StoryRelationship{id, cAt, storyIDA, storyIDB, relation}, nil
 }
 
 func DestroyStoryRelationshipByID(log *logger.BLogger, destroyReq DestroyStoryRelationshipByIDReq) error {
@@ -807,7 +852,7 @@ func GetStoryRelationships(log *logger.BLogger) ([]StoryRelationship, error) {
 	}
 	defer rows.Close()
 
-	var storyRelationships []StoryRelationship = []StoryRelationship{}
+	var storyRelationships = []StoryRelationship{}
 	for rows.Next() {
 		var id int
 		var storyIDA, storyIDB, relation string

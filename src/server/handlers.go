@@ -161,7 +161,7 @@ func getTaskByIDHandle() http.Handler {
 			return
 		}
 
-		task, err := model.GetTaskByIDHandle(env.Log, taskID)
+		task, err := model.GetTaskByID(env.Log, taskID)
 		if err != nil {
 			http.Error(w, "something went wrong", http.StatusInternalServerError)
 			return
@@ -242,16 +242,16 @@ func createTaskHandle() http.Handler {
 			return
 		}
 
-		entity, err := model.CreateTask(env.Log, createReq)
+		task, err := model.CreateTask(env.Log, createReq)
 		if err != nil {
 			log.Errorf("task creation failed: %v", err)
 			http.Error(w, "something went wrong", http.StatusInternalServerError)
 			return
 		}
 
-		*r = *r.WithContext(context.WithValue(r.Context(), createEntityIDKey, entity.ID))
+		*r = *r.WithContext(context.WithValue(r.Context(), createEntityIDKey, task.ID))
 
-		js, err := json.Marshal(entity)
+		js, err := json.Marshal(task)
 		if err != nil {
 			log.Errorf("json.Marshal failed: %v", err)
 			http.Error(w, "something went wrong", http.StatusInternalServerError)

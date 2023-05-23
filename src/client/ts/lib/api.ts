@@ -11,7 +11,7 @@ import {
   StoryRelationship,
   STORY_RELATIONSHIP,
 } from "../model/entities";
-import { CheckSessionRes, CreateStoryRes } from "../model/responses";
+import { CheckSessionRes } from "../model/responses";
 
 const routes = {
   checkSession: "/api/check_session",
@@ -133,12 +133,29 @@ export async function getTagAssignments(): Promise<TagAssignment[]> {
   }
 }
 
+export async function createComment(
+  taskId: string,
+  text: string
+): Promise<TaskComment> {
+  const res = await fetch(`${routes.createComment}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      text,
+      task_id: taskId,
+    }),
+  });
+  return (await handleApiRes(res)) as TaskComment;
+}
+
 export async function createTask(
   title: string,
   description: string,
   storyId: string | null,
   bulkTask = false
-): Promise<JSON> {
+): Promise<Task> {
   const res = await fetch(routes.createTask, {
     method: "POST",
     headers: {
@@ -151,14 +168,14 @@ export async function createTask(
       bulk_task: bulkTask,
     }),
   });
-  return await handleApiRes(res);
+  return (await handleApiRes(res)) as Task;
 }
 
 export async function createStory(
   title: string,
   description: string,
   sprintId: string
-): Promise<CreateStoryRes> {
+): Promise<Story> {
   const res = await fetch(routes.createStory, {
     method: "POST",
     headers: {
@@ -170,14 +187,14 @@ export async function createStory(
       sprint_id: sprintId,
     }),
   });
-  return await handleApiRes(res);
+  return (await handleApiRes(res)) as Story;
 }
 
 export async function createSprint(
   title: string,
   startdate: Date,
   enddate: Date
-): Promise<JSON> {
+): Promise<Sprint> {
   const res = await fetch(routes.createSprint, {
     method: "POST",
     headers: {
@@ -189,13 +206,13 @@ export async function createSprint(
       end_date: enddate,
     }),
   });
-  return await handleApiRes(res);
+  return (await handleApiRes(res)) as Sprint;
 }
 
 export async function createTag(
   title: string,
   description: string
-): Promise<JSON> {
+): Promise<Tag> {
   const res = await fetch(routes.createTag, {
     method: "POST",
     headers: {
@@ -206,13 +223,13 @@ export async function createTag(
       description,
     }),
   });
-  return await handleApiRes(res);
+  return (await handleApiRes(res)) as Tag;
 }
 
 export async function createTagAssignment(
   tagId: string,
   storyId: string
-): Promise<JSON> {
+): Promise<TagAssignment> {
   const res = await fetch(routes.createTagAssignment, {
     method: "POST",
     headers: {
@@ -223,7 +240,26 @@ export async function createTagAssignment(
       story_id: storyId,
     }),
   });
-  return await handleApiRes(res);
+  return (await handleApiRes(res)) as TagAssignment;
+}
+
+export async function createStoryRelationship(
+  storyIdA: string,
+  storyIdB: string,
+  relation: STORY_RELATIONSHIP
+): Promise<StoryRelationship> {
+  const res = await fetch(routes.createStoryRelationship, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      story_id_a: storyIdA,
+      story_id_b: storyIdB,
+      relation,
+    }),
+  });
+  return (await handleApiRes(res)) as StoryRelationship;
 }
 
 export async function destroyTagAssignment(
@@ -348,47 +384,6 @@ export async function getStoryById(id: string): Promise<Story> {
   }
 }
 
-export async function createComment(
-  taskId: string,
-  text: string
-): Promise<TaskComment> {
-  try {
-    const res = await fetch(`${routes.createComment}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        text,
-        task_id: taskId,
-      }),
-    });
-    return (await handleApiRes(res)) as TaskComment;
-  } catch (err) {
-    if (err instanceof Error) handleApiErr(err);
-    throw err;
-  }
-}
-
-export async function createStoryRelationship(
-  storyIdA: string,
-  storyIdB: string,
-  relation: STORY_RELATIONSHIP
-): Promise<JSON> {
-  const res = await fetch(routes.createStoryRelationship, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      story_id_a: storyIdA,
-      story_id_b: storyIdB,
-      relation,
-    }),
-  });
-  return await handleApiRes(res);
-}
-
 export async function destroyStoryRelationshipById(id: string): Promise<JSON> {
   const res = await fetch(routes.destroyStoryRelationshipById, {
     method: "POST",
@@ -415,7 +410,7 @@ export async function getStoryRelationships(): Promise<StoryRelationship[]> {
 // API response handling
 
 // handleApiRes handles the common happy path for API calls.
-// right now, that means 1) checking status code and 2) converting res to json
+// right now, that means 1) checking status code and 2) converting res to an object
 async function handleApiRes(res: Response) {
   if (!res.ok) {
     const msg = `bad res code (${res.status}) from: ${res.url}`;

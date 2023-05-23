@@ -9,10 +9,17 @@ import {
   MenuItem,
   Select,
   TextareaAutosize,
+  InputLabel,
 } from "@mui/material";
 import React, { useRef, useState } from "react";
 import { createTask } from "../../ts/lib/api";
-import { Story } from "../../ts/model/entities";
+import {
+  Sprint,
+  Story,
+  Tag,
+  TagAssignment,
+  Task,
+} from "../../ts/model/entities";
 import { NULL_STORY_IDENTIFIER } from "../../ts/lib/common";
 
 const createButtonStyles: React.CSSProperties = {
@@ -20,7 +27,13 @@ const createButtonStyles: React.CSSProperties = {
   borderRadius: "4px",
 };
 
-export function CreateTask({ stories }: { stories: Story[] | undefined }) {
+export function CreateTask({
+  stories,
+  setTasks,
+}: {
+  stories: Story[] | undefined;
+  setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
+}) {
   const [open, setOpen] = useState(false);
   const titleRef = useRef<HTMLInputElement>(null);
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
@@ -39,12 +52,15 @@ export function CreateTask({ stories }: { stories: Story[] | undefined }) {
       if (titleRef.current === null) return;
       if (descriptionRef.current === null) return;
       if (storyIdRef.current === null) return;
-      await createTask(
+      const task = await createTask(
         titleRef.current.value,
         descriptionRef.current.value,
-        storyIdRef.current.value,
+        storyIdRef.current.value === NULL_STORY_IDENTIFIER
+          ? null
+          : storyIdRef.current.value,
         false
       );
+      setTasks((tasks) => [...tasks, task]);
       handleClose();
     })();
   }
@@ -62,7 +78,7 @@ export function CreateTask({ stories }: { stories: Story[] | undefined }) {
         <DialogTitle id="form-dialog-title">Create Task</DialogTitle>
         <DialogContent>
           <TextField
-            ref={titleRef}
+            inputRef={titleRef}
             autoFocus
             name="title"
             label="Title"
@@ -76,10 +92,12 @@ export function CreateTask({ stories }: { stories: Story[] | undefined }) {
             minRows={3}
           />
           <FormControl fullWidth>
+            <InputLabel id="parent-story-label">Parent Story</InputLabel>
             <Select
-              ref={storyIdRef}
-              label="Parent Story"
+              inputRef={storyIdRef}
+              labelId="parent-story-label"
               value={NULL_STORY_IDENTIFIER}
+              margin="dense"
             >
               <MenuItem value={NULL_STORY_IDENTIFIER}>
                 {NULL_STORY_IDENTIFIER}
@@ -119,14 +137,25 @@ export function CreateBulkTask() {
   return <button style={createButtonStyles}>+ Bulk Task</button>;
 }
 
+interface EntityCreationStationProps {
+  stories: Story[] | undefined;
+  setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
+  setStories: React.Dispatch<React.SetStateAction<Story[]>>;
+  setSprints: React.Dispatch<React.SetStateAction<Sprint[]>>;
+  setTags: React.Dispatch<React.SetStateAction<Tag[]>>;
+  setTagAssignments: React.Dispatch<React.SetStateAction<TagAssignment[]>>;
+}
 export default function EntityCreationStation({
   stories,
-}: {
-  stories: Story[] | undefined;
-}) {
+  setTasks,
+  setStories,
+  setSprints,
+  setTags,
+  setTagAssignments,
+}: EntityCreationStationProps) {
   return (
     <>
-      <CreateTask stories={stories} />
+      <CreateTask stories={stories} setTasks={setTasks} />
       <CreateStory />
       <CreateSprint />
       <CreateTag />
