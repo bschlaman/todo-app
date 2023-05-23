@@ -6,9 +6,9 @@ import {
   TextField,
   DialogActions,
   FormControl,
-  InputLabel,
   MenuItem,
   Select,
+  TextareaAutosize,
 } from "@mui/material";
 import React, { useRef, useState } from "react";
 import { createTask } from "../../ts/lib/api";
@@ -23,7 +23,7 @@ const createButtonStyles: React.CSSProperties = {
 export function CreateTask({ stories }: { stories: Story[] | undefined }) {
   const [open, setOpen] = useState(false);
   const titleRef = useRef<HTMLInputElement>(null);
-  const descriptionRef = useRef<HTMLInputElement>(null);
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const storyIdRef = useRef<HTMLInputElement>(null);
 
   function handleClickOpen() {
@@ -68,22 +68,17 @@ export function CreateTask({ stories }: { stories: Story[] | undefined }) {
             label="Title"
             type="text"
             fullWidth
-          />
-          <TextField
-            ref={descriptionRef}
             margin="dense"
+          />
+          <TextareaAutosize
+            ref={descriptionRef}
             name="description"
-            label="Description"
-            type="text"
-            fullWidth
+            minRows={3}
           />
           <FormControl fullWidth>
-            <InputLabel id="story-select">Parent Story</InputLabel>
             <Select
               ref={storyIdRef}
-              labelId="story-select"
-              id="demo-simple-select"
-              label="Story"
+              label="Parent Story"
               value={NULL_STORY_IDENTIFIER}
             >
               <MenuItem value={NULL_STORY_IDENTIFIER}>
