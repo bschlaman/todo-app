@@ -45,6 +45,20 @@ function renderCreationButton(
   );
 }
 
+function renderDialogActions(
+  handleClose: React.MouseEventHandler<HTMLButtonElement>,
+  handleSave: React.MouseEventHandler<HTMLButtonElement>
+) {
+  return (
+    <DialogActions>
+      <Button onClick={handleClose}>Cancel</Button>
+      <Button onClick={handleSave} color="primary">
+        Create
+      </Button>
+    </DialogActions>
+  );
+}
+
 export function CreateTask({
   stories,
   setTasks,
@@ -125,12 +139,7 @@ export function CreateTask({
             </Select>
           </FormControl>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleSave} color="primary">
-            Submit
-          </Button>
-        </DialogActions>
+        {renderDialogActions(handleClose, handleSave)}
       </Dialog>
     </>
   );
@@ -241,12 +250,7 @@ export function CreateStory({
             ></TagOption>
           ))}
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleSave} color="primary">
-            Submit
-          </Button>
-        </DialogActions>
+        {renderDialogActions(handleClose, handleSave)}
       </Dialog>
     </>
   );
