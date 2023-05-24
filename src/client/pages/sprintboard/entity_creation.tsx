@@ -8,11 +8,15 @@ import {
   FormControl,
   MenuItem,
   Select,
-  TextareaAutosize,
   InputLabel,
 } from "@mui/material";
 import React, { useRef, useState } from "react";
-import { createTask } from "../../ts/lib/api";
+import {
+  createTask,
+  createStory,
+  createSprint,
+  createTagAssignment,
+} from "../../ts/lib/api";
 import {
   Sprint,
   Story,
@@ -21,11 +25,25 @@ import {
   Task,
 } from "../../ts/model/entities";
 import { NULL_STORY_IDENTIFIER } from "../../ts/lib/common";
+import { TagOption } from "./tag_selectors";
+import { sprintToString } from "../../ts/lib/utils";
 
-const createButtonStyles: React.CSSProperties = {
-  outline: "1px solid lightgreen",
-  borderRadius: "4px",
-};
+function renderCreationButton(
+  buttonText: string,
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>
+) {
+  return (
+    <Button
+      variant="contained"
+      color="primary"
+      onClick={() => {
+        setOpen(true);
+      }}
+    >
+      {buttonText}{" "}
+    </Button>
+  );
+}
 
 export function CreateTask({
   stories,
@@ -36,12 +54,8 @@ export function CreateTask({
 }) {
   const [open, setOpen] = useState(false);
   const titleRef = useRef<HTMLInputElement>(null);
-  const descriptionRef = useRef<HTMLTextAreaElement>(null);
-  const storyIdRef = useRef<HTMLInputElement>(null);
-
-  function handleClickOpen() {
-    setOpen(true);
-  }
+  const descriptionRef = useRef<HTMLInputElement>(null);
+  const [storyId, setStoryId] = useState(NULL_STORY_IDENTIFIER);
 
   function handleClose() {
     setOpen(false);
@@ -51,13 +65,10 @@ export function CreateTask({
     void (async () => {
       if (titleRef.current === null) return;
       if (descriptionRef.current === null) return;
-      if (storyIdRef.current === null) return;
       const task = await createTask(
         titleRef.current.value,
         descriptionRef.current.value,
-        storyIdRef.current.value === NULL_STORY_IDENTIFIER
-          ? null
-          : storyIdRef.current.value,
+        storyId === NULL_STORY_IDENTIFIER ? null : storyId,
         false
       );
       setTasks((tasks) => [...tasks, task]);
@@ -67,9 +78,7 @@ export function CreateTask({
 
   return (
     <>
-      <Button variant="contained" color="primary" onClick={handleClickOpen}>
-        + Task
-      </Button>
+      {renderCreationButton("+ Task", setOpen)}
       <Dialog
         open={open}
         onClose={handleClose}
@@ -79,25 +88,31 @@ export function CreateTask({
         <DialogContent>
           <TextField
             inputRef={titleRef}
-            autoFocus
-            name="title"
+            name="title" // would be used for event handling
             label="Title"
-            type="text"
+            autoFocus
             fullWidth
             margin="dense"
           />
-          <TextareaAutosize
-            ref={descriptionRef}
-            name="description"
+          <TextField
+            inputRef={descriptionRef}
+            name="description" // would be used for event handling
+            label="Description"
+            multiline
             minRows={3}
+            fullWidth
+            margin="dense"
           />
-          <FormControl fullWidth>
+          <FormControl fullWidth margin="dense">
             <InputLabel id="parent-story-label">Parent Story</InputLabel>
             <Select
-              inputRef={storyIdRef}
               labelId="parent-story-label"
-              value={NULL_STORY_IDENTIFIER}
+              label="Parent Story"
+              value={storyId}
               margin="dense"
+              onChange={(e) => {
+                setStoryId(e.target.value);
+              }}
             >
               <MenuItem value={NULL_STORY_IDENTIFIER}>
                 {NULL_STORY_IDENTIFIER}
@@ -121,9 +136,126 @@ export function CreateTask({
   );
 }
 
-export function CreateStory() {
-  return <button style={createButtonStyles}>+ Story</button>;
+export function CreateStory({
+  tags,
+  sprints,
+  selectedSprintId,
+  setStories,
+}: {
+  tags: Tag[];
+  sprints: Sprint[] | undefined;
+  selectedSprintId: string | null;
+  setStories: React.Dispatch<React.SetStateAction<Story[]>>;
+}) {
+  const [open, setOpen] = useState(false);
+  const titleRef = useRef<HTMLInputElement>(null);
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
+  const sprintIdRef = useRef<HTMLInputElement>(null);
+
+  function handleClose() {
+    setOpen(false);
+  }
+
+  function handleSave() {
+    void (async () => {
+      if (titleRef.current === null) return;
+      if (descriptionRef.current === null) return;
+      if (sprintIdRef.current === null) return;
+      const story = await createStory(
+        titleRef.current.value,
+        descriptionRef.current.value,
+        sprintIdRef.current.value
+      );
+      setStories((stories) => [...stories, story]);
+      for (const tagId of selectedTagIds) {
+        const tagAssignment = await createTagAssignment(tagId, story.id);
+        console.log("Created tag assignment", tagAssignment);
+      }
+      handleClose();
+    })();
+  }
+
+  return (
+    <>
+      {renderCreationButton("+ Story", setOpen)}
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="form-dialog-title"
+      >
+        <DialogTitle id="form-dialog-title">Create Task</DialogTitle>
+        <DialogContent>
+          <TextField
+            inputRef={titleRef}
+            name="title" // would be used for event handling
+            label="Title"
+            autoFocus
+            fullWidth
+            margin="dense"
+          />
+          <TextField
+            inputRef={descriptionRef}
+            name="description" // would be used for event handling
+            label="Description"
+            multiline
+            minRows={3}
+            fullWidth
+            margin="dense"
+          />
+          <FormControl fullWidth margin="dense">
+            <InputLabel id="sprint-label">Parent Story</InputLabel>
+            <Select
+              inputRef={sprintIdRef}
+              labelId="sprint-label"
+              value={NULL_STORY_IDENTIFIER}
+              margin="dense"
+            >
+              {sprints
+                ?.sort(
+                  (s0, s1) =>
+                    new Date(s1.start_date).getTime() -
+                    new Date(s0.start_date).getTime()
+                )
+                .slice(0, 5)
+                .map((sprint) => {
+                  return (
+                    <MenuItem key={sprint.id} value={sprint.id}>
+                      {sprintToString(sprint)}
+                    </MenuItem>
+                  );
+                })}
+            </Select>
+          </FormControl>
+          {tags.map((tag) => (
+            <TagOption
+              key={tag.id}
+              tag={tag}
+              checked={selectedTagIds.includes(tag.id)}
+              onTagToggle={(tagId: string, checked: boolean) => {
+                setSelectedTagIds((prev) => {
+                  if (checked) return [...prev, tagId];
+                  return prev.filter((id) => id !== tagId);
+                });
+              }}
+            ></TagOption>
+          ))}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose}>Cancel</Button>
+          <Button onClick={handleSave} color="primary">
+            Submit
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
+  );
 }
+
+const createButtonStyles: React.CSSProperties = {
+  outline: "1px solid lightgreen",
+  borderRadius: "4px",
+};
 
 export function CreateSprint() {
   return <button style={createButtonStyles}>+ Sprint</button>;
@@ -139,14 +271,21 @@ export function CreateBulkTask() {
 
 interface EntityCreationStationProps {
   stories: Story[] | undefined;
+  sprints: Sprint[] | undefined;
+  tags: Tag[];
+  selectedSprintId: string | null;
   setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
   setStories: React.Dispatch<React.SetStateAction<Story[]>>;
   setSprints: React.Dispatch<React.SetStateAction<Sprint[]>>;
   setTags: React.Dispatch<React.SetStateAction<Tag[]>>;
   setTagAssignments: React.Dispatch<React.SetStateAction<TagAssignment[]>>;
 }
+
 export default function EntityCreationStation({
   stories,
+  sprints,
+  tags,
+  selectedSprintId,
   setTasks,
   setStories,
   setSprints,
@@ -156,7 +295,12 @@ export default function EntityCreationStation({
   return (
     <>
       <CreateTask stories={stories} setTasks={setTasks} />
-      <CreateStory />
+      <CreateStory
+        tags={tags}
+        sprints={sprints}
+        selectedSprintId={selectedSprintId}
+        setStories={setStories}
+      />
       <CreateSprint />
       <CreateTag />
       <CreateBulkTask />
