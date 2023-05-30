@@ -250,6 +250,7 @@ export default function SprintboardPage() {
         sprints={sprints}
         tags={tags}
         selectedSprintId={selectedSprintId}
+        sprintsById={sprintsById}
         setTasks={setTasks}
         setStories={setStories}
         setSprints={setSprints}
