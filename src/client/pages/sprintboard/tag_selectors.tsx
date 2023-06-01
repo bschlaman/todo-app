@@ -11,16 +11,20 @@ export function TagOption({
   checked: boolean;
   onTagToggle: (tagId: string, checked: boolean) => void;
 }) {
+  // used to connect the input and label.  Can't use tag.id, since
+  // a TagOption may be used in multiple places on the page.
+  const inputId = Math.random().toString();
+
   return (
     <div style={{ whiteSpace: "nowrap", display: "inline-block" }}>
       <input
-        id={tag.id}
+        id={inputId}
         type="checkbox"
         checked={checked}
         onChange={(e) => onTagToggle(tag.id, e.target.checked)}
       />
       <label
-        htmlFor={tag.id}
+        htmlFor={inputId}
         style={{
           color: TAG_COLORS[tag.title as keyof typeof TAG_COLORS],
         }}
