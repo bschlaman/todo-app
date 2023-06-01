@@ -530,7 +530,15 @@ func CreateStory(log *logger.BLogger, createReq CreateStoryReq) (*Story, error) 
 				$1,
 				$2,
 				$3
-			) RETURNING id`,
+			) RETURNING id
+				id,
+				created_at,
+				updated_at,
+				title,
+				description,
+				status,
+				sprint_id,
+				edited`,
 		createReq.Title,
 		createReq.Description,
 		createReq.SprintID,
@@ -647,10 +655,10 @@ func CreateTagAssignment(log *logger.BLogger, createReq CreateTagAssignmentReq) 
 				$1,
 				$2
 			) RETURNING
-			  id::text,
+			  id,
 				created_at,
 				tag_id,
-				story_id`, // TODO (2022.12.01): is there a cleaner way than casting to text?
+				story_id`,
 		createReq.TagID,
 		createReq.StoryID,
 	).Scan(&id, &cAt, &tagID, &storyID)
@@ -789,11 +797,11 @@ func CreateStoryRelationship(log *logger.BLogger, createReq CreateStoryRelations
 				$2,
 				$3
 			) RETURNING
-				id::text,
+				id,
 				created_at,
 				story_id_a,
 				story_id_b,
-				relation`, // TODO (2022.12.01): is there a cleaner way than casting to text?
+				relation`,
 		createReq.StoryIDA,
 		createReq.StoryIDB,
 		createReq.Relation,

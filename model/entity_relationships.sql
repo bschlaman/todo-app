@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS public.story_relationships (
     story_id_a uuid NOT NULL,
     story_id_b uuid NOT NULL,
     relation relationship NOT NULL,
-    CONSTRAINT fk_story_id_a FOREIGN KEY(story_id_a) REFERENCES stories(id),
-    CONSTRAINT fk_story_id_b FOREIGN KEY(story_id_b) REFERENCES stories(id),
+    CONSTRAINT fk_story_id_a FOREIGN KEY(story_id_a) REFERENCES stories(id) ON DELETE CASCADE,
+    CONSTRAINT fk_story_id_b FOREIGN KEY(story_id_b) REFERENCES stories(id) ON DELETE CASCADE,
     UNIQUE(story_id_a, story_id_b, relation)
 );

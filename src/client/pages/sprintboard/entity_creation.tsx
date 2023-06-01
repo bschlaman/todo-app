@@ -29,6 +29,7 @@ import {
 import { NULL_STORY_IDENTIFIER } from "../../ts/lib/common";
 import { TagOption } from "./tag_selectors";
 import { sprintToString } from "../../ts/lib/utils";
+import { DatePicker } from "@mui/x-date-pickers";
 
 function renderCreationButton(
   buttonText: string,
@@ -312,25 +313,15 @@ export function CreateSprint({
             fullWidth
             margin="dense"
           />
-          <TextField
+          <DatePicker
             inputRef={startDateRef}
-            name="start_date" // would be used for event handling
             label="Start Date"
-            type="date"
-            multiline
-            minRows={3}
-            fullWidth
-            margin="dense"
+            showDaysOutsideCurrentMonth
           />
-          <TextField
+          <DatePicker
             inputRef={endDateRef}
-            name="end_date" // would be used for event handling
             label="End Date"
-            type="date"
-            multiline
-            minRows={3}
-            fullWidth
-            margin="dense"
+            showDaysOutsideCurrentMonth
           />
         </DialogContent>
         {renderDialogActions(handleClose, handleSave)}
