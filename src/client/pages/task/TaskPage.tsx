@@ -148,7 +148,7 @@ function TaskMetadata({
           setError(e.message);
         });
     })();
-  }, [task]);
+  }, []);
 
   function handleTaskMetadataChange(
     event: React.ChangeEvent<HTMLSelectElement>

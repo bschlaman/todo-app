@@ -222,11 +222,11 @@ export function CreateStory({
             margin="dense"
           />
           <FormControl fullWidth margin="dense">
-            <InputLabel id="sprint-label">Parent Story</InputLabel>
+            <InputLabel id="sprint-label">Parent Sprint</InputLabel>
             <Select
               inputRef={sprintIdRef}
               labelId="sprint-label"
-              label="Parent Story"
+              label="Parent Sprint"
               value={selectedSprintId}
               margin="dense"
             >

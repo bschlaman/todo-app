@@ -24,6 +24,7 @@ import TaskCard from "./TaskCard";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import EntityCreationStation from "./entity_creation";
+import StoryCard from "./StoryCard";
 
 const LOCAL_STORAGE_KEYS = {
   selectedSprintId: "viewing_sprint_id",
@@ -257,10 +258,15 @@ export default function SprintboardPage() {
         setTags={setTags}
         setTagAssignments={setTagAssignments}
       />
+      {
+        // TODO (2023.06.02): make this a function, since it is
+        // used in more than one place
+      }
       <select
         onChange={(e) => {
           setSelectedSprintId(e.target.value);
         }}
+        value={selectedSprintId ?? ""}
       >
         {sprints
           .sort(
@@ -309,6 +315,26 @@ export default function SprintboardPage() {
             {renderTaskCardsForStatus(STATUS.DONE)}
           </Bucket>
         </DndProvider>
+      </div>
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "1rem",
+          marginTop: "2rem",
+        }}
+      >
+        {stories
+          .filter((story) => story.sprint_id === selectedSprintId)
+          .map((story) => (
+            <StoryCard
+              key={story.id}
+              story={story}
+              sprints={sprints}
+              tagsById={tagsById}
+              assocTagIdsByStoryId={assocTagIdsByStoryId}
+            />
+          ))}
       </div>
     </>
   );
