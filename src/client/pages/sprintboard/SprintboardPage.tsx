@@ -332,7 +332,8 @@ export default function SprintboardPage() {
               story={story}
               sprints={sprints}
               tagsById={tagsById}
-              assocTagIdsByStoryId={assocTagIdsByStoryId}
+              tagAssignments={tagAssignments}
+              setTagAssignments={setTagAssignments}
             />
           ))}
       </div>

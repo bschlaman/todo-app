@@ -1,32 +1,55 @@
-import React, { useEffect, useState } from "react";
+import React, { useMemo, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import CopyToClipboardButton from "../../components/copy_to_clipboard_button";
-import { Sprint, Story, Tag } from "../../ts/model/entities";
+import { Sprint, Story, Tag, TagAssignment } from "../../ts/model/entities";
 import { TagOption } from "./tag_selectors";
 import { sprintToString } from "../../ts/lib/utils";
+import { createTagAssignment, destroyTagAssignment } from "../../ts/lib/api";
 
 export default function StoryCard({
   story,
   sprints,
   tagsById,
-  assocTagIdsByStoryId,
+  tagAssignments,
+  setTagAssignments,
 }: {
   story: Story;
   sprints: Sprint[];
   tagsById: Map<string, Tag>;
-  assocTagIdsByStoryId: Map<string, string[]>;
+  tagAssignments: TagAssignment[];
+  setTagAssignments: React.Dispatch<React.SetStateAction<TagAssignment[]>>;
 }) {
-  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
   const [selectedSprintId, setSelectedSprintId] = useState("");
   const storyPageRef = `/story/${story.id}`;
 
-  useEffect(() => {
-    for (const [storyId, tagIds] of assocTagIdsByStoryId) {
-      if (storyId !== story.id) continue;
-      setSelectedTagIds(tagIds);
-    }
-  }, [assocTagIdsByStoryId, story]);
+  const selectedTagIds = useMemo(
+    () =>
+      tagAssignments
+        .filter((ta) => ta.story_id === story.id)
+        .map((ta) => ta.tag_id),
+    [tagAssignments, story]
+  );
+
+  function handleStoryCardTagChange(tagId: string, checked: boolean) {
+    void (async () => {
+      // make the API call and then update tagAssignments
+      if (checked) {
+        const tagAssignment = await createTagAssignment(tagId, story.id);
+        setTagAssignments((tagAssignments) => [
+          ...tagAssignments,
+          tagAssignment,
+        ]);
+      } else {
+        await destroyTagAssignment(tagId, story.id);
+        setTagAssignments((tagAssignments) =>
+          tagAssignments.filter(
+            (ta) => ta.tag_id !== tagId || ta.story_id !== story.id
+          )
+        );
+      }
+    })();
+  }
 
   return (
     <div
@@ -92,12 +115,7 @@ export default function StoryCard({
           key={tag.id}
           tag={tag}
           checked={selectedTagIds.includes(tag.id)}
-          onTagToggle={(tagId: string, checked: boolean) => {
-            setSelectedTagIds((prev) => {
-              if (checked) return [...prev, tagId];
-              return prev.filter((id) => id !== tagId);
-            });
-          }}
+          onTagToggle={handleStoryCardTagChange}
         ></TagOption>
       ))}
     </div>

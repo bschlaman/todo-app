@@ -21,6 +21,9 @@ export function TagOption({
         id={inputId}
         type="checkbox"
         checked={checked}
+        // wrap the onChange fn with a fn that I can pass the
+        // tag.id.  I can't get that from the event itself
+        // since the id is randomly generated.
         onChange={(e) => onTagToggle(tag.id, e.target.checked)}
       />
       <label
