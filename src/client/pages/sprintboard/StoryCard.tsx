@@ -2,22 +2,33 @@ import React, { useMemo, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import CopyToClipboardButton from "../../components/copy_to_clipboard_button";
-import { Sprint, Story, Tag, TagAssignment } from "../../ts/model/entities";
+import {
+  Sprint,
+  Story,
+  StoryRelationship,
+  Tag,
+  TagAssignment,
+  STORY_RELATIONSHIP,
+} from "../../ts/model/entities";
 import { TagOption } from "./tag_selectors";
 import { sprintToString } from "../../ts/lib/utils";
 import { createTagAssignment, destroyTagAssignment } from "../../ts/lib/api";
 
 export default function StoryCard({
   story,
-  sprints,
+  storiesById,
+  sprintsById,
   tagsById,
   tagAssignments,
+  storyRelationships,
   setTagAssignments,
 }: {
   story: Story;
-  sprints: Sprint[];
+  storiesById: Map<string, Story>;
+  sprintsById: Map<string, Sprint>;
   tagsById: Map<string, Tag>;
   tagAssignments: TagAssignment[];
+  storyRelationships: StoryRelationship[];
   setTagAssignments: React.Dispatch<React.SetStateAction<TagAssignment[]>>;
 }) {
   const [selectedSprintId, setSelectedSprintId] = useState("");
@@ -30,6 +41,53 @@ export default function StoryCard({
         .map((ta) => ta.tag_id),
     [tagAssignments, story]
   );
+
+  function renderStoryRelationshipsTable() {
+    let continues;
+    let continuedBy;
+    for (const storyRelationship of storyRelationships) {
+      if (storyRelationship.relation !== STORY_RELATIONSHIP.ContinuedBy)
+        continue;
+      if (storyRelationship.story_id_a === story.id)
+        continues = storiesById.get(storyRelationship.story_id_b);
+      if (storyRelationship.story_id_b === story.id)
+        continuedBy = storiesById.get(storyRelationship.story_id_a);
+    }
+    return (
+      <table style={{ fontSize: "0.8rem" }}>
+        <tbody>
+          {continues != null && (
+            <tr>
+              <td>Continues</td>
+              <td>
+                <strong>{continues?.title}</strong>
+              </td>
+              <td>from sprint</td>
+              <td>
+                <strong>
+                  {sprintsById.get(continues.sprint_id ?? "")?.title}
+                </strong>
+              </td>
+            </tr>
+          )}
+          {continuedBy != null && (
+            <tr>
+              <td>Continued by</td>
+              <td>
+                <strong>{continuedBy?.title}</strong>
+              </td>
+              <td>in sprint</td>
+              <td>
+                <strong>
+                  {sprintsById.get(continuedBy.sprint_id ?? "")?.title}
+                </strong>
+              </td>
+            </tr>
+          )}
+        </tbody>{" "}
+      </table>
+    );
+  }
 
   function handleStoryCardTagChange(tagId: string, checked: boolean) {
     void (async () => {
@@ -95,7 +153,7 @@ export default function StoryCard({
         }}
         value={selectedSprintId ?? ""}
       >
-        {sprints
+        {Array.from(sprintsById.values())
           .sort(
             (s0, s1) =>
               new Date(s1.start_date).getTime() -
@@ -118,6 +176,7 @@ export default function StoryCard({
           onTagToggle={handleStoryCardTagChange}
         ></TagOption>
       ))}
+      {renderStoryRelationshipsTable()}
     </div>
   );
 }

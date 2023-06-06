@@ -3,6 +3,7 @@ import ErrorBanner from "../../components/banners";
 import {
   getSprints,
   getStories,
+  getStoryRelationships,
   getTagAssignments,
   getTags,
   getTasks,
@@ -12,6 +13,7 @@ import {
   STATUS,
   Sprint,
   Story,
+  StoryRelationship,
   Tag,
   TagAssignment,
   Task,
@@ -64,6 +66,9 @@ export default function SprintboardPage() {
   const [sprints, setSprints] = useState<Sprint[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
   const [tagAssignments, setTagAssignments] = useState<TagAssignment[]>([]);
+  const [storyRelationships, setStoryRelationships] = useState<
+    StoryRelationship[]
+  >([]);
   const [error, setError] = useState(null);
   const [selectedSprintId, setSelectedSprintId] = useState(
     localStorage.getItem(LOCAL_STORAGE_KEYS.selectedSprintId)
@@ -205,6 +210,13 @@ export default function SprintboardPage() {
         .catch((e) => {
           setError(e.message);
         });
+      await getStoryRelationships()
+        .then((storyRelationships) => {
+          setStoryRelationships(storyRelationships);
+        })
+        .catch((e) => {
+          setError(e.message);
+        });
     })().then(() => {
       console.timeEnd("api_calls");
     });
@@ -330,9 +342,11 @@ export default function SprintboardPage() {
             <StoryCard
               key={story.id}
               story={story}
-              sprints={sprints}
+              storiesById={storiesById}
+              sprintsById={sprintsById}
               tagsById={tagsById}
               tagAssignments={tagAssignments}
+              storyRelationships={storyRelationships}
               setTagAssignments={setTagAssignments}
             />
           ))}
