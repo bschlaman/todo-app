@@ -9,6 +9,7 @@ import {
   Tag,
   TagAssignment,
   STORY_RELATIONSHIP,
+  Task,
 } from "../../ts/model/entities";
 import { TagOption } from "./tag_selectors";
 import { sprintToString } from "../../ts/lib/utils";
@@ -18,6 +19,7 @@ export default function StoryCard({
   story,
   storiesById,
   sprintsById,
+  tasksByStoryId,
   tagsById,
   tagAssignments,
   storyRelationships,
@@ -26,11 +28,13 @@ export default function StoryCard({
   story: Story;
   storiesById: Map<string, Story>;
   sprintsById: Map<string, Sprint>;
+  tasksByStoryId: Map<string, Task[]>;
   tagsById: Map<string, Tag>;
   tagAssignments: TagAssignment[];
   storyRelationships: StoryRelationship[];
   setTagAssignments: React.Dispatch<React.SetStateAction<TagAssignment[]>>;
 }) {
+  const metadataFontSize = "0.8rem";
   const [selectedSprintId, setSelectedSprintId] = useState("");
   const storyPageRef = `/story/${story.id}`;
 
@@ -48,43 +52,45 @@ export default function StoryCard({
     for (const storyRelationship of storyRelationships) {
       if (storyRelationship.relation !== STORY_RELATIONSHIP.ContinuedBy)
         continue;
-      if (storyRelationship.story_id_a === story.id)
-        continues = storiesById.get(storyRelationship.story_id_b);
       if (storyRelationship.story_id_b === story.id)
-        continuedBy = storiesById.get(storyRelationship.story_id_a);
+        continues = storiesById.get(storyRelationship.story_id_a);
+      if (storyRelationship.story_id_a === story.id)
+        continuedBy = storiesById.get(storyRelationship.story_id_b);
     }
     return (
-      <table style={{ fontSize: "0.8rem" }}>
+      <table style={{ fontSize: metadataFontSize }}>
         <tbody>
           {continues != null && (
             <tr>
-              <td>Continues</td>
-              <td>
-                <strong>{continues?.title}</strong>
-              </td>
-              <td>from sprint</td>
+              <td>Continues in sprint</td>
               <td>
                 <strong>
                   {sprintsById.get(continues.sprint_id ?? "")?.title}
                 </strong>
               </td>
+              <td>
+                <em>
+                  <strong>{continues?.title}</strong>
+                </em>
+              </td>
             </tr>
           )}
           {continuedBy != null && (
             <tr>
-              <td>Continued by</td>
-              <td>
-                <strong>{continuedBy?.title}</strong>
-              </td>
-              <td>in sprint</td>
+              <td>Continued in sprint</td>
               <td>
                 <strong>
                   {sprintsById.get(continuedBy.sprint_id ?? "")?.title}
                 </strong>
               </td>
+              <td>
+                <em>
+                  <strong>{continuedBy?.title}</strong>
+                </em>
+              </td>
             </tr>
           )}
-        </tbody>{" "}
+        </tbody>
       </table>
     );
   }
@@ -176,6 +182,24 @@ export default function StoryCard({
           onTagToggle={handleStoryCardTagChange}
         ></TagOption>
       ))}
+      <div style={{ fontSize: metadataFontSize }}>
+        <p>
+          <strong>Tasks in this story</strong>
+        </p>
+        <ul>
+          {tasksByStoryId
+            .get(story.id)
+            ?.sort((a, b) => a.status.localeCompare(b.status))
+            .map((task) => (
+              <li key={task.id}>
+                <p style={{ display: "inline", color: "grey" }}>
+                  ({task.status}){" "}
+                </p>
+                {task.title}
+              </li>
+            ))}
+        </ul>
+      </div>
       {renderStoryRelationshipsTable()}
     </div>
   );

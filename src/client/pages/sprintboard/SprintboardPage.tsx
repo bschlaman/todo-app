@@ -122,6 +122,15 @@ export default function SprintboardPage() {
     return _map;
   }, [tags]);
 
+  const tasksByStoryId = useMemo(() => {
+    const _map = new Map<string, Task[]>();
+    for (const task of tasks) {
+      if (!_map.has(task.story_id)) _map.set(task.story_id, []);
+      _map.get(task.story_id)?.push(task);
+    }
+    return _map;
+  }, [tasks]);
+
   const storiesBySprintId = useMemo(() => {
     const _map = new Map<string, Story[]>();
     for (const story of stories) {
@@ -344,6 +353,7 @@ export default function SprintboardPage() {
               story={story}
               storiesById={storiesById}
               sprintsById={sprintsById}
+              tasksByStoryId={tasksByStoryId}
               tagsById={tagsById}
               tagAssignments={tagAssignments}
               storyRelationships={storyRelationships}
