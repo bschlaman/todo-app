@@ -25,8 +25,9 @@ function TaskView({
   task: Task;
   onTaskUpdate: (updatedTask: Task) => Promise<void>;
 }) {
-  // const descriptionRef = useRef();
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [title, setTitle] = useState(task.title);
+  const [isEditingDesc, setIsEditingDesc] = useState(false);
   const [description, setDescription] = useState(task.description);
 
   return (
@@ -43,7 +44,30 @@ function TaskView({
         >
           〈Back
         </a>
-        <h2>{task.title}</h2>
+        <div>
+          {isEditingTitle ? (
+            <div>
+              <textarea
+                style={{
+                  fontSize: "1.8rem",
+                  resize: "none",
+                }}
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+              />
+              <button
+                onClick={() => {
+                  setIsEditingTitle(false);
+                  void onTaskUpdate({ ...task, title });
+                }}
+              >
+                Save
+              </button>
+            </div>
+          ) : (
+            <h2 onClick={() => setIsEditingTitle(true)}>{title}</h2>
+          )}
+        </div>
         <CopyToClipboardButton
           value={window.location.pathname}
         ></CopyToClipboardButton>
@@ -58,7 +82,7 @@ function TaskView({
           position: "relative",
         }}
       >
-        {isEditing ? (
+        {isEditingDesc ? (
           <>
             <textarea
               style={{
@@ -84,7 +108,7 @@ function TaskView({
                 borderRadius: "5px",
               }}
               onClick={() => {
-                setIsEditing(false);
+                setIsEditingDesc(false);
                 void onTaskUpdate({ ...task, description });
               }}
             >
@@ -110,8 +134,8 @@ function TaskView({
           <input
             id="preview-md"
             type="checkbox"
-            checked={!isEditing}
-            onChange={() => setIsEditing(!isEditing)}
+            checked={!isEditingDesc}
+            onChange={() => setIsEditingDesc(!isEditingDesc)}
           />
           <label htmlFor="preview-md">Preview Markdown</label>
         </div>
