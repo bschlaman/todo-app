@@ -831,7 +831,7 @@ function renderTasksFromJSON(tasks: Task[]) {
       const taskEditLink = document.createElement("a");
       taskEditLink.classList.add("task-edit-link");
       taskEditLink.textContent = "edit";
-      taskEditLink.setAttribute("href", `/task_v2/${task.id}`);
+      taskEditLink.setAttribute("href", `/task/${task.id}`);
 
       const taskDesc = document.createElement("p");
       taskDesc.classList.add("task-desc");

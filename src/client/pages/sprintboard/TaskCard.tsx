@@ -22,7 +22,7 @@ export default function TaskCard({
   moveTask: (taskId: string, status: STATUS) => void;
 }) {
   const story = storiesById.get(task.story_id);
-  const taskPageRef = `/task_v2/${task.id}`;
+  const taskPageRef = `/task/${task.id}`;
 
   const [{ isDragging }, drag, preview] = useDrag(
     () => ({
