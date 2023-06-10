@@ -16,7 +16,13 @@ export function TagOption({
   const inputId = Math.random().toString();
 
   return (
-    <div style={{ whiteSpace: "nowrap", display: "inline-block" }}>
+    <div
+      style={{
+        whiteSpace: "nowrap",
+        display: "inline-block",
+        margin: "0.2rem",
+      }}
+    >
       <input
         id={inputId}
         type="checkbox"

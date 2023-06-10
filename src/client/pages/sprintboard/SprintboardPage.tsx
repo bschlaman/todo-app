@@ -265,59 +265,90 @@ export default function SprintboardPage() {
 
   return (
     <>
-      <EntityCreationStation
-        // eh, ?? "" could be better...
-        // if selectedSprintId is null, look for "", which should return undefined
-        stories={storiesBySprintId.get(selectedSprintId ?? "")}
-        sprints={sprints}
-        tags={tags}
-        selectedSprintId={selectedSprintId}
-        sprintsById={sprintsById}
-        setTasks={setTasks}
-        setStories={setStories}
-        setSprints={setSprints}
-        setTags={setTags}
-        setTagAssignments={setTagAssignments}
-      />
-      {
-        // TODO (2023.06.02): make this a function, since it is
-        // used in more than one place
-      }
-      <select
-        onChange={(e) => {
-          setSelectedSprintId(e.target.value);
+      {/* Sprintboard Header */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
         }}
-        value={selectedSprintId ?? ""}
       >
-        {sprints
-          .sort(
-            (s0, s1) =>
-              new Date(s1.start_date).getTime() -
-              new Date(s0.start_date).getTime()
-          )
-          .slice(0, 5)
-          .map((sprint) => {
-            return (
-              <option key={sprint.id} value={sprint.id}>
-                {sprintToString(sprint)}
-              </option>
-            );
-          })}
-      </select>
-      <div style={{ width: "20rem", fontSize: "1.3rem" }}>
-        {tags.map((tag) => (
-          <TagOption
-            key={tag.id}
-            tag={tag}
-            checked={activeTagIds.includes(tag.id)}
-            onTagToggle={(tagId: string, checked: boolean) => {
-              setActiveTagIds((prev) => {
-                if (checked) return [...prev, tagId];
-                return prev.filter((id) => id !== tagId);
-              });
+        <EntityCreationStation
+          // eh, ?? "" could be better...
+          // if selectedSprintId is null, look for "", which should return undefined
+          stories={storiesBySprintId.get(selectedSprintId ?? "")}
+          sprints={sprints}
+          tags={tags}
+          selectedSprintId={selectedSprintId}
+          sprintsById={sprintsById}
+          setTasks={setTasks}
+          setStories={setStories}
+          setSprints={setSprints}
+          setTags={setTags}
+          setTagAssignments={setTagAssignments}
+        />
+        {/* Entity filtering  */}
+        <div style={{ maxWidth: "50vw", fontSize: "1.3rem" }}>
+          {tags.map((tag) => (
+            <TagOption
+              key={tag.id}
+              tag={tag}
+              checked={activeTagIds.includes(tag.id)}
+              onTagToggle={(tagId: string, checked: boolean) => {
+                setActiveTagIds((prev) => {
+                  if (checked) return [...prev, tagId];
+                  return prev.filter((id) => id !== tagId);
+                });
+              }}
+            />
+          ))}
+          {
+            // TODO (2023.06.02): make this a function, since it is
+            // used in more than one place
+          }
+          <select
+            onChange={(e) => {
+              setSelectedSprintId(e.target.value);
             }}
-          ></TagOption>
-        ))}
+            value={selectedSprintId ?? ""}
+          >
+            {sprints
+              .sort(
+                (s0, s1) =>
+                  new Date(s1.start_date).getTime() -
+                  new Date(s0.start_date).getTime()
+              )
+              .slice(0, 5)
+              .map((sprint) => {
+                return (
+                  <option key={sprint.id} value={sprint.id}>
+                    {sprintToString(sprint)}
+                  </option>
+                );
+              })}
+          </select>
+          {/* All + None anchors */}
+          <div style={{ display: "inline-block" }}>
+            <a
+              style={{ marginLeft: "1rem" }}
+              href="#"
+              onClick={() => {
+                setActiveTagIds(tags.map((tag) => tag.id));
+              }}
+            >
+              All
+            </a>
+            <a
+              style={{ marginLeft: "1rem" }}
+              href="#"
+              onClick={() => {
+                setActiveTagIds([]);
+              }}
+            >
+              None
+            </a>
+          </div>
+        </div>
       </div>
       <div
         style={{

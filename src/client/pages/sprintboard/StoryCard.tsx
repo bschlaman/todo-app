@@ -149,6 +149,14 @@ export default function StoryCard({
       <ReactMarkdown remarkPlugins={[remarkGfm]}>
         {story.description}
       </ReactMarkdown>
+      {Array.from(tagsById).map(([, tag]) => (
+        <TagOption
+          key={tag.id}
+          tag={tag}
+          checked={selectedTagIds.includes(tag.id)}
+          onTagToggle={handleStoryCardTagChange}
+        ></TagOption>
+      ))}
       {
         // TODO (2023.06.02): make this a function, since it is
         // used in more than one place
@@ -174,14 +182,6 @@ export default function StoryCard({
             );
           })}
       </select>
-      {Array.from(tagsById).map(([, tag]) => (
-        <TagOption
-          key={tag.id}
-          tag={tag}
-          checked={selectedTagIds.includes(tag.id)}
-          onTagToggle={handleStoryCardTagChange}
-        ></TagOption>
-      ))}
       <div style={{ fontSize: metadataFontSize }}>
         <p>
           <strong>Tasks in this story</strong>

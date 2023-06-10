@@ -563,7 +563,7 @@ export default function EntityCreationStation({
   setTagAssignments,
 }: EntityCreationStationProps) {
   return (
-    <>
+    <div style={{ display: "flex", gap: "1rem" }}>
       <CreateTask stories={stories} setTasks={setTasks} />
       <CreateStory
         tags={tags}
@@ -580,6 +580,6 @@ export default function EntityCreationStation({
         stories={stories}
         setTasks={setTasks}
       />
-    </>
+    </div>
   );
 }
