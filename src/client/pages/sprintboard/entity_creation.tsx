@@ -11,7 +11,7 @@ import {
   InputLabel,
   Typography,
 } from "@mui/material";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   createTask,
   createStory,
@@ -73,6 +73,10 @@ export function CreateTask({
   const titleRef = useRef<HTMLInputElement>(null);
   const descriptionRef = useRef<HTMLInputElement>(null);
   const [storyId, setStoryId] = useState(NULL_STORY_IDENTIFIER);
+
+  useEffect(() => {
+    if (open) titleRef.current?.focus();
+  }, [open]);
 
   function handleClose() {
     setOpen(false);
@@ -166,6 +170,10 @@ export function CreateStory({
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
   const sprintIdRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (open) titleRef.current?.focus();
+  }, [open]);
 
   function handleClose() {
     setOpen(false);
@@ -276,6 +284,10 @@ export function CreateSprint({
   const startDateRef = useRef<HTMLInputElement>(null);
   const endDateRef = useRef<HTMLInputElement>(null);
 
+  useEffect(() => {
+    if (open) titleRef.current?.focus();
+  }, [open]);
+
   function handleClose() {
     setOpen(false);
   }
@@ -338,6 +350,10 @@ export function CreateTag({
   const [open, setOpen] = useState(false);
   const titleRef = useRef<HTMLInputElement>(null);
   const descriptionRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (open) titleRef.current?.focus();
+  }, [open]);
 
   function handleClose() {
     setOpen(false);
@@ -406,6 +422,10 @@ export function CreateBulkTask({
   const descriptionRef = useRef<HTMLInputElement>(null);
   const [storyId, setStoryId] = useState(NULL_STORY_IDENTIFIER);
   const [commonTitle, setCommonTitle] = useState("");
+
+  useEffect(() => {
+    if (open) titleRef.current?.focus();
+  }, [open]);
 
   const BULK_TASK_PREFIX = "[mm.dd] ";
 
