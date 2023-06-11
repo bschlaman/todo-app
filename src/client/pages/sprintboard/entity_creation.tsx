@@ -43,12 +43,12 @@ function renderCreationButton(
         setOpen(true);
       }}
     >
-      {buttonText}{" "}
+      {buttonText}
     </Button>
   );
 }
 
-function renderDialogActions(
+export function renderDialogActions(
   handleClose: React.MouseEventHandler<HTMLButtonElement>,
   handleSave: React.MouseEventHandler<HTMLButtonElement>
 ) {

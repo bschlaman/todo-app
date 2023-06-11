@@ -388,7 +388,9 @@ export default function SprintboardPage() {
               tagsById={tagsById}
               tagAssignments={tagAssignments}
               storyRelationships={storyRelationships}
+              setStories={setStories}
               setTagAssignments={setTagAssignments}
+              setStoryRelationships={setStoryRelationships}
             />
           ))}
       </div>

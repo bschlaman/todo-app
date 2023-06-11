@@ -1,3 +1,6 @@
+// ----------
+// DEPRECATED
+// ----------
 import "../css/styles.css";
 import {
   createComment,
@@ -71,7 +74,18 @@ const createCommentButton = createCommentForm.querySelector(
   "button"
 ) as HTMLButtonElement;
 
-let serverConfig: Config = {}; // not exactly sure how to fix this in ts yet
+let serverConfig: Config = {
+  comment_max_len: 0,
+  server_name: "",
+  sprint_duration_seconds: 0,
+  sprint_title_max_len: 0,
+  story_desc_max_len: 0,
+  story_title_max_len: 0,
+  tag_desc_max_len: 0,
+  tag_title_max_len: 0,
+  task_desc_max_len: 0,
+  task_title_max_len: 0,
+}; // setting defaults to remove error
 // stores story data by story_id
 const storyDataCache = new Map<string, Story>();
 // stores sprint data by sprint_id

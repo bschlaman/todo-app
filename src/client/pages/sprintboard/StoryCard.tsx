@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import CopyToClipboardButton from "../../components/copy_to_clipboard_button";
@@ -13,7 +13,24 @@ import {
 } from "../../ts/model/entities";
 import { TagOption } from "./tag_selectors";
 import { sprintToString } from "../../ts/lib/utils";
-import { createTagAssignment, destroyTagAssignment } from "../../ts/lib/api";
+import {
+  createStory,
+  createStoryRelationship,
+  createTagAssignment,
+  destroyTagAssignment,
+} from "../../ts/lib/api";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { renderDialogActions } from "./entity_creation";
 
 export default function StoryCard({
   story,
@@ -23,7 +40,9 @@ export default function StoryCard({
   tagsById,
   tagAssignments,
   storyRelationships,
+  setStories,
   setTagAssignments,
+  setStoryRelationships,
 }: {
   story: Story;
   storiesById: Map<string, Story>;
@@ -32,7 +51,11 @@ export default function StoryCard({
   tagsById: Map<string, Tag>;
   tagAssignments: TagAssignment[];
   storyRelationships: StoryRelationship[];
+  setStories: React.Dispatch<React.SetStateAction<Story[]>>;
   setTagAssignments: React.Dispatch<React.SetStateAction<TagAssignment[]>>;
+  setStoryRelationships: React.Dispatch<
+    React.SetStateAction<StoryRelationship[]>
+  >;
 }) {
   const metadataFontSize = "0.8rem";
   const [selectedSprintId, setSelectedSprintId] = useState("");
@@ -201,6 +224,186 @@ export default function StoryCard({
         </ul>
       </div>
       {renderStoryRelationshipsTable()}
+      <CopyToNewStory
+        continuedStory={story}
+        sprints={[...sprintsById.values()]}
+        tags={[...tagsById.values()]}
+        tagAssignments={tagAssignments}
+        setStories={setStories}
+        setTagAssignments={setTagAssignments}
+        setStoryRelationships={setStoryRelationships}
+      />
     </div>
+  );
+}
+
+// TODO (2023.06.11): should this be in entity_creation?
+function CopyToNewStory({
+  continuedStory,
+  sprints,
+  tags,
+  tagAssignments,
+  setStories,
+  setTagAssignments,
+  setStoryRelationships,
+}: {
+  continuedStory: Story;
+  sprints: Sprint[];
+  tags: Tag[];
+  tagAssignments: TagAssignment[];
+  setStories: React.Dispatch<React.SetStateAction<Story[]>>;
+  setTagAssignments: React.Dispatch<React.SetStateAction<TagAssignment[]>>;
+  setStoryRelationships: React.Dispatch<
+    React.SetStateAction<StoryRelationship[]>
+  >;
+}) {
+  const [open, setOpen] = useState(false);
+  const titleRef = useRef<HTMLInputElement>(null);
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
+  const sprintIdRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (open) titleRef.current?.focus();
+  }, [open]);
+
+  useEffect(
+    () =>
+      setSelectedTagIds(
+        tagAssignments
+          .filter((ta) => ta.story_id === continuedStory.id)
+          .map((ta) => ta.tag_id)
+      ),
+    [tagAssignments, continuedStory]
+  );
+
+  function handleClose() {
+    setOpen(false);
+  }
+
+  function handleSave() {
+    void (async () => {
+      if (titleRef.current === null) return;
+      if (descriptionRef.current === null) return;
+      if (sprintIdRef.current === null) return;
+      const story = await createStory(
+        titleRef.current.value,
+        descriptionRef.current.value,
+        sprintIdRef.current.value
+      );
+      setStories((stories) => [...stories, story]);
+      for (const tagId of selectedTagIds) {
+        const tagAssignment = await createTagAssignment(tagId, story.id);
+        setTagAssignments((tagAssignments) => [
+          ...tagAssignments,
+          tagAssignment,
+        ]);
+        console.log("Created tag assignment", tagAssignment);
+      }
+      const storyRelationship = await createStoryRelationship(
+        continuedStory.id,
+        story.id,
+        STORY_RELATIONSHIP.ContinuedBy
+      );
+      setStoryRelationships((storyRelationships) => [
+        ...storyRelationships,
+        storyRelationship,
+      ]);
+      console.log("Created story relationship", storyRelationship);
+      handleClose();
+    })();
+  }
+
+  return (
+    <>
+      <button
+        onClick={() => {
+          setOpen(true);
+        }}
+      >
+        Copy to new story
+      </button>
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="form-dialog-title"
+      >
+        <DialogTitle id="form-dialog-title">Create Story</DialogTitle>
+        <DialogContent>
+          <TextField
+            inputRef={titleRef}
+            label="Title"
+            autoFocus
+            fullWidth
+            margin="dense"
+            value={continuedStory.title}
+          />
+          <TextField
+            inputRef={descriptionRef}
+            label="Description"
+            multiline
+            minRows={3}
+            fullWidth
+            margin="dense"
+            value={continuedStory.description}
+          />
+          <FormControl fullWidth margin="dense">
+            <InputLabel id="sprint-label">Parent Sprint</InputLabel>
+            <Select
+              inputRef={sprintIdRef}
+              labelId="sprint-label"
+              label="Parent Sprint"
+              // default to latest sprint
+              value={
+                // sprints may not be set yet depending
+                // on the order of rendering and data fetch
+                sprints.length > 0 &&
+                sprints.reduce((prev, curr) =>
+                  new Date(prev.start_date).getTime() >
+                  new Date(curr.start_date).getTime()
+                    ? prev
+                    : curr
+                ).id
+              }
+              margin="dense"
+            >
+              {sprints.length > 0 &&
+                sprints
+                  .sort(
+                    (s0, s1) =>
+                      new Date(s1.start_date).getTime() -
+                      new Date(s0.start_date).getTime()
+                  )
+                  .slice(0, 5)
+                  .map((sprint) => {
+                    return (
+                      <MenuItem key={sprint.id} value={sprint.id}>
+                        {sprintToString(sprint)}
+                      </MenuItem>
+                    );
+                  })}
+            </Select>
+          </FormControl>
+          {tags.map((tag) => (
+            <TagOption
+              key={tag.id}
+              tag={tag}
+              checked={selectedTagIds.includes(tag.id)}
+              onTagToggle={(tagId: string, checked: boolean) => {
+                setSelectedTagIds((prev) => {
+                  if (checked) return [...prev, tagId];
+                  return prev.filter((id) => id !== tagId);
+                });
+              }}
+            ></TagOption>
+          ))}
+          <Typography>
+            This story will be a continuation of:{" "}
+            <strong>{continuedStory.title}</strong>
+          </Typography>
+        </DialogContent>
+        {renderDialogActions(handleClose, handleSave)}
+      </Dialog>
+    </>
   );
 }
