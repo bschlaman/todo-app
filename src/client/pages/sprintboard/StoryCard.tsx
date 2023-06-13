@@ -336,7 +336,7 @@ function CopyToNewStory({
             autoFocus
             fullWidth
             margin="dense"
-            value={continuedStory.title}
+            defaultValue={continuedStory.title}
           />
           <TextField
             inputRef={descriptionRef}
@@ -345,7 +345,7 @@ function CopyToNewStory({
             minRows={3}
             fullWidth
             margin="dense"
-            value={continuedStory.description}
+            defaultValue={continuedStory.description}
           />
           <FormControl fullWidth margin="dense">
             <InputLabel id="sprint-label">Parent Sprint</InputLabel>
@@ -354,7 +354,7 @@ function CopyToNewStory({
               labelId="sprint-label"
               label="Parent Sprint"
               // default to latest sprint
-              value={
+              defaultValue={
                 // sprints may not be set yet depending
                 // on the order of rendering and data fetch
                 sprints.length > 0 &&
