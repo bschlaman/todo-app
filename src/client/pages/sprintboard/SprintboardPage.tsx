@@ -378,6 +378,12 @@ export default function SprintboardPage() {
       >
         {stories
           .filter((story) => story.sprint_id === selectedSprintId)
+          .filter(
+            (story) =>
+              ![STATUS.ARCHIVE, STATUS.DUPLICATE]
+                .map((s) => s.toString())
+                .includes(story.status)
+          )
           .map((story) => (
             <StoryCard
               key={story.id}

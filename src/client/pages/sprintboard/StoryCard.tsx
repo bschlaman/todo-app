@@ -10,6 +10,7 @@ import {
   TagAssignment,
   STORY_RELATIONSHIP,
   Task,
+  STATUS,
 } from "../../ts/model/entities";
 import { TagOption } from "./tag_selectors";
 import { sprintToString } from "../../ts/lib/utils";
@@ -18,6 +19,7 @@ import {
   createStoryRelationship,
   createTagAssignment,
   destroyTagAssignment,
+  updateStoryById,
 } from "../../ts/lib/api";
 import {
   Dialog,
@@ -115,6 +117,31 @@ export default function StoryCard({
           )}
         </tbody>
       </table>
+    );
+  }
+
+  function renderArchiveButton() {
+    return (
+      <button
+        onClick={() => {
+          void (async () => {
+            if (!window.confirm("Archive this story?")) return;
+            const updatedStory = { ...story, status: STATUS.ARCHIVE };
+            await updateStoryById(
+              updatedStory.id,
+              updatedStory.status,
+              updatedStory.title,
+              updatedStory.description,
+              updatedStory.sprint_id
+            );
+            setStories((stories) =>
+              stories.map((s) => (s.id === story.id ? updatedStory : s))
+            );
+          })();
+        }}
+      >
+        Archive
+      </button>
     );
   }
 
@@ -233,6 +260,7 @@ export default function StoryCard({
         setTagAssignments={setTagAssignments}
         setStoryRelationships={setStoryRelationships}
       />
+      {renderArchiveButton()}
     </div>
   );
 }

@@ -267,7 +267,7 @@ func CreateTask(log *logger.BLogger, createReq CreateTaskReq) (*Task, error) {
 		createReq.BulkTask,
 	).Scan(&id, &cAt, &uAt, &title, &desc, &status, &storyID, &edited, &bulkTask)
 	if err != nil {
-		log.Errorf("Exec failed: %v", err)
+		log.Errorf("conn.Exec failed: %v", err)
 		return nil, err
 	}
 
@@ -311,7 +311,7 @@ func CreateComment(log *logger.BLogger, createReq CreateCommentReq) (*Comment, e
 		createReq.TaskID,
 	).Scan(&id, &cAt, &uAt, &text, &edited)
 	if err != nil {
-		log.Errorf("Exec failed: %v", err)
+		log.Errorf("conn.Exec failed: %v", err)
 		return nil, err
 	}
 
@@ -342,12 +342,13 @@ func PutStory(log *logger.BLogger, putReq PutStoryReq) error {
 		putReq.ID,
 	)
 	if err != nil {
-		log.Errorf("Exec failed: %v", err)
+		log.Errorf("conn.Exec failed: %v", err)
 		return err
 	}
 
 	return nil
 }
+
 func PutTask(log *logger.BLogger, putReq PutTaskReq) error {
 	conn, err := database.GetPgxConn()
 	if err != nil {
@@ -372,7 +373,7 @@ func PutTask(log *logger.BLogger, putReq PutTaskReq) error {
 		putReq.ID,
 	)
 	if err != nil {
-		log.Errorf("Exec failed: %v", err)
+		log.Errorf("conn.Exec failed: %v", err)
 		return err
 	}
 
@@ -457,7 +458,7 @@ func CreateSprint(log *logger.BLogger, createReq CreateSprintReq) (*Sprint, erro
 		createReq.EndDate,
 	).Scan(&id, &cAt, &uAt, &title, &sd, &ed, &edited)
 	if err != nil {
-		log.Errorf("Exec failed: %v", err)
+		log.Errorf("conn.Exec failed: %v", err)
 		return nil, err
 	}
 
@@ -544,7 +545,7 @@ func CreateStory(log *logger.BLogger, createReq CreateStoryReq) (*Story, error) 
 		createReq.SprintID,
 	).Scan(&id, &cAt, &uAt, &title, &desc, &status, &sprintID, &edited)
 	if err != nil {
-		log.Errorf("Exec failed: %v", err)
+		log.Errorf("conn.Exec failed: %v", err)
 		return nil, err
 	}
 
@@ -663,7 +664,7 @@ func CreateTagAssignment(log *logger.BLogger, createReq CreateTagAssignmentReq) 
 		createReq.StoryID,
 	).Scan(&id, &cAt, &tagID, &storyID)
 	if err != nil {
-		log.Errorf("Exec failed: %v", err)
+		log.Errorf("conn.Exec failed: %v", err)
 		return nil, err
 	}
 
@@ -695,7 +696,7 @@ func DestroyTagAssignment(log *logger.BLogger, destroyReq DestroyTagAssignmentRe
 		destroyReq.StoryID,
 	)
 	if err != nil {
-		log.Errorf("Exec failed: %v", err)
+		log.Errorf("conn.Exec failed: %v", err)
 		return err
 	}
 
@@ -718,7 +719,7 @@ func DestroyTagAssignmentByID(log *logger.BLogger, destroyReq DestroyTagAssignme
 		destroyReq.ID,
 	)
 	if err != nil {
-		log.Errorf("Exec failed: %v", err)
+		log.Errorf("conn.Exec failed: %v", err)
 		return err
 	}
 
@@ -763,7 +764,7 @@ func CreateTag(log *logger.BLogger, createReq CreateTagReq) (*Tag, error) {
 		createReq.Description,
 	).Scan(&id, &cAt, &uAt, &title, &desc, &isParent, &edited)
 	if err != nil {
-		log.Errorf("Exec failed: %v", err)
+		log.Errorf("conn.Exec failed: %v", err)
 		return nil, err
 	}
 
@@ -807,7 +808,7 @@ func CreateStoryRelationship(log *logger.BLogger, createReq CreateStoryRelations
 		createReq.Relation,
 	).Scan(&id, &cAt, &storyIDA, &storyIDB, &relation)
 	if err != nil {
-		log.Errorf("Exec failed: %v", err)
+		log.Errorf("conn.Exec failed: %v", err)
 		return nil, err
 	}
 
@@ -830,7 +831,7 @@ func DestroyStoryRelationshipByID(log *logger.BLogger, destroyReq DestroyStoryRe
 		destroyReq.ID,
 	)
 	if err != nil {
-		log.Errorf("Exec failed: %v", err)
+		log.Errorf("conn.Exec failed: %v", err)
 		return err
 	}
 
