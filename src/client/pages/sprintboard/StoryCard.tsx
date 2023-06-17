@@ -169,6 +169,8 @@ export default function StoryCard({
 
   return (
     <div
+      // storyURIFragment
+      id={story.id}
       style={{
         position: "relative",
         borderRadius: "5px",

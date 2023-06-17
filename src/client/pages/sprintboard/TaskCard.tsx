@@ -60,7 +60,8 @@ export default function TaskCard({
 
   function specialStyles(task: Task) {
     // done status takes precedence over bulk task
-    if (task.status === STATUS.DONE) return { borderLeft: "12px solid green" };
+    if (task.status === STATUS.DONE)
+      return { borderLeft: "6px solid var(--color4)" };
     if (task.bulk_task) return { borderLeft: "12px solid lightblue" };
     return {};
   }
@@ -75,6 +76,7 @@ export default function TaskCard({
         background: "var(--transp-white)",
         marginBottom: "1rem",
         opacity: isDragging ? 0.5 : 1,
+        boxShadow: "3px 3px 2px darkgrey",
         ...specialStyles(task),
       }}
       // TODO (2023.05.21): check this issue: https://github.com/react-dnd/react-dnd/issues/3452
@@ -106,8 +108,23 @@ export default function TaskCard({
           {task.description}
         </ReactMarkdown>
       )}
-      {renderTagBadgesForStoryId(task.story_id, tagsById, assocTagIdsByStoryId)}
-      <a href={story?.id ?? "#"}>{story?.title ?? "-"}</a>
+      <div style={{ marginBottom: "1rem" }}>
+        {renderTagBadgesForStoryId(
+          task.story_id,
+          tagsById,
+          assocTagIdsByStoryId
+        )}
+      </div>
+      <a
+        style={{
+          fontSize: "0.8rem",
+          textDecoration: "underline",
+          color: "grey",
+        }}
+        href={"#" + (story?.id ?? "")}
+      >
+        {story?.title ?? "-"}
+      </a>
     </div>
   );
 }
