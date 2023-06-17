@@ -60,7 +60,7 @@ export default function StoryCard({
   >;
 }) {
   const metadataFontSize = "0.8rem";
-  const [selectedSprintId, setSelectedSprintId] = useState("");
+  const [selectedSprintId, setSelectedSprintId] = useState(story.sprint_id);
   const storyPageRef = `/story/${story.id}`;
 
   const selectedTagIds = useMemo(
@@ -214,8 +214,21 @@ export default function StoryCard({
       <select
         onChange={(e) => {
           setSelectedSprintId(e.target.value);
+          void (async () => {
+            const updatedStory = { ...story, sprint_id: e.target.value };
+            await updateStoryById(
+              updatedStory.id,
+              updatedStory.status,
+              updatedStory.title,
+              updatedStory.description,
+              updatedStory.sprint_id
+            );
+            setStories((stories) =>
+              stories.map((s) => (s.id === story.id ? updatedStory : s))
+            );
+          })();
         }}
-        value={selectedSprintId ?? ""}
+        value={selectedSprintId}
       >
         {Array.from(sprintsById.values())
           .sort(
