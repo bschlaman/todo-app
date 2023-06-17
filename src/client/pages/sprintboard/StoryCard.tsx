@@ -20,6 +20,7 @@ import {
   createTagAssignment,
   destroyTagAssignment,
   updateStoryById,
+  updateTaskById,
 } from "../../ts/lib/api";
 import {
   Dialog,
@@ -27,6 +28,7 @@ import {
   DialogTitle,
   FormControl,
   InputLabel,
+  LinearProgress,
   MenuItem,
   Select,
   TextField,
@@ -267,7 +269,8 @@ export default function StoryCard({
       <CopyToNewStory
         continuedStory={story}
         sprints={[...sprintsById.values()]}
-        tags={[...tagsById.values()]}
+        tasksByStoryId={tasksByStoryId}
+        tagsById={tagsById}
         tagAssignments={tagAssignments}
         setStories={setStories}
         setTagAssignments={setTagAssignments}
@@ -278,11 +281,18 @@ export default function StoryCard({
   );
 }
 
+interface EntityUpdateEvent {
+  entityId: string;
+  entityType: string;
+  entityTitle: string;
+}
+
 // TODO (2023.06.11): should this be in entity_creation?
 function CopyToNewStory({
   continuedStory,
   sprints,
-  tags,
+  tasksByStoryId,
+  tagsById,
   tagAssignments,
   setStories,
   setTagAssignments,
@@ -290,7 +300,8 @@ function CopyToNewStory({
 }: {
   continuedStory: Story;
   sprints: Sprint[];
-  tags: Tag[];
+  tasksByStoryId: Map<string, Task[]>;
+  tagsById: Map<string, Tag>;
   tagAssignments: TagAssignment[];
   setStories: React.Dispatch<React.SetStateAction<Story[]>>;
   setTagAssignments: React.Dispatch<React.SetStateAction<TagAssignment[]>>;
@@ -303,6 +314,10 @@ function CopyToNewStory({
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
   const sprintIdRef = useRef<HTMLInputElement>(null);
+  const [taskMoveProgress, setTaskMoveProgress] = useState(0);
+  const [entityCreateEventLog, setEntityCreateEventLog] = useState<
+    EntityUpdateEvent[]
+  >([]);
 
   useEffect(() => {
     if (open) titleRef.current?.focus();
@@ -322,25 +337,53 @@ function CopyToNewStory({
     setOpen(false);
   }
 
+  function renderEntityUpdateEvent(eue: EntityUpdateEvent) {
+    return (
+      <p>
+        Created / moved {eue.entityType} <strong>{eue.entityTitle}</strong>
+      </p>
+    );
+  }
+
+  function appendEntityCreationEventLog(
+    entityId: string,
+    entityType: string,
+    entityTitle: string
+  ) {
+    setEntityCreateEventLog((eue) => [
+      ...eue,
+      { entityId, entityType, entityTitle },
+    ]);
+  }
+
   function handleSave() {
     void (async () => {
       if (titleRef.current === null) return;
       if (descriptionRef.current === null) return;
       if (sprintIdRef.current === null) return;
+      // Step 1: create the new story
       const story = await createStory(
         titleRef.current.value,
         descriptionRef.current.value,
         sprintIdRef.current.value
       );
       setStories((stories) => [...stories, story]);
+      appendEntityCreationEventLog(story.id, "story", story.title);
+      // Step 2: create the new tag assignments
       for (const tagId of selectedTagIds) {
         const tagAssignment = await createTagAssignment(tagId, story.id);
         setTagAssignments((tagAssignments) => [
           ...tagAssignments,
           tagAssignment,
         ]);
+        appendEntityCreationEventLog(
+          tagAssignment.id.toString(),
+          "tag assignment",
+          tagsById.get(tagAssignment.tag_id)?.title ?? ""
+        );
         console.log("Created tag assignment", tagAssignment);
       }
+      // Step 3: create the story relationship
       const storyRelationship = await createStoryRelationship(
         continuedStory.id,
         story.id,
@@ -350,8 +393,31 @@ function CopyToNewStory({
         ...storyRelationships,
         storyRelationship,
       ]);
+      appendEntityCreationEventLog(
+        storyRelationship.id.toString(),
+        "story relationship",
+        STORY_RELATIONSHIP.ContinuedBy
+      );
       console.log("Created story relationship", storyRelationship);
-      handleClose();
+      // Step 4: move the unfinished tasks to the new story
+      const tasksToUpdate = tasksByStoryId.get(continuedStory.id) ?? [];
+      for (const task of tasksToUpdate) {
+        if (!(task.status === STATUS.BACKLOG || task.status === STATUS.DOING))
+          continue;
+        await updateTaskById(
+          task.id,
+          task.status,
+          task.title,
+          task.description,
+          story.id
+        );
+        setTaskMoveProgress((prog) => {
+          const prevNum = (prog * tasksToUpdate.length) / 100;
+          return ((1 + prevNum) / tasksToUpdate.length) * 100;
+        });
+        appendEntityCreationEventLog(task.id, "task", task.title);
+        console.log("Moved task", task.title);
+      }
     })();
   }
 
@@ -425,7 +491,7 @@ function CopyToNewStory({
                   })}
             </Select>
           </FormControl>
-          {tags.map((tag) => (
+          {[...tagsById.values()].map((tag) => (
             <TagOption
               key={tag.id}
               tag={tag}
@@ -439,9 +505,15 @@ function CopyToNewStory({
             ></TagOption>
           ))}
           <Typography>
-            This story will be a continuation of:{" "}
+            This story will be a continuation of:
             <strong>{continuedStory.title}</strong>
           </Typography>
+          <LinearProgress variant="determinate" value={taskMoveProgress} />
+          <ul>
+            {entityCreateEventLog.map((eue) => (
+              <li key={eue.entityId}>{renderEntityUpdateEvent(eue)}</li>
+            ))}
+          </ul>
         </DialogContent>
         {renderDialogActions(handleClose, handleSave)}
       </Dialog>
