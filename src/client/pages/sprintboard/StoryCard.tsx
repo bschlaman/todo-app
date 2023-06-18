@@ -197,8 +197,9 @@ export default function StoryCard({
           right: "10px",
         }}
         href={storyPageRef}
+        title="Edit"
       >
-        Edit
+        📝
       </a>
       <ReactMarkdown remarkPlugins={[remarkGfm]}>
         {story.description}

@@ -100,8 +100,9 @@ export default function TaskCard({
           right: "10px",
         }}
         href={taskPageRef}
+        title="Edit"
       >
-        Edit
+        📝
       </a>
       {!task.bulk_task && task.status !== STATUS.DONE && (
         <ReactMarkdown remarkPlugins={[remarkGfm]}>
