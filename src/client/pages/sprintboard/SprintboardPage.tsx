@@ -278,9 +278,10 @@ export default function SprintboardPage() {
           // if selectedSprintId is null, look for "", which should return undefined
           stories={storiesBySprintId.get(selectedSprintId ?? "")}
           sprints={sprints}
-          tags={tags}
+          tagsById={tagsById}
           selectedSprintId={selectedSprintId}
           sprintsById={sprintsById}
+          assocTagIdsByStoryId={assocTagIdsByStoryId}
           setTasks={setTasks}
           setStories={setStories}
           setSprints={setSprints}

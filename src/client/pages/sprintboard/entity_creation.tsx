@@ -30,6 +30,7 @@ import { NULL_STORY_IDENTIFIER } from "../../ts/lib/common";
 import { TagOption } from "./tag_selectors";
 import { sprintToString } from "../../ts/lib/utils";
 import { DatePicker } from "@mui/x-date-pickers";
+import { renderStorySelectItems } from "../../components/story_select";
 
 function renderCreationButton(
   buttonText: string,
@@ -64,9 +65,13 @@ export function renderDialogActions(
 
 export function CreateTask({
   stories,
+  tagsById,
+  assocTagIdsByStoryId,
   setTasks,
 }: {
   stories: Story[] | undefined;
+  tagsById: Map<string, Tag>;
+  assocTagIdsByStoryId: Map<string, string[]>;
   setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
 }) {
   const [open, setOpen] = useState(false);
@@ -135,14 +140,15 @@ export function CreateTask({
                 setStoryId(e.target.value);
               }}
             >
-              <MenuItem value={NULL_STORY_IDENTIFIER}>
-                {NULL_STORY_IDENTIFIER}
+              <MenuItem
+                style={{ marginLeft: "9rem" }}
+                value={NULL_STORY_IDENTIFIER}
+              >
+                <strong>{NULL_STORY_IDENTIFIER}</strong>
               </MenuItem>
-              {stories?.map((story) => (
-                <MenuItem key={story.id} value={story.id}>
-                  {story.title}
-                </MenuItem>
-              ))}
+              {/* I couldn't figure out how to also return the NULL_STORY menu item
+              from renderStorySelectItems; MUI Select doesn't seem to like receiving fragemnts. */}
+              {renderStorySelectItems(stories, tagsById, assocTagIdsByStoryId)}
             </Select>
           </FormControl>
         </DialogContent>
@@ -153,13 +159,13 @@ export function CreateTask({
 }
 
 export function CreateStory({
-  tags,
+  tagsById,
   sprints,
   selectedSprintId,
   setStories,
   setTagAssignments,
 }: {
-  tags: Tag[];
+  tagsById: Map<string, Tag>;
   sprints: Sprint[] | undefined;
   selectedSprintId: string | null;
   setStories: React.Dispatch<React.SetStateAction<Story[]>>;
@@ -254,7 +260,7 @@ export function CreateStory({
                 })}
             </Select>
           </FormControl>
-          {tags.map((tag) => (
+          {[...tagsById.values()].map((tag) => (
             <TagOption
               key={tag.id}
               tag={tag}
@@ -409,11 +415,15 @@ export function CreateTag({
 export function CreateBulkTask({
   stories,
   selectedSprintId,
+  tagsById,
+  assocTagIdsByStoryId,
   sprintsById,
   setTasks,
 }: {
   stories: Story[] | undefined;
   selectedSprintId: string | null;
+  tagsById: Map<string, Tag>;
+  assocTagIdsByStoryId: Map<string, string[]>;
   sprintsById: Map<string, Sprint>;
   setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
 }) {
@@ -520,14 +530,15 @@ export function CreateBulkTask({
                 setStoryId(e.target.value);
               }}
             >
-              <MenuItem value={NULL_STORY_IDENTIFIER}>
-                {NULL_STORY_IDENTIFIER}
+              <MenuItem
+                style={{ marginLeft: "9rem" }}
+                value={NULL_STORY_IDENTIFIER}
+              >
+                <strong>{NULL_STORY_IDENTIFIER}</strong>
               </MenuItem>
-              {stories?.map((story) => (
-                <MenuItem key={story.id} value={story.id}>
-                  {story.title}
-                </MenuItem>
-              ))}
+              {/* I couldn't figure out how to also return the NULL_STORY menu item
+              from renderStorySelectItems; MUI Select doesn't seem to like receiving fragemnts. */}
+              {renderStorySelectItems(stories, tagsById, assocTagIdsByStoryId)}
             </Select>
           </FormControl>
         </DialogContent>
@@ -540,9 +551,10 @@ export function CreateBulkTask({
 interface EntityCreationStationProps {
   stories: Story[] | undefined;
   sprints: Sprint[] | undefined;
-  tags: Tag[];
+  tagsById: Map<string, Tag>;
   selectedSprintId: string | null;
   sprintsById: Map<string, Sprint>;
+  assocTagIdsByStoryId: Map<string, string[]>;
   setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
   setStories: React.Dispatch<React.SetStateAction<Story[]>>;
   setSprints: React.Dispatch<React.SetStateAction<Sprint[]>>;
@@ -553,9 +565,10 @@ interface EntityCreationStationProps {
 export default function EntityCreationStation({
   stories,
   sprints,
-  tags,
+  tagsById,
   selectedSprintId,
   sprintsById,
+  assocTagIdsByStoryId,
   setTasks,
   setStories,
   setSprints,
@@ -564,9 +577,14 @@ export default function EntityCreationStation({
 }: EntityCreationStationProps) {
   return (
     <div style={{ display: "flex", gap: "1rem" }}>
-      <CreateTask stories={stories} setTasks={setTasks} />
+      <CreateTask
+        stories={stories}
+        tagsById={tagsById}
+        assocTagIdsByStoryId={assocTagIdsByStoryId}
+        setTasks={setTasks}
+      />
       <CreateStory
-        tags={tags}
+        tagsById={tagsById}
         sprints={sprints}
         selectedSprintId={selectedSprintId}
         setStories={setStories}
@@ -577,6 +595,8 @@ export default function EntityCreationStation({
       <CreateBulkTask
         selectedSprintId={selectedSprintId}
         sprintsById={sprintsById}
+        tagsById={tagsById}
+        assocTagIdsByStoryId={assocTagIdsByStoryId}
         stories={stories}
         setTasks={setTasks}
       />
