@@ -1,7 +1,7 @@
 import { MenuItem } from "@mui/material";
 import React from "react";
 import TagBadge from "./tag_badge";
-import { Story, Tag } from "../ts/model/entities";
+import { STATUS, Story, Tag } from "../ts/model/entities";
 
 export function renderStorySelectItems(
   stories: Story[] | undefined,
@@ -13,6 +13,7 @@ export function renderStorySelectItems(
       style={{ borderBottom: "1px solid #ddd" }}
       key={story.id}
       value={story.id}
+      disabled={story.status === STATUS.ARCHIVE}
     >
       <div
         style={{
