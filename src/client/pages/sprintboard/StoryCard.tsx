@@ -44,6 +44,7 @@ export default function StoryCard({
   tagsById,
   tagAssignments,
   storyRelationships,
+  setTasks,
   setStories,
   setTagAssignments,
   setStoryRelationships,
@@ -55,6 +56,7 @@ export default function StoryCard({
   tagsById: Map<string, Tag>;
   tagAssignments: TagAssignment[];
   storyRelationships: StoryRelationship[];
+  setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
   setStories: React.Dispatch<React.SetStateAction<Story[]>>;
   setTagAssignments: React.Dispatch<React.SetStateAction<TagAssignment[]>>;
   setStoryRelationships: React.Dispatch<
@@ -275,6 +277,7 @@ export default function StoryCard({
         tasksByStoryId={tasksByStoryId}
         tagsById={tagsById}
         tagAssignments={tagAssignments}
+        setTasks={setTasks}
         setStories={setStories}
         setTagAssignments={setTagAssignments}
         setStoryRelationships={setStoryRelationships}
@@ -297,6 +300,7 @@ function CopyToNewStory({
   tasksByStoryId,
   tagsById,
   tagAssignments,
+  setTasks,
   setStories,
   setTagAssignments,
   setStoryRelationships,
@@ -306,6 +310,7 @@ function CopyToNewStory({
   tasksByStoryId: Map<string, Task[]>;
   tagsById: Map<string, Tag>;
   tagAssignments: TagAssignment[];
+  setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
   setStories: React.Dispatch<React.SetStateAction<Story[]>>;
   setTagAssignments: React.Dispatch<React.SetStateAction<TagAssignment[]>>;
   setStoryRelationships: React.Dispatch<
@@ -403,16 +408,24 @@ function CopyToNewStory({
       );
       console.log("Created story relationship", storyRelationship);
       // Step 4: move the unfinished tasks to the new story
-      const tasksToUpdate = tasksByStoryId.get(continuedStory.id) ?? [];
+      const tasksToUpdate = (
+        tasksByStoryId.get(continuedStory.id) ?? []
+      ).filter(
+        (task) => task.status === STATUS.BACKLOG || task.status === STATUS.DOING
+      );
       for (const task of tasksToUpdate) {
-        if (!(task.status === STATUS.BACKLOG || task.status === STATUS.DOING))
-          continue;
+        // TODO (2023.06.26): update API to return the updated task
         await updateTaskById(
           task.id,
           task.status,
           task.title,
           task.description,
           story.id
+        );
+        setTasks((tasks) =>
+          tasks.map((_task) =>
+            _task.id === task.id ? { ..._task, story_id: story.id } : _task
+          )
         );
         setTaskMoveProgress((prog) => {
           const prevNum = (prog * tasksToUpdate.length) / 100;
@@ -508,7 +521,7 @@ function CopyToNewStory({
             ></TagOption>
           ))}
           <Typography>
-            This story will be a continuation of:
+            This story will be a continuation of:{" "}
             <strong>{continuedStory.title}</strong>
           </Typography>
           <LinearProgress variant="determinate" value={taskMoveProgress} />

@@ -241,7 +241,7 @@ export function CreateStory({
               inputRef={sprintIdRef}
               labelId="sprint-label"
               label="Parent Sprint"
-              value={selectedSprintId}
+              defaultValue={selectedSprintId}
               margin="dense"
             >
               {sprints

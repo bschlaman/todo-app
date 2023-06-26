@@ -395,6 +395,7 @@ export default function SprintboardPage() {
               tagsById={tagsById}
               tagAssignments={tagAssignments}
               storyRelationships={storyRelationships}
+              setTasks={setTasks}
               setStories={setStories}
               setTagAssignments={setTagAssignments}
               setStoryRelationships={setStoryRelationships}
