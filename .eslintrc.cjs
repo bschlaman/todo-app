@@ -5,10 +5,14 @@ module.exports = {
     "standard-with-typescript",
     "plugin:react/recommended",
     "plugin:react-hooks/recommended",
+    "plugin:import/recommended",
+    "plugin:import/typescript",
     "prettier",
   ],
-  plugins: ["react", "react-hooks", "prettier"],
+  plugins: ["react", "react-hooks", "prettier", "import"],
   parserOptions: { project: "./tsconfig.json" },
+  // required for plugin:import/typescript?
+  parser: "@typescript-eslint/parser",
   rules: {
     "prettier/prettier": "error",
     "consistent-return": "error",
@@ -19,4 +23,6 @@ module.exports = {
     "prefer-const": "error",
     "@typescript-eslint/explicit-function-return-type": "off",
   },
+  // don't search beyond this directory for config files
+  root: true,
 };
