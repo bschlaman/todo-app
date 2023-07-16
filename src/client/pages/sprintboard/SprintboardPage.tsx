@@ -27,7 +27,6 @@ import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import EntityCreationStation from "./entity_creation";
 import StoryCard from "./StoryCard";
-import DownloadCSVButton from "../../components/download_csv";
 
 const LOCAL_STORAGE_KEYS = {
   selectedSprintId: "viewing_sprint_id",
@@ -289,7 +288,6 @@ export default function SprintboardPage() {
           setTags={setTags}
           setTagAssignments={setTagAssignments}
         />
-        <DownloadCSVButton />
         {/* Entity filtering  */}
         <div style={{ maxWidth: "50vw", fontSize: "1.3rem" }}>
           {tags.map((tag) => (

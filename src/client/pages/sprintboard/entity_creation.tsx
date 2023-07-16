@@ -10,6 +10,7 @@ import {
   Select,
   InputLabel,
   Typography,
+  Chip,
 } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
 import {
@@ -31,6 +32,11 @@ import { TagOption } from "./tag_selectors";
 import { sprintToString } from "../../ts/lib/utils";
 import { DatePicker } from "@mui/x-date-pickers";
 import { renderStorySelectItems } from "../../components/story_select";
+import DownloadCSVButton from "../../components/download_csv";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import DoneIcon from "@mui/icons-material/Done";
+import { TASK_CREATE_ATTRIBUTES } from "../../ts/model/constants";
+import ProtoTaskTable, { ProtoTask } from "../../components/task_table";
 
 function renderCreationButton(
   buttonText: string,
@@ -548,6 +554,171 @@ export function CreateBulkTask({
   );
 }
 
+export function BatchUploadTask({
+  setTasks,
+}: {
+  setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
+}) {
+  const [open, setOpen] = useState(false);
+  const [file, setFile] = useState<File | null>(null);
+  const [fileInfo, setFileInfo] = useState<{
+    name: string;
+    sizeString: string;
+  } | null>(null);
+  const [errorMsg, setErrorMsg] = useState("");
+  const [tasksToCreate, setTasksToCreate] = useState<ProtoTask[]>([]);
+
+  function handleClose() {
+    setOpen(false);
+  }
+
+  useEffect(() => {
+    if (file === null) return;
+    setFileInfo({
+      name: file.name,
+      sizeString: (file.size / 1024).toFixed(2) + " KB",
+    });
+  }, [file]);
+
+  const handleUpload = () => {
+    if (file === null) return;
+
+    const reader = new FileReader();
+
+    // TODO (2023.07.16): use a lib like papaparse for this
+    reader.onload = async (e) => {
+      const text = e.target?.result as string;
+      const lines = text.split("\n");
+
+      if (lines.length < 2) {
+        setErrorMsg("Not enough lines!");
+        return;
+      }
+      if (lines[0] !== TASK_CREATE_ATTRIBUTES.join(",")) {
+        setErrorMsg(`CSV is malformed: ${String(lines[0])}`);
+        return;
+      }
+      console.log(lines);
+
+      for (const line of lines.slice(1)) {
+        const attrs = line.split(",");
+        // blank lines, etc.
+        if (attrs.length !== TASK_CREATE_ATTRIBUTES.length) continue;
+        // the "" case will be rejected by the API call
+        const storyId = attrs[0] ?? "";
+        const title = attrs[1] ?? "";
+        const description = attrs[2] ?? "";
+        setTasksToCreate((ptasks) => [
+          ...ptasks,
+          { storyId, title, description, created: false },
+        ]);
+      }
+    };
+
+    reader.readAsText(file);
+  };
+
+  function batchCreateTasks() {
+    void (async () => {
+      for (const ptask of tasksToCreate) {
+        const task = await createTask(
+          ptask.title,
+          ptask.description,
+          ptask.storyId,
+          false
+        );
+        setTasks((tasks) => [...tasks, task]);
+        setTasksToCreate((ptasks) =>
+          ptasks.map((ptask) =>
+            ptask.title === task.title && ptask.description === task.description
+              ? { ...ptask, created: true }
+              : ptask
+          )
+        );
+      }
+    })();
+  }
+
+  return (
+    <>
+      {renderCreationButton("+ Batch Task Upload", setOpen)}
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="form-dialog-title"
+      >
+        <DialogTitle id="form-dialog-title">Batch Task Upload</DialogTitle>
+        <DialogContent>
+          <Typography margin="dense">
+            Download the CSV template, add tasks, and then re-upload it to
+            create tasks in a batch.
+          </Typography>
+          <div>
+            <input
+              accept="csv/*"
+              style={{ display: "none" }}
+              id="csv-upload-input"
+              type="file"
+              onChange={(e) => {
+                setFile(
+                  e.target.files?.[0] !== undefined ? e.target.files[0] : null
+                );
+              }}
+            />
+            <label htmlFor="csv-upload-input">
+              <Button variant="contained" color="primary" component="span">
+                Upload
+                <CloudUploadIcon style={{ marginLeft: "10px" }} />
+              </Button>
+            </label>
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={handleUpload}
+              style={{ marginLeft: "10px" }}
+            >
+              Submit
+            </Button>
+            <DownloadCSVButton style={{ marginLeft: "10px" }} />
+          </div>
+          {fileInfo !== null && (
+            <div style={{ marginTop: "10px" }}>
+              <Chip
+                label="File ready to upload"
+                color="primary"
+                variant="outlined"
+                size="small"
+                icon={<DoneIcon />}
+                style={{ marginTop: "10px" }}
+              />
+              <Typography variant="body1">
+                File: {fileInfo.name} ({fileInfo.sizeString})
+              </Typography>
+            </div>
+          )}
+          {tasksToCreate.length > 0 && (
+            <>
+              <Typography variant="body1">Tasks to create:</Typography>
+              <ProtoTaskTable ptasks={tasksToCreate} />
+              <Button
+                variant="contained"
+                color="info"
+                onClick={batchCreateTasks}
+                style={{ marginLeft: "10px" }}
+              >
+                Create Batch
+              </Button>
+            </>
+          )}
+          {errorMsg !== "" && (
+            <Typography variant="body1">ERROR: {errorMsg}</Typography>
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
+
 interface EntityCreationStationProps {
   stories: Story[] | undefined;
   sprints: Sprint[] | undefined;
@@ -600,6 +771,7 @@ export default function EntityCreationStation({
         stories={stories}
         setTasks={setTasks}
       />
+      <BatchUploadTask setTasks={setTasks} />
     </div>
   );
 }
