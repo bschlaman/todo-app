@@ -35,8 +35,8 @@ import { renderStorySelectItems } from "../../components/story_select";
 import DownloadCSVButton from "../../components/download_csv";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import DoneIcon from "@mui/icons-material/Done";
-import { TASK_CREATE_ATTRIBUTES } from "../../ts/model/constants";
 import ProtoTaskTable, { ProtoTask } from "../../components/task_table";
+import Papa from "papaparse";
 
 function renderCreationButton(
   buttonText: string,
@@ -580,43 +580,40 @@ export function BatchUploadTask({
     });
   }, [file]);
 
-  const handleUpload = () => {
+  function handleUpload() {
     if (file === null) return;
 
-    const reader = new FileReader();
+    Papa.parse(file, {
+      header: true,
+      complete: (results) => {
+        handleUploaded(results.data);
+      },
+      error: (err) => {
+        setErrorMsg(err.message);
+      },
+    });
+  }
 
-    // TODO (2023.07.16): use a lib like papaparse for this
-    reader.onload = async (e) => {
-      const text = e.target?.result as string;
-      const lines = text.split("\n");
-
-      if (lines.length < 2) {
-        setErrorMsg("Not enough lines!");
-        return;
-      }
-      if (lines[0] !== TASK_CREATE_ATTRIBUTES.join(",")) {
-        setErrorMsg(`CSV is malformed: ${String(lines[0])}`);
-        return;
-      }
-      console.log(lines);
-
-      for (const line of lines.slice(1)) {
-        const attrs = line.split(",");
-        // blank lines, etc.
-        if (attrs.length !== TASK_CREATE_ATTRIBUTES.length) continue;
-        // the "" case will be rejected by the API call
-        const storyId = attrs[0] ?? "";
-        const title = attrs[1] ?? "";
-        const description = attrs[2] ?? "";
-        setTasksToCreate((ptasks) => [
-          ...ptasks,
-          { storyId, title, description, created: false },
-        ]);
-      }
-    };
-
-    reader.readAsText(file);
-  };
+  function handleUploaded(uploadEntities: unknown[]) {
+    for (const ue of uploadEntities as Array<{
+      story_id: string;
+      title: string;
+      description: string;
+    }>) {
+      // sometimes newlines are also parsed;
+      // ignore these
+      if (Object.values(ue).some((val) => val === "")) continue;
+      setTasksToCreate((ptasks) => [
+        ...ptasks,
+        {
+          storyId: ue.story_id,
+          title: ue.title,
+          description: ue.description,
+          created: false,
+        },
+      ]);
+    }
+  }
 
   function batchCreateTasks() {
     void (async () => {
