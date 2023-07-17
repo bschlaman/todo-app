@@ -12,6 +12,8 @@ export const TAG_COLORS = {
   "Machine Learning": "darkred",
   "Career and Brand": "indigo",
   CQF: "darkgreen",
+  "CVE Engine": "black",
+  "Chess Engine": "lightgrey",
 } as const;
 
 // since tasks may not have a parent story, we need something
