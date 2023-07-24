@@ -257,13 +257,11 @@ export function CreateStory({
                     new Date(s0.start_date).getTime()
                 )
                 .slice(0, 5)
-                .map((sprint) => {
-                  return (
-                    <MenuItem key={sprint.id} value={sprint.id}>
-                      {sprintToString(sprint)}
-                    </MenuItem>
-                  );
-                })}
+                .map((sprint) => (
+                  <MenuItem key={sprint.id} value={sprint.id}>
+                    {sprintToString(sprint)}
+                  </MenuItem>
+                ))}
             </Select>
           </FormControl>
           {[...tagsById.values()].map((tag) => (

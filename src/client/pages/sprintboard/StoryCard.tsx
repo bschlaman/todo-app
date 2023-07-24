@@ -244,13 +244,11 @@ export default function StoryCard({
               new Date(s0.start_date).getTime()
           )
           .slice(0, 5)
-          .map((sprint) => {
-            return (
-              <option key={sprint.id} value={sprint.id}>
-                {sprintToString(sprint)}
-              </option>
-            );
-          })}
+          .map((sprint) => (
+            <option key={sprint.id} value={sprint.id}>
+              {sprintToString(sprint)}
+            </option>
+          ))}
       </select>
       <div style={{ fontSize: metadataFontSize }}>
         <p>
@@ -498,13 +496,11 @@ function CopyToNewStory({
                       new Date(s0.start_date).getTime()
                   )
                   .slice(0, 5)
-                  .map((sprint) => {
-                    return (
-                      <MenuItem key={sprint.id} value={sprint.id}>
-                        {sprintToString(sprint)}
-                      </MenuItem>
-                    );
-                  })}
+                  .map((sprint) => (
+                    <MenuItem key={sprint.id} value={sprint.id}>
+                      {sprintToString(sprint)}
+                    </MenuItem>
+                  ))}
             </Select>
           </FormControl>
           {[...tagsById.values()].map((tag) => (

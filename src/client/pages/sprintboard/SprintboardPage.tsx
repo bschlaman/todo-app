@@ -320,13 +320,11 @@ export default function SprintboardPage() {
                   new Date(s0.start_date).getTime()
               )
               .slice(0, 5)
-              .map((sprint) => {
-                return (
-                  <option key={sprint.id} value={sprint.id}>
-                    {sprintToString(sprint)}
-                  </option>
-                );
-              })}
+              .map((sprint) => (
+                <option key={sprint.id} value={sprint.id}>
+                  {sprintToString(sprint)}
+                </option>
+              ))}
           </select>
           {/* All + None anchors */}
           <div style={{ display: "inline-block" }}>
