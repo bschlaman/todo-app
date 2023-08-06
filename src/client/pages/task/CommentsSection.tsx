@@ -1,11 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import ErrorBanner from "../../components/banners";
 import { getCommentsByTaskId, createComment } from "../../ts/lib/api";
 import { formatDate } from "../../ts/lib/utils";
 import { TaskComment } from "../../ts/model/entities";
 import "../../css/common.css";
+import ReactMarkdownCustom from "../../components/markdown";
 
 export default function CommentsSection({ taskId }: { taskId: string }) {
   const [comments, setComments] = useState<TaskComment[]>([]);
@@ -116,9 +115,7 @@ function Comment({ comment }: { comment: TaskComment }) {
           {formatDate(new Date(comment.created_at))}
         </p>
       </div>
-      <ReactMarkdown className="rendered-markdown" remarkPlugins={[remarkGfm]}>
-        {comment.text}
-      </ReactMarkdown>
+      <ReactMarkdownCustom content={comment.text} />
     </div>
   );
 }

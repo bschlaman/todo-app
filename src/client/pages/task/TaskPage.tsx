@@ -10,12 +10,11 @@ import {
 import Loading from "../../components/loading";
 import { formatDate, formatId } from "../../ts/lib/utils";
 import { NULL_STORY_IDENTIFIER } from "../../ts/lib/common";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import styles from "./TaskPage.module.css";
 import CommentsSection from "./CommentsSection";
 import "../../css/common.css";
 import CopyToClipboardButton from "../../components/copy_to_clipboard_button";
+import ReactMarkdownCustom from "../../components/markdown";
 
 // TODO: maxlength property for contenteditable fields
 function TaskView({
@@ -116,12 +115,7 @@ function TaskView({
             </button>
           </>
         ) : (
-          <ReactMarkdown
-            className="rendered-markdown"
-            remarkPlugins={[remarkGfm]}
-          >
-            {description}
-          </ReactMarkdown>
+          <ReactMarkdownCustom content={description} />
         )}
         <div
           style={{
@@ -200,13 +194,11 @@ function TaskMetadata({
         onChange={handleTaskMetadataChange}
       >
         {/* this list will not change, so fine to depend on it */}
-        {STATUSES.map((status) => {
-          return (
-            <option key={status} value={status}>
-              {status}
-            </option>
-          );
-        })}
+        {STATUSES.map((status) => (
+          <option key={status} value={status}>
+            {status}
+          </option>
+        ))}
       </select>
     );
   }
@@ -233,12 +225,11 @@ function TaskMetadata({
     let sprintsBeforeTask = 3;
 
     sprints
-      .sort((sprint0, sprint1) => {
-        return (
+      .sort(
+        (sprint0, sprint1) =>
           new Date(sprint1.start_date).getTime() -
           new Date(sprint0.start_date).getTime()
-        );
-      })
+      )
       .forEach((sprint) => {
         if (sprintsBeforeTask === 0) return;
         if (taskSprintFound) sprintsBeforeTask--;
@@ -255,19 +246,15 @@ function TaskMetadata({
         onChange={handleTaskMetadataChange}
       >
         <option value={NULL_STORY_IDENTIFIER}>{NULL_STORY_IDENTIFIER}</option>
-        {sprintsToRender.map((sprint) => {
-          return (
-            <optgroup key={sprint.id} label={sprint.title}>
-              {sprintBuckets.get(sprint.id)?.map((story) => {
-                return (
-                  <option key={story.id} value={story.id}>
-                    {story.title}
-                  </option>
-                );
-              })}
-            </optgroup>
-          );
-        })}
+        {sprintsToRender.map((sprint) => (
+          <optgroup key={sprint.id} label={sprint.title}>
+            {sprintBuckets.get(sprint.id)?.map((story) => (
+              <option key={story.id} value={story.id}>
+                {story.title}
+              </option>
+            ))}
+          </optgroup>
+        ))}
       </select>
     );
   }

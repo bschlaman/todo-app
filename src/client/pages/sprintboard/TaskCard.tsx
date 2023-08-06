@@ -1,12 +1,11 @@
 import React from "react";
 import { STATUS, Story, Tag, Task } from "../../ts/model/entities";
 import CopyToClipboardButton from "../../components/copy_to_clipboard_button";
-import { ReactMarkdown } from "react-markdown/lib/react-markdown";
-import remarkGfm from "remark-gfm";
 import { DRAG_TYPE } from "./drag";
 import { useDrag } from "react-dnd";
 import styles from "./TaskCard.module.css";
 import { renderTagBadgesForStoryId } from "../../components/tag_badge";
+import ReactMarkdownCustom from "../../components/markdown";
 
 export default function TaskCard({
   task,
@@ -105,9 +104,7 @@ export default function TaskCard({
         📝
       </a>
       {!task.bulk_task && task.status !== STATUS.DONE && (
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-          {task.description}
-        </ReactMarkdown>
+        <ReactMarkdownCustom content={task.description} />
       )}
       <div style={{ marginBottom: "1rem" }}>
         {renderTagBadgesForStoryId(

@@ -1,6 +1,4 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import CopyToClipboardButton from "../../components/copy_to_clipboard_button";
 import {
   Sprint,
@@ -35,6 +33,7 @@ import {
   Typography,
 } from "@mui/material";
 import { renderDialogActions } from "./entity_creation";
+import ReactMarkdownCustom from "../../components/markdown";
 
 export default function StoryCard({
   story,
@@ -203,9 +202,7 @@ export default function StoryCard({
       >
         📝
       </a>
-      <ReactMarkdown remarkPlugins={[remarkGfm]}>
-        {story.description}
-      </ReactMarkdown>
+      <ReactMarkdownCustom content={story.description} />
       {Array.from(tagsById).map(([, tag]) => (
         <TagOption
           key={tag.id}
