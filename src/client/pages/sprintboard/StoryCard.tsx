@@ -65,6 +65,8 @@ export default function StoryCard({
   const metadataFontSize = "0.8rem";
   const [selectedSprintId, setSelectedSprintId] = useState(story.sprint_id);
   const storyPageRef = `/story/${story.id}`;
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [title, setTitle] = useState(story.title);
 
   const selectedTagIds = useMemo(
     () =>
@@ -73,6 +75,19 @@ export default function StoryCard({
         .map((ta) => ta.tag_id),
     [tagAssignments, story]
   );
+
+  async function handleStoryUpdate(updatedStory: Story) {
+    await updateStoryById(
+      updatedStory.id,
+      updatedStory.status,
+      updatedStory.title,
+      updatedStory.description,
+      updatedStory.sprint_id
+    );
+    setStories((stories) =>
+      stories.map((s) => (s.id === story.id ? updatedStory : s))
+    );
+  }
 
   function renderStoryRelationshipsTable() {
     let continues;
@@ -130,16 +145,7 @@ export default function StoryCard({
           void (async () => {
             if (!window.confirm("Archive this story?")) return;
             const updatedStory = { ...story, status: STATUS.ARCHIVE };
-            await updateStoryById(
-              updatedStory.id,
-              updatedStory.status,
-              updatedStory.title,
-              updatedStory.description,
-              updatedStory.sprint_id
-            );
-            setStories((stories) =>
-              stories.map((s) => (s.id === story.id ? updatedStory : s))
-            );
+            await handleStoryUpdate(updatedStory);
           })();
         }}
       >
@@ -181,7 +187,30 @@ export default function StoryCard({
         boxShadow: "3px 3px 2px darkgrey",
       }}
     >
-      <h3>{story.title}</h3>
+      <>
+        {isEditingTitle ? (
+          <div>
+            <textarea
+              style={{
+                fontSize: "1rem",
+                resize: "none",
+              }}
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+            <button
+              onClick={() => {
+                setIsEditingTitle(false);
+                void handleStoryUpdate({ ...story, title });
+              }}
+            >
+              Save
+            </button>
+          </div>
+        ) : (
+          <h3 onClick={() => setIsEditingTitle(true)}>{title}</h3>
+        )}
+      </>
       <div
         style={{
           position: "absolute",

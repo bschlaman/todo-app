@@ -43,7 +43,7 @@ function TaskView({
         >
           〈Back
         </a>
-        <div>
+        <>
           {isEditingTitle ? (
             <div>
               <textarea
@@ -66,7 +66,7 @@ function TaskView({
           ) : (
             <h2 onClick={() => setIsEditingTitle(true)}>{title}</h2>
           )}
-        </div>
+        </>
         <CopyToClipboardButton
           value={window.location.pathname}
         ></CopyToClipboardButton>
