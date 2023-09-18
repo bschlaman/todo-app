@@ -37,7 +37,7 @@ function TaskView({
             border: "2px solid #1b48aa",
             paddingRight: "10px",
             borderRadius: "5px",
-            background: "lightgrey",
+            background: "var(--color1)",
           }}
           href="/"
         >
@@ -74,7 +74,7 @@ function TaskView({
       <TaskMetadata task={task} onTaskUpdate={onTaskUpdate} />
       <div
         style={{
-          background: "lightgrey",
+          background: "var(--color1)",
           padding: "1rem",
           fontSize: "1.5rem",
           borderRadius: "5px",
@@ -89,7 +89,7 @@ function TaskView({
                 borderRadius: "5px",
                 resize: "none",
                 margin: "1rem 0",
-                background: "lightgrey",
+                background: "var(--color1)",
                 height: "180px",
                 fontSize: "1rem",
               }}
