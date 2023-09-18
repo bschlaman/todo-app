@@ -68,7 +68,7 @@ export default function StoryCard({
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [title, setTitle] = useState(story.title);
 
-  // const _fragment = window.location.hash;
+  const isActive = window.location.hash === `#${story.id}`;
 
   const selectedTagIds = useMemo(
     () =>
@@ -186,7 +186,9 @@ export default function StoryCard({
         padding: "1.2rem 1rem 1rem 1rem",
         background: "#ebeded",
         maxWidth: "30%",
-        boxShadow: "3px 3px 2px darkgrey",
+        boxShadow: isActive
+          ? "0 0 4px 4px rgba(255, 70, 50, 0.7)"
+          : "3px 3px 2px darkgrey",
       }}
     >
       <>

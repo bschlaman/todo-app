@@ -80,9 +80,16 @@ export default function SprintboardPage() {
   // render count for debugging
   const renderCount = useRef(0);
   useEffect(() => {
-    renderCount.current = renderCount.current + 1;
+    renderCount.current++;
     console.log(`[SprintboardPage] render count`, renderCount.current);
   });
+
+  // TODO: this didn't work - need to think of a new strategy
+  // hack to trigger a re-render when the URI hash changes
+  // so that the selected story card will render with an indication
+  // window.addEventListener("hashchange", () => {
+  //   renderCount.current++;
+  // });
 
   // local storage side effects
   useEffect(() => {

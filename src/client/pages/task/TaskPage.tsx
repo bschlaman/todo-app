@@ -298,7 +298,7 @@ export default function TaskPage() {
   // render count for debugging
   const renderCount = useRef(0);
   useEffect(() => {
-    renderCount.current = renderCount.current + 1;
+    renderCount.current++;
     console.log("[TaskPage] render count", renderCount.current);
   });
 

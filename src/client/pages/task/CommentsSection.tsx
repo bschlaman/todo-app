@@ -14,7 +14,7 @@ export default function CommentsSection({ taskId }: { taskId: string }) {
   // render count for debugging
   const renderCount = useRef(0);
   useEffect(() => {
-    renderCount.current = renderCount.current + 1;
+    renderCount.current++;
     console.log("[CommentsSection] render count", renderCount.current);
   });
 
