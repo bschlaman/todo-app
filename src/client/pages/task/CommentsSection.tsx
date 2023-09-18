@@ -103,6 +103,8 @@ const commentMetadataStyle: React.CSSProperties = {
 };
 
 function Comment({ comment }: { comment: TaskComment }) {
+  const [rawMode, setRawMode] = useState(false);
+
   return (
     <div style={commentBox}>
       <div
@@ -110,12 +112,33 @@ function Comment({ comment }: { comment: TaskComment }) {
           display: "flex",
         }}
       >
-        <p style={{ ...commentMetadataStyle, top: "1rem" }}>{comment.id}</p>
-        <p style={{ ...commentMetadataStyle, bottom: "1rem" }}>
+        <p style={{ ...commentMetadataStyle, top: "0.5rem" }}>{comment.id}</p>
+        <p style={{ ...commentMetadataStyle, bottom: "0.5rem" }}>
           {formatDate(new Date(comment.created_at))}
         </p>
+        <p
+          style={{
+            ...commentMetadataStyle,
+            left: "0.5rem",
+            top: "0.5rem",
+            fontStyle: "italic",
+            userSelect: "none",
+            textDecoration: rawMode ? "underline" : "none",
+          }}
+          onClick={() => {
+            setRawMode((rm) => !rm);
+          }}
+        >
+          Raw
+        </p>
       </div>
-      <ReactMarkdownCustom content={comment.text} />
+      {rawMode ? (
+        <div style={{ whiteSpace: "pre-wrap", margin: "2rem 0" }}>
+          {comment.text}
+        </div>
+      ) : (
+        <ReactMarkdownCustom content={comment.text} />
+      )}
     </div>
   );
 }

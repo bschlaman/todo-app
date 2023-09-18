@@ -131,7 +131,7 @@ function TaskView({
             checked={!isEditingDesc}
             onChange={() => setIsEditingDesc(!isEditingDesc)}
           />
-          <label htmlFor="preview-md">Preview Markdown</label>
+          <label htmlFor="preview-md">Rendered</label>
         </div>
       </div>
     </>
