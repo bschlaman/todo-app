@@ -63,6 +63,7 @@ func sessionMiddleware(h http.Handler) http.Handler {
 
 		// update LastAccessed, even if the session is ultimately expired
 		session.LastAccessed = time.Now()
+		sessions[cookie.Value] = session
 
 		// session expired
 		if time.Now().Sub(session.CreatedAt) > sessionDuration {

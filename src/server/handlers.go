@@ -53,7 +53,6 @@ func loginHandle() http.Handler {
 			ref = "/"
 		}
 		http.Redirect(w, r, ref, http.StatusSeeOther)
-		return
 	})
 }
 
@@ -85,7 +84,7 @@ func checkSessionHandle() http.Handler {
 // Used for debugging
 func getSessionsHandle() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		sessionValues := make([]Session, len(sessions))
+		var sessionValues []Session
 		for _, s := range sessions {
 			sessionValues = append(sessionValues, s)
 		}
