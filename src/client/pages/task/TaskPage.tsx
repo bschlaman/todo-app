@@ -34,7 +34,7 @@ function TaskView({
       <div style={{ display: "flex", gap: "2rem", alignItems: "center" }}>
         <a
           style={{
-            border: "2px solid #1b48aa",
+            border: "2px solid var(--color3)",
             paddingRight: "10px",
             borderRadius: "5px",
             background: "var(--color1)",

@@ -71,8 +71,9 @@ export default function CommentsSection({ taskId }: { taskId: string }) {
           style={{
             color: "var(--transp-white)",
             fontSize: "1.3rem",
-            borderRadius: "3px",
+            borderRadius: "6px",
             background: "var(--color3)",
+            padding: "0.3rem 0.6rem",
           }}
           onClick={handleCreateComment}
         >
