@@ -12,6 +12,13 @@ export function formatDate(date: Date) {
   return date.toDateString();
 }
 
+// Takes in a number of seconds and converts to a human readable time
+export function formatSeconds(seconds: number) {
+  return `${Math.floor(seconds / 3600)}h ${Math.floor(
+    (seconds % 3600) / 60
+  )}m ${seconds % 60}s`;
+}
+
 export function formatDateCompact(date: Date) {
   return `${date.getUTCMonth() + 1}.${date.getUTCDate()}`;
 }

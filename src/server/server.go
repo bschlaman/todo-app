@@ -20,17 +20,17 @@ import (
 
 // TODO: pull these from config table
 const (
-	serverName           string           = "TODO-APP-SERVER"
-	logPath              string           = "logs/output.log"
-	staticDir            string           = "dist"
-	sprintDuration       time.Duration    = 24 * 14 * time.Hour
-	sessionDuration      time.Duration    = 2 * time.Hour
-	allowClearSessionAPI bool             = true
-	metricNamespace      string           = "todo-app/api"
-	createEntityIDKey    CustomContextKey = "createReqIDKey"
-	getRequestBytesKey   CustomContextKey = "getReqKey"
-	cacheTTLSeconds      int              = 2
-	rootServerPath       string           = "/sprintboard"
+	serverName            string           = "TODO-APP-SERVER"
+	logPath               string           = "logs/output.log"
+	staticDir             string           = "dist"
+	sprintDuration        time.Duration    = 24 * 14 * time.Hour
+	sessionDuration       time.Duration    = 2 * time.Hour
+	allowDebugSessionAPIs bool             = true
+	metricNamespace       string           = "todo-app/api"
+	createEntityIDKey     CustomContextKey = "createReqIDKey"
+	getRequestBytesKey    CustomContextKey = "getReqKey"
+	cacheTTLSeconds       int              = 2
+	rootServerPath        string           = "/sprintboard"
 )
 
 // CustomContextKey is a type that represents
@@ -55,11 +55,11 @@ var env *Env
 // i.e. avoid e.Log
 var log *logger.BLogger
 
-// Session is stored in memory and used to manage logged in
-// users
+// Session is stored in memory and used to manage logged in users
 type Session struct {
-	ID        string
-	CreatedAt time.Time
+	ID           string
+	CreatedAt    time.Time
+	LastAccessed time.Time
 }
 
 var sessions map[string]Session
@@ -87,7 +87,7 @@ var APIType = struct {
 
 func createSaveNewSession() string {
 	id := uuid.NewString()
-	sessions[id] = Session{id, time.Now()}
+	sessions[id] = Session{id, time.Now(), time.Now()}
 	return id
 }
 
@@ -123,8 +123,9 @@ func main() {
 		),
 	)))
 
-	if allowClearSessionAPI {
+	if allowDebugSessionAPIs {
 		http.Handle("/api/clear_sessions", clearSessionsHandle())
+		http.Handle("/api/get_sessions", getSessionsHandle())
 	}
 
 	// TODO (2022.11.29): should this mapping be part of config, or at the very least the model?

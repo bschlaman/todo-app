@@ -1,4 +1,5 @@
 import { checkSession } from "./api";
+import { formatSeconds } from "./utils";
 
 export const TAG_COLORS = {
   "Todo App": "crimson",
@@ -31,8 +32,8 @@ document.addEventListener("visibilitychange", (_) => {
   if (document.visibilityState === "visible") {
     void checkSession().then((res) => {
       console.log(
-        "session time remaining (s):",
-        res.session_time_remaining_seconds
+        "session time remaining:",
+        formatSeconds(res.session_time_remaining_seconds)
       );
     });
   }

@@ -81,6 +81,27 @@ func checkSessionHandle() http.Handler {
 	})
 }
 
+// getSessionsHandle returns the sessions in memory.
+// Used for debugging
+func getSessionsHandle() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		sessionValues := make([]Session, len(sessions))
+		for _, s := range sessions {
+			sessionValues = append(sessionValues, s)
+		}
+
+		js, err := json.Marshal(sessionValues)
+		if err != nil {
+			http.Error(w, "error marshalling sessions", http.StatusInternalServerError)
+		}
+
+		*r = *r.WithContext(context.WithValue(r.Context(), getRequestBytesKey, len(js)))
+
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(js)
+	})
+}
+
 func clearSessionsHandle() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		sessions = make(map[string]Session)

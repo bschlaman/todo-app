@@ -20,6 +20,7 @@ func sessionMiddleware(h http.Handler) http.Handler {
 			"/api/login",
 			"/api/echo",
 			"/api/clear_sessions",
+			"/api/get_sessions",
 		}
 		for _, path := range skippablePaths {
 			if strings.HasPrefix(r.URL.Path, path) {
@@ -34,9 +35,9 @@ func sessionMiddleware(h http.Handler) http.Handler {
 		// url.JoinPath added in go 1.19
 		loginPath := "/login" + "?" + qparam.Encode()
 
-		// *Cookie.Valid() added in go1.18
-		// "session" not present in cookie, or cookie not present at all
 		cookie, err := r.Cookie("session")
+		// TODO: *Cookie.Valid() added in go1.18
+		// "session" not present in cookie, or cookie not present at all
 		if err != nil {
 			log.Infof("invalid cookie: no session in cookie")
 			// log.Infof("request details: %s, %s, %s", r.URL.Path, r.RemoteAddr, r.UserAgent())
@@ -48,8 +49,8 @@ func sessionMiddleware(h http.Handler) http.Handler {
 			return
 		}
 
+		session, ok := sessions[cookie.Value]
 		// id not found in sessions data structure
-		_, ok := sessions[cookie.Value]
 		if !ok {
 			log.Info("invalid cookie: session not recognized")
 			if strings.HasPrefix(r.URL.Path, "/api") {
@@ -60,8 +61,11 @@ func sessionMiddleware(h http.Handler) http.Handler {
 			return
 		}
 
+		// update LastAccessed, even if the session is ultimately expired
+		session.LastAccessed = time.Now()
+
 		// session expired
-		if time.Now().Sub(sessions[cookie.Value].CreatedAt) > sessionDuration {
+		if time.Now().Sub(session.CreatedAt) > sessionDuration {
 			log.Info("invalid cookie: session expired")
 			if strings.HasPrefix(r.URL.Path, "/api") {
 				http.Error(w, "invalid cookie", http.StatusUnauthorized)
