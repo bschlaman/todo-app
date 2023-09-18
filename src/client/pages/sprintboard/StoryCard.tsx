@@ -68,6 +68,8 @@ export default function StoryCard({
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [title, setTitle] = useState(story.title);
 
+  // const _fragment = window.location.hash;
+
   const selectedTagIds = useMemo(
     () =>
       tagAssignments

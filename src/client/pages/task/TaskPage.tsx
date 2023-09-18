@@ -306,7 +306,6 @@ export default function TaskPage() {
     void (async () => {
       await getTaskById(taskIdFromPath)
         .then((task) => {
-          document.title = task.title;
           setTask(task);
         })
         .catch((e) => {
@@ -314,6 +313,11 @@ export default function TaskPage() {
         });
     })();
   }, [taskIdFromPath]);
+
+  useEffect(() => {
+    if (task === null) return;
+    document.title = task.title;
+  }, [task]);
 
   async function handleTaskUpdate(updatedTask: Task) {
     await updateTaskById(
