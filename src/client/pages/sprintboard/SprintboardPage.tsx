@@ -76,6 +76,9 @@ export default function SprintboardPage() {
   const [activeTagIds, setActiveTagIds] = useState<string[]>(
     JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEYS.activeTagIds) ?? "[]")
   );
+  // React does not know about window.location.hash,
+  // so have to store this as state and pass it down to StoryCard
+  const [hash, setHash] = useState(window.location.hash);
 
   // render count for debugging
   const renderCount = useRef(0);
@@ -84,12 +87,17 @@ export default function SprintboardPage() {
     console.log(`[SprintboardPage] render count`, renderCount.current);
   });
 
-  // TODO: this didn't work - need to think of a new strategy
-  // hack to trigger a re-render when the URI hash changes
-  // so that the selected story card will render with an indication
-  // window.addEventListener("hashchange", () => {
-  //   renderCount.current++;
-  // });
+  useEffect(() => {
+    const handleHashChange = () => {
+      // note that this triggers a whole page re-render, which can be felt
+      // as a slight delay before page scroll
+      setHash(window.location.hash);
+    };
+    window.addEventListener("hashchange", handleHashChange);
+    return () => {
+      window.removeEventListener("hashchange", handleHashChange);
+    };
+  }, []);
 
   // local storage side effects
   useEffect(() => {
@@ -400,6 +408,7 @@ export default function SprintboardPage() {
               tagsById={tagsById}
               tagAssignments={tagAssignments}
               storyRelationships={storyRelationships}
+              selected={hash === `#${story.id}`}
               setTasks={setTasks}
               setStories={setStories}
               setTagAssignments={setTagAssignments}

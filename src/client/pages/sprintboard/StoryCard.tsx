@@ -43,6 +43,7 @@ export default function StoryCard({
   tagsById,
   tagAssignments,
   storyRelationships,
+  selected,
   setTasks,
   setStories,
   setTagAssignments,
@@ -55,6 +56,7 @@ export default function StoryCard({
   tagsById: Map<string, Tag>;
   tagAssignments: TagAssignment[];
   storyRelationships: StoryRelationship[];
+  selected: boolean;
   setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
   setStories: React.Dispatch<React.SetStateAction<Story[]>>;
   setTagAssignments: React.Dispatch<React.SetStateAction<TagAssignment[]>>;
@@ -67,8 +69,6 @@ export default function StoryCard({
   const storyPageRef = `/story/${story.id}`;
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [title, setTitle] = useState(story.title);
-
-  const isActive = window.location.hash === `#${story.id}`;
 
   const selectedTagIds = useMemo(
     () =>
@@ -186,7 +186,7 @@ export default function StoryCard({
         padding: "1.2rem 1rem 1rem 1rem",
         background: "#ebeded",
         maxWidth: "30%",
-        boxShadow: isActive
+        boxShadow: selected
           ? "0 0 4px 4px rgba(255, 70, 50, 0.7)"
           : "3px 3px 2px darkgrey",
       }}
