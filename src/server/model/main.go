@@ -876,3 +876,46 @@ func GetStoryRelationships(log *logger.BLogger) ([]StoryRelationship, error) {
 
 	return storyRelationships, nil
 }
+
+func CreateSession(log *logger.BLogger, session interface{}) (*Session, error) {
+	conn, err := database.GetPgxConn()
+	if err != nil {
+		log.Errorf("unable to connect to database: %v", err)
+		return nil, err
+	}
+	defer conn.Close(context.Background())
+
+	var id, sessionID, entityID string
+	var cAt, uAt time.Time
+
+	err = conn.QueryRow(context.Background(),
+		`INSERT INTO sessions (
+				updated_at,
+				caller_id,
+				session_id,
+				session_created_at,
+				session_last_accessed
+			) VALUES (
+				CURRENT_TIMESTAMP,
+				$1,
+				$2,
+				$3,
+				$4
+			) RETURNING
+				id,
+				created_at,
+				updated_at,
+				caller_id,
+				session_id,
+				session_created_at,
+				session_last_accessed`,
+		env.callerID,
+		session.ID,
+	).Scan(&id, &cAt, &uAt, &title, &desc, &status, &storyID, &edited, &bulkTask)
+	if err != nil {
+		log.Errorf("conn.Exec failed: %v", err)
+		return nil, err
+	}
+
+	return &Task{id, cAt, uAt, title, desc, status, storyID, edited, bulkTask}, nil
+}

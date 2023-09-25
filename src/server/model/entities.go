@@ -69,6 +69,16 @@ type StoryRelationship struct {
 	Relation  string    `json:"relation"`
 }
 
+type Session struct {
+	ID                  string    `json:"id"`
+	CreatedAt           time.Time `json:"created_at"`
+	UpdatedAt           time.Time `json:"updated_at"`
+	CallerID            string    `json:"caller_id"`
+	SessionID           string    `json:"session_id"`
+	SessionCreatedAt    time.Time `json:"session_created_at`
+	SessionLastAccessed time.Time `json:"session_last_accessed`
+}
+
 type ServerConfigRow struct {
 	ID        string    `json:"id"`
 	CreatedAt time.Time `json:"created_at"`
