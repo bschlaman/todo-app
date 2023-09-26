@@ -115,6 +115,9 @@ export function CreateTask({
         open={open}
         onClose={handleClose}
         aria-labelledby="form-dialog-title"
+        // needed due to a bug with autofocus in strict mode
+        // https://github.com/mui/material-ui/issues/33004
+        disableRestoreFocus
       >
         <DialogTitle id="form-dialog-title">Create Task</DialogTitle>
         <DialogContent>
@@ -221,6 +224,9 @@ export function CreateStory({
         open={open}
         onClose={handleClose}
         aria-labelledby="form-dialog-title"
+        // needed due to a bug with autofocus in strict mode
+        // https://github.com/mui/material-ui/issues/33004
+        disableRestoreFocus
       >
         <DialogTitle id="form-dialog-title">Create Story</DialogTitle>
         <DialogContent>
@@ -324,6 +330,9 @@ export function CreateSprint({
         open={open}
         onClose={handleClose}
         aria-labelledby="form-dialog-title"
+        // needed due to a bug with autofocus in strict mode
+        // https://github.com/mui/material-ui/issues/33004
+        disableRestoreFocus
       >
         <DialogTitle id="form-dialog-title">Create Sprint</DialogTitle>
         <DialogContent>
@@ -389,6 +398,9 @@ export function CreateTag({
         open={open}
         onClose={handleClose}
         aria-labelledby="form-dialog-title"
+        // needed due to a bug with autofocus in strict mode
+        // https://github.com/mui/material-ui/issues/33004
+        disableRestoreFocus
       >
         <DialogTitle id="form-dialog-title">Create Tag</DialogTitle>
         <DialogContent>
@@ -496,6 +508,9 @@ export function CreateBulkTask({
         open={open}
         onClose={handleClose}
         aria-labelledby="form-dialog-title"
+        // needed due to a bug with autofocus in strict mode
+        // https://github.com/mui/material-ui/issues/33004
+        disableRestoreFocus
       >
         <DialogTitle id="form-dialog-title">Bulk Create Task</DialogTitle>
         <DialogContent>
@@ -641,6 +656,9 @@ export function BatchUploadTask({
         open={open}
         onClose={handleClose}
         aria-labelledby="form-dialog-title"
+        // needed due to a bug with autofocus in strict mode
+        // https://github.com/mui/material-ui/issues/33004
+        disableRestoreFocus
       >
         <DialogTitle id="form-dialog-title">Batch Task Upload</DialogTitle>
         <DialogContent>
