@@ -10,8 +10,10 @@ import (
 	"time"
 
 	"github.com/bschlaman/todo-app/model"
+	"github.com/google/uuid"
 )
 
+// TODO (2023.09.29): this function does a lot - time to split out some behavior?
 func loginHandle() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		pass := r.FormValue("pass")
@@ -22,20 +24,9 @@ func loginHandle() http.Handler {
 			return
 		}
 
-		log.Info("login successful!")
-		id := createSaveNewSession()
-		cookie := &http.Cookie{
-			Name:     "session",
-			Value:    id,
-			SameSite: http.SameSiteDefaultMode,
-			Path:     "/",
-		}
-		http.SetCookie(w, cookie)
-		log.Infof("setting cookie: %v", cookie)
-
+		// first, parse the Referer and ref.  If those don't work, return right away
 		u, err := url.Parse(r.Header.Get("Referer"))
 		if err != nil {
-			delete(sessions, id)
 			log.Infof("invalid ref url: %v", r.Header.Get("Referer"))
 			http.Error(w, "invalid ref url", http.StatusBadRequest)
 			return
@@ -43,7 +34,6 @@ func loginHandle() http.Handler {
 		ref, err := url.PathUnescape(u.Query().Get("ref"))
 		log.Infof("u: %s, ref: %s", u, ref)
 		if err != nil {
-			delete(sessions, id)
 			log.Infof("invalid ref url: %v", r.Header.Get("Referer"))
 			http.Error(w, "invalid ref url", http.StatusBadRequest)
 			return
@@ -52,6 +42,29 @@ func loginHandle() http.Handler {
 		if ref == "" {
 			ref = "/"
 		}
+
+		// create a new SessionRecord object and save it in the db
+		log.Info("login successful, creating session")
+		now := time.Now() // keep it atomic!
+		sessionRecord, err := model.CreateSessionRecord(log, env.CallerID, uuid.NewString(), now, now)
+		if err != nil {
+			log.Errorf("could not create session: %v", err)
+			http.Error(w, "could not create session", http.StatusInternalServerError)
+			return
+		}
+		// save the session in memory such that it can be searched quickly
+		// TODO (2023.09.29): turn this into a SyncSessions call to the db
+		sessions[sessionRecord.SessionID] = *sessionRecord
+
+		cookie := &http.Cookie{
+			Name:     "session",
+			Value:    sessionRecord.SessionID,
+			SameSite: http.SameSiteDefaultMode,
+			Path:     "/",
+		}
+		http.SetCookie(w, cookie)
+		log.Infof("setting cookie: %v", cookie)
+
 		http.Redirect(w, r, ref, http.StatusSeeOther)
 	})
 }
@@ -62,7 +75,7 @@ func checkSessionHandle() http.Handler {
 		cookie, _ := r.Cookie("session")
 		s := sessions[cookie.Value]
 
-		timeRemaining := sessionDuration - time.Since(s.CreatedAt)
+		timeRemaining := sessionDuration - time.Since(s.SessionCreatedAt)
 
 		js, err := json.Marshal(&struct {
 			TimeRemainingSeconds int `json:"session_time_remaining_seconds"`
@@ -84,7 +97,7 @@ func checkSessionHandle() http.Handler {
 // Used for debugging
 func getSessionsHandle() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		var sessionValues []Session
+		var sessionValues []model.SessionRecord
 		for _, s := range sessions {
 			sessionValues = append(sessionValues, s)
 		}
@@ -103,7 +116,7 @@ func getSessionsHandle() http.Handler {
 
 func clearSessionsHandle() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		sessions = make(map[string]Session)
+		sessions = make(map[string]model.SessionRecord)
 		js, err := json.Marshal(&struct {
 			Message string `json:"message"`
 		}{

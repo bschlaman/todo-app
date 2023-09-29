@@ -69,14 +69,17 @@ type StoryRelationship struct {
 	Relation  string    `json:"relation"`
 }
 
-type Session struct {
+// SessionRecord contains a Session which is used to manage logged in users
+// The struct is so named, since this is really a representation of what's in the database
+// and contains record-level information (e.g. UpdatedAt) which is not used for business logic
+type SessionRecord struct {
 	ID                  string    `json:"id"`
 	CreatedAt           time.Time `json:"created_at"`
 	UpdatedAt           time.Time `json:"updated_at"`
 	CallerID            string    `json:"caller_id"`
 	SessionID           string    `json:"session_id"`
-	SessionCreatedAt    time.Time `json:"session_created_at`
-	SessionLastAccessed time.Time `json:"session_last_accessed`
+	SessionCreatedAt    time.Time `json:"session_created_at"`
+	SessionLastAccessed time.Time `json:"session_last_accessed"`
 }
 
 type ServerConfigRow struct {

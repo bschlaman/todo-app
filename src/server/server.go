@@ -15,7 +15,7 @@ import (
 	"github.com/bschlaman/b-utils/pkg/logger"
 	"github.com/bschlaman/b-utils/pkg/utils"
 	"github.com/bschlaman/todo-app/database"
-	"github.com/google/uuid"
+	"github.com/bschlaman/todo-app/model"
 )
 
 // TODO: pull these from config table
@@ -55,14 +55,7 @@ var env *Env
 // i.e. avoid e.Log
 var log *logger.BLogger
 
-// Session is stored in memory and used to manage logged in users
-type Session struct {
-	ID           string
-	CreatedAt    time.Time
-	LastAccessed time.Time
-}
-
-var sessions map[string]Session
+var sessions map[string]model.SessionRecord
 
 var cache *cacheStore
 
@@ -85,12 +78,6 @@ var APIType = struct {
 	"Destroy",
 }
 
-func createSaveNewSession() string {
-	id := uuid.NewString()
-	sessions[id] = Session{id, time.Now(), time.Now()}
-	return id
-}
-
 func init() {
 	// log file
 	file, err := os.OpenFile(path.Join("../..", logPath), os.O_APPEND|os.O_WRONLY, 0644)
@@ -107,7 +94,7 @@ func init() {
 	cwClient := cloudwatch.NewFromConfig(cfg)
 
 	// init globals
-	sessions = make(map[string]Session)
+	sessions = make(map[string]model.SessionRecord)
 	cache = &cacheStore{items: make(map[string]*cacheItem)}
 	env = &Env{logger.New(mw), cfg, cwClient, os.Getenv("LOGIN_PW"), os.Getenv("CALLER_ID")}
 	log = env.Log

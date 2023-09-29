@@ -877,7 +877,7 @@ func GetStoryRelationships(log *logger.BLogger) ([]StoryRelationship, error) {
 	return storyRelationships, nil
 }
 
-func CreateSession(log *logger.BLogger, session interface{}) (*Session, error) {
+func CreateSessionRecord(log *logger.BLogger, callerID, sessionID string, sessionCreatedAt, sessionLastAccessed time.Time) (*SessionRecord, error) {
 	conn, err := database.GetPgxConn()
 	if err != nil {
 		log.Errorf("unable to connect to database: %v", err)
@@ -885,7 +885,7 @@ func CreateSession(log *logger.BLogger, session interface{}) (*Session, error) {
 	}
 	defer conn.Close(context.Background())
 
-	var id, sessionID, entityID string
+	var id string
 	var cAt, uAt time.Time
 
 	err = conn.QueryRow(context.Background(),
@@ -904,18 +904,18 @@ func CreateSession(log *logger.BLogger, session interface{}) (*Session, error) {
 			) RETURNING
 				id,
 				created_at,
-				updated_at,
-				caller_id,
-				session_id,
-				session_created_at,
-				session_last_accessed`,
-		env.callerID,
-		session.ID,
-	).Scan(&id, &cAt, &uAt, &title, &desc, &status, &storyID, &edited, &bulkTask)
+				updated_at`,
+		callerID,
+		sessionID,
+		sessionCreatedAt,
+		sessionLastAccessed,
+		// lol hmmm not sure if rescaning into the variable is safe...
+		// honestly I just wanna see if it works
+	).Scan(&id, &cAt, &uAt)
 	if err != nil {
 		log.Errorf("conn.Exec failed: %v", err)
 		return nil, err
 	}
 
-	return &Task{id, cAt, uAt, title, desc, status, storyID, edited, bulkTask}, nil
+	return &SessionRecord{id, cAt, uAt, callerID, sessionID, sessionCreatedAt, sessionLastAccessed}, nil
 }
