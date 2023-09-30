@@ -919,3 +919,28 @@ func CreateSessionRecord(log *logger.BLogger, callerID, sessionID string, sessio
 
 	return &SessionRecord{id, cAt, uAt, callerID, sessionID, sessionCreatedAt, sessionLastAccessed}, nil
 }
+
+func PutSessionLastAccessed(log *logger.BLogger, sessionID string, sessionLastAccessed time.Time) error {
+	conn, err := database.GetPgxConn()
+	if err != nil {
+		log.Errorf("unable to connect to database: %v", err)
+		return err
+	}
+	defer conn.Close(context.Background())
+
+	_, err = conn.Exec(context.Background(),
+		`UPDATE sessions SET
+			updated_at = CURRENT_TIMESTAMP,
+			session_last_accessed = $1,
+			edited = true
+			WHERE session_id = $2`,
+		sessionLastAccessed,
+		sessionID,
+	)
+	if err != nil {
+		log.Errorf("conn.Exec failed: %v", err)
+		return err
+	}
+
+	return nil
+}

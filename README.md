@@ -54,3 +54,9 @@ I am starting to lean towards the "give me ALL of the data, then render" approac
 - dimensions
   - name: `api_type` value: `GET|PUT|DELETE`
   - name: `api_name` value: `GetStoryById`
+
+Currently, I am not emitting metrics for certain operations:
+
+1. event logging
+1. session operations
+1. others?

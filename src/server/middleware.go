@@ -9,6 +9,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/bschlaman/todo-app/model"
 )
 
 func sessionMiddleware(h http.Handler) http.Handler {
@@ -61,9 +63,22 @@ func sessionMiddleware(h http.Handler) http.Handler {
 			return
 		}
 
+		// prevSessionLastAccessed used for workaround in the TODO below
+		prevSessionLastAccessed := session.SessionLastAccessed
 		// update LastAccessed, even if the session is ultimately expired
 		session.SessionLastAccessed = time.Now()
 		sessions[cookie.Value] = session
+		// using a goroutine to be consistent with other best effort operations
+		// like event logging and metric emission
+		// TODO (2023.09.30): this db update happens for every API request!
+		// For now, I will only make the db call if the session LastAccessed update is
+		// sufficiently new.  Need to find a longer term fix for this
+		// For one thing, this may result in the db information being stale if
+		// the in-memory sessions are deleted before this sync happens
+		if session.SessionLastAccessed.Sub(prevSessionLastAccessed) > 10*time.Second {
+			log.Infof("updating SessionLastAccessed in db for session: %s", session.SessionID)
+			go model.PutSessionLastAccessed(env.Log, session.SessionID, session.SessionLastAccessed)
+		}
 
 		// session expired
 		if time.Since(session.SessionCreatedAt) > sessionDuration {
