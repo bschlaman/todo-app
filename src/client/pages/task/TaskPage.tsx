@@ -28,6 +28,16 @@ function TaskView({
   const [title, setTitle] = useState(task.title);
   const [isEditingDesc, setIsEditingDesc] = useState(false);
   const [description, setDescription] = useState(task.description);
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
+
+  // Auto focus the textarea when editing, and place the cursor at the end of the content
+  useEffect(() => {
+    if (!isEditingDesc) return;
+    if (descriptionRef.current == null) return;
+    descriptionRef.current.focus();
+    descriptionRef.current.selectionStart = descriptionRef.current.value.length;
+    descriptionRef.current.selectionEnd = descriptionRef.current.value.length;
+  }, [isEditingDesc]);
 
   return (
     <>
@@ -94,8 +104,15 @@ function TaskView({
                 fontSize: "1rem",
               }}
               value={description}
+              ref={descriptionRef}
               onChange={(e) => {
                 setDescription(e.target.value);
+              }}
+              onKeyDown={(e) => {
+                if (e.ctrlKey && e.key === "Enter") {
+                  setIsEditingDesc(false);
+                  void onTaskUpdate({ ...task, description });
+                }
               }}
             />
             <button
@@ -115,7 +132,9 @@ function TaskView({
             </button>
           </>
         ) : (
-          <ReactMarkdownCustom content={description} />
+          <div onClick={() => setIsEditingDesc(!isEditingDesc)}>
+            <ReactMarkdownCustom content={description} />
+          </div>
         )}
         <div
           style={{

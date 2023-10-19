@@ -66,6 +66,7 @@ export default function CommentsSection({ taskId }: { taskId: string }) {
           }}
           ref={inputRef}
           placeholder="Type new comment (ctrl+&#9166; to save)"
+          autoFocus
         />
         <button
           style={{
