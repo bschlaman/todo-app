@@ -14,9 +14,10 @@ module.exports = {
 			config[page] = `./src/client/ts/${page}.ts`;
 			return config;
 		}, {}),
-		{ login: `./src/client/pages/login/index.tsx` },
-		{ task: `./src/client/pages/task/index.tsx` },
-		{ sprintboard: `./src/client/pages/sprintboard/index.tsx` }
+		pages_v2.reduce((config, page) => {
+			config[page] = `./src/client/pages/${page}/index.tsx`;
+			return config;
+		}, {})
 	),
 	resolve: {
 		extensions: [".ts", ".tsx", ".js"],
@@ -29,11 +30,13 @@ module.exports = {
 		rules: [
 			{
 				test: /\.css$/i,
+				include: path.resolve(__dirname, "src", "client"),
 				use: ["style-loader", "css-loader"],
 			},
 			{
 				test: /\.tsx?$/,
 				use: "ts-loader",
+				include: path.resolve(__dirname, "src", "client"),
 				exclude: /node_modules/,
 			},
 		],
