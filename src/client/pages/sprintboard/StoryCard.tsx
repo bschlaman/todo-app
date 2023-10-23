@@ -68,7 +68,9 @@ export default function StoryCard({
   const [selectedSprintId, setSelectedSprintId] = useState(story.sprint_id);
   const storyPageRef = `/story/${story.id}`;
   const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [isEditingDescription, setIsEditingDescription] = useState(false);
   const [title, setTitle] = useState(story.title);
+  const [description, setDescription] = useState(story.description);
 
   const selectedTagIds = useMemo(
     () =>
@@ -191,30 +193,28 @@ export default function StoryCard({
           : "3px 3px 2px darkgrey",
       }}
     >
-      <>
-        {isEditingTitle ? (
-          <div>
-            <textarea
-              style={{
-                fontSize: "1rem",
-                resize: "none",
-              }}
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
-            <button
-              onClick={() => {
-                setIsEditingTitle(false);
-                void handleStoryUpdate({ ...story, title });
-              }}
-            >
-              Save
-            </button>
-          </div>
-        ) : (
-          <h3 onClick={() => setIsEditingTitle(true)}>{title}</h3>
-        )}
-      </>
+      {isEditingTitle ? (
+        <>
+          <textarea
+            style={{
+              fontSize: "1rem",
+              resize: "none",
+            }}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+          <button
+            onClick={() => {
+              setIsEditingTitle(false);
+              void handleStoryUpdate({ ...story, title });
+            }}
+          >
+            Save
+          </button>
+        </>
+      ) : (
+        <h3 onClick={() => setIsEditingTitle(true)}>{title}</h3>
+      )}
       <div
         style={{
           position: "absolute",
@@ -235,7 +235,27 @@ export default function StoryCard({
       >
         📝
       </a>
-      <ReactMarkdownCustom content={story.description} />
+      {isEditingDescription ? (
+        <>
+          <textarea
+            style={{ fontSize: "1rem" }}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
+          <button
+            onClick={() => {
+              setIsEditingDescription(false);
+              void handleStoryUpdate({ ...story, description });
+            }}
+          >
+            Save
+          </button>
+        </>
+      ) : (
+        <div onClick={() => setIsEditingDescription(true)}>
+          <ReactMarkdownCustom content={story.description} />
+        </div>
+      )}
       {Array.from(tagsById).map(([, tag]) => (
         <TagOption
           key={tag.id}

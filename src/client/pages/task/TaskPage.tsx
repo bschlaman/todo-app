@@ -132,7 +132,7 @@ function TaskView({
             </button>
           </>
         ) : (
-          <div onClick={() => setIsEditingDesc(!isEditingDesc)}>
+          <div onClick={() => setIsEditingDesc(true)}>
             <ReactMarkdownCustom content={description} />
           </div>
         )}
