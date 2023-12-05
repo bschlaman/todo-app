@@ -18,9 +18,9 @@ import {
   Config,
   Sprint,
   Story,
+  TASK_STATUS,
   Task,
   TaskComment,
-  STATUSES,
 } from "./model/entities";
 
 import DOMPurify from "dompurify";
@@ -92,7 +92,7 @@ const storyDataCache = new Map<string, Story>();
 const sprintDataCache = new Map<string, Sprint>();
 
 // renderTask depends on these being set
-STATUSES.forEach((status) => {
+Object.values(TASK_STATUS).forEach((status) => {
   const option = document.createElement("option");
   option.setAttribute("value", status);
   option.textContent = status;
@@ -253,12 +253,11 @@ function renderTask(task: Task) {
   let sprintsToRenderAfterTaskInSelect = 3;
   // loop through the sorted keys (sprintIds)
   Array.from(sprintBuckets.keys())
-    .sort((sprintId0, sprintId1) => {
-      return (
+    .sort(
+      (sprintId0, sprintId1) =>
         new Date(sprintDataCache.get(sprintId1)?.start_date ?? 0).getTime() -
         new Date(sprintDataCache.get(sprintId0)?.start_date ?? 0).getTime()
-      );
-    })
+    )
     .forEach((sprintId) => {
       if (sprintsToRenderAfterTaskInSelect === 0) return;
       if (taskSprintFound) sprintsToRenderAfterTaskInSelect -= 1;
@@ -292,11 +291,10 @@ function renderCommentsFromJSON(comments: TaskComment[]) {
   while (taskComments.firstChild != null)
     taskComments.removeChild(taskComments.firstChild);
   comments
-    .sort((c0, c1) => {
-      return (
+    .sort(
+      (c0, c1) =>
         new Date(c0.created_at).getTime() - new Date(c1.created_at).getTime()
-      );
-    })
+    )
     .forEach((comment) => {
       const commentWrapper = document.createElement("div");
       commentWrapper.classList.add("comment-wrapper");

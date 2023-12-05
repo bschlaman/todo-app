@@ -1,5 +1,5 @@
 import React from "react";
-import { STATUS, Story, Tag, Task } from "../../ts/model/entities";
+import { TASK_STATUS, Story, Tag, Task } from "../../ts/model/entities";
 import CopyToClipboardButton from "../../components/copy_to_clipboard_button";
 import { DRAG_TYPE } from "./drag";
 import { useDrag } from "react-dnd";
@@ -18,7 +18,7 @@ export default function TaskCard({
   storiesById: Map<string, Story>;
   tagsById: Map<string, Tag>;
   assocTagIdsByStoryId: Map<string, string[]>;
-  moveTask: (taskId: string, status: STATUS) => void;
+  moveTask: (taskId: string, status: TASK_STATUS) => void;
 }) {
   const story = storiesById.get(task.story_id);
   const taskPageRef = `/task/${task.id}`;
@@ -29,7 +29,7 @@ export default function TaskCard({
       item: { taskId: task.id },
       collect: (monitor) => ({ isDragging: !!monitor.isDragging() }),
       end: (draggedItem, monitor) => {
-        const dropRes = monitor.getDropResult<{ status: STATUS }>();
+        const dropRes = monitor.getDropResult<{ status: TASK_STATUS }>();
         if (dropRes !== null) moveTask(draggedItem.taskId, dropRes.status);
       },
     }),
@@ -59,7 +59,7 @@ export default function TaskCard({
 
   function specialStyles(task: Task) {
     // done status takes precedence over bulk task
-    if (task.status === STATUS.DONE)
+    if (task.status === TASK_STATUS.DONE)
       return { borderLeft: "6px solid var(--color4)" };
     if (task.bulk_task) return { borderLeft: "12px solid lightblue" };
     return {};
@@ -103,7 +103,7 @@ export default function TaskCard({
       >
         📝
       </a>
-      {!task.bulk_task && task.status !== STATUS.DONE && (
+      {!task.bulk_task && task.status !== TASK_STATUS.DONE && (
         <ReactMarkdownCustom content={task.description} />
       )}
       <div style={{ marginBottom: "1rem" }}>

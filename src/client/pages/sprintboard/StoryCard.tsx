@@ -8,7 +8,8 @@ import {
   TagAssignment,
   STORY_RELATIONSHIP,
   Task,
-  STATUS,
+  STORY_STATUS,
+  TASK_STATUS,
 } from "../../ts/model/entities";
 import { TagOption } from "./tag_selectors";
 import { sprintToString } from "../../ts/lib/utils";
@@ -148,7 +149,7 @@ export default function StoryCard({
         onClick={() => {
           void (async () => {
             if (!window.confirm("Archive this story?")) return;
-            const updatedStory = { ...story, status: STATUS.ARCHIVE };
+            const updatedStory = { ...story, status: STORY_STATUS.ARCHIVE };
             await handleStoryUpdate(updatedStory);
           })();
         }}
@@ -459,7 +460,9 @@ function CopyToNewStory({
       const tasksToUpdate = (
         tasksByStoryId.get(continuedStory.id) ?? []
       ).filter(
-        (task) => task.status === STATUS.BACKLOG || task.status === STATUS.DOING
+        (task) =>
+          task.status === TASK_STATUS.BACKLOG ||
+          task.status === TASK_STATUS.DOING
       );
       for (const task of tasksToUpdate) {
         // TODO (2023.06.26): update API to return the updated task

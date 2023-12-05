@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import ErrorBanner from "../../components/banners";
-import { STATUSES, Sprint, Story, Task } from "../../ts/model/entities";
+import { Sprint, Story, TASK_STATUS, Task } from "../../ts/model/entities";
 import {
   getSprints,
   getStories,
@@ -212,8 +212,7 @@ function TaskMetadata({
         value={taskStatus}
         onChange={handleTaskMetadataChange}
       >
-        {/* this list will not change, so fine to depend on it */}
-        {STATUSES.map((status) => (
+        {Object.values(TASK_STATUS).map((status) => (
           <option key={status} value={status}>
             {status}
           </option>

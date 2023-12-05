@@ -1,16 +1,16 @@
-// TODO 2022.11.19: make this an enum or type
-export const STATUSES = [
-  "BACKLOG",
-  "DOING",
-  "DONE",
-  "DEPRIORITIZED",
-  "ARCHIVE",
-  "DUPLICATE",
-  "DEADLINE PASSED",
-];
+// using string enum so that the values can be rendered in UI
+// for things like status dropdown in task / story view
+export enum TASK_STATUS {
+  BACKLOG = "BACKLOG",
+  DOING = "DOING",
+  DONE = "DONE",
+  DEPRIORITIZED = "DEPRIORITIZED",
+  ARCHIVE = "ARCHIVE",
+  DUPLICATE = "DUPLICATE",
+  "DEADLINE PASSED" = "DEADLINE PASSED",
+}
 
-// TODO (2023.05.06): replace STATUSES with this
-export enum STATUS {
+export enum STORY_STATUS {
   BACKLOG = "BACKLOG",
   DOING = "DOING",
   DONE = "DONE",
@@ -43,7 +43,7 @@ export interface Task {
   updated_at: string;
   title: string;
   description: string;
-  status: STATUS;
+  status: TASK_STATUS;
   story_id: string;
   edited: string;
   bulk_task: boolean;
@@ -91,7 +91,7 @@ export interface Story {
   updated_at: string;
   title: string;
   description: string;
-  status: string;
+  status: STORY_STATUS;
   sprint_id: string;
   edited: string;
 }

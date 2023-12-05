@@ -1,6 +1,6 @@
 import React, { CSSProperties } from "react";
 import { useDrag } from "react-dnd";
-import { STATUS, Task } from "../../ts/model/entities";
+import { TASK_STATUS, Task } from "../../ts/model/entities";
 
 export enum DRAG_TYPE {
   CARD = "card",
@@ -9,7 +9,7 @@ export enum DRAG_TYPE {
 interface CardProps {
   isDropped: boolean;
   task: Task;
-  moveTask: (taskId: string, status: STATUS) => void;
+  moveTask: (taskId: string, status: TASK_STATUS) => void;
 }
 
 const style: CSSProperties = {
@@ -30,7 +30,7 @@ export default function Card({ isDropped, task, moveTask }: CardProps) {
         opacity: monitor.isDragging() ? 0.5 : 1,
       }),
       end: (draggedItem, monitor) => {
-        const dropRes = monitor.getDropResult<{ status: STATUS }>();
+        const dropRes = monitor.getDropResult<{ status: TASK_STATUS }>();
         if (dropRes !== null) moveTask(draggedItem.taskId, dropRes.status);
       },
     }),

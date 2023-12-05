@@ -10,10 +10,10 @@ import {
   updateTaskById,
 } from "../../ts/lib/api";
 import {
-  STATUS,
   Sprint,
   Story,
   StoryRelationship,
+  TASK_STATUS,
   Tag,
   TagAssignment,
   Task,
@@ -27,38 +27,12 @@ import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import EntityCreationStation from "./entity_creation";
 import StoryCard from "./StoryCard";
+import { filterStory, filterTask } from "./render_filters";
 
 const LOCAL_STORAGE_KEYS = {
   selectedSprintId: "viewing_sprint_id",
   activeTagIds: "active_tag_ids",
 };
-
-// determine if a particular task should be rendered
-// based on the currently selected sprint
-function filterTasks(
-  task: Task,
-  storiesById: Map<string, Story>,
-  sprintsById: Map<string, Sprint>,
-  selectedSprintId: string | null,
-  assocTagIdsByStoryId: Map<string, string[]>,
-  activeTagIds: string[]
-) {
-  // sprint has not been selected yet
-  if (selectedSprintId === null) return false;
-  // return true if task does not have a story_id
-  if (task.story_id === null) return true;
-  const sprint = storiesById.get(task.story_id)?.sprint_id;
-  // Task::Story has not loaded yet
-  if (sprint === undefined) return false;
-  // Task::Story::Sprint is not selected
-  if (sprintsById.get(sprint)?.id !== selectedSprintId) return false;
-  // return true when any of Task::Story tag assignments are active
-  for (const tagId of assocTagIdsByStoryId.get(task.story_id) ?? []) {
-    if (activeTagIds.includes(tagId)) return true;
-  }
-
-  return false;
-}
 
 export default function SprintboardPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -168,27 +142,19 @@ export default function SprintboardPage() {
   const tasksToRender = useMemo(
     () =>
       tasks.filter((task) =>
-        filterTasks(
+        filterTask(
           task,
           storiesById,
-          sprintsById,
           selectedSprintId,
           assocTagIdsByStoryId,
           activeTagIds
         )
       ),
-    [
-      tasks,
-      storiesById,
-      sprintsById,
-      selectedSprintId,
-      assocTagIdsByStoryId,
-      activeTagIds,
-    ]
+    [tasks, storiesById, selectedSprintId, assocTagIdsByStoryId, activeTagIds]
   );
 
   const taskBucketsByStatus = useMemo(() => {
-    const _map = new Map<STATUS, Task[]>();
+    const _map = new Map<TASK_STATUS, Task[]>();
     for (const task of tasksToRender) {
       if (!_map.has(task.status)) _map.set(task.status, []);
       _map.get(task.status)?.push(task);
@@ -246,7 +212,7 @@ export default function SprintboardPage() {
     });
   }, []);
 
-  function renderTaskCardsForStatus(status: STATUS) {
+  function renderTaskCardsForStatus(status: TASK_STATUS) {
     return (taskBucketsByStatus.get(status) ?? []).map((task: Task) => (
       <TaskCard
         key={task.id}
@@ -259,7 +225,7 @@ export default function SprintboardPage() {
     ));
   }
 
-  function updateTaskStatusById(taskId: string, status: STATUS) {
+  function updateTaskStatusById(taskId: string, status: TASK_STATUS) {
     const task = tasksById.get(taskId);
     if (task === undefined) throw new Error("task not found: " + taskId);
     void updateTaskById(
@@ -371,14 +337,14 @@ export default function SprintboardPage() {
         }}
       >
         <DndProvider backend={HTML5Backend}>
-          <Bucket status={STATUS.BACKLOG}>
-            {renderTaskCardsForStatus(STATUS.BACKLOG)}
+          <Bucket status={TASK_STATUS.BACKLOG}>
+            {renderTaskCardsForStatus(TASK_STATUS.BACKLOG)}
           </Bucket>
-          <Bucket status={STATUS.DOING}>
-            {renderTaskCardsForStatus(STATUS.DOING)}
+          <Bucket status={TASK_STATUS.DOING}>
+            {renderTaskCardsForStatus(TASK_STATUS.DOING)}
           </Bucket>
-          <Bucket status={STATUS.DONE}>
-            {renderTaskCardsForStatus(STATUS.DONE)}
+          <Bucket status={TASK_STATUS.DONE}>
+            {renderTaskCardsForStatus(TASK_STATUS.DONE)}
           </Bucket>
         </DndProvider>
       </div>
@@ -391,13 +357,7 @@ export default function SprintboardPage() {
         }}
       >
         {stories
-          .filter((story) => story.sprint_id === selectedSprintId)
-          .filter(
-            (story) =>
-              ![STATUS.ARCHIVE, STATUS.DUPLICATE]
-                .map((s) => s.toString())
-                .includes(story.status)
-          )
+          .filter((story) => filterStory(story, selectedSprintId))
           .map((story) => (
             <StoryCard
               key={story.id}

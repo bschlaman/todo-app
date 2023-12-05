@@ -1,10 +1,10 @@
 import React, { ReactNode } from "react";
-import { STATUS } from "../../ts/model/entities";
+import { TASK_STATUS } from "../../ts/model/entities";
 import { DRAG_TYPE } from "./drag";
 import { useDrop } from "react-dnd";
 
 interface BucketProps {
-  status: STATUS;
+  status: TASK_STATUS;
   children?: ReactNode;
 }
 export default function Bucket({ status, children }: BucketProps) {
