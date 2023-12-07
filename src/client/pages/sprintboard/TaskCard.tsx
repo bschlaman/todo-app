@@ -7,6 +7,7 @@ import styles from "./TaskCard.module.css";
 import { renderTagBadgesForStoryId } from "../../components/tag_badge";
 import ReactMarkdownCustom from "../../components/markdown";
 
+// TODO 2023.11.11: if switching to dnd-kit, remember to use setActivatorNodeRef
 export default function TaskCard({
   task,
   storiesById,
