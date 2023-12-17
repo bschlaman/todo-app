@@ -31,7 +31,7 @@ import { NULL_STORY_IDENTIFIER } from "../../ts/lib/common";
 import { TagOption } from "./tag_selectors";
 import { sprintToString } from "../../ts/lib/utils";
 import { DatePicker } from "@mui/x-date-pickers";
-import { renderStorySelectItems } from "../../components/story_select";
+import { StorySelect } from "../../components/story_select";
 import DownloadCSVButton from "../../components/download_csv";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import DoneIcon from "@mui/icons-material/Done";
@@ -140,25 +140,14 @@ export function CreateTask({
           />
           <FormControl fullWidth margin="dense">
             <InputLabel id="parent-story-label">Parent Story</InputLabel>
-            <Select
+            <StorySelect
               labelId="parent-story-label"
-              label="Parent Story"
-              value={storyId}
-              margin="dense"
-              onChange={(e) => {
-                setStoryId(e.target.value);
-              }}
-            >
-              <MenuItem
-                style={{ marginLeft: "9rem" }}
-                value={NULL_STORY_IDENTIFIER}
-              >
-                <strong>{NULL_STORY_IDENTIFIER}</strong>
-              </MenuItem>
-              {/* I couldn't figure out how to also return the NULL_STORY menu item
-              from renderStorySelectItems; MUI Select doesn't seem to like receiving fragemnts. */}
-              {renderStorySelectItems(stories, tagsById, assocTagIdsByStoryId)}
-            </Select>
+              storyId={storyId}
+              setStoryId={setStoryId}
+              stories={stories}
+              tagsById={tagsById}
+              assocTagIdsByStoryId={assocTagIdsByStoryId}
+            />
           </FormControl>
         </DialogContent>
         {renderDialogActions(handleClose, handleSave)}
@@ -540,25 +529,14 @@ export function CreateBulkTask({
           />
           <FormControl fullWidth margin="dense">
             <InputLabel id="parent-story-label">Parent Story</InputLabel>
-            <Select
+            <StorySelect
               labelId="parent-story-label"
-              label="Parent Story"
-              value={storyId}
-              margin="dense"
-              onChange={(e) => {
-                setStoryId(e.target.value);
-              }}
-            >
-              <MenuItem
-                style={{ marginLeft: "9rem" }}
-                value={NULL_STORY_IDENTIFIER}
-              >
-                <strong>{NULL_STORY_IDENTIFIER}</strong>
-              </MenuItem>
-              {/* I couldn't figure out how to also return the NULL_STORY menu item
-              from renderStorySelectItems; MUI Select doesn't seem to like receiving fragemnts. */}
-              {renderStorySelectItems(stories, tagsById, assocTagIdsByStoryId)}
-            </Select>
+              storyId={storyId}
+              setStoryId={setStoryId}
+              stories={stories}
+              tagsById={tagsById}
+              assocTagIdsByStoryId={assocTagIdsByStoryId}
+            />
           </FormControl>
         </DialogContent>
         {renderDialogActions(handleClose, handleSave)}

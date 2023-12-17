@@ -1,7 +1,8 @@
 // This file contains methods to determine if an entity should be rendered on the sprintboard page
 // e.g. based on status, current sprint, etc.
 
-import { STORY_STATUS, Story, Task } from "../../ts/model/entities";
+import { Story, Task } from "../../ts/model/entities";
+import { isActive } from "../../ts/model/status";
 
 export function filterTask(
   task: Task,
@@ -33,8 +34,5 @@ export function filterStory(story: Story, selectedSprintId: string | null) {
   // story doesn't belong to currently selected sprint
   if (selectedSprintId !== story.sprint_id) return false;
   // story status is one which I don't want to render
-  if ([STORY_STATUS.ARCHIVE, STORY_STATUS.DUPLICATE].includes(story.status))
-    return false;
-
-  return true;
+  return isActive(story);
 }
