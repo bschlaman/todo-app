@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import ErrorBanner from "../../components/banners";
 import { Task } from "../../ts/model/entities";
-import { getTaskById, updateTaskById } from "../../ts/lib/api";
+import { checkSession, getTaskById, updateTaskById } from "../../ts/lib/api";
 import Loading from "../../components/loading";
 import styles from "./TaskPage.module.css";
 import CommentsSection from "./CommentsSection";
@@ -9,6 +9,7 @@ import "../../css/common.css";
 import CopyToClipboardButton from "../../components/copy_to_clipboard_button";
 import ReactMarkdownCustom from "../../components/markdown";
 import TaskMetadata from "./task_metadata";
+import { SessionTimeRemainingIndicator } from "../../components/session";
 
 function TaskView({
   task,
@@ -153,6 +154,8 @@ export default function TaskPage() {
   const taskIdFromPath = path.substring(path.lastIndexOf("/") + 1);
 
   const [task, setTask] = useState<Task | null>(null);
+  const [sessionTimeRemainingSeconds, setSessionTimeRemainingSeconds] =
+    useState(0);
   const [error, setError] = useState(null);
 
   // render count for debugging
@@ -167,6 +170,13 @@ export default function TaskPage() {
       await getTaskById(taskIdFromPath)
         .then((task) => {
           setTask(task);
+        })
+        .catch((e) => {
+          setError(e.message);
+        });
+      await checkSession()
+        .then((res) => {
+          setSessionTimeRemainingSeconds(res.session_time_remaining_seconds);
         })
         .catch((e) => {
           setError(e.message);
@@ -198,6 +208,9 @@ export default function TaskPage() {
     <div className={styles.container}>
       <div className={styles.content}>
         <TaskView task={task} onTaskUpdate={handleTaskUpdate} />
+        <SessionTimeRemainingIndicator
+          sessionTimeRemainingSeconds={sessionTimeRemainingSeconds}
+        />
         <CommentsSection taskId={task.id} />
       </div>
     </div>

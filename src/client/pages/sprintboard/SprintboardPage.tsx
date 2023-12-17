@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import ErrorBanner from "../../components/banners";
 import {
+  checkSession,
   getSprints,
   getStories,
   getStoryRelationships,
@@ -28,6 +29,7 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 import EntityCreationStation from "./entity_creation";
 import StoryCard from "./StoryCard";
 import { filterStory, filterTask } from "./render_filters";
+import { SessionTimeRemainingIndicator } from "../../components/session";
 
 const LOCAL_STORAGE_KEYS = {
   selectedSprintId: "viewing_sprint_id",
@@ -50,6 +52,8 @@ export default function SprintboardPage() {
   const [activeTagIds, setActiveTagIds] = useState<string[]>(
     JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEYS.activeTagIds) ?? "[]")
   );
+  const [sessionTimeRemainingSeconds, setSessionTimeRemainingSeconds] =
+    useState(0);
   // React does not know about window.location.hash,
   // so have to store this as state and pass it down to StoryCard
   const [hash, setHash] = useState(window.location.hash);
@@ -207,6 +211,13 @@ export default function SprintboardPage() {
         .catch((e) => {
           setError(e.message);
         });
+      await checkSession()
+        .then((res) => {
+          setSessionTimeRemainingSeconds(res.session_time_remaining_seconds);
+        })
+        .catch((e) => {
+          setError(e.message);
+        });
     })().then(() => {
       console.timeEnd("api_calls");
     });
@@ -308,9 +319,14 @@ export default function SprintboardPage() {
               ))}
           </select>
           {/* All + None anchors */}
-          <div style={{ display: "inline-block" }}>
+          <div
+            style={{
+              display: "inline-flex",
+              gap: "1rem",
+              margin: "0 1rem 0 1rem",
+            }}
+          >
             <a
-              style={{ marginLeft: "1rem" }}
               href="#"
               onClick={() => {
                 setActiveTagIds(tags.map((tag) => tag.id));
@@ -319,7 +335,6 @@ export default function SprintboardPage() {
               All
             </a>
             <a
-              style={{ marginLeft: "1rem" }}
               href="#"
               onClick={() => {
                 setActiveTagIds([]);
@@ -328,6 +343,9 @@ export default function SprintboardPage() {
               None
             </a>
           </div>
+          <SessionTimeRemainingIndicator
+            sessionTimeRemainingSeconds={sessionTimeRemainingSeconds}
+          />
         </div>
       </div>
       <div
