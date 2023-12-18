@@ -35,7 +35,14 @@ function TaskView({
 
   return (
     <>
-      <div style={{ display: "flex", gap: "2rem", alignItems: "center" }}>
+      <div
+        style={{
+          display: "flex",
+          gap: "2rem",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
         <a
           style={{
             border: "2px solid var(--color3)",
@@ -51,7 +58,7 @@ function TaskView({
           <div>
             <textarea
               style={{
-                fontSize: "1.8rem",
+                fontSize: "1.6rem",
                 resize: "none",
               }}
               value={title}

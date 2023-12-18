@@ -218,7 +218,10 @@ function StoryDropdown({
         },
       }}
     >
-      <MenuItem style={{ marginLeft: "9rem" }} value={NULL_STORY_IDENTIFIER}>
+      <MenuItem
+        style={{ marginLeft: "9rem", background: "grey" }}
+        value={NULL_STORY_IDENTIFIER}
+      >
         <strong>{NULL_STORY_IDENTIFIER}</strong>
       </MenuItem>
       {sprintsToRender.map((sprint) => {
@@ -227,7 +230,9 @@ function StoryDropdown({
         if (stories === undefined) return <></>;
 
         return [
-          <ListSubheader key={sprint.id}>{sprint.title}</ListSubheader>,
+          <ListSubheader key={sprint.id} style={{ fontSize: "1.5rem" }}>
+            {sprint.title}
+          </ListSubheader>,
           ...stories.map((story) => (
             <MenuItem
               key={story.id}

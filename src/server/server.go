@@ -109,6 +109,7 @@ func main() {
 			matchIDRedirMiddleware(fs),
 		),
 	)))
+	http.Handle("/repodata/", utils.LogReq(log)(http.FileServer(http.Dir("../.."))))
 
 	if allowDebugSessionAPIs {
 		http.Handle("/api/clear_sessions", clearSessionsHandle())
