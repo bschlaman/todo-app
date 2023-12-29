@@ -10,6 +10,11 @@ import CopyToClipboardButton from "../../components/copy_to_clipboard_button";
 import ReactMarkdownCustom from "../../components/markdown";
 import TaskMetadata from "./task_metadata";
 import { SessionTimeRemainingIndicator } from "../../components/session";
+import {
+  TimedApiResult,
+  makeTimedPageLoadApiCall,
+} from "../../ts/lib/api_utils";
+import { CheckSessionRes } from "../../ts/model/responses";
 
 function TaskView({
   task,
@@ -161,9 +166,10 @@ export default function TaskPage() {
   const taskIdFromPath = path.substring(path.lastIndexOf("/") + 1);
 
   const [task, setTask] = useState<Task | null>(null);
-  const [sessionTimeRemainingSeconds, setSessionTimeRemainingSeconds] =
-    useState(0);
-  const [error, setError] = useState(null);
+  const [checkSessionRes, setCheckSessionRes] = useState<CheckSessionRes>({
+    session_time_remaining_seconds: 0,
+  });
+  const [errors, setErrors] = useState<Error[]>([]);
 
   // render count for debugging
   const renderCount = useRef(0);
@@ -173,21 +179,37 @@ export default function TaskPage() {
   });
 
   useEffect(() => {
+    // use unique timers to avoid conflicts on repeated page mount
+    const timerId = `api_calls#${Date.now() % 1e3}`;
+    console.time(timerId);
+
     void (async () => {
-      await getTaskById(taskIdFromPath)
-        .then((task) => {
-          setTask(task);
-        })
-        .catch((e) => {
-          setError(e.message);
-        });
-      await checkSession()
-        .then((res) => {
-          setSessionTimeRemainingSeconds(res.session_time_remaining_seconds);
-        })
-        .catch((e) => {
-          setError(e.message);
-        });
+      await Promise.allSettled([
+        makeTimedPageLoadApiCall(
+          // wrapping the api call since I need to pass in a param
+          async () => await getTaskById(taskIdFromPath),
+          setErrors,
+          setTask,
+          "getTaskById"
+        ),
+        makeTimedPageLoadApiCall(
+          checkSession,
+          setErrors,
+          setCheckSessionRes,
+          "checkSession"
+        ),
+      ]).then((results) => {
+        console.table(
+          results
+            .map((res) => (res as PromiseFulfilledResult<TimedApiResult>).value)
+            .map(({ apiIdentifier, succeeded, duration }) => ({
+              apiIdentifier,
+              succeeded,
+              duration,
+            }))
+        );
+        console.timeEnd(timerId);
+      });
     })();
   }, [taskIdFromPath]);
 
@@ -207,7 +229,7 @@ export default function TaskPage() {
     setTask(updatedTask);
   }
 
-  if (error !== null) return <ErrorBanner message={error} />;
+  if (errors.length > 0) return <ErrorBanner errors={errors} />;
 
   if (task === null) return <Loading />;
 
@@ -216,7 +238,9 @@ export default function TaskPage() {
       <div className={styles.content}>
         <TaskView task={task} onTaskUpdate={handleTaskUpdate} />
         <SessionTimeRemainingIndicator
-          sessionTimeRemainingSeconds={sessionTimeRemainingSeconds}
+          sessionTimeRemainingSeconds={
+            checkSessionRes.session_time_remaining_seconds
+          }
         />
         <CommentsSection taskId={task.id} />
       </div>

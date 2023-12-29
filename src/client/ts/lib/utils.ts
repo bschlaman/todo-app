@@ -1,6 +1,6 @@
 import { Sprint, Task } from "../model/entities";
 
-// UTIL FUNCTIONS
+// UTIL FUNCTIONS (PURE)
 
 export function clearInputValues(...inputElements: Array<{ value: string }>) {
   inputElements.forEach((inputElement) => {

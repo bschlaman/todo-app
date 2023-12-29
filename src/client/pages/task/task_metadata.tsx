@@ -25,6 +25,10 @@ import {
   TASK_STATUS,
 } from "../../ts/model/entities";
 import { isActive } from "../../ts/model/status";
+import {
+  makeTimedPageLoadApiCall,
+  TimedApiResult,
+} from "../../ts/lib/api_utils";
 
 export default function TaskMetadata({
   task,
@@ -37,38 +41,46 @@ export default function TaskMetadata({
   const [sprints, setSprints] = useState<Sprint[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
   const [tagAssignments, setTagAssignments] = useState<TagAssignment[]>([]);
-  const [error, setError] = useState(null);
+  const [errors, setErrors] = useState<Error[]>([]);
 
   useEffect(() => {
+    // use unique timers to avoid conflicts on repeated page mount
+    const timerId = `api_calls#${Date.now() % 1e3}`;
+    console.time(timerId);
+
     void (async () => {
-      await getStories()
-        .then((stories) => {
-          setStories(stories);
-        })
-        .catch((e) => {
-          setError(e.message);
-        });
-      await getSprints()
-        .then((sprints) => {
-          setSprints(sprints);
-        })
-        .catch((e) => {
-          setError(e.message);
-        });
-      await getTags()
-        .then((tags) => {
-          setTags(tags);
-        })
-        .catch((e) => {
-          setError(e.message);
-        });
-      await getTagAssignments()
-        .then((tagAssignments) => {
-          setTagAssignments(tagAssignments);
-        })
-        .catch((e) => {
-          setError(e.message);
-        });
+      await Promise.allSettled([
+        makeTimedPageLoadApiCall(
+          getStories,
+          setErrors,
+          setStories,
+          "getStories"
+        ),
+        makeTimedPageLoadApiCall(
+          getSprints,
+          setErrors,
+          setSprints,
+          "getSprints"
+        ),
+        makeTimedPageLoadApiCall(getTags, setErrors, setTags, "getTags"),
+        makeTimedPageLoadApiCall(
+          getTagAssignments,
+          setErrors,
+          setTagAssignments,
+          "getTagAssignments"
+        ),
+      ]).then((results) => {
+        console.table(
+          results
+            .map((res) => (res as PromiseFulfilledResult<TimedApiResult>).value)
+            .map(({ apiIdentifier, succeeded, duration }) => ({
+              apiIdentifier,
+              succeeded,
+              duration,
+            }))
+        );
+        console.timeEnd(timerId);
+      });
     })();
   }, []);
 
@@ -122,7 +134,7 @@ export default function TaskMetadata({
     );
   }
 
-  if (error !== null) return <ErrorBanner message={error} />;
+  if (errors.length > 0) return <ErrorBanner errors={errors} />;
 
   const taskMetadataRowStyles: React.CSSProperties = {
     display: "flex",

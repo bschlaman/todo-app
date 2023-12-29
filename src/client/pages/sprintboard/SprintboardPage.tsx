@@ -30,6 +30,11 @@ import EntityCreationStation from "./entity_creation";
 import StoryCard from "./StoryCard";
 import { filterStory, filterTask } from "./render_filters";
 import { SessionTimeRemainingIndicator } from "../../components/session";
+import {
+  TimedApiResult,
+  makeTimedPageLoadApiCall,
+} from "../../ts/lib/api_utils";
+import { CheckSessionRes } from "../../ts/model/responses";
 
 const LOCAL_STORAGE_KEYS = {
   selectedSprintId: "viewing_sprint_id",
@@ -45,15 +50,16 @@ export default function SprintboardPage() {
   const [storyRelationships, setStoryRelationships] = useState<
     StoryRelationship[]
   >([]);
-  const [error, setError] = useState(null);
+  const [errors, setErrors] = useState<Error[]>([]);
   const [selectedSprintId, setSelectedSprintId] = useState(
     localStorage.getItem(LOCAL_STORAGE_KEYS.selectedSprintId)
   );
   const [activeTagIds, setActiveTagIds] = useState<string[]>(
     JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEYS.activeTagIds) ?? "[]")
   );
-  const [sessionTimeRemainingSeconds, setSessionTimeRemainingSeconds] =
-    useState(0);
+  const [checkSessionRes, setCheckSessionRes] = useState<CheckSessionRes>({
+    session_time_remaining_seconds: 0,
+  });
   // React does not know about window.location.hash,
   // so have to store this as state and pass it down to StoryCard
   const [hash, setHash] = useState(window.location.hash);
@@ -167,60 +173,57 @@ export default function SprintboardPage() {
   }, [tasksToRender]);
 
   useEffect(() => {
-    console.time("api_calls");
+    // use unique timers to avoid conflicts on repeated page mount
+    const timerId = `api_calls#${Date.now() % 1e3}`;
+    console.time(timerId);
+
     void (async () => {
-      await getTasks()
-        .then((tasks) => {
-          setTasks(tasks);
-        })
-        .catch((e) => {
-          setError(e.message);
-        });
-      await getStories()
-        .then((stories) => {
-          setStories(stories);
-        })
-        .catch((e) => {
-          setError(e.message);
-        });
-      await getSprints()
-        .then((sprints) => {
-          setSprints(sprints);
-        })
-        .catch((e) => {
-          setError(e.message);
-        });
-      await getTags()
-        .then((tags) => {
-          setTags(tags);
-        })
-        .catch((e) => {
-          setError(e.message);
-        });
-      await getTagAssignments()
-        .then((tagAssignments) => {
-          setTagAssignments(tagAssignments);
-        })
-        .catch((e) => {
-          setError(e.message);
-        });
-      await getStoryRelationships()
-        .then((storyRelationships) => {
-          setStoryRelationships(storyRelationships);
-        })
-        .catch((e) => {
-          setError(e.message);
-        });
-      await checkSession()
-        .then((res) => {
-          setSessionTimeRemainingSeconds(res.session_time_remaining_seconds);
-        })
-        .catch((e) => {
-          setError(e.message);
-        });
-    })().then(() => {
-      console.timeEnd("api_calls");
-    });
+      await Promise.allSettled([
+        makeTimedPageLoadApiCall(getTasks, setErrors, setTasks, "getTasks"),
+        makeTimedPageLoadApiCall(
+          getStories,
+          setErrors,
+          setStories,
+          "getStories"
+        ),
+        makeTimedPageLoadApiCall(
+          getSprints,
+          setErrors,
+          setSprints,
+          "getSprints"
+        ),
+        makeTimedPageLoadApiCall(getTags, setErrors, setTags, "getTags"),
+        makeTimedPageLoadApiCall(
+          getTagAssignments,
+          setErrors,
+          setTagAssignments,
+          "getTagAssignments"
+        ),
+        makeTimedPageLoadApiCall(
+          getStoryRelationships,
+          setErrors,
+          setStoryRelationships,
+          "getStoryRelationships"
+        ),
+        makeTimedPageLoadApiCall(
+          checkSession,
+          setErrors,
+          setCheckSessionRes,
+          "checkSession"
+        ),
+      ]).then((results) => {
+        console.table(
+          results
+            .map((res) => (res as PromiseFulfilledResult<TimedApiResult>).value)
+            .map(({ apiIdentifier, succeeded, duration }) => ({
+              apiIdentifier,
+              succeeded,
+              duration,
+            }))
+        );
+        console.timeEnd(timerId);
+      });
+    })();
   }, []);
 
   function renderTaskCardsForStatus(status: TASK_STATUS) {
@@ -253,7 +256,7 @@ export default function SprintboardPage() {
     );
   }
 
-  if (error !== null) return <ErrorBanner message={error} />;
+  if (errors.length > 0) return <ErrorBanner errors={errors} />;
 
   return (
     <>
@@ -344,7 +347,9 @@ export default function SprintboardPage() {
             </a>
           </div>
           <SessionTimeRemainingIndicator
-            sessionTimeRemainingSeconds={sessionTimeRemainingSeconds}
+            sessionTimeRemainingSeconds={
+              checkSessionRes.session_time_remaining_seconds
+            }
           />
         </div>
       </div>

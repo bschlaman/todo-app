@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function ErrorBanner({ message }: { message: string }) {
+export default function ErrorBanner({ errors }: { errors: Error[] }) {
   return (
     <div
       style={{
@@ -13,7 +13,11 @@ export default function ErrorBanner({ message }: { message: string }) {
         textAlign: "center",
       }}
     >
-      {message}
+      <ul>
+        {errors.map((e) => (
+          <li key={e.message}>{e.message}</li>
+        ))}
+      </ul>
     </div>
   );
 }

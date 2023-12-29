@@ -5,10 +5,11 @@ import { formatDate } from "../../ts/lib/utils";
 import { TaskComment } from "../../ts/model/entities";
 import "../../css/common.css";
 import ReactMarkdownCustom from "../../components/markdown";
+import { makeTimedPageLoadApiCall } from "../../ts/lib/api_utils";
 
 export default function CommentsSection({ taskId }: { taskId: string }) {
   const [comments, setComments] = useState<TaskComment[]>([]);
-  const [error, setError] = useState(null);
+  const [errors, setErrors] = useState<Error[]>([]);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   // render count for debugging
@@ -20,17 +21,17 @@ export default function CommentsSection({ taskId }: { taskId: string }) {
 
   useEffect(() => {
     void (async () => {
-      await getCommentsByTaskId(taskId)
-        .then((comments) => {
-          setComments(comments);
-        })
-        .catch((e) => {
-          setError(e.message);
-        });
+      await makeTimedPageLoadApiCall(
+        // wrapping the api call since I need to pass in a param
+        async () => await getCommentsByTaskId(taskId),
+        setErrors,
+        setComments,
+        "setComments"
+      );
     })();
   }, [taskId]);
 
-  if (error !== null) return <ErrorBanner message={error} />;
+  if (errors.length > 0) return <ErrorBanner errors={errors} />;
 
   function handleCreateComment() {
     void (async () => {
