@@ -75,13 +75,7 @@ func checkSessionHandle() http.Handler {
 		cookie, _ := r.Cookie("session")
 		s := sessions[cookie.Value]
 
-		timeRemaining := sessionDuration - time.Since(s.SessionCreatedAt)
-		// TODO (2023.09.30): remove the logging below; this is temporary to
-		// identify the session bug
-		log.Infof("sessionDuration: %s", sessionDuration)
-		log.Infof("session.SessionCreatedAt: %s", s.SessionCreatedAt.Format(time.ANSIC))
-		log.Infof("time.Since(session.SessionCreatedAt): %s", time.Since(s.SessionCreatedAt))
-		log.Infof("timeRemaining: %s", timeRemaining)
+		timeRemaining := s.SessionCreatedAt.Add(sessionDuration).Sub(time.Now())
 
 		js, err := json.Marshal(&struct {
 			TimeRemainingSeconds int `json:"session_time_remaining_seconds"`

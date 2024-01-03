@@ -81,7 +81,7 @@ func sessionMiddleware(h http.Handler) http.Handler {
 		}
 
 		// session expired
-		if time.Since(session.SessionCreatedAt) > sessionDuration {
+		if time.Now().After(session.SessionCreatedAt.Add(sessionDuration)) {
 			log.Info("invalid cookie: session expired")
 			if strings.HasPrefix(r.URL.Path, "/api") {
 				http.Error(w, "invalid cookie", http.StatusUnauthorized)

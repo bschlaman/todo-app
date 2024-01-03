@@ -20,17 +20,17 @@ import (
 
 // TODO: pull these from config table
 const (
-	serverName            string           = "TODO-APP-SERVER"
-	logPath               string           = "logs/output.log"
-	staticDir             string           = "dist"
-	sprintDuration        time.Duration    = 24 * 14 * time.Hour
-	sessionDuration       time.Duration    = 2 * time.Hour
-	allowDebugSessionAPIs bool             = true
-	metricNamespace       string           = "todo-app/api"
-	createEntityIDKey     CustomContextKey = "createReqIDKey"
-	getRequestBytesKey    CustomContextKey = "getReqKey"
-	cacheTTLSeconds       int              = 2
-	rootServerPath        string           = "/sprintboard"
+	serverName             string           = "TODO-APP-SERVER"
+	logPath                string           = "logs/output.log"
+	staticDir              string           = "dist"
+	sprintDuration         time.Duration    = 24 * 14 * time.Hour
+	sessionDuration        time.Duration    = 2 * time.Hour
+	enableDebugSessionAPIs bool             = false
+	metricNamespace        string           = "todo-app/api"
+	createEntityIDKey      CustomContextKey = "createReqIDKey"
+	getRequestBytesKey     CustomContextKey = "getReqKey"
+	cacheTTLSeconds        int              = 2
+	rootServerPath         string           = "/sprintboard"
 )
 
 // CustomContextKey is a type that represents
@@ -111,7 +111,7 @@ func main() {
 	)))
 	http.Handle("/repodata/", utils.LogReq(log)(http.FileServer(http.Dir("../.."))))
 
-	if allowDebugSessionAPIs {
+	if enableDebugSessionAPIs {
 		http.Handle("/api/clear_sessions", clearSessionsHandle())
 		http.Handle("/api/get_sessions", getSessionsHandle())
 	}
