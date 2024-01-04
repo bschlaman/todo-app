@@ -105,39 +105,32 @@ export default function StoryCard({
       if (storyRelationship.story_id_a === story.id)
         continuedBy = storiesById.get(storyRelationship.story_id_b);
     }
+
+    // Probably unecessary to do it this way instead of
+    // just creating the table explicitly,
+    // but hey, premature optimization is my middle name
+    const storyRelTableRows: Array<[Story | undefined, string]> = [
+      [continues, "⏪"],
+      [continuedBy, "⏩"],
+    ];
+
     return (
       <table style={{ fontSize: metadataFontSize }}>
         <tbody>
-          {continues != null && (
-            <tr>
-              <td>Continues in sprint</td>
-              <td>
-                <strong>
-                  {sprintsById.get(continues.sprint_id ?? "")?.title}
-                </strong>
-              </td>
-              <td>
-                <em>
-                  <strong>{continues?.title}</strong>
-                </em>
-              </td>
-            </tr>
-          )}
-          {continuedBy != null && (
-            <tr>
-              <td>Continued in sprint</td>
-              <td>
-                <strong>
-                  {sprintsById.get(continuedBy.sprint_id ?? "")?.title}
-                </strong>
-              </td>
-              <td>
-                <em>
-                  <strong>{continuedBy?.title}</strong>
-                </em>
-              </td>
-            </tr>
-          )}
+          {storyRelTableRows
+            .filter(([relStory, _]) => relStory !== undefined)
+            .map(([relStory, emoji]) => (
+              <tr key={relStory?.id}>
+                <td style={{ whiteSpace: "nowrap", fontWeight: "lighter" }}>
+                  {emoji} {sprintsById.get(relStory?.sprint_id ?? "")?.title}
+                </td>
+                <td style={{ paddingLeft: "0.8rem" }}>
+                  <em>
+                    <strong>{relStory?.title}</strong>
+                  </em>
+                </td>
+              </tr>
+            ))}
         </tbody>
       </table>
     );
