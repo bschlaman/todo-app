@@ -2,12 +2,19 @@ import React, { useState, useRef, useEffect } from "react";
 import ErrorBanner from "../../components/banners";
 import { getCommentsByTaskId, createComment } from "../../ts/lib/api";
 import { formatDate } from "../../ts/lib/utils";
-import { TaskComment } from "../../ts/model/entities";
+import { Config, TaskComment } from "../../ts/model/entities";
 import "../../css/common.css";
 import ReactMarkdownCustom from "../../components/markdown";
 import { makeTimedPageLoadApiCall } from "../../ts/lib/api_utils";
 
-export default function CommentsSection({ taskId }: { taskId: string }) {
+export default function CommentsSection({
+  taskId,
+  config,
+}: {
+  taskId: string;
+  // Config | null because we want this to be best-effort
+  config: Config | null;
+}) {
   const [comments, setComments] = useState<TaskComment[]>([]);
   const [errors, setErrors] = useState<Error[]>([]);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -67,6 +74,7 @@ export default function CommentsSection({ taskId }: { taskId: string }) {
           }}
           ref={inputRef}
           placeholder="Type new comment (ctrl+&#9166; to save)"
+          maxLength={config?.comment_max_len}
           autoFocus
         />
         <button

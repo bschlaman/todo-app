@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useMemo, useState } from "react";
 import CopyToClipboardButton from "../../components/copy_to_clipboard_button";
 import {
   Sprint,
@@ -9,31 +9,16 @@ import {
   STORY_RELATIONSHIP,
   Task,
   STORY_STATUS,
-  TASK_STATUS,
+  Config,
 } from "../../ts/model/entities";
 import { TagOption } from "./tag_selectors";
 import { sprintToString } from "../../ts/lib/utils";
 import {
-  createStory,
-  createStoryRelationship,
   createTagAssignment,
   destroyTagAssignment,
   updateStoryById,
-  updateTaskById,
 } from "../../ts/lib/api";
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  FormControl,
-  InputLabel,
-  LinearProgress,
-  MenuItem,
-  Select,
-  TextField,
-  Typography,
-} from "@mui/material";
-import { renderDialogActions } from "./entity_creation";
+import { CopyToNewStory } from "./entity_creation";
 import ReactMarkdownCustom from "../../components/markdown";
 
 export default function StoryCard({
@@ -49,6 +34,7 @@ export default function StoryCard({
   setStories,
   setTagAssignments,
   setStoryRelationships,
+  config,
 }: {
   story: Story;
   storiesById: Map<string, Story>;
@@ -64,6 +50,7 @@ export default function StoryCard({
   setStoryRelationships: React.Dispatch<
     React.SetStateAction<StoryRelationship[]>
   >;
+  config: Config | null;
 }) {
   const metadataFontSize = "0.8rem";
   const [selectedSprintId, setSelectedSprintId] = useState(story.sprint_id);
@@ -196,6 +183,7 @@ export default function StoryCard({
             }}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
+            maxLength={config?.story_title_max_len}
           />
           <button
             onClick={() => {
@@ -235,6 +223,7 @@ export default function StoryCard({
             style={{ fontSize: "1rem" }}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
+            maxLength={config?.story_desc_max_len}
           />
           <button
             onClick={() => {
@@ -323,258 +312,9 @@ export default function StoryCard({
         setStories={setStories}
         setTagAssignments={setTagAssignments}
         setStoryRelationships={setStoryRelationships}
+        config={config}
       />
       {renderArchiveButton()}
     </div>
-  );
-}
-
-interface EntityUpdateEvent {
-  entityId: string;
-  entityType: string;
-  entityTitle: string;
-}
-
-// TODO (2023.06.11): should this be in entity_creation?
-function CopyToNewStory({
-  continuedStory,
-  sprints,
-  tasksByStoryId,
-  tagsById,
-  tagAssignments,
-  setTasks,
-  setStories,
-  setTagAssignments,
-  setStoryRelationships,
-}: {
-  continuedStory: Story;
-  sprints: Sprint[];
-  tasksByStoryId: Map<string, Task[]>;
-  tagsById: Map<string, Tag>;
-  tagAssignments: TagAssignment[];
-  setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
-  setStories: React.Dispatch<React.SetStateAction<Story[]>>;
-  setTagAssignments: React.Dispatch<React.SetStateAction<TagAssignment[]>>;
-  setStoryRelationships: React.Dispatch<
-    React.SetStateAction<StoryRelationship[]>
-  >;
-}) {
-  const [open, setOpen] = useState(false);
-  const titleRef = useRef<HTMLInputElement>(null);
-  const descriptionRef = useRef<HTMLTextAreaElement>(null);
-  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
-  const sprintIdRef = useRef<HTMLInputElement>(null);
-  const [taskMoveProgress, setTaskMoveProgress] = useState(0);
-  const [entityCreateEventLog, setEntityCreateEventLog] = useState<
-    EntityUpdateEvent[]
-  >([]);
-
-  useEffect(() => {
-    if (open) titleRef.current?.focus();
-  }, [open]);
-
-  useEffect(
-    () =>
-      setSelectedTagIds(
-        tagAssignments
-          .filter((ta) => ta.story_id === continuedStory.id)
-          .map((ta) => ta.tag_id)
-      ),
-    [tagAssignments, continuedStory]
-  );
-
-  function handleClose() {
-    setOpen(false);
-  }
-
-  function renderEntityUpdateEvent(eue: EntityUpdateEvent) {
-    return (
-      <p>
-        Created / moved {eue.entityType} <strong>{eue.entityTitle}</strong>
-      </p>
-    );
-  }
-
-  function appendEntityCreationEventLog(
-    entityId: string,
-    entityType: string,
-    entityTitle: string
-  ) {
-    setEntityCreateEventLog((eue) => [
-      ...eue,
-      { entityId, entityType, entityTitle },
-    ]);
-  }
-
-  function handleSave() {
-    void (async () => {
-      if (titleRef.current === null) return;
-      if (descriptionRef.current === null) return;
-      if (sprintIdRef.current === null) return;
-      // Step 1: create the new story
-      const story = await createStory(
-        titleRef.current.value,
-        descriptionRef.current.value,
-        sprintIdRef.current.value
-      );
-      setStories((stories) => [...stories, story]);
-      appendEntityCreationEventLog(story.id, "story", story.title);
-      // Step 2: create the new tag assignments
-      for (const tagId of selectedTagIds) {
-        const tagAssignment = await createTagAssignment(tagId, story.id);
-        setTagAssignments((tagAssignments) => [
-          ...tagAssignments,
-          tagAssignment,
-        ]);
-        appendEntityCreationEventLog(
-          tagAssignment.id.toString(),
-          "tag assignment",
-          tagsById.get(tagAssignment.tag_id)?.title ?? ""
-        );
-        console.log("Created tag assignment", tagAssignment);
-      }
-      // Step 3: create the story relationship
-      const storyRelationship = await createStoryRelationship(
-        continuedStory.id,
-        story.id,
-        STORY_RELATIONSHIP.ContinuedBy
-      );
-      setStoryRelationships((storyRelationships) => [
-        ...storyRelationships,
-        storyRelationship,
-      ]);
-      appendEntityCreationEventLog(
-        storyRelationship.id.toString(),
-        "story relationship",
-        STORY_RELATIONSHIP.ContinuedBy
-      );
-      console.log("Created story relationship", storyRelationship);
-      // Step 4: move the unfinished tasks to the new story
-      const tasksToUpdate = (
-        tasksByStoryId.get(continuedStory.id) ?? []
-      ).filter(
-        (task) =>
-          task.status === TASK_STATUS.BACKLOG ||
-          task.status === TASK_STATUS.DOING
-      );
-      for (const task of tasksToUpdate) {
-        // TODO (2023.06.26): update API to return the updated task
-        await updateTaskById(
-          task.id,
-          task.status,
-          task.title,
-          task.description,
-          story.id
-        );
-        setTasks((tasks) =>
-          tasks.map((_task) =>
-            _task.id === task.id ? { ..._task, story_id: story.id } : _task
-          )
-        );
-        setTaskMoveProgress((prog) => {
-          const prevNum = (prog * tasksToUpdate.length) / 100;
-          return ((1 + prevNum) / tasksToUpdate.length) * 100;
-        });
-        appendEntityCreationEventLog(task.id, "task", task.title);
-        console.log("Moved task", task.title);
-      }
-    })();
-  }
-
-  return (
-    <>
-      <button
-        onClick={() => {
-          setOpen(true);
-        }}
-      >
-        Copy to new story
-      </button>
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="form-dialog-title"
-      >
-        <DialogTitle id="form-dialog-title">Create Story</DialogTitle>
-        <DialogContent>
-          <TextField
-            inputRef={titleRef}
-            label="Title"
-            autoFocus
-            fullWidth
-            margin="dense"
-            defaultValue={continuedStory.title}
-          />
-          <TextField
-            inputRef={descriptionRef}
-            label="Description"
-            multiline
-            minRows={3}
-            fullWidth
-            margin="dense"
-            defaultValue={continuedStory.description}
-          />
-          <FormControl fullWidth margin="dense">
-            <InputLabel id="sprint-label">Parent Sprint</InputLabel>
-            <Select
-              inputRef={sprintIdRef}
-              labelId="sprint-label"
-              label="Parent Sprint"
-              // default to latest sprint
-              defaultValue={
-                // sprints may not be set yet depending
-                // on the order of rendering and data fetch
-                sprints.length > 0 &&
-                sprints.reduce((prev, curr) =>
-                  new Date(prev.start_date).getTime() >
-                  new Date(curr.start_date).getTime()
-                    ? prev
-                    : curr
-                ).id
-              }
-              margin="dense"
-            >
-              {sprints.length > 0 &&
-                sprints
-                  .sort(
-                    (s0, s1) =>
-                      new Date(s1.start_date).getTime() -
-                      new Date(s0.start_date).getTime()
-                  )
-                  .slice(0, 5)
-                  .map((sprint) => (
-                    <MenuItem key={sprint.id} value={sprint.id}>
-                      {sprintToString(sprint)}
-                    </MenuItem>
-                  ))}
-            </Select>
-          </FormControl>
-          {[...tagsById.values()].map((tag) => (
-            <TagOption
-              key={tag.id}
-              tag={tag}
-              checked={selectedTagIds.includes(tag.id)}
-              onTagToggle={(tagId: string, checked: boolean) => {
-                setSelectedTagIds((prev) => {
-                  if (checked) return [...prev, tagId];
-                  return prev.filter((id) => id !== tagId);
-                });
-              }}
-            ></TagOption>
-          ))}
-          <Typography>
-            This story will be a continuation of:{" "}
-            <strong>{continuedStory.title}</strong>
-          </Typography>
-          <LinearProgress variant="determinate" value={taskMoveProgress} />
-          <ul>
-            {entityCreateEventLog.map((eue) => (
-              <li key={eue.entityId}>{renderEntityUpdateEvent(eue)}</li>
-            ))}
-          </ul>
-        </DialogContent>
-        {renderDialogActions(handleClose, handleSave)}
-      </Dialog>
-    </>
   );
 }

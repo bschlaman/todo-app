@@ -1,7 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import ErrorBanner from "../../components/banners";
-import { Task } from "../../ts/model/entities";
-import { checkSession, getTaskById, updateTaskById } from "../../ts/lib/api";
+import { Config, Task } from "../../ts/model/entities";
+import {
+  checkSession,
+  getConfig,
+  getTaskById,
+  updateTaskById,
+} from "../../ts/lib/api";
 import Loading from "../../components/loading";
 import styles from "./TaskPage.module.css";
 import CommentsSection from "./CommentsSection";
@@ -18,9 +23,11 @@ import { CheckSessionRes } from "../../ts/model/responses";
 
 function TaskView({
   task,
+  config,
   onTaskUpdate,
 }: {
   task: Task;
+  config: Config | null;
   onTaskUpdate: (updatedTask: Task) => Promise<void>;
 }) {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -68,6 +75,7 @@ function TaskView({
               }}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
+              maxLength={config?.task_title_max_len}
             />
             <button
               onClick={() => {
@@ -118,6 +126,7 @@ function TaskView({
                   void onTaskUpdate({ ...task, description });
                 }
               }}
+              maxLength={config?.task_desc_max_len}
             />
             <button
               style={{
@@ -166,6 +175,7 @@ export default function TaskPage() {
   const taskIdFromPath = path.substring(path.lastIndexOf("/") + 1);
 
   const [task, setTask] = useState<Task | null>(null);
+  const [config, setConfig] = useState<Config | null>(null);
   const [checkSessionRes, setCheckSessionRes] = useState<CheckSessionRes>({
     session_time_remaining_seconds: 0,
   });
@@ -192,12 +202,14 @@ export default function TaskPage() {
           setTask,
           "getTaskById"
         ),
+        makeTimedPageLoadApiCall(getConfig, setErrors, setConfig, "getConfig"),
         makeTimedPageLoadApiCall(
           checkSession,
           setErrors,
           setCheckSessionRes,
           "checkSession"
         ),
+        makeTimedPageLoadApiCall(getConfig, setErrors, setConfig, "getConfig"),
       ]).then((results) => {
         console.table(
           results
@@ -236,13 +248,13 @@ export default function TaskPage() {
   return (
     <div className={styles.container}>
       <div className={styles.content}>
-        <TaskView task={task} onTaskUpdate={handleTaskUpdate} />
+        <TaskView task={task} config={config} onTaskUpdate={handleTaskUpdate} />
         <SessionTimeRemainingIndicator
           sessionTimeRemainingSeconds={
             checkSessionRes.session_time_remaining_seconds
           }
         />
-        <CommentsSection taskId={task.id} />
+        <CommentsSection taskId={task.id} config={config} />
       </div>
     </div>
   );

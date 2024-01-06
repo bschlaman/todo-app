@@ -11,6 +11,7 @@ import {
   InputLabel,
   Typography,
   Chip,
+  LinearProgress,
 } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
 import {
@@ -19,17 +20,23 @@ import {
   createSprint,
   createTagAssignment,
   createTag,
+  createStoryRelationship,
+  updateTaskById,
 } from "../../ts/lib/api";
 import {
+  Config,
+  STORY_RELATIONSHIP,
   Sprint,
   Story,
+  StoryRelationship,
+  TASK_STATUS,
   Tag,
   TagAssignment,
   Task,
 } from "../../ts/model/entities";
 import { NULL_STORY_IDENTIFIER } from "../../ts/lib/common";
 import { TagOption } from "./tag_selectors";
-import { sprintToString } from "../../ts/lib/utils";
+import { formatSeconds, sprintToString } from "../../ts/lib/utils";
 import { DatePicker } from "@mui/x-date-pickers";
 import { StorySelect } from "../../components/story_select";
 import DownloadCSVButton from "../../components/download_csv";
@@ -73,11 +80,13 @@ export function CreateTask({
   stories,
   tagsById,
   assocTagIdsByStoryId,
+  config,
   setTasks,
 }: {
   stories: Story[] | undefined;
   tagsById: Map<string, Tag>;
   assocTagIdsByStoryId: Map<string, string[]>;
+  config: Config | null;
   setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
 }) {
   const [open, setOpen] = useState(false);
@@ -128,6 +137,7 @@ export function CreateTask({
             autoFocus
             fullWidth
             margin="dense"
+            inputProps={{ maxLength: config?.task_title_max_len }}
           />
           <TextField
             inputRef={descriptionRef}
@@ -137,6 +147,7 @@ export function CreateTask({
             minRows={3}
             fullWidth
             margin="dense"
+            inputProps={{ maxLength: config?.task_desc_max_len }}
           />
           <FormControl fullWidth margin="dense">
             <InputLabel id="parent-story-label">Parent Story</InputLabel>
@@ -160,12 +171,14 @@ export function CreateStory({
   tagsById,
   sprints,
   selectedSprintId,
+  config,
   setStories,
   setTagAssignments,
 }: {
   tagsById: Map<string, Tag>;
   sprints: Sprint[] | undefined;
   selectedSprintId: string | null;
+  config: Config | null;
   setStories: React.Dispatch<React.SetStateAction<Story[]>>;
   setTagAssignments: React.Dispatch<React.SetStateAction<TagAssignment[]>>;
 }) {
@@ -226,6 +239,7 @@ export function CreateStory({
             autoFocus
             fullWidth
             margin="dense"
+            inputProps={{ maxLength: config?.story_title_max_len }}
           />
           <TextField
             inputRef={descriptionRef}
@@ -235,6 +249,7 @@ export function CreateStory({
             minRows={3}
             fullWidth
             margin="dense"
+            inputProps={{ maxLength: config?.story_desc_max_len }}
           />
           <FormControl fullWidth margin="dense">
             <InputLabel id="sprint-label">Parent Sprint</InputLabel>
@@ -280,8 +295,10 @@ export function CreateStory({
 }
 
 export function CreateSprint({
+  config,
   setSprints,
 }: {
+  config: Config | null;
   setSprints: React.Dispatch<React.SetStateAction<Sprint[]>>;
 }) {
   const [open, setOpen] = useState(false);
@@ -302,6 +319,23 @@ export function CreateSprint({
       if (titleRef.current === null) return;
       if (startDateRef.current === null) return;
       if (endDateRef.current === null) return;
+
+      // sanity check sprint duration.
+      // this may be removed in the very near future;
+      // I don't think I want to enforce this.
+      // Probably better to check that it's within a range to protect
+      // against clearly incorrect sprint durations.
+      if (
+        Math.floor(new Date(endDateRef.current.value).getTime() / 1000) -
+          Math.floor(new Date(startDateRef.current.value).getTime() / 1000) !==
+        config?.sprint_duration_seconds
+      )
+        throw Error(
+          `Sprint duration must be ${formatSeconds(
+            config?.sprint_duration_seconds ?? -1
+          )}`
+        );
+
       const sprint = await createSprint(
         titleRef.current.value,
         new Date(startDateRef.current.value),
@@ -332,6 +366,7 @@ export function CreateSprint({
             autoFocus
             fullWidth
             margin="dense"
+            inputProps={{ maxLength: config?.sprint_title_max_len }}
           />
           <DatePicker
             inputRef={startDateRef}
@@ -351,8 +386,10 @@ export function CreateSprint({
 }
 
 export function CreateTag({
+  config,
   setTags,
 }: {
+  config: Config | null;
   setTags: React.Dispatch<React.SetStateAction<Tag[]>>;
 }) {
   const [open, setOpen] = useState(false);
@@ -400,6 +437,7 @@ export function CreateTag({
             autoFocus
             fullWidth
             margin="dense"
+            inputProps={{ maxLength: config?.tag_title_max_len }}
           />
           <TextField
             inputRef={descriptionRef}
@@ -409,6 +447,7 @@ export function CreateTag({
             minRows={3}
             fullWidth
             margin="dense"
+            inputProps={{ maxLength: config?.tag_desc_max_len }}
           />
         </DialogContent>
         {renderDialogActions(handleClose, handleSave)}
@@ -423,6 +462,7 @@ export function CreateBulkTask({
   tagsById,
   assocTagIdsByStoryId,
   sprintsById,
+  config,
   setTasks,
 }: {
   stories: Story[] | undefined;
@@ -430,6 +470,7 @@ export function CreateBulkTask({
   tagsById: Map<string, Tag>;
   assocTagIdsByStoryId: Map<string, string[]>;
   sprintsById: Map<string, Sprint>;
+  config: Config | null;
   setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
 }) {
   const [open, setOpen] = useState(false);
@@ -513,6 +554,7 @@ export function CreateBulkTask({
             autoFocus
             fullWidth
             margin="dense"
+            inputProps={{ maxLength: config?.task_title_max_len }}
           />
           <Typography variant="caption" margin="dense">
             Preview:
@@ -526,6 +568,7 @@ export function CreateBulkTask({
             minRows={3}
             fullWidth
             margin="dense"
+            inputProps={{ maxLength: config?.task_desc_max_len }}
           />
           <FormControl fullWidth margin="dense">
             <InputLabel id="parent-story-label">Parent Story</InputLabel>
@@ -710,6 +753,261 @@ export function BatchUploadTask({
   );
 }
 
+// used in StoryCard
+interface EntityUpdateEvent {
+  entityId: string;
+  entityType: string;
+  entityTitle: string;
+}
+
+// used in StoryCard
+export function CopyToNewStory({
+  continuedStory,
+  sprints,
+  tasksByStoryId,
+  tagsById,
+  tagAssignments,
+  setTasks,
+  setStories,
+  setTagAssignments,
+  setStoryRelationships,
+  config,
+}: {
+  continuedStory: Story;
+  sprints: Sprint[];
+  tasksByStoryId: Map<string, Task[]>;
+  tagsById: Map<string, Tag>;
+  tagAssignments: TagAssignment[];
+  setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
+  setStories: React.Dispatch<React.SetStateAction<Story[]>>;
+  setTagAssignments: React.Dispatch<React.SetStateAction<TagAssignment[]>>;
+  setStoryRelationships: React.Dispatch<
+    React.SetStateAction<StoryRelationship[]>
+  >;
+  config: Config | null;
+}) {
+  const [open, setOpen] = useState(false);
+  const titleRef = useRef<HTMLInputElement>(null);
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
+  const sprintIdRef = useRef<HTMLInputElement>(null);
+  const [taskMoveProgress, setTaskMoveProgress] = useState(0);
+  const [entityCreateEventLog, setEntityCreateEventLog] = useState<
+    EntityUpdateEvent[]
+  >([]);
+
+  useEffect(() => {
+    if (open) titleRef.current?.focus();
+  }, [open]);
+
+  useEffect(
+    () =>
+      setSelectedTagIds(
+        tagAssignments
+          .filter((ta) => ta.story_id === continuedStory.id)
+          .map((ta) => ta.tag_id)
+      ),
+    [tagAssignments, continuedStory]
+  );
+
+  function handleClose() {
+    setOpen(false);
+  }
+
+  function renderEntityUpdateEvent(eue: EntityUpdateEvent) {
+    return (
+      <p>
+        Created / moved {eue.entityType} <strong>{eue.entityTitle}</strong>
+      </p>
+    );
+  }
+
+  function appendEntityCreationEventLog(
+    entityId: string,
+    entityType: string,
+    entityTitle: string
+  ) {
+    setEntityCreateEventLog((eue) => [
+      ...eue,
+      { entityId, entityType, entityTitle },
+    ]);
+  }
+
+  function handleSave() {
+    void (async () => {
+      if (titleRef.current === null) return;
+      if (descriptionRef.current === null) return;
+      if (sprintIdRef.current === null) return;
+      // Step 1: create the new story
+      const story = await createStory(
+        titleRef.current.value,
+        descriptionRef.current.value,
+        sprintIdRef.current.value
+      );
+      setStories((stories) => [...stories, story]);
+      appendEntityCreationEventLog(story.id, "story", story.title);
+      // Step 2: create the new tag assignments
+      for (const tagId of selectedTagIds) {
+        const tagAssignment = await createTagAssignment(tagId, story.id);
+        setTagAssignments((tagAssignments) => [
+          ...tagAssignments,
+          tagAssignment,
+        ]);
+        appendEntityCreationEventLog(
+          tagAssignment.id.toString(),
+          "tag assignment",
+          tagsById.get(tagAssignment.tag_id)?.title ?? ""
+        );
+        console.log("Created tag assignment", tagAssignment);
+      }
+      // Step 3: create the story relationship
+      const storyRelationship = await createStoryRelationship(
+        continuedStory.id,
+        story.id,
+        STORY_RELATIONSHIP.ContinuedBy
+      );
+      setStoryRelationships((storyRelationships) => [
+        ...storyRelationships,
+        storyRelationship,
+      ]);
+      appendEntityCreationEventLog(
+        storyRelationship.id.toString(),
+        "story relationship",
+        STORY_RELATIONSHIP.ContinuedBy
+      );
+      console.log("Created story relationship", storyRelationship);
+      // Step 4: move the unfinished tasks to the new story
+      const tasksToUpdate = (
+        tasksByStoryId.get(continuedStory.id) ?? []
+      ).filter(
+        (task) =>
+          task.status === TASK_STATUS.BACKLOG ||
+          task.status === TASK_STATUS.DOING
+      );
+      for (const task of tasksToUpdate) {
+        // TODO (2023.06.26): update API to return the updated task
+        await updateTaskById(
+          task.id,
+          task.status,
+          task.title,
+          task.description,
+          story.id
+        );
+        setTasks((tasks) =>
+          tasks.map((_task) =>
+            _task.id === task.id ? { ..._task, story_id: story.id } : _task
+          )
+        );
+        setTaskMoveProgress((prog) => {
+          const prevNum = (prog * tasksToUpdate.length) / 100;
+          return ((1 + prevNum) / tasksToUpdate.length) * 100;
+        });
+        appendEntityCreationEventLog(task.id, "task", task.title);
+        console.log("Moved task", task.title);
+      }
+    })();
+  }
+
+  return (
+    <>
+      <button
+        onClick={() => {
+          setOpen(true);
+        }}
+      >
+        Copy to new story
+      </button>
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="form-dialog-title"
+      >
+        <DialogTitle id="form-dialog-title">Create Story</DialogTitle>
+        <DialogContent>
+          <TextField
+            inputRef={titleRef}
+            label="Title"
+            autoFocus
+            fullWidth
+            margin="dense"
+            defaultValue={continuedStory.title}
+            inputProps={{ maxLength: config?.story_title_max_len }}
+          />
+          <TextField
+            inputRef={descriptionRef}
+            label="Description"
+            multiline
+            minRows={3}
+            fullWidth
+            margin="dense"
+            defaultValue={continuedStory.description}
+            inputProps={{ maxLength: config?.story_desc_max_len }}
+          />
+          <FormControl fullWidth margin="dense">
+            <InputLabel id="sprint-label">Parent Sprint</InputLabel>
+            <Select
+              inputRef={sprintIdRef}
+              labelId="sprint-label"
+              label="Parent Sprint"
+              // default to latest sprint
+              defaultValue={
+                // sprints may not be set yet depending
+                // on the order of rendering and data fetch
+                sprints.length > 0 &&
+                sprints.reduce((prev, curr) =>
+                  new Date(prev.start_date).getTime() >
+                  new Date(curr.start_date).getTime()
+                    ? prev
+                    : curr
+                ).id
+              }
+              margin="dense"
+            >
+              {sprints.length > 0 &&
+                sprints
+                  .sort(
+                    (s0, s1) =>
+                      new Date(s1.start_date).getTime() -
+                      new Date(s0.start_date).getTime()
+                  )
+                  .slice(0, 5)
+                  .map((sprint) => (
+                    <MenuItem key={sprint.id} value={sprint.id}>
+                      {sprintToString(sprint)}
+                    </MenuItem>
+                  ))}
+            </Select>
+          </FormControl>
+          {[...tagsById.values()].map((tag) => (
+            <TagOption
+              key={tag.id}
+              tag={tag}
+              checked={selectedTagIds.includes(tag.id)}
+              onTagToggle={(tagId: string, checked: boolean) => {
+                setSelectedTagIds((prev) => {
+                  if (checked) return [...prev, tagId];
+                  return prev.filter((id) => id !== tagId);
+                });
+              }}
+            ></TagOption>
+          ))}
+          <Typography>
+            This story will be a continuation of:{" "}
+            <strong>{continuedStory.title}</strong>
+          </Typography>
+          <LinearProgress variant="determinate" value={taskMoveProgress} />
+          <ul>
+            {entityCreateEventLog.map((eue) => (
+              <li key={eue.entityId}>{renderEntityUpdateEvent(eue)}</li>
+            ))}
+          </ul>
+        </DialogContent>
+        {renderDialogActions(handleClose, handleSave)}
+      </Dialog>
+    </>
+  );
+}
+
 interface EntityCreationStationProps {
   stories: Story[] | undefined;
   sprints: Sprint[] | undefined;
@@ -717,6 +1015,7 @@ interface EntityCreationStationProps {
   selectedSprintId: string | null;
   sprintsById: Map<string, Sprint>;
   assocTagIdsByStoryId: Map<string, string[]>;
+  config: Config | null;
   setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
   setStories: React.Dispatch<React.SetStateAction<Story[]>>;
   setSprints: React.Dispatch<React.SetStateAction<Sprint[]>>;
@@ -731,6 +1030,7 @@ export default function EntityCreationStation({
   selectedSprintId,
   sprintsById,
   assocTagIdsByStoryId,
+  config,
   setTasks,
   setStories,
   setSprints,
@@ -743,23 +1043,26 @@ export default function EntityCreationStation({
         stories={stories}
         tagsById={tagsById}
         assocTagIdsByStoryId={assocTagIdsByStoryId}
+        config={config}
         setTasks={setTasks}
       />
       <CreateStory
         tagsById={tagsById}
         sprints={sprints}
         selectedSprintId={selectedSprintId}
+        config={config}
         setStories={setStories}
         setTagAssignments={setTagAssignments}
       />
-      <CreateSprint setSprints={setSprints} />
-      <CreateTag setTags={setTags} />
+      <CreateSprint config={config} setSprints={setSprints} />
+      <CreateTag config={config} setTags={setTags} />
       <CreateBulkTask
         selectedSprintId={selectedSprintId}
         sprintsById={sprintsById}
         tagsById={tagsById}
         assocTagIdsByStoryId={assocTagIdsByStoryId}
         stories={stories}
+        config={config}
         setTasks={setTasks}
       />
       <BatchUploadTask setTasks={setTasks} />

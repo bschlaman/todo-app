@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import ErrorBanner from "../../components/banners";
 import {
   checkSession,
+  getConfig,
   getSprints,
   getStories,
   getStoryRelationships,
@@ -11,6 +12,7 @@ import {
   updateTaskById,
 } from "../../ts/lib/api";
 import {
+  Config,
   Sprint,
   Story,
   StoryRelationship,
@@ -50,6 +52,7 @@ export default function SprintboardPage() {
   const [storyRelationships, setStoryRelationships] = useState<
     StoryRelationship[]
   >([]);
+  const [config, setConfig] = useState<Config | null>(null);
   const [errors, setErrors] = useState<Error[]>([]);
   const [selectedSprintId, setSelectedSprintId] = useState(
     localStorage.getItem(LOCAL_STORAGE_KEYS.selectedSprintId)
@@ -205,6 +208,7 @@ export default function SprintboardPage() {
           setStoryRelationships,
           "getStoryRelationships"
         ),
+        makeTimedPageLoadApiCall(getConfig, setErrors, setConfig, "getConfig"),
         makeTimedPageLoadApiCall(
           checkSession,
           setErrors,
@@ -277,6 +281,7 @@ export default function SprintboardPage() {
           selectedSprintId={selectedSprintId}
           sprintsById={sprintsById}
           assocTagIdsByStoryId={assocTagIdsByStoryId}
+          config={config}
           setTasks={setTasks}
           setStories={setStories}
           setSprints={setSprints}
@@ -396,6 +401,7 @@ export default function SprintboardPage() {
               setStories={setStories}
               setTagAssignments={setTagAssignments}
               setStoryRelationships={setStoryRelationships}
+              config={config}
             />
           ))}
       </div>
