@@ -325,15 +325,19 @@ export function CreateSprint({
       // I don't think I want to enforce this.
       // Probably better to check that it's within a range to protect
       // against clearly incorrect sprint durations.
-      if (
-        Math.floor(new Date(endDateRef.current.value).getTime() / 1000) -
-          Math.floor(new Date(startDateRef.current.value).getTime() / 1000) !==
-        config?.sprint_duration_seconds
-      )
+      const newSprintDuration = Math.floor(
+        new Date(endDateRef.current.value).getTime() / 1000 -
+          new Date(startDateRef.current.value).getTime() / 1000 +
+          // Add 1 day to the sprint duration, as sprint end dates are somewhat
+          // incorrectly modeled in the db.
+          // A sprint should technically "end" at midnight the following day.
+          86400
+      );
+      if (newSprintDuration !== config?.sprint_duration_seconds)
         throw Error(
           `Sprint duration must be ${formatSeconds(
             config?.sprint_duration_seconds ?? -1
-          )}`
+          )}; instead got ${formatSeconds(newSprintDuration)}`
         );
 
       const sprint = await createSprint(
