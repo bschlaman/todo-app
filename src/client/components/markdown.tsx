@@ -11,11 +11,11 @@ export default function ReactMarkdownCustom({ content }: { content: string }) {
       components={{
         code({ node, inline, className, children, ...props }) {
           const match = /language-(\w+)/.exec(className ?? "");
-          return inline !== true && match !== null ? (
+          return inline !== true ? (
             <SyntaxHighlighter
               {...props}
               style={materialLight}
-              language={match[1]}
+              language={match?.[1]}
               PreTag="div" // so custom render doesn't target DOM
             >
               {String(children).replace(/\n$/, "")}
