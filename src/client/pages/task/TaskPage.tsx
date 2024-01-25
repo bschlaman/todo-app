@@ -202,7 +202,6 @@ export default function TaskPage() {
           setTask,
           "getTaskById"
         ),
-        makeTimedPageLoadApiCall(getConfig, setErrors, setConfig, "getConfig"),
         makeTimedPageLoadApiCall(
           checkSession,
           setErrors,

@@ -21,7 +21,7 @@ func logEvent(
 		log.Errorf("unable to connect to database: %v", err)
 		return err
 	}
-	defer conn.Close(context.Background())
+	defer conn.Release()
 
 	_, err = conn.Exec(context.Background(),
 		`INSERT INTO events (

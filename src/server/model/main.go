@@ -24,7 +24,7 @@ func GetConfig(log *logger.BLogger) (map[string]interface{}, error) {
 		log.Errorf("unable to connect to database: %v", err)
 		return nil, err
 	}
-	defer conn.Close(context.Background())
+	defer conn.Release()
 
 	rows, err := conn.Query(context.Background(),
 		`SELECT
@@ -75,7 +75,7 @@ func GetCommentsByTaskID(log *logger.BLogger, taskID string) ([]Comment, error) 
 		log.Errorf("unable to connect to database: %v", err)
 		return nil, err
 	}
-	defer conn.Close(context.Background())
+	defer conn.Release()
 
 	rows, err := conn.Query(context.Background(),
 		`SELECT
@@ -117,7 +117,7 @@ func GetTaskByID(log *logger.BLogger, taskID string) (*Task, error) {
 		log.Errorf("unable to connect to database: %v", err)
 		return nil, err
 	}
-	defer conn.Close(context.Background())
+	defer conn.Release()
 
 	var id, title, desc, status string
 	var storyID *string
@@ -153,7 +153,7 @@ func GetStoryByID(log *logger.BLogger, storyID string) (*Story, error) {
 		log.Errorf("unable to connect to database: %v", err)
 		return nil, err
 	}
-	defer conn.Close(context.Background())
+	defer conn.Release()
 
 	var id, title, desc, status, sprintID string
 	var cAt, uAt time.Time
@@ -187,7 +187,7 @@ func GetTasks(log *logger.BLogger) ([]Task, error) {
 		log.Errorf("unable to connect to database: %v", err)
 		return nil, err
 	}
-	defer conn.Close(context.Background())
+	defer conn.Release()
 
 	rows, err := conn.Query(context.Background(),
 		`SELECT
@@ -231,7 +231,7 @@ func CreateTask(log *logger.BLogger, createReq CreateTaskReq) (*Task, error) {
 		log.Errorf("unable to connect to database: %v", err)
 		return nil, err
 	}
-	defer conn.Close(context.Background())
+	defer conn.Release()
 
 	var id, title, desc, status string
 	var storyID *string
@@ -285,7 +285,7 @@ func CreateComment(log *logger.BLogger, createReq CreateCommentReq) (*Comment, e
 		log.Errorf("unable to connect to database: %v", err)
 		return nil, err
 	}
-	defer conn.Close(context.Background())
+	defer conn.Release()
 
 	var id int
 	var text string
@@ -324,7 +324,7 @@ func PutStory(log *logger.BLogger, putReq PutStoryReq) error {
 		log.Errorf("unable to connect to database: %v", err)
 		return err
 	}
-	defer conn.Close(context.Background())
+	defer conn.Release()
 
 	_, err = conn.Exec(context.Background(),
 		`UPDATE stories SET
@@ -355,7 +355,7 @@ func PutTask(log *logger.BLogger, putReq PutTaskReq) error {
 		log.Errorf("unable to connect to database: %v", err)
 		return err
 	}
-	defer conn.Close(context.Background())
+	defer conn.Release()
 
 	_, err = conn.Exec(context.Background(),
 		`UPDATE tasks SET
@@ -386,7 +386,7 @@ func GetSprints(log *logger.BLogger) ([]Sprint, error) {
 		log.Errorf("unable to connect to database: %v", err)
 		return nil, err
 	}
-	defer conn.Close(context.Background())
+	defer conn.Release()
 
 	rows, err := conn.Query(context.Background(),
 		`SELECT
@@ -427,7 +427,7 @@ func CreateSprint(log *logger.BLogger, createReq CreateSprintReq) (*Sprint, erro
 		log.Errorf("unable to connect to database: %v", err)
 		return nil, err
 	}
-	defer conn.Close(context.Background())
+	defer conn.Release()
 
 	var id, title string
 	var cAt, uAt, sd, ed time.Time
@@ -471,7 +471,7 @@ func GetStories(log *logger.BLogger) ([]Story, error) {
 		log.Errorf("unable to connect to database: %v", err)
 		return nil, err
 	}
-	defer conn.Close(context.Background())
+	defer conn.Release()
 
 	rows, err := conn.Query(context.Background(),
 		`SELECT
@@ -514,7 +514,7 @@ func CreateStory(log *logger.BLogger, createReq CreateStoryReq) (*Story, error) 
 		log.Errorf("unable to connect to database: %v", err)
 		return nil, err
 	}
-	defer conn.Close(context.Background())
+	defer conn.Release()
 
 	var id, title, desc, status, sprintID string
 	var cAt, uAt time.Time
@@ -558,7 +558,7 @@ func GetTags(log *logger.BLogger) ([]Tag, error) {
 		log.Errorf("unable to connect to database: %v", err)
 		return nil, err
 	}
-	defer conn.Close(context.Background())
+	defer conn.Release()
 
 	rows, err := conn.Query(context.Background(),
 		`SELECT
@@ -599,7 +599,7 @@ func GetTagAssignments(log *logger.BLogger) ([]TagAssignment, error) {
 		log.Errorf("unable to connect to database: %v", err)
 		return nil, err
 	}
-	defer conn.Close(context.Background())
+	defer conn.Release()
 
 	rows, err := conn.Query(context.Background(),
 		`SELECT
@@ -642,7 +642,7 @@ func CreateTagAssignment(log *logger.BLogger, createReq CreateTagAssignmentReq) 
 		log.Errorf("unable to connect to database: %v", err)
 		return nil, err
 	}
-	defer conn.Close(context.Background())
+	defer conn.Release()
 
 	var id int
 	var tagID, storyID string
@@ -683,7 +683,7 @@ func DestroyTagAssignment(log *logger.BLogger, destroyReq DestroyTagAssignmentRe
 		log.Errorf("unable to connect to database: %v", err)
 		return err
 	}
-	defer conn.Close(context.Background())
+	defer conn.Release()
 
 	_, err = conn.Exec(context.Background(),
 		`DELETE FROM tag_assignments
@@ -709,7 +709,7 @@ func DestroyTagAssignmentByID(log *logger.BLogger, destroyReq DestroyTagAssignme
 		log.Errorf("unable to connect to database: %v", err)
 		return err
 	}
-	defer conn.Close(context.Background())
+	defer conn.Release()
 
 	_, err = conn.Exec(context.Background(),
 		`DELETE FROM tag_assignments
@@ -737,7 +737,7 @@ func CreateTag(log *logger.BLogger, createReq CreateTagReq) (*Tag, error) {
 		log.Errorf("unable to connect to database: %v", err)
 		return nil, err
 	}
-	defer conn.Close(context.Background())
+	defer conn.Release()
 
 	var id, title, desc string
 	var cAt, uAt time.Time
@@ -782,7 +782,7 @@ func CreateStoryRelationship(log *logger.BLogger, createReq CreateStoryRelations
 		log.Errorf("unable to connect to database: %v", err)
 		return nil, err
 	}
-	defer conn.Close(context.Background())
+	defer conn.Release()
 
 	var id int
 	var storyIDA, storyIDB, relation string
@@ -821,7 +821,7 @@ func DestroyStoryRelationshipByID(log *logger.BLogger, destroyReq DestroyStoryRe
 		log.Errorf("unable to connect to database: %v", err)
 		return err
 	}
-	defer conn.Close(context.Background())
+	defer conn.Release()
 
 	_, err = conn.Exec(context.Background(),
 		`DELETE FROM story_relationships
@@ -844,7 +844,7 @@ func GetStoryRelationships(log *logger.BLogger) ([]StoryRelationship, error) {
 		log.Errorf("unable to connect to database: %v", err)
 		return nil, err
 	}
-	defer conn.Close(context.Background())
+	defer conn.Release()
 
 	rows, err := conn.Query(context.Background(),
 		`SELECT
@@ -883,7 +883,7 @@ func CreateSessionRecord(log *logger.BLogger, callerID, sessionID string, sessio
 		log.Errorf("unable to connect to database: %v", err)
 		return nil, err
 	}
-	defer conn.Close(context.Background())
+	defer conn.Release()
 
 	var id string
 	var cAt, uAt time.Time
@@ -926,7 +926,7 @@ func PutSessionLastAccessed(log *logger.BLogger, sessionID string, sessionLastAc
 		log.Errorf("unable to connect to database: %v", err)
 		return err
 	}
-	defer conn.Close(context.Background())
+	defer conn.Release()
 
 	_, err = conn.Exec(context.Background(),
 		`UPDATE sessions SET

@@ -180,11 +180,13 @@ func main() {
 	}
 
 	// Make sure we can connect to the database
+	defer database.ClosePool()
 	conn, err := database.GetPgxConn()
 	if err != nil || conn.Ping(context.Background()) != nil {
 		log.Fatal(err)
 	}
-	log.Infof("using db: %+v", database.PrintableConnDetails(conn.Config()))
+	defer conn.Release()
+	log.Infof("using db: %+v", database.PrintableConnDetails(conn.Conn().Config()))
 
 	log.Infof("using aws region: %s", env.AWSCfg.Region)
 

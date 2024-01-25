@@ -1,6 +1,3 @@
-import { checkSession } from "./api";
-import { formatSeconds } from "./utils";
-
 export const TAG_COLORS = {
   "Todo App": "crimson",
   Work: "blue",
@@ -28,16 +25,16 @@ export const hoverClass = "droppable-hover";
 
 // detect when user navigates back to page and check
 // if the session is still valid
-document.addEventListener("visibilitychange", (_) => {
-  if (document.visibilityState === "visible") {
-    void checkSession().then((res) => {
-      console.log(
-        "session time remaining:",
-        formatSeconds(res.session_time_remaining_seconds)
-      );
-    });
-  }
-});
+// document.addEventListener("visibilitychange", (_) => {
+//   if (document.visibilityState === "visible") {
+//     void checkSession().then((res) => {
+//       console.log(
+//         "session time remaining:",
+//         formatSeconds(res.session_time_remaining_seconds)
+//       );
+//     });
+//   }
+// });
 
 // must be called after the api calls!
 export function replaceDateTextsWithSpans() {
