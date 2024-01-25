@@ -229,7 +229,26 @@ export default function TaskPage() {
     document.title = task.title;
   }, [task]);
 
+  // this function should be a mirror of handleStoryUpdate.
+  // consider moving to a util along with updateTaskStatusById
   async function handleTaskUpdate(updatedTask: Task) {
+    if (task === null) return;
+    if (Object.keys(updatedTask).length !== Object.keys(task).length)
+      throw Error("updated task has incorrect number of keys");
+
+    // return early if there is nothing to update
+    let diff = false;
+    for (const key in task) {
+      if (
+        task[key as keyof typeof task] ===
+        updatedTask[key as keyof typeof updatedTask]
+      )
+        continue;
+      diff = true;
+      break;
+    }
+    if (!diff) return;
+
     await updateTaskById(
       updatedTask.id,
       updatedTask.status,

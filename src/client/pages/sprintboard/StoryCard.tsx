@@ -68,7 +68,26 @@ export default function StoryCard({
     [tagAssignments, story]
   );
 
+  // this function should be a mirror of handleTaskUpdate.
+  // consider moving to a util along with updateTaskStatusById
   async function handleStoryUpdate(updatedStory: Story) {
+    if (story === null) return;
+    if (Object.keys(updatedStory).length !== Object.keys(story).length)
+      throw Error("updated story has incorrect number of keys");
+
+    // return early if there is nothing to update
+    let diff = false;
+    for (const key in story) {
+      if (
+        story[key as keyof typeof story] ===
+        updatedStory[key as keyof typeof updatedStory]
+      )
+        continue;
+      diff = true;
+      break;
+    }
+    if (!diff) return;
+
     await updateStoryById(
       updatedStory.id,
       updatedStory.status,
@@ -139,24 +158,19 @@ export default function StoryCard({
     );
   }
 
-  function handleStoryCardTagChange(tagId: string, checked: boolean) {
-    void (async () => {
-      // make the API call and then update tagAssignments
-      if (checked) {
-        const tagAssignment = await createTagAssignment(tagId, story.id);
-        setTagAssignments((tagAssignments) => [
-          ...tagAssignments,
-          tagAssignment,
-        ]);
-      } else {
-        await destroyTagAssignment(tagId, story.id);
-        setTagAssignments((tagAssignments) =>
-          tagAssignments.filter(
-            (ta) => ta.tag_id !== tagId || ta.story_id !== story.id
-          )
-        );
-      }
-    })();
+  async function handleStoryCardTagChange(tagId: string, checked: boolean) {
+    // make the API call and then update tagAssignments
+    if (checked) {
+      const tagAssignment = await createTagAssignment(tagId, story.id);
+      setTagAssignments((tagAssignments) => [...tagAssignments, tagAssignment]);
+    } else {
+      await destroyTagAssignment(tagId, story.id);
+      setTagAssignments((tagAssignments) =>
+        tagAssignments.filter(
+          (ta) => ta.tag_id !== tagId || ta.story_id !== story.id
+        )
+      );
+    }
   }
 
   return (
@@ -244,7 +258,10 @@ export default function StoryCard({
           key={tag.id}
           tag={tag}
           checked={selectedTagIds.includes(tag.id)}
-          onTagToggle={handleStoryCardTagChange}
+          // linter complains if void call not wrapped in {}
+          onTagToggle={(tagId: string, checked: boolean) => {
+            void handleStoryCardTagChange(tagId, checked);
+          }}
         ></TagOption>
       ))}
       {
