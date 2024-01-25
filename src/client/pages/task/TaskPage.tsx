@@ -39,7 +39,7 @@ function TaskView({
   // Auto focus the textarea when editing, and place the cursor at the end of the content
   useEffect(() => {
     if (!isEditingDesc) return;
-    if (descriptionRef.current == null) return;
+    if (descriptionRef.current === null) return;
     descriptionRef.current.focus();
     descriptionRef.current.selectionStart = descriptionRef.current.value.length;
     descriptionRef.current.selectionEnd = descriptionRef.current.value.length;
@@ -87,7 +87,7 @@ function TaskView({
             </button>
           </div>
         ) : (
-          <h2 onClick={() => setIsEditingTitle(true)}>{title}</h2>
+          <h2 onDoubleClick={() => setIsEditingTitle(true)}>{title}</h2>
         )}
         <CopyToClipboardButton
           value={window.location.pathname}
@@ -145,7 +145,7 @@ function TaskView({
             </button>
           </>
         ) : (
-          <div onClick={() => setIsEditingDesc(true)}>
+          <div onDoubleClick={() => setIsEditingDesc(true)}>
             <ReactMarkdownCustom content={description} />
           </div>
         )}

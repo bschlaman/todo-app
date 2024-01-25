@@ -32,3 +32,9 @@ Currently, I am not emitting metrics for certain operations:
 1. event logging
 1. session operations
 1. others?
+
+### Other design decisions
+
+- 2024.01.25: the functions in `src/server/middleware.go` aren't themselves middleware;
+  rather, they _return_ middlewares (`utils.Middleware`).
+  Nevertheless, I'll stick to the naming convention `xyzMiddleware` for simplicity

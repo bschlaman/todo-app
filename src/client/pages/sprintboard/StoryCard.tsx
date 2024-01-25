@@ -195,7 +195,7 @@ export default function StoryCard({
           </button>
         </>
       ) : (
-        <h3 onClick={() => setIsEditingTitle(true)}>{title}</h3>
+        <h3 onDoubleClick={() => setIsEditingTitle(true)}>{title}</h3>
       )}
       <div
         style={{
@@ -235,7 +235,7 @@ export default function StoryCard({
           </button>
         </>
       ) : (
-        <div onClick={() => setIsEditingDescription(true)}>
+        <div onDoubleClick={() => setIsEditingDescription(true)}>
           <ReactMarkdownCustom content={story.description} />
         </div>
       )}
