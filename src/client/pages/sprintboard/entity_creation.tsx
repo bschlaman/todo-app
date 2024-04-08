@@ -150,9 +150,8 @@ export function CreateTask({
             inputProps={{ maxLength: config?.task_desc_max_len }}
           />
           <FormControl fullWidth margin="dense">
-            <InputLabel id="parent-story-label">Parent Story</InputLabel>
+            <InputLabel>Parent Story</InputLabel>
             <StorySelect
-              labelId="parent-story-label"
               storyId={storyId}
               setStoryId={setStoryId}
               stories={stories}
@@ -319,6 +318,7 @@ export function CreateSprint({
       if (titleRef.current === null) return;
       if (startDateRef.current === null) return;
       if (endDateRef.current === null) return;
+      if (config === null) return;
 
       // sanity check sprint duration.
       // this may be removed in the very near future;
@@ -333,7 +333,8 @@ export function CreateSprint({
           // A sprint should technically "end" at midnight the following day.
           86400
       );
-      if (newSprintDuration !== config?.sprint_duration_seconds)
+      // Allow for a 1hr delta to account for daylight savings in March and November
+      if (Math.abs(newSprintDuration - config.sprint_duration_seconds) > 3600)
         throw Error(
           `Sprint duration must be ${formatSeconds(
             config?.sprint_duration_seconds ?? -1
@@ -575,9 +576,8 @@ export function CreateBulkTask({
             inputProps={{ maxLength: config?.task_desc_max_len }}
           />
           <FormControl fullWidth margin="dense">
-            <InputLabel id="parent-story-label">Parent Story</InputLabel>
+            <InputLabel>Parent Story</InputLabel>
             <StorySelect
-              labelId="parent-story-label"
               storyId={storyId}
               setStoryId={setStoryId}
               stories={stories}

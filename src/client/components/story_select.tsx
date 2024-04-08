@@ -1,4 +1,4 @@
-import { MenuItem, Select, SelectProps } from "@mui/material";
+import { MenuItem, Select } from "@mui/material";
 import React from "react";
 import TagBadge from "./tag_badge";
 import { Story, Tag } from "../ts/model/entities";
@@ -32,9 +32,10 @@ export function renderStorySelectMenuItem(
 }
 
 // TODO (2023.12.17): I think this is still not quite right
-// 1) do I really need to extend SelectProps
-// 2) is labelId="parent-story-label" working correctly
-interface StorySelectProps extends SelectProps {
+// 1) earlier, I extended SelectProps; should I do that again?
+// 2) is labelId="parent-story-label" working correctly?
+//    I removed it recently and will monitor for a regression
+interface StorySelectProps {
   storyId: string;
   setStoryId: React.Dispatch<React.SetStateAction<string>>;
   stories: Story[] | undefined;

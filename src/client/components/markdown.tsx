@@ -1,13 +1,19 @@
 import React from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { materialLight } from "react-syntax-highlighter/dist/esm/styles/prism";
-import ReactMarkdown from "react-markdown";
+import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
+import "katex/dist/katex.min.css";
 
 export default function ReactMarkdownCustom({ content }: { content: string }) {
   return (
-    <ReactMarkdown
-      remarkPlugins={[remarkGfm]}
+    <Markdown
+      remarkPlugins={[remarkGfm, remarkMath]}
+      // as of 2024.04.08, the types are broken for this;
+      // there is a fix coming according to some gh issues
+      rehypePlugins={[rehypeKatex]}
       components={{
         code({ node, inline, className, children, ...props }) {
           const match = /language-(\w+)/.exec(className ?? "");
@@ -29,6 +35,6 @@ export default function ReactMarkdownCustom({ content }: { content: string }) {
       }}
     >
       {content}
-    </ReactMarkdown>
+    </Markdown>
   );
 }

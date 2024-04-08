@@ -33,6 +33,11 @@ module.exports = {
 				include: path.resolve(__dirname, "src", "client"),
 				use: ["style-loader", "css-loader"],
 			},
+			{ // needed for katex/dist/katex.min.css
+				test: /\.css$/i,
+				include: path.resolve(__dirname, "node_modules/katex/dist"),
+				use: ["style-loader", "css-loader"],
+			},
 			{
 				test: /\.tsx?$/,
 				use: "ts-loader",
