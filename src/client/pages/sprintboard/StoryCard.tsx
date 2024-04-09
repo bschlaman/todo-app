@@ -65,7 +65,7 @@ export default function StoryCard({
       tagAssignments
         .filter((ta) => ta.story_id === story.id)
         .map((ta) => ta.tag_id),
-    [tagAssignments, story]
+    [tagAssignments, story],
   );
 
   // this function should be a mirror of handleTaskUpdate.
@@ -93,10 +93,10 @@ export default function StoryCard({
       updatedStory.status,
       updatedStory.title,
       updatedStory.description,
-      updatedStory.sprint_id
+      updatedStory.sprint_id,
     );
     setStories((stories) =>
-      stories.map((s) => (s.id === story.id ? updatedStory : s))
+      stories.map((s) => (s.id === story.id ? updatedStory : s)),
     );
   }
 
@@ -167,8 +167,8 @@ export default function StoryCard({
       await destroyTagAssignment(tagId, story.id);
       setTagAssignments((tagAssignments) =>
         tagAssignments.filter(
-          (ta) => ta.tag_id !== tagId || ta.story_id !== story.id
-        )
+          (ta) => ta.tag_id !== tagId || ta.story_id !== story.id,
+        ),
       );
     }
   }
@@ -189,7 +189,7 @@ export default function StoryCard({
       }}
     >
       {isEditingTitle ? (
-        <>
+        <div style={{ marginTop: "2rem", display: "flex", gap: "2rem" }}>
           <textarea
             style={{
               fontSize: "1rem",
@@ -207,7 +207,7 @@ export default function StoryCard({
           >
             Save
           </button>
-        </>
+        </div>
       ) : (
         <h3 onDoubleClick={() => setIsEditingTitle(true)}>{title}</h3>
       )}
@@ -232,7 +232,7 @@ export default function StoryCard({
         📝
       </a>
       {isEditingDescription ? (
-        <>
+        <div style={{ marginTop: "2rem", display: "flex", gap: "2rem" }}>
           <textarea
             style={{ fontSize: "1rem" }}
             value={description}
@@ -247,7 +247,7 @@ export default function StoryCard({
           >
             Save
           </button>
-        </>
+        </div>
       ) : (
         <div onDoubleClick={() => setIsEditingDescription(true)}>
           <ReactMarkdownCustom content={story.description} />
@@ -278,10 +278,10 @@ export default function StoryCard({
               updatedStory.status,
               updatedStory.title,
               updatedStory.description,
-              updatedStory.sprint_id
+              updatedStory.sprint_id,
             );
             setStories((stories) =>
-              stories.map((s) => (s.id === story.id ? updatedStory : s))
+              stories.map((s) => (s.id === story.id ? updatedStory : s)),
             );
           })();
         }}
@@ -291,7 +291,7 @@ export default function StoryCard({
           .sort(
             (s0, s1) =>
               new Date(s1.start_date).getTime() -
-              new Date(s0.start_date).getTime()
+              new Date(s0.start_date).getTime(),
           )
           .slice(0, 5)
           .map((sprint) => (

@@ -38,7 +38,7 @@ export default function CommentsSection({
         async () => await getCommentsByTaskId(taskId),
         setErrors,
         setComments,
-        "setComments"
+        "setComments",
       );
     })();
   }, [taskId]);
@@ -52,8 +52,13 @@ export default function CommentsSection({
       setComments([...comments, comment]);
       setCreateCommentText("");
       inputRef.current?.focus();
-      // TODO (2024.04.08): currently not working well; can't get the whole element in view.
-      inputRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      // Small delay required make this work (perhaps something to do with render scheduling)
+      setTimeout(() => {
+        inputRef.current?.parentElement?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }, 100);
     })();
   }
 
