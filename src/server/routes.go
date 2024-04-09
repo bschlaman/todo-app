@@ -7,7 +7,7 @@ import (
 	"github.com/bschlaman/b-utils/pkg/utils"
 )
 
-func initRoutes() {
+func registerHandlers() {
 	// special case handlers
 	fs := http.FileServer(http.Dir(path.Join("../..", staticDir)))
 	http.Handle("/", chainMiddlewares(fs, []utils.Middleware{

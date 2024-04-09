@@ -16,13 +16,18 @@ export default function CommentsSection({
   config: Config | null;
 }) {
   const [comments, setComments] = useState<TaskComment[]>([]);
+  const [createCommentText, setCreateCommentText] = useState("");
   const [errors, setErrors] = useState<Error[]>([]);
+  // used to focus the element after comment creation
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
+  // As of 2024.04.08, I switched to storing the textarea's value as state.
+  // This causes a lot of re-rendering, so only console log every 100.
   // render count for debugging
   const renderCount = useRef(0);
   useEffect(() => {
     renderCount.current++;
+    if (renderCount.current % 100 !== 0) return;
     console.log("[CommentsSection] render count", renderCount.current);
   });
 
@@ -42,12 +47,13 @@ export default function CommentsSection({
 
   function handleCreateComment() {
     void (async () => {
-      if (inputRef.current?.value === undefined) return;
-      if (inputRef.current?.value.trim() === "") return;
-      const comment = await createComment(taskId, inputRef.current.value);
+      if (createCommentText.trim() === "") return;
+      const comment = await createComment(taskId, createCommentText);
       setComments([...comments, comment]);
-      inputRef.current.value = "";
-      inputRef.current.focus();
+      setCreateCommentText("");
+      inputRef.current?.focus();
+      // TODO (2024.04.08): currently not working well; can't get the whole element in view.
+      inputRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     })();
   }
 
@@ -73,6 +79,10 @@ export default function CommentsSection({
             }
           }}
           ref={inputRef}
+          onChange={(e) => {
+            setCreateCommentText(e.target.value);
+          }}
+          value={createCommentText}
           placeholder="Type new comment (ctrl+&#9166; to save)"
           maxLength={config?.comment_max_len}
           autoFocus
@@ -89,6 +99,17 @@ export default function CommentsSection({
         >
           Post
         </button>
+        <p
+          style={{
+            fontWeight: "lighter",
+            fontSize: "1.2rem",
+            position: "absolute",
+            bottom: "0.5rem",
+            right: "1rem",
+          }}
+        >
+          {createCommentText.length ?? 0} / {config?.comment_max_len}
+        </p>
       </div>
     </>
   );

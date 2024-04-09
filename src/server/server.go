@@ -100,7 +100,7 @@ func init() {
 }
 
 func main() {
-	initRoutes()
+	registerHandlers()
 
 	// Make sure we can connect to the database
 	defer database.ClosePool()
