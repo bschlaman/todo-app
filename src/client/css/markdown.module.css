@@ -16,17 +16,8 @@
 }
 
 .markdown blockquote {
-    position: relative;
-    padding: 1rem 2rem;
-    margin: 1rem;
-}
-.markdown blockquote::before {
-    position: absolute;
-    content: open-quote;
-    font-size: 4em;
-    opacity: 0.6;
-    margin-left: -0.4em;
-    margin-top: -0.4em;
+    border-left: 3px solid lightgray;
+    padding-left: 10px;
 }
 
 .markdown ol{
@@ -41,4 +32,10 @@
     margin: 0.5rem 0 0.5rem 0;
     padding-left: 2rem;
     list-style-position: outside;
+}
+
+.markdown table,
+.markdown th,
+.markdown td {
+    border: 1px solid black;
 }

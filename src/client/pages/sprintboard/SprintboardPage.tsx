@@ -23,7 +23,6 @@ import {
 } from "../../ts/model/entities";
 import Bucket from "./Bucket";
 import { sprintToString } from "../../ts/lib/utils";
-import "../../css/common.css";
 import { TagOption } from "./tag_selectors";
 import TaskCard from "./TaskCard";
 import { DndProvider } from "react-dnd";

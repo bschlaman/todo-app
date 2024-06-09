@@ -16,52 +16,26 @@ const routes: { login: Route } = {
 
 export default function LoginPage() {
   return (
-    <div
-      style={{
-        height: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
+    <main className="flex h-dvh items-center justify-center">
       <form
-        style={{
-          borderRadius: "8px",
-          // TODO: consider using --color3 or making this --color3
-          boxShadow: "rgba(72, 135, 202, 0.8) 0 0 10px 3px",
-          fontSize: "3rem",
-          padding: "3rem",
-          transform: "translateY(-8rem)",
-        }}
+        className="w-[30rem] rounded-lg p-10 shadow-lg outline outline-2 outline-emerald-500"
         action={routes.login.path}
         method={routes.login.method}
       >
-        <label htmlFor="pass">Enter Password</label>
+        <label className="font-bold text-emerald-800" htmlFor="pass">
+          Enter Password
+        </label>
         <input
-          style={{
-            display: "block",
-            margin: "1rem 0",
-            padding: "0.8rem",
-            borderRadius: "8px",
-          }}
+          className="my-4 block w-full rounded-md bg-slate-200 p-4"
           autoFocus
           type="password"
           required
           name="pass"
         />
-        <button
-          style={{
-            background: "rgb(72, 135, 202)",
-            color: "var(--transp-white)",
-            padding: "1rem 1.5rem",
-            borderRadius: "5px",
-            border: "none",
-            boxShadow: "0 0 6px rgba(0, 0, 0, 0.2)",
-          }}
-        >
+        <button className="rounded-md bg-emerald-800 p-4 font-bold text-white shadow-lg">
           Login
         </button>
       </form>
-    </div>
+    </main>
   );
 }

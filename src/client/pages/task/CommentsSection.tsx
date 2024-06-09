@@ -3,7 +3,6 @@ import ErrorBanner from "../../components/banners";
 import { getCommentsByTaskId, createComment } from "../../ts/lib/api";
 import { formatDate } from "../../ts/lib/utils";
 import { Config, TaskComment } from "../../ts/model/entities";
-import "../../css/common.css";
 import ReactMarkdownCustom from "../../components/markdown";
 import { makeTimedPageLoadApiCall } from "../../ts/lib/api_utils";
 

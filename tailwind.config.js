@@ -1,5 +1,5 @@
 /** @type {import('tailwindcss').Config} */
-export const content = ["./src/client/**/*.tsx", "./dist/**/*.html"];
+export const content = ["./src/client/**/*.tsx"];
 export const theme = {
   extend: {},
   fontFamily: {
