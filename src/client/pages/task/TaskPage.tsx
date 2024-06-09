@@ -8,9 +8,7 @@ import {
   updateTaskById,
 } from "../../ts/lib/api";
 import Loading from "../../components/loading";
-import styles from "./TaskPage.module.css";
 import CommentsSection from "./CommentsSection";
-import "../../css/common.css";
 import CopyToClipboardButton from "../../components/copy_to_clipboard_button";
 import ReactMarkdownCustom from "../../components/markdown";
 import TaskMetadata from "./task_metadata";
@@ -47,32 +45,14 @@ function TaskView({
 
   return (
     <>
-      <div
-        style={{
-          display: "flex",
-          gap: "2rem",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
-        <a
-          style={{
-            border: "2px solid var(--color3)",
-            paddingRight: "10px",
-            borderRadius: "5px",
-            background: "var(--color1)",
-          }}
-          href="/"
-        >
+      <div className="flex items-center gap-8">
+        <a className="rounded-md border-2 border-blue-500 pr-2" href="/">
           〈Back
         </a>
         {isEditingTitle ? (
           <div>
             <textarea
-              style={{
-                fontSize: "1.6rem",
-                resize: "none",
-              }}
+              className="resize-none"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               maxLength={config?.task_title_max_len}
@@ -87,34 +67,23 @@ function TaskView({
             </button>
           </div>
         ) : (
-          <h2 onDoubleClick={() => setIsEditingTitle(true)}>{title}</h2>
+          <h2
+            className="text-lg font-bold"
+            onDoubleClick={() => setIsEditingTitle(true)}
+          >
+            {title}
+          </h2>
         )}
         <CopyToClipboardButton
           value={window.location.pathname}
         ></CopyToClipboardButton>
       </div>
       <TaskMetadata task={task} onTaskUpdate={onTaskUpdate} />
-      <div
-        style={{
-          background: "var(--color1)",
-          padding: "1rem",
-          fontSize: "1.5rem",
-          borderRadius: "5px",
-          position: "relative",
-        }}
-      >
+      <div className="relative rounded-md bg-gray-300 p-8">
         {isEditingDesc ? (
           <>
             <textarea
-              style={{
-                width: "100%",
-                borderRadius: "5px",
-                resize: "none",
-                margin: "1rem 0",
-                background: "var(--color1)",
-                height: "180px",
-                fontSize: "1rem",
-              }}
+              className="h-56 w-full resize-none rounded-sm"
               value={description}
               ref={descriptionRef}
               onChange={(e) => {
@@ -129,13 +98,7 @@ function TaskView({
               maxLength={config?.task_desc_max_len}
             />
             <button
-              style={{
-                position: "absolute",
-                top: 5,
-                right: 200,
-                fontSize: "1rem",
-                borderRadius: "5px",
-              }}
+              className="absolute right-28 top-1 rounded-sm outline outline-2"
               onClick={() => {
                 setIsEditingDesc(false);
                 void onTaskUpdate({ ...task, description });
@@ -149,14 +112,7 @@ function TaskView({
             <ReactMarkdownCustom content={description} />
           </div>
         )}
-        <div
-          style={{
-            position: "absolute",
-            top: 5,
-            right: 5,
-            fontSize: "1rem",
-          }}
-        >
+        <div className="absolute right-1 top-1">
           <input
             id="preview-md"
             type="checkbox"
@@ -200,13 +156,13 @@ export default function TaskPage() {
           async () => await getTaskById(taskIdFromPath),
           setErrors,
           setTask,
-          "getTaskById"
+          "getTaskById",
         ),
         makeTimedPageLoadApiCall(
           checkSession,
           setErrors,
           setCheckSessionRes,
-          "checkSession"
+          "checkSession",
         ),
         makeTimedPageLoadApiCall(getConfig, setErrors, setConfig, "getConfig"),
       ]).then((results) => {
@@ -217,7 +173,7 @@ export default function TaskPage() {
               apiIdentifier,
               succeeded,
               duration,
-            }))
+            })),
         );
         console.timeEnd(timerId);
       });
@@ -254,7 +210,7 @@ export default function TaskPage() {
       updatedTask.status,
       updatedTask.title,
       updatedTask.description,
-      updatedTask.story_id
+      updatedTask.story_id,
     );
     setTask(updatedTask);
   }
@@ -264,16 +220,14 @@ export default function TaskPage() {
   if (task === null) return <Loading />;
 
   return (
-    <div className={styles.container}>
-      <div className={styles.content}>
-        <TaskView task={task} config={config} onTaskUpdate={handleTaskUpdate} />
-        <SessionTimeRemainingIndicator
-          sessionTimeRemainingSeconds={
-            checkSessionRes.session_time_remaining_seconds
-          }
-        />
-        <CommentsSection taskId={task.id} config={config} />
-      </div>
-    </div>
+    <main className="mx-auto mt-4 w-[80vw] max-w-3xl items-center">
+      <TaskView task={task} config={config} onTaskUpdate={handleTaskUpdate} />
+      <SessionTimeRemainingIndicator
+        sessionTimeRemainingSeconds={
+          checkSessionRes.session_time_remaining_seconds
+        }
+      />
+      <CommentsSection taskId={task.id} config={config} />
+    </main>
   );
 }

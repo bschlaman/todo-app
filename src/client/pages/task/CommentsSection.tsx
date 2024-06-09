@@ -69,15 +69,9 @@ export default function CommentsSection({
         // is a bad idea, since it may conflict with other entities
         <Comment key={comment.id} comment={comment}></Comment>
       ))}
-      <div style={commentBox}>
+      <div className="relative mt-4 rounded-md p-4 outline outline-2">
         <textarea
-          style={{
-            width: "100%",
-            borderRadius: "8px",
-            resize: "none",
-            padding: "1rem",
-            margin: "1rem 0",
-          }}
+          className="my-4 w-full resize-none rounded-md p-4"
           onKeyDown={(e) => {
             if (e.ctrlKey && e.key === "Enter") {
               handleCreateComment();
@@ -93,26 +87,12 @@ export default function CommentsSection({
           autoFocus
         />
         <button
-          style={{
-            color: "var(--transp-white)",
-            fontSize: "1.3rem",
-            borderRadius: "6px",
-            background: "var(--color3)",
-            padding: "0.3rem 0.6rem",
-          }}
+          className="rounded-md bg-blue-500 p-1 text-slate-100"
           onClick={handleCreateComment}
         >
           Post
         </button>
-        <p
-          style={{
-            fontWeight: "lighter",
-            fontSize: "1.2rem",
-            position: "absolute",
-            bottom: "0.5rem",
-            right: "1rem",
-          }}
-        >
+        <p className="absolute bottom-2 right-4 font-thin">
           {createCommentText.length ?? 0} / {config?.comment_max_len}
         </p>
       </div>
@@ -120,59 +100,28 @@ export default function CommentsSection({
   );
 }
 
-// for comments and new comment div
-const commentBox: React.CSSProperties = {
-  position: "relative",
-  outline: "2px solid grey",
-  borderRadius: "8px",
-  padding: "1rem",
-  margin: "1rem 0",
-  fontSize: "1.5rem",
-  background: "var(--transp-white)",
-};
-
-const commentMetadataStyle: React.CSSProperties = {
-  position: "absolute",
-  color: "lightgrey",
-  right: "1rem",
-  margin: "0.4rem",
-  fontSize: "1rem",
-};
-
 function Comment({ comment }: { comment: TaskComment }) {
   const [rawMode, setRawMode] = useState(false);
 
   return (
-    <div style={commentBox}>
-      <div
+    <div className="relative mt-4 rounded-md p-4 pt-6 outline outline-2 outline-slate-700">
+      <p className="absolute right-2 top-1 text-sm font-thin">{comment.id}</p>
+      <p className="absolute bottom-1 right-2 text-sm font-thin">
+        {formatDate(new Date(comment.created_at))}
+      </p>
+      <p
+        className="absolute left-2 top-1 select-none text-sm font-thin italic"
         style={{
-          display: "flex",
+          textDecoration: rawMode ? "underline" : "none",
+        }}
+        onClick={() => {
+          setRawMode((rm) => !rm);
         }}
       >
-        <p style={{ ...commentMetadataStyle, top: "0.5rem" }}>{comment.id}</p>
-        <p style={{ ...commentMetadataStyle, bottom: "0.5rem" }}>
-          {formatDate(new Date(comment.created_at))}
-        </p>
-        <p
-          style={{
-            ...commentMetadataStyle,
-            left: "0.5rem",
-            top: "0.5rem",
-            fontStyle: "italic",
-            userSelect: "none",
-            textDecoration: rawMode ? "underline" : "none",
-          }}
-          onClick={() => {
-            setRawMode((rm) => !rm);
-          }}
-        >
-          Raw
-        </p>
-      </div>
+        Raw
+      </p>
       {rawMode ? (
-        <div style={{ whiteSpace: "pre-wrap", margin: "2rem 0" }}>
-          {comment.text}
-        </div>
+        <div className="whitespace-pre-wrap">{comment.text}</div>
       ) : (
         <ReactMarkdownCustom content={comment.text} />
       )}

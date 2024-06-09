@@ -1,0 +1,44 @@
+.markdown h1 {
+    font-size: 3rem;
+    margin-top: 1rem;
+    font-weight: bold;
+}
+
+.markdown h2 {
+    font-size: 2rem;
+    margin-top: 1rem;
+}
+
+.markdown h3 {
+    font-size: 1.5rem;
+    margin-top: 1rem;
+    font-weight: bold;
+}
+
+.markdown blockquote {
+    position: relative;
+    padding: 1rem 2rem;
+    margin: 1rem;
+}
+.markdown blockquote::before {
+    position: absolute;
+    content: open-quote;
+    font-size: 4em;
+    opacity: 0.6;
+    margin-left: -0.4em;
+    margin-top: -0.4em;
+}
+
+.markdown ol{
+    list-style-type: decimal;
+}
+
+.markdown ul {
+    list-style-type: disc;
+}
+
+.markdown ul, .markdown ol {
+    margin: 0.5rem 0 0.5rem 0;
+    padding-left: 2rem;
+    list-style-position: outside;
+}

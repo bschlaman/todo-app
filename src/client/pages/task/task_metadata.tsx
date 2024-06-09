@@ -1,4 +1,3 @@
-import styles from "./TaskPage.module.css";
 import {
   SelectChangeEvent,
   Select,
@@ -54,20 +53,20 @@ export default function TaskMetadata({
           getStories,
           setErrors,
           setStories,
-          "getStories"
+          "getStories",
         ),
         makeTimedPageLoadApiCall(
           getSprints,
           setErrors,
           setSprints,
-          "getSprints"
+          "getSprints",
         ),
         makeTimedPageLoadApiCall(getTags, setErrors, setTags, "getTags"),
         makeTimedPageLoadApiCall(
           getTagAssignments,
           setErrors,
           setTagAssignments,
-          "getTagAssignments"
+          "getTagAssignments",
         ),
       ]).then((results) => {
         console.table(
@@ -77,7 +76,7 @@ export default function TaskMetadata({
               apiIdentifier,
               succeeded,
               duration,
-            }))
+            })),
         );
         console.timeEnd(timerId);
       });
@@ -101,7 +100,7 @@ export default function TaskMetadata({
   }, [tagAssignments]);
 
   function handleTaskMetadataChange(
-    event: React.ChangeEvent<HTMLSelectElement> | SelectChangeEvent<string>
+    event: React.ChangeEvent<HTMLSelectElement> | SelectChangeEvent<string>,
   ) {
     const { name, value } = event.target;
     const updatedTask = { ...task, [name]: value };
@@ -111,9 +110,9 @@ export default function TaskMetadata({
 
   function renderTaskMetadataPair(label: string, value: string) {
     return (
-      <div style={{ display: "flex", alignItems: "center" }}>
-        <p className={styles.taskMetadataLabel}>{label}:</p>
-        <p style={{ margin: 0 }}>{value}</p>
+      <div className="flex">
+        <p className="mr-4 font-bold">{label}:</p>
+        <p>{value}</p>
       </div>
     );
   }
@@ -136,27 +135,22 @@ export default function TaskMetadata({
 
   if (errors.length > 0) return <ErrorBanner errors={errors} />;
 
-  const taskMetadataRowStyles: React.CSSProperties = {
-    display: "flex",
-    alignItems: "center",
-    margin: "1rem 0",
-  };
   // TODO (2023.05.06): this is a weaker part of the UI, could use a redesign
   // Idea: make a task metadata component, where the value could be any
   // other component (e.g. <p> or <select>)
   return (
     <>
-      <div style={taskMetadataRowStyles}>
+      <div className="mt-4 flex gap-4">
         {renderTaskMetadataPair("Id", formatId(task.id))}
         {renderTaskMetadataPair(
           "Created",
-          formatDate(new Date(task.created_at))
+          formatDate(new Date(task.created_at)),
         )}
-        <p className={styles.taskMetadataLabel}>Status:</p>
+        <p className="mr-4 font-bold">Status:</p>
         {renderStatusDropdown(task.status)}
       </div>
-      <div style={taskMetadataRowStyles}>
-        <p className={styles.taskMetadataLabel}>Parent story:</p>
+      <div className="mt-4 flex items-center">
+        <p className="mr-4 font-bold">Parent story:</p>
         <StoryDropdown
           taskStoryId={task.story_id}
           stories={stories}
@@ -204,7 +198,7 @@ function StoryDropdown({
     .sort(
       (sprint0, sprint1) =>
         new Date(sprint1.start_date).getTime() -
-        new Date(sprint0.start_date).getTime()
+        new Date(sprint0.start_date).getTime(),
     )
     .forEach((sprint) => {
       if (sprintsBeforeTask === 0) return;
@@ -239,7 +233,7 @@ function StoryDropdown({
       {sprintsToRender.map((sprint) => {
         // Explicitly checking undefined to make typescript happy
         const stories = sprintBuckets.get(sprint.id);
-        if (stories === undefined) return <></>;
+        if (stories === undefined) return [];
 
         return [
           <ListSubheader key={sprint.id} style={{ fontSize: "1.5rem" }}>

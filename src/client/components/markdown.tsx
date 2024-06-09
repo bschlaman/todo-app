@@ -5,6 +5,7 @@ import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
+import styles from "../css/markdown.module.css";
 import "katex/dist/katex.min.css";
 
 export default function ReactMarkdownCustom({ content }: { content: string }) {
@@ -14,8 +15,9 @@ export default function ReactMarkdownCustom({ content }: { content: string }) {
       // as of 2024.04.08, the types are broken for this;
       // there is a fix coming according to some gh issues
       rehypePlugins={[rehypeKatex]}
+      className={styles.markdown}
       components={{
-        code({ node, inline, className, children, ...props }) {
+        code({ inline, className, children, ...props }) {
           const match = /language-(\w+)/.exec(className ?? "");
           return inline !== true ? (
             <SyntaxHighlighter
