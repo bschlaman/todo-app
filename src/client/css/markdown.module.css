@@ -39,3 +39,8 @@
 .markdown td {
     border: 1px solid black;
 }
+
+.mardown a, .markdown a:visited {
+	text-decoration: none;
+	color: #1b48aa;
+}

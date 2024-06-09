@@ -12,6 +12,7 @@ export const TAG_COLORS = {
   CQF: "darkgreen",
   "CVE Engine": "black",
   "Chess Engine": "lightgrey",
+  "Grad School": "DarkSlateGray",
 } as const;
 
 // since tasks may not have a parent story, we need something

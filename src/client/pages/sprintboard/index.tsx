@@ -9,5 +9,5 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <SprintboardPage />
     </LocalizationProvider>
-  </React.StrictMode>
+  </React.StrictMode>,
 );
