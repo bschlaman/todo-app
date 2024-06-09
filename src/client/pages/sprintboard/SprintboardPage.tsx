@@ -54,10 +54,10 @@ export default function SprintboardPage() {
   const [config, setConfig] = useState<Config | null>(null);
   const [errors, setErrors] = useState<Error[]>([]);
   const [selectedSprintId, setSelectedSprintId] = useState(
-    localStorage.getItem(LOCAL_STORAGE_KEYS.selectedSprintId)
+    localStorage.getItem(LOCAL_STORAGE_KEYS.selectedSprintId),
   );
   const [activeTagIds, setActiveTagIds] = useState<string[]>(
-    JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEYS.activeTagIds) ?? "[]")
+    JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEYS.activeTagIds) ?? "[]"),
   );
   const [checkSessionRes, setCheckSessionRes] = useState<CheckSessionRes>({
     session_time_remaining_seconds: 0,
@@ -89,13 +89,13 @@ export default function SprintboardPage() {
   useEffect(() => {
     localStorage.setItem(
       LOCAL_STORAGE_KEYS.selectedSprintId,
-      selectedSprintId ?? ""
+      selectedSprintId ?? "",
     );
   }, [selectedSprintId]);
   useEffect(() => {
     localStorage.setItem(
       LOCAL_STORAGE_KEYS.activeTagIds,
-      JSON.stringify(activeTagIds)
+      JSON.stringify(activeTagIds),
     );
   }, [activeTagIds]);
 
@@ -159,10 +159,10 @@ export default function SprintboardPage() {
           storiesById,
           selectedSprintId,
           assocTagIdsByStoryId,
-          activeTagIds
-        )
+          activeTagIds,
+        ),
       ),
-    [tasks, storiesById, selectedSprintId, assocTagIdsByStoryId, activeTagIds]
+    [tasks, storiesById, selectedSprintId, assocTagIdsByStoryId, activeTagIds],
   );
 
   const taskBucketsByStatus = useMemo(() => {
@@ -186,33 +186,33 @@ export default function SprintboardPage() {
           getStories,
           setErrors,
           setStories,
-          "getStories"
+          "getStories",
         ),
         makeTimedPageLoadApiCall(
           getSprints,
           setErrors,
           setSprints,
-          "getSprints"
+          "getSprints",
         ),
         makeTimedPageLoadApiCall(getTags, setErrors, setTags, "getTags"),
         makeTimedPageLoadApiCall(
           getTagAssignments,
           setErrors,
           setTagAssignments,
-          "getTagAssignments"
+          "getTagAssignments",
         ),
         makeTimedPageLoadApiCall(
           getStoryRelationships,
           setErrors,
           setStoryRelationships,
-          "getStoryRelationships"
+          "getStoryRelationships",
         ),
         makeTimedPageLoadApiCall(getConfig, setErrors, setConfig, "getConfig"),
         makeTimedPageLoadApiCall(
           checkSession,
           setErrors,
           setCheckSessionRes,
-          "checkSession"
+          "checkSession",
         ),
       ]).then((results) => {
         console.table(
@@ -222,7 +222,7 @@ export default function SprintboardPage() {
               apiIdentifier,
               succeeded,
               duration,
-            }))
+            })),
         );
         console.timeEnd(timerId);
       });
@@ -251,12 +251,12 @@ export default function SprintboardPage() {
       status,
       task.title,
       task.description,
-      task.story_id
+      task.story_id,
     );
     setTasks((tasks) =>
       tasks.map((_task) =>
-        _task.id === task.id ? { ..._task, status } : _task
-      )
+        _task.id === task.id ? { ..._task, status } : _task,
+      ),
     );
   }
 
@@ -317,7 +317,7 @@ export default function SprintboardPage() {
               .sort(
                 (s0, s1) =>
                   new Date(s1.start_date).getTime() -
-                  new Date(s0.start_date).getTime()
+                  new Date(s0.start_date).getTime(),
               )
               .slice(0, 5)
               .map((sprint) => (

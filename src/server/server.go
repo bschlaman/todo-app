@@ -15,6 +15,7 @@ import (
 	"github.com/bschlaman/b-utils/pkg/logger"
 	"github.com/bschlaman/todo-app/database"
 	"github.com/bschlaman/todo-app/model"
+	"github.com/sqids/sqids-go"
 )
 
 // TODO: pull these from config table
@@ -45,6 +46,7 @@ type Env struct {
 	AWSCWClient *cloudwatch.Client
 	LoginPw     string
 	CallerID    string
+	Sqids       *sqids.Sqids
 	// future state: possibly store db connection here
 }
 
@@ -95,7 +97,8 @@ func init() {
 	// init globals
 	sessions = make(map[string]model.SessionRecord)
 	cache = &cacheStore{items: make(map[string]*cacheItem)}
-	env = &Env{logger.New(mw), cfg, cwClient, os.Getenv("LOGIN_PW"), os.Getenv("CALLER_ID")}
+	s, _ := sqids.New(sqids.Options{Alphabet: os.Getenv("SQIDS_ALPHABET"), MinLength: 6})
+	env = &Env{logger.New(mw), cfg, cwClient, os.Getenv("LOGIN_PW"), os.Getenv("CALLER_ID"), s}
 	log = env.Log
 }
 
@@ -130,6 +133,10 @@ func main() {
 		log.Fatal("CALLER_ID env var not set")
 	}
 	log.Infof("using caller identity: %s", env.CallerID)
+	if os.Getenv("SQIDS_ALPHABET") == "" {
+		log.Fatal("SQIDS_ALPHABET env var not set")
+	}
+	log.Infof("using caller sqids alphabet: %s", os.Getenv("SQIDS_ALPHABET"))
 
 	// server startup event log
 	serverStartDuration := time.Since(serverStart)

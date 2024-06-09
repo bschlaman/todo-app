@@ -22,7 +22,7 @@ export default function TaskCard({
   moveTask: (taskId: string, status: TASK_STATUS) => void;
 }) {
   const story = storiesById.get(task.story_id);
-  const taskPageRef = `/task/${task.id}`;
+  const taskPageRef = `/task/${task.sqid}`;
 
   const [{ isDragging }, drag, preview] = useDrag(
     () => ({
@@ -34,7 +34,7 @@ export default function TaskCard({
         if (dropRes !== null) moveTask(draggedItem.taskId, dropRes.status);
       },
     }),
-    []
+    [],
   );
 
   function renderHandle() {
@@ -111,7 +111,7 @@ export default function TaskCard({
         {renderTagBadgesForStoryId(
           task.story_id,
           tagsById,
-          assocTagIdsByStoryId
+          assocTagIdsByStoryId,
         )}
       </div>
       <a

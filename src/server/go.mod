@@ -12,4 +12,5 @@ require (
 	github.com/bschlaman/b-utils v0.0.0-20240125204107-b3cac4fb92d8
 	github.com/google/uuid v1.3.0
 	github.com/jackc/pgx/v4 v4.18.1
+	github.com/sqids/sqids-go v0.4.1 // indirect
 )

@@ -54,7 +54,7 @@ export default function StoryCard({
 }) {
   const metadataFontSize = "0.8rem";
   const [selectedSprintId, setSelectedSprintId] = useState(story.sprint_id);
-  const storyPageRef = `/story/${story.id}`;
+  const storyPageRef = `/story/${story.sqid}`;
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [isEditingDescription, setIsEditingDescription] = useState(false);
   const [title, setTitle] = useState(story.title);

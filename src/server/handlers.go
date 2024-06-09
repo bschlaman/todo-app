@@ -158,11 +158,6 @@ func getConfigHandle() http.Handler {
 func getCommentsByTaskIDHandle() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		taskID := r.URL.Query().Get("id")
-		if strings.Count(taskID, "-") != 4 {
-			log.Errorf("taskID seems incorrect: %s\n", taskID)
-			http.Error(w, "bad task id", http.StatusBadRequest)
-			return
-		}
 
 		comments, err := model.GetCommentsByTaskID(env.Log, taskID)
 		if err != nil {
@@ -187,14 +182,19 @@ func getCommentsByTaskIDHandle() http.Handler {
 func getTaskByIDHandle() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		taskID := r.URL.Query().Get("id")
-		// TODO: strongly coupled to id format
-		if strings.Count(taskID, "-") != 4 {
-			log.Errorf("taskID seems incorrect: %s\n", taskID)
-			http.Error(w, "bad task id", http.StatusBadRequest)
-			return
+
+		// I want to still be able to get entities
+		// by the old UUIDv4 since I have sometimes
+		// comented them and linked to them.
+		var task *model.Task
+		var err error
+		if looksLikeUUIDv4(taskID) {
+			log.Infof("id looks like UUIDv4: %s", taskID)
+			task, err = model.GetTaskByID(env.Log, taskID)
+		} else {
+			task, err = model.GetTaskBySQID(env.Log, taskID)
 		}
 
-		task, err := model.GetTaskByID(env.Log, taskID)
 		if err != nil {
 			http.Error(w, "something went wrong", http.StatusInternalServerError)
 			return
@@ -217,14 +217,19 @@ func getTaskByIDHandle() http.Handler {
 func getStoryByIDHandle() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		storyID := r.URL.Query().Get("id")
-		// TODO: strongly coupled to id format
-		if strings.Count(storyID, "-") != 4 {
-			log.Errorf("storyID seems incorrect: %s\n", storyID)
-			http.Error(w, "bad story id", http.StatusBadRequest)
-			return
+
+		// I want to still be able to get entities
+		// by the old UUIDv4 since I have sometimes
+		// comented them and linked to them.
+		var story *model.Story
+		var err error
+		if looksLikeUUIDv4(storyID) {
+			log.Infof("id looks like UUIDv4: %s", storyID)
+			story, err = model.GetStoryByID(env.Log, storyID)
+		} else {
+			story, err = model.GetStoryBySQID(env.Log, storyID)
 		}
 
-		story, err := model.GetStoryByID(env.Log, storyID)
 		if err != nil {
 			http.Error(w, "something went wrong", http.StatusInternalServerError)
 			return
@@ -275,7 +280,7 @@ func createTaskHandle() http.Handler {
 			return
 		}
 
-		task, err := model.CreateTask(env.Log, createReq)
+		task, err := model.CreateTask(env.Log, env.Sqids, createReq)
 		if err != nil {
 			log.Errorf("task creation failed: %v", err)
 			http.Error(w, "something went wrong", http.StatusInternalServerError)
@@ -455,7 +460,7 @@ func createStoryHandle() http.Handler {
 			return
 		}
 
-		entity, err := model.CreateStory(env.Log, createReq)
+		entity, err := model.CreateStory(env.Log, env.Sqids, createReq)
 		if err != nil {
 			log.Errorf("story creation failed: %v", err)
 			http.Error(w, "something went wrong", http.StatusInternalServerError)
@@ -717,4 +722,8 @@ func destroyStoryRelationshipByIDHandle() http.Handler {
 			return
 		}
 	})
+}
+
+func looksLikeUUIDv4(id string) bool {
+	return len(id) == 36 && strings.Count(id, "-") == 4 && id[14] == '4'
 }

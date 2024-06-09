@@ -7,6 +7,7 @@ import (
 
 	"github.com/bschlaman/b-utils/pkg/logger"
 	"github.com/bschlaman/todo-app/database"
+	"github.com/sqids/sqids-go"
 )
 
 type InputError struct{}
@@ -69,6 +70,7 @@ func GetConfig(log *logger.BLogger) (map[string]interface{}, error) {
 	return serverConfig, nil
 }
 
+// LEGACY: used for getting by UUIDv4.  Still in use but may be replaced with GetCommentsByTaskSQID
 func GetCommentsByTaskID(log *logger.BLogger, taskID string) ([]Comment, error) {
 	conn, err := database.GetPgxConn()
 	if err != nil {
@@ -111,6 +113,44 @@ func GetCommentsByTaskID(log *logger.BLogger, taskID string) ([]Comment, error) 
 	return comments, nil
 }
 
+func GetTaskBySQID(log *logger.BLogger, taskSQID string) (*Task, error) {
+	conn, err := database.GetPgxConn()
+	if err != nil {
+		log.Errorf("unable to connect to database: %v", err)
+		return nil, err
+	}
+	defer conn.Release()
+
+	var id, sqid, title, desc, status string
+	var storyID *string
+	var cAt, uAt time.Time
+	var edited, bulkTask bool
+
+	err = conn.QueryRow(context.Background(),
+		`SELECT
+				id,
+				sqid,
+				created_at,
+				updated_at,
+				title,
+				description,
+				status,
+				story_id,
+				edited,
+				bulk_task
+				FROM tasks
+				WHERE sqid = $1`,
+		taskSQID,
+	).Scan(&id, &sqid, &cAt, &uAt, &title, &desc, &status, &storyID, &edited, &bulkTask)
+	if err != nil {
+		log.Errorf("Query failed: %v", err)
+		return nil, err
+	}
+
+	return &Task{id, sqid, cAt, uAt, title, desc, status, storyID, edited, bulkTask}, nil
+}
+
+// LEGACY: used for getting by UUIDv4
 func GetTaskByID(log *logger.BLogger, taskID string) (*Task, error) {
 	conn, err := database.GetPgxConn()
 	if err != nil {
@@ -119,7 +159,7 @@ func GetTaskByID(log *logger.BLogger, taskID string) (*Task, error) {
 	}
 	defer conn.Release()
 
-	var id, title, desc, status string
+	var id, sqid, title, desc, status string
 	var storyID *string
 	var cAt, uAt time.Time
 	var edited, bulkTask bool
@@ -127,6 +167,7 @@ func GetTaskByID(log *logger.BLogger, taskID string) (*Task, error) {
 	err = conn.QueryRow(context.Background(),
 		`SELECT
 				id,
+				sqid,
 				created_at,
 				updated_at,
 				title,
@@ -138,15 +179,51 @@ func GetTaskByID(log *logger.BLogger, taskID string) (*Task, error) {
 				FROM tasks
 				WHERE id = $1`,
 		taskID,
-	).Scan(&id, &cAt, &uAt, &title, &desc, &status, &storyID, &edited, &bulkTask)
+	).Scan(&id, &sqid, &cAt, &uAt, &title, &desc, &status, &storyID, &edited, &bulkTask)
 	if err != nil {
 		log.Errorf("Query failed: %v", err)
 		return nil, err
 	}
 
-	return &Task{id, cAt, uAt, title, desc, status, storyID, edited, bulkTask}, nil
+	return &Task{id, sqid, cAt, uAt, title, desc, status, storyID, edited, bulkTask}, nil
 }
 
+func GetStoryBySQID(log *logger.BLogger, storySQID string) (*Story, error) {
+	conn, err := database.GetPgxConn()
+	if err != nil {
+		log.Errorf("unable to connect to database: %v", err)
+		return nil, err
+	}
+	defer conn.Release()
+
+	var id, sqid, title, desc, status, sprintID string
+	var cAt, uAt time.Time
+	var edited bool
+
+	err = conn.QueryRow(context.Background(),
+		`SELECT
+				id,
+				sqid,
+				created_at,
+				updated_at,
+				title,
+				description,
+				status,
+				sprint_id,
+				edited
+				FROM stories
+				WHERE sqid = $1`,
+		storySQID,
+	).Scan(&id, &sqid, &cAt, &uAt, &title, &desc, &status, &sprintID, &edited)
+	if err != nil {
+		log.Errorf("Query failed: %v", err)
+		return nil, err
+	}
+
+	return &Story{id, sqid, cAt, uAt, title, desc, status, sprintID, edited}, nil
+}
+
+// LEGACY: used for getting by UUIDv4
 func GetStoryByID(log *logger.BLogger, storyID string) (*Story, error) {
 	conn, err := database.GetPgxConn()
 	if err != nil {
@@ -155,13 +232,14 @@ func GetStoryByID(log *logger.BLogger, storyID string) (*Story, error) {
 	}
 	defer conn.Release()
 
-	var id, title, desc, status, sprintID string
+	var id, sqid, title, desc, status, sprintID string
 	var cAt, uAt time.Time
 	var edited bool
 
 	err = conn.QueryRow(context.Background(),
 		`SELECT
 				id,
+				sqid,
 				created_at,
 				updated_at,
 				title,
@@ -172,13 +250,13 @@ func GetStoryByID(log *logger.BLogger, storyID string) (*Story, error) {
 				FROM stories
 				WHERE id = $1`,
 		storyID,
-	).Scan(&id, &cAt, &uAt, &title, &desc, &status, &sprintID, &edited)
+	).Scan(&id, &sqid, &cAt, &uAt, &title, &desc, &status, &sprintID, &edited)
 	if err != nil {
 		log.Errorf("Query failed: %v", err)
 		return nil, err
 	}
 
-	return &Story{id, cAt, uAt, title, desc, status, sprintID, edited}, nil
+	return &Story{id, sqid, cAt, uAt, title, desc, status, sprintID, edited}, nil
 }
 
 func GetTasks(log *logger.BLogger) ([]Task, error) {
@@ -192,6 +270,7 @@ func GetTasks(log *logger.BLogger) ([]Task, error) {
 	rows, err := conn.Query(context.Background(),
 		`SELECT
 				id,
+				sqid,
 				created_at,
 				updated_at,
 				title,
@@ -210,12 +289,12 @@ func GetTasks(log *logger.BLogger) ([]Task, error) {
 
 	var tasks = []Task{}
 	for rows.Next() {
-		var id, title, desc, status string
+		var id, sqid, title, desc, status string
 		var storyID *string
 		var cAt, uAt time.Time
 		var edited, bulkTask bool
-		rows.Scan(&id, &cAt, &uAt, &title, &desc, &status, &storyID, &edited, &bulkTask)
-		tasks = append(tasks, Task{id, cAt, uAt, title, desc, status, storyID, edited, bulkTask})
+		rows.Scan(&id, &sqid, &cAt, &uAt, &title, &desc, &status, &storyID, &edited, &bulkTask)
+		tasks = append(tasks, Task{id, sqid, cAt, uAt, title, desc, status, storyID, edited, bulkTask})
 	}
 	if rows.Err() != nil {
 		log.Errorf("Query failed: %v", rows.Err())
@@ -225,7 +304,7 @@ func GetTasks(log *logger.BLogger) ([]Task, error) {
 	return tasks, nil
 }
 
-func CreateTask(log *logger.BLogger, createReq CreateTaskReq) (*Task, error) {
+func CreateTask(log *logger.BLogger, s *sqids.Sqids, createReq CreateTaskReq) (*Task, error) {
 	conn, err := database.GetPgxConn()
 	if err != nil {
 		log.Errorf("unable to connect to database: %v", err)
@@ -233,10 +312,13 @@ func CreateTask(log *logger.BLogger, createReq CreateTaskReq) (*Task, error) {
 	}
 	defer conn.Release()
 
-	var id, title, desc, status string
+	var id, sqid, title, desc, status string
 	var storyID *string
 	var cAt, uAt time.Time
 	var edited, bulkTask bool
+
+	// generate the sqid
+	sq, _ := s.Encode([]uint64{uint64(time.Now().UnixNano())})
 
 	err = conn.QueryRow(context.Background(),
 		`INSERT INTO tasks (
@@ -244,15 +326,18 @@ func CreateTask(log *logger.BLogger, createReq CreateTaskReq) (*Task, error) {
 				title,
 				description,
 				story_id,
-				bulk_task
+				bulk_task,
+				sqid
 			) VALUES (
 				CURRENT_TIMESTAMP,
 				$1,
 				$2,
 				$3,
-				$4
+				$4,
+				$5
 			) RETURNING
 				id,
+				sqid,
 				created_at,
 				updated_at,
 				title,
@@ -265,13 +350,14 @@ func CreateTask(log *logger.BLogger, createReq CreateTaskReq) (*Task, error) {
 		createReq.Description,
 		createReq.StoryID,
 		createReq.BulkTask,
-	).Scan(&id, &cAt, &uAt, &title, &desc, &status, &storyID, &edited, &bulkTask)
+		sq,
+	).Scan(&id, &sqid, &cAt, &uAt, &title, &desc, &status, &storyID, &edited, &bulkTask)
 	if err != nil {
 		log.Errorf("conn.Exec failed: %v", err)
 		return nil, err
 	}
 
-	return &Task{id, cAt, uAt, title, desc, status, storyID, edited, bulkTask}, nil
+	return &Task{id, sqid, cAt, uAt, title, desc, status, storyID, edited, bulkTask}, nil
 }
 
 func CreateComment(log *logger.BLogger, createReq CreateCommentReq) (*Comment, error) {
@@ -476,6 +562,7 @@ func GetStories(log *logger.BLogger) ([]Story, error) {
 	rows, err := conn.Query(context.Background(),
 		`SELECT
 				id,
+				sqid,
 				created_at,
 				updated_at,
 				title,
@@ -493,11 +580,11 @@ func GetStories(log *logger.BLogger) ([]Story, error) {
 
 	var stories []Story = []Story{}
 	for rows.Next() {
-		var id, title, desc, status, sID string
+		var id, sqid, title, desc, status, sID string
 		var cAt, uAt time.Time
 		var edited bool
-		rows.Scan(&id, &cAt, &uAt, &title, &desc, &status, &sID, &edited)
-		stories = append(stories, Story{id, cAt, uAt, title, desc, status, sID, edited})
+		rows.Scan(&id, &sqid, &cAt, &uAt, &title, &desc, &status, &sID, &edited)
+		stories = append(stories, Story{id, sqid, cAt, uAt, title, desc, status, sID, edited})
 	}
 
 	if rows.Err() != nil {
@@ -508,7 +595,7 @@ func GetStories(log *logger.BLogger) ([]Story, error) {
 	return stories, nil
 }
 
-func CreateStory(log *logger.BLogger, createReq CreateStoryReq) (*Story, error) {
+func CreateStory(log *logger.BLogger, s *sqids.Sqids, createReq CreateStoryReq) (*Story, error) {
 	conn, err := database.GetPgxConn()
 	if err != nil {
 		log.Errorf("unable to connect to database: %v", err)
@@ -516,23 +603,29 @@ func CreateStory(log *logger.BLogger, createReq CreateStoryReq) (*Story, error) 
 	}
 	defer conn.Release()
 
-	var id, title, desc, status, sprintID string
+	var id, sqid, title, desc, status, sprintID string
 	var cAt, uAt time.Time
 	var edited bool
+
+	// generate the sqid
+	sq, _ := s.Encode([]uint64{uint64(time.Now().UnixNano())})
 
 	err = conn.QueryRow(context.Background(),
 		`INSERT INTO stories (
 				updated_at,
 				title,
 				description,
-				sprint_id
+				sprint_id,
+				sqid
 			) VALUES (
 				CURRENT_TIMESTAMP,
 				$1,
 				$2,
-				$3
+				$3,
+				$4
 			) RETURNING id
 				id,
+				sqid,
 				created_at,
 				updated_at,
 				title,
@@ -543,13 +636,14 @@ func CreateStory(log *logger.BLogger, createReq CreateStoryReq) (*Story, error) 
 		createReq.Title,
 		createReq.Description,
 		createReq.SprintID,
-	).Scan(&id, &cAt, &uAt, &title, &desc, &status, &sprintID, &edited)
+		sq,
+	).Scan(&id, &sqid, &cAt, &uAt, &title, &desc, &status, &sprintID, &edited)
 	if err != nil {
 		log.Errorf("conn.Exec failed: %v", err)
 		return nil, err
 	}
 
-	return &Story{id, cAt, uAt, title, desc, status, sprintID, edited}, nil
+	return &Story{id, sqid, cAt, uAt, title, desc, status, sprintID, edited}, nil
 }
 
 func GetTags(log *logger.BLogger) ([]Tag, error) {

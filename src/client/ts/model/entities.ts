@@ -39,6 +39,7 @@ export interface Config {
 
 export interface Task {
   id: string;
+  sqid: string;
   created_at: string;
   updated_at: string;
   title: string;
@@ -87,6 +88,7 @@ export interface Sprint {
 
 export interface Story {
   id: string;
+  sqid: string;
   created_at: string;
   updated_at: string;
   title: string;

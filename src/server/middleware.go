@@ -110,7 +110,7 @@ func matchIDRedirMiddleware() utils.Middleware {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// TODO: really really don't like this strategy
 			match, _ := regexp.MatchString(
-				"/task/([0-9a-z]+-){4}[0-9a-z]+",
+				"/task/[0-9a-zA-Z-]{6,}$",
 				r.URL.Path)
 			if match {
 				r.URL.Path = "/task/"

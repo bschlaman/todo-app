@@ -4,6 +4,7 @@ import "time"
 
 type Task struct {
 	ID          string    `json:"id"`
+	Sqid        string    `json:"sqid"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 	Title       string    `json:"title"`
@@ -52,6 +53,7 @@ type Sprint struct {
 
 type Story struct {
 	ID          string    `json:"id"`
+	Sqid        string    `json:"sqid"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 	Title       string    `json:"title"`

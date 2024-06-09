@@ -108,11 +108,15 @@ export default function TaskMetadata({
     void onTaskUpdate(updatedTask);
   }
 
-  function renderTaskMetadataPair(label: string, value: string) {
+  function renderTaskMetadataPair(
+    label: string,
+    value: string,
+    hover?: string,
+  ) {
     return (
       <div className="flex">
         <p className="mr-4 font-bold">{label}:</p>
-        <p>{value}</p>
+        <p title={hover}>{value}</p>
       </div>
     );
   }
@@ -141,7 +145,8 @@ export default function TaskMetadata({
   return (
     <>
       <div className="mt-4 flex gap-4">
-        {renderTaskMetadataPair("Id", formatId(task.id))}
+        {renderTaskMetadataPair("Id", formatId(task.id), task.id)}
+        {renderTaskMetadataPair("sqid", task.sqid)}
         {renderTaskMetadataPair(
           "Created",
           formatDate(new Date(task.created_at)),
