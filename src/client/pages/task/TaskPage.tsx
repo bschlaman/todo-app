@@ -183,6 +183,7 @@ export default function TaskPage() {
   useEffect(() => {
     if (task === null) return;
     document.title = task.title;
+    window.history.replaceState({}, "", `/task/${task.sqid}`);
   }, [task]);
 
   // this function should be a mirror of handleStoryUpdate.
