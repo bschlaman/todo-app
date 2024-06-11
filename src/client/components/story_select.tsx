@@ -8,7 +8,7 @@ import { NULL_STORY_IDENTIFIER } from "../ts/lib/common";
 export function renderStorySelectMenuItem(
   story: Story,
   tagsById: Map<string, Tag>,
-  assocTagIdsByStoryId: Map<string, string[]>
+  assocTagIdsByStoryId: Map<string, string[]>,
 ) {
   return (
     <>

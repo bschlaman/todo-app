@@ -103,7 +103,11 @@ export default function TaskMetadata({
     event: React.ChangeEvent<HTMLSelectElement> | SelectChangeEvent<string>,
   ) {
     const { name, value } = event.target;
-    const updatedTask = { ...task, [name]: value };
+    const updatedTask = {
+      ...task,
+      // clunky way to check if I've selected null story
+      [name]: value === NULL_STORY_IDENTIFIER ? null : value,
+    };
     console.log(updatedTask, name, value);
     void onTaskUpdate(updatedTask);
   }
