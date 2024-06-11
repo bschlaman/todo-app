@@ -1,9 +1,8 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { TASK_STATUS, Story, Tag, Task } from "../../ts/model/entities";
 import CopyToClipboardButton from "../../components/copy_to_clipboard_button";
 import { DRAG_TYPE } from "./drag";
 import { useDrag } from "react-dnd";
-import styles from "./TaskCard.module.css";
 import { renderTagBadgesForStoryId } from "../../components/tag_badge";
 import ReactMarkdownCustom from "../../components/markdown";
 
@@ -24,6 +23,15 @@ export default function TaskCard({
   const story = storiesById.get(task.story_id);
   const taskPageRef = `/task/${task.sqid}`;
 
+  // workaround for strict mode messing up drag previews.
+  // react-dnd is not maintained, see https://github.com/react-dnd/react-dnd/issues/3452
+  const [called, setCalled] = useState(false);
+  useEffect(() => {
+    if (!called) {
+      setCalled(true);
+    }
+  }, [called]);
+
   const [{ isDragging }, drag, preview] = useDrag(
     () => ({
       type: DRAG_TYPE.CARD,
@@ -40,17 +48,7 @@ export default function TaskCard({
   function renderHandle() {
     return (
       <p
-        style={{
-          position: "absolute",
-          top: "10px",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          textAlign: "center",
-          color: "grey",
-          margin: "0",
-          cursor: "grab",
-        }}
-        className={styles.grabable}
+        className="absolute left-1/2 top-2.5 m-0 -translate-x-1/2 -translate-y-1/2 cursor-grab text-center text-gray-500 active:cursor-grabbing"
         ref={drag}
       >
         &#8801;
@@ -66,48 +64,33 @@ export default function TaskCard({
     return {};
   }
 
+  // workaround for strict mode messing up drag previews
+  if (!called) return null;
+
   return (
     <div
+      className="relative mb-4 rounded-md bg-slate-50 p-5 shadow-md outline outline-2 outline-slate-700"
       style={{
-        position: "relative",
-        borderRadius: "5px",
-        outline: "2px solid grey",
-        padding: "1.2rem 1rem 1rem 1rem",
-        background: "var(--transp-white)",
-        marginBottom: "1rem",
-        opacity: isDragging ? 0.5 : 1,
-        boxShadow: "3px 3px 2px darkgrey",
+        opacity: isDragging ? 0.7 : 1,
         ...specialStyles(task),
       }}
       // TODO (2023.05.21): check this issue: https://github.com/react-dnd/react-dnd/issues/3452
       ref={preview}
     >
-      <h3>{task.title}</h3>
-      <div
-        style={{
-          position: "absolute",
-          bottom: "10px",
-          right: "10px",
-        }}
-      >
+      <h3 className="mb-4 border-b-2 border-b-slate-400 text-lg font-bold">
+        {task.title}
+      </h3>
+      <div className="absolute bottom-3 right-3">
         <CopyToClipboardButton value={taskPageRef}></CopyToClipboardButton>
       </div>
       {renderHandle()}
-      <a
-        style={{
-          position: "absolute",
-          top: "10px",
-          right: "10px",
-        }}
-        href={taskPageRef}
-        title="Edit"
-      >
+      <a className="absolute right-3 top-3" href={taskPageRef} title="Edit">
         📝
       </a>
       {!task.bulk_task && task.status !== TASK_STATUS.DONE && (
         <ReactMarkdownCustom content={task.description} />
       )}
-      <div style={{ marginBottom: "1rem" }}>
+      <div className="mb-4">
         {renderTagBadgesForStoryId(
           task.story_id,
           tagsById,
@@ -115,11 +98,7 @@ export default function TaskCard({
         )}
       </div>
       <a
-        style={{
-          fontSize: "0.8rem",
-          textDecoration: "underline",
-          color: "grey",
-        }}
+        className="text-sm text-slate-600 underline"
         href={"#" + (story?.id ?? "")}
       >
         {story?.title ?? "-"}

@@ -52,7 +52,6 @@ export default function StoryCard({
   >;
   config: Config | null;
 }) {
-  const metadataFontSize = "0.8rem";
   const [selectedSprintId, setSelectedSprintId] = useState(story.sprint_id);
   const storyPageRef = `/story/${story.sqid}`;
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -121,16 +120,16 @@ export default function StoryCard({
     ];
 
     return (
-      <table style={{ fontSize: metadataFontSize }}>
+      <table className="mt-2 text-sm">
         <tbody>
           {storyRelTableRows
             .filter(([relStory, _]) => relStory !== undefined)
             .map(([relStory, emoji]) => (
               <tr key={relStory?.id}>
-                <td style={{ whiteSpace: "nowrap", fontWeight: "lighter" }}>
+                <td className="whitespace-nowrap font-extralight">
                   {emoji} {sprintsById.get(relStory?.sprint_id ?? "")?.title}
                 </td>
-                <td style={{ paddingLeft: "0.8rem" }}>
+                <td className="pl-3">
                   <em>
                     <strong>{relStory?.title}</strong>
                   </em>
@@ -145,6 +144,7 @@ export default function StoryCard({
   function renderArchiveButton() {
     return (
       <button
+        className="rounded-md bg-slate-50 px-1 outline outline-2"
         onClick={() => {
           void (async () => {
             if (!window.confirm("Archive this story?")) return;
@@ -177,24 +177,17 @@ export default function StoryCard({
     <div
       // storyURIFragment
       id={story.id}
+      className="relative w-[30%] rounded-md bg-slate-300 p-4 pt-10"
       style={{
-        position: "relative",
-        borderRadius: "5px",
-        padding: "1.2rem 1rem 1rem 1rem",
-        background: "#ebeded",
-        maxWidth: "30%",
         boxShadow: selected
           ? "0 0 4px 4px rgba(255, 70, 50, 0.7)"
           : "3px 3px 2px darkgrey",
       }}
     >
       {isEditingTitle ? (
-        <div style={{ marginTop: "2rem", display: "flex", gap: "2rem" }}>
+        <div className="mt-8 flex gap-8">
           <textarea
-            style={{
-              fontSize: "1rem",
-              resize: "none",
-            }}
+            className="resize-none"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             maxLength={config?.story_title_max_len}
@@ -209,32 +202,22 @@ export default function StoryCard({
           </button>
         </div>
       ) : (
-        <h3 onDoubleClick={() => setIsEditingTitle(true)}>{title}</h3>
+        <h3
+          className="text-lg font-bold"
+          onDoubleClick={() => setIsEditingTitle(true)}
+        >
+          {title}
+        </h3>
       )}
-      <div
-        style={{
-          position: "absolute",
-          top: "10px",
-          left: "10px",
-        }}
-      >
+      <div className="absolute left-3 top-3">
         <CopyToClipboardButton value={storyPageRef}></CopyToClipboardButton>
       </div>
-      <a
-        style={{
-          position: "absolute",
-          top: "10px",
-          right: "10px",
-        }}
-        href={storyPageRef}
-        title="Edit"
-      >
+      <a className="absolute right-3 top-3" href={storyPageRef} title="Edit">
         📝
       </a>
       {isEditingDescription ? (
-        <div style={{ marginTop: "2rem", display: "flex", gap: "2rem" }}>
+        <div className="mt-8 flex gap-8">
           <textarea
-            style={{ fontSize: "1rem" }}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             maxLength={config?.story_desc_max_len}
@@ -300,7 +283,7 @@ export default function StoryCard({
             </option>
           ))}
       </select>
-      <div style={{ fontSize: metadataFontSize }}>
+      <div className="mt-4 text-sm">
         <p>
           <strong>Tasks in this story</strong>
         </p>
@@ -310,28 +293,28 @@ export default function StoryCard({
             ?.sort((a, b) => a.status.localeCompare(b.status))
             .map((task) => (
               <li key={task.id}>
-                <p style={{ display: "inline", color: "grey" }}>
-                  ({task.status}){" "}
-                </p>
+                <p className="inline font-light">({task.status}) </p>
                 {task.title}
               </li>
             ))}
         </ul>
       </div>
       {renderStoryRelationshipsTable()}
-      <CopyToNewStory
-        continuedStory={story}
-        sprints={[...sprintsById.values()]}
-        tasksByStoryId={tasksByStoryId}
-        tagsById={tagsById}
-        tagAssignments={tagAssignments}
-        setTasks={setTasks}
-        setStories={setStories}
-        setTagAssignments={setTagAssignments}
-        setStoryRelationships={setStoryRelationships}
-        config={config}
-      />
-      {renderArchiveButton()}
+      <div className="mt-4 flex justify-between">
+        <CopyToNewStory
+          continuedStory={story}
+          sprints={[...sprintsById.values()]}
+          tasksByStoryId={tasksByStoryId}
+          tagsById={tagsById}
+          tagAssignments={tagAssignments}
+          setTasks={setTasks}
+          setStories={setStories}
+          setTagAssignments={setTagAssignments}
+          setStoryRelationships={setStoryRelationships}
+          config={config}
+        />
+        {renderArchiveButton()}
+      </div>
     </div>
   );
 }

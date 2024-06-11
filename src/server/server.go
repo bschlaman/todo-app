@@ -29,7 +29,7 @@ const (
 	metricNamespace        string           = "todo-app/api"
 	createEntityIDKey      CustomContextKey = "createReqIDKey"
 	getRequestBytesKey     CustomContextKey = "getReqKey"
-	cacheTTLSeconds        int              = 2
+	cacheTTLSeconds        int              = 2000
 	rootServerPath         string           = "/sprintboard"
 )
 

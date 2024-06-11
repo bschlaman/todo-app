@@ -22,17 +22,13 @@ export default function Bucket({ status, children }: BucketProps) {
 
   return (
     <div
+      className="relative w-full overflow-hidden p-4 pt-8 shadow-inner"
       style={{
-        position: "relative",
         background: active ? "darkgrey" : "lightgrey",
-        boxShadow: "inset 0 0 3px",
-        overflow: "hidden",
-        width: "100%",
-        padding: "2.5rem 1rem 1rem 1rem",
       }}
       ref={drop}
     >
-      <p style={{ position: "absolute", top: 0 }}>{status}</p>
+      <p className="absolute top-1">{status}</p>
       {children}
     </div>
   );

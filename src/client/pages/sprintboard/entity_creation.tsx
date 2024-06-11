@@ -47,7 +47,7 @@ import Papa from "papaparse";
 
 function renderCreationButton(
   buttonText: string,
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>,
 ) {
   return (
     <Button
@@ -64,7 +64,7 @@ function renderCreationButton(
 
 export function renderDialogActions(
   handleClose: React.MouseEventHandler<HTMLButtonElement>,
-  handleSave: React.MouseEventHandler<HTMLButtonElement>
+  handleSave: React.MouseEventHandler<HTMLButtonElement>,
 ) {
   return (
     <DialogActions>
@@ -110,7 +110,7 @@ export function CreateTask({
         titleRef.current.value,
         descriptionRef.current.value,
         storyId === NULL_STORY_IDENTIFIER ? null : storyId,
-        false
+        false,
       );
       setTasks((tasks) => [...tasks, task]);
       handleClose();
@@ -203,7 +203,7 @@ export function CreateStory({
       const story = await createStory(
         titleRef.current.value,
         descriptionRef.current.value,
-        sprintIdRef.current.value
+        sprintIdRef.current.value,
       );
       setStories((stories) => [...stories, story]);
       for (const tagId of selectedTagIds) {
@@ -263,7 +263,7 @@ export function CreateStory({
                 ?.sort(
                   (s0, s1) =>
                     new Date(s1.start_date).getTime() -
-                    new Date(s0.start_date).getTime()
+                    new Date(s0.start_date).getTime(),
                 )
                 .slice(0, 5)
                 .map((sprint) => (
@@ -331,20 +331,20 @@ export function CreateSprint({
           // Add 1 day to the sprint duration, as sprint end dates are somewhat
           // incorrectly modeled in the db.
           // A sprint should technically "end" at midnight the following day.
-          86400
+          86400,
       );
       // Allow for a 1hr delta to account for daylight savings in March and November
       if (Math.abs(newSprintDuration - config.sprint_duration_seconds) > 3600)
         throw Error(
           `Sprint duration must be ${formatSeconds(
-            config?.sprint_duration_seconds ?? -1
-          )}; instead got ${formatSeconds(newSprintDuration)}`
+            config?.sprint_duration_seconds ?? -1,
+          )}; instead got ${formatSeconds(newSprintDuration)}`,
         );
 
       const sprint = await createSprint(
         titleRef.current.value,
         new Date(startDateRef.current.value),
-        new Date(endDateRef.current.value)
+        new Date(endDateRef.current.value),
       );
       setSprints((sprints) => [...sprints, sprint]);
       handleClose();
@@ -415,7 +415,7 @@ export function CreateTag({
       if (descriptionRef.current === null) return;
       const tag = await createTag(
         titleRef.current.value,
-        descriptionRef.current.value
+        descriptionRef.current.value,
       );
       setTags((tags) => [...tags, tag]);
       handleClose();
@@ -501,7 +501,7 @@ export function CreateBulkTask({
       await bulkCreateTask(
         titleRef.current.value,
         descriptionRef.current.value,
-        storyId === NULL_STORY_IDENTIFIER ? null : storyId
+        storyId === NULL_STORY_IDENTIFIER ? null : storyId,
       );
       handleClose();
     })();
@@ -510,7 +510,7 @@ export function CreateBulkTask({
   async function bulkCreateTask(
     commonTitle: string,
     commonDescription: string,
-    storyId: string | null
+    storyId: string | null,
   ) {
     const sprint = sprintsById.get(selectedSprintId ?? "");
     if (sprint === undefined) return;
@@ -530,7 +530,7 @@ export function CreateBulkTask({
         prefix + commonTitle,
         commonDescription,
         storyId,
-        true
+        true,
       );
       setTasks((tasks) => [...tasks, task]);
     }
@@ -660,15 +660,15 @@ export function BatchUploadTask({
           ptask.title,
           ptask.description,
           ptask.storyId,
-          false
+          false,
         );
         setTasks((tasks) => [...tasks, task]);
         setTasksToCreate((ptasks) =>
           ptasks.map((ptask) =>
             ptask.title === task.title && ptask.description === task.description
               ? { ...ptask, created: true }
-              : ptask
-          )
+              : ptask,
+          ),
         );
       }
     })();
@@ -699,7 +699,7 @@ export function BatchUploadTask({
               type="file"
               onChange={(e) => {
                 setFile(
-                  e.target.files?.[0] !== undefined ? e.target.files[0] : null
+                  e.target.files?.[0] !== undefined ? e.target.files[0] : null,
                 );
               }}
             />
@@ -809,9 +809,9 @@ export function CopyToNewStory({
       setSelectedTagIds(
         tagAssignments
           .filter((ta) => ta.story_id === continuedStory.id)
-          .map((ta) => ta.tag_id)
+          .map((ta) => ta.tag_id),
       ),
-    [tagAssignments, continuedStory]
+    [tagAssignments, continuedStory],
   );
 
   function handleClose() {
@@ -829,7 +829,7 @@ export function CopyToNewStory({
   function appendEntityCreationEventLog(
     entityId: string,
     entityType: string,
-    entityTitle: string
+    entityTitle: string,
   ) {
     setEntityCreateEventLog((eue) => [
       ...eue,
@@ -846,7 +846,7 @@ export function CopyToNewStory({
       const story = await createStory(
         titleRef.current.value,
         descriptionRef.current.value,
-        sprintIdRef.current.value
+        sprintIdRef.current.value,
       );
       setStories((stories) => [...stories, story]);
       appendEntityCreationEventLog(story.id, "story", story.title);
@@ -860,7 +860,7 @@ export function CopyToNewStory({
         appendEntityCreationEventLog(
           tagAssignment.id.toString(),
           "tag assignment",
-          tagsById.get(tagAssignment.tag_id)?.title ?? ""
+          tagsById.get(tagAssignment.tag_id)?.title ?? "",
         );
         console.log("Created tag assignment", tagAssignment);
       }
@@ -868,7 +868,7 @@ export function CopyToNewStory({
       const storyRelationship = await createStoryRelationship(
         continuedStory.id,
         story.id,
-        STORY_RELATIONSHIP.ContinuedBy
+        STORY_RELATIONSHIP.ContinuedBy,
       );
       setStoryRelationships((storyRelationships) => [
         ...storyRelationships,
@@ -877,7 +877,7 @@ export function CopyToNewStory({
       appendEntityCreationEventLog(
         storyRelationship.id.toString(),
         "story relationship",
-        STORY_RELATIONSHIP.ContinuedBy
+        STORY_RELATIONSHIP.ContinuedBy,
       );
       console.log("Created story relationship", storyRelationship);
       // Step 4: move the unfinished tasks to the new story
@@ -886,7 +886,7 @@ export function CopyToNewStory({
       ).filter(
         (task) =>
           task.status === TASK_STATUS.BACKLOG ||
-          task.status === TASK_STATUS.DOING
+          task.status === TASK_STATUS.DOING,
       );
       for (const task of tasksToUpdate) {
         // TODO (2023.06.26): update API to return the updated task
@@ -895,12 +895,12 @@ export function CopyToNewStory({
           task.status,
           task.title,
           task.description,
-          story.id
+          story.id,
         );
         setTasks((tasks) =>
           tasks.map((_task) =>
-            _task.id === task.id ? { ..._task, story_id: story.id } : _task
-          )
+            _task.id === task.id ? { ..._task, story_id: story.id } : _task,
+          ),
         );
         setTaskMoveProgress((prog) => {
           const prevNum = (prog * tasksToUpdate.length) / 100;
@@ -915,6 +915,7 @@ export function CopyToNewStory({
   return (
     <>
       <button
+        className="rounded-md bg-slate-50 px-1 outline outline-2"
         onClick={() => {
           setOpen(true);
         }}
@@ -962,7 +963,7 @@ export function CopyToNewStory({
                   new Date(prev.start_date).getTime() >
                   new Date(curr.start_date).getTime()
                     ? prev
-                    : curr
+                    : curr,
                 ).id
               }
               margin="dense"
@@ -972,7 +973,7 @@ export function CopyToNewStory({
                   .sort(
                     (s0, s1) =>
                       new Date(s1.start_date).getTime() -
-                      new Date(s0.start_date).getTime()
+                      new Date(s0.start_date).getTime(),
                   )
                   .slice(0, 5)
                   .map((sprint) => (

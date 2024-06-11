@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import SprintboardPage from "./SprintboardPage";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import "../../css/tmp.tailwind.css";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
