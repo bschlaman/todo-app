@@ -318,7 +318,7 @@ func CreateTask(log *logger.BLogger, s *sqids.Sqids, createReq CreateTaskReq) (*
 	var edited, bulkTask bool
 
 	// generate the sqid
-	sq, _ := s.Encode([]uint64{uint64(time.Now().UnixNano())})
+	sq, _ := s.Encode([]uint64{uint64(time.Now().UnixNano() / 1e6)})
 
 	err = conn.QueryRow(context.Background(),
 		`INSERT INTO tasks (
