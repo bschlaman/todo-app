@@ -144,7 +144,7 @@ export default function StoryCard({
   function renderArchiveButton() {
     return (
       <button
-        className="rounded-md bg-slate-50 px-1 outline outline-2"
+        className="ml-4 rounded-md bg-slate-50 px-1 outline outline-1"
         onClick={() => {
           void (async () => {
             if (!window.confirm("Archive this story?")) return;
@@ -300,7 +300,7 @@ export default function StoryCard({
         </ul>
       </div>
       {renderStoryRelationshipsTable()}
-      <div className="mt-4 flex justify-between">
+      <div className="mt-4">
         <CopyToNewStory
           continuedStory={story}
           sprints={[...sprintsById.values()]}

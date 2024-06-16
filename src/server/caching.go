@@ -46,6 +46,13 @@ func (cs *cacheStore) set(key string, value []byte) {
 type responseRecorder struct {
 	http.ResponseWriter
 	body *bytes.Buffer
+	// so I can limit caching to only 200 responses
+	statusCode int
+}
+
+func (rr *responseRecorder) WriteHeader(code int) {
+	rr.statusCode = code
+	rr.ResponseWriter.WriteHeader(code)
 }
 
 func (rr *responseRecorder) Write(content []byte) (int, error) {

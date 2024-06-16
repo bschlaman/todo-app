@@ -915,7 +915,7 @@ export function CopyToNewStory({
   return (
     <>
       <button
-        className="rounded-md bg-slate-50 px-1 outline outline-2"
+        className="rounded-md bg-slate-50 px-1 outline outline-1"
         onClick={() => {
           setOpen(true);
         }}

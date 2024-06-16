@@ -1,16 +1,19 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
-const pages_v2 = ["login", "task", "sprintboard"];
+const pages_v2 = ["login", "task", "sprintboard", "stories"];
 const publicDir = "dist";
 
 module.exports = {
   mode: "development",
   devtool: "inline-source-map",
-  entry: pages_v2.reduce((config, page) => {
-    config[page] = `./src/client/pages/${page}/index.tsx`;
-    return config;
-  }, {}),
+  entry: pages_v2.reduce(
+    (config, page) => {
+      config[page] = `./src/client/pages/${page}/index.tsx`;
+      return config;
+    },
+    {},
+  ),
   resolve: {
     extensions: [".ts", ".tsx", ".js"],
   },
@@ -42,15 +45,24 @@ module.exports = {
   experiments: {
     topLevelAwait: true,
   },
-  // only using one type of plugin, so could remove this concat
-  plugins: pages_v2.map(
-    (page) =>
-      new HtmlWebpackPlugin({
-        template: `./src/client/templates/root.html`,
-        filename: `./${page}/index.html`,
-        chunks: [page],
-        title: `Todosky | ${page}`,
-      }),
+  plugins: [].concat(
+    pages_v2.map(
+      (page) =>
+        new HtmlWebpackPlugin({
+          template: `./src/client/templates/root.html`,
+          filename: `./${page}/index.html`,
+          chunks: [page],
+          title: `Todosky | ${page}`,
+        }),
+    ),
+    [
+      // new HtmlWebpackPlugin({
+      //   template: `./src/client/templates/root.html`,
+      //   filename: `./stories/index.html`,
+      //   chunks: ["stories"],
+      //   title: `Todosky | stories`,
+      // }),
+    ],
   ),
   devServer: {
     client: {

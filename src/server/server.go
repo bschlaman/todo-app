@@ -136,7 +136,6 @@ func main() {
 	if os.Getenv("SQIDS_ALPHABET") == "" {
 		log.Fatal("SQIDS_ALPHABET env var not set")
 	}
-	log.Infof("using caller sqids alphabet: %s", os.Getenv("SQIDS_ALPHABET"))
 
 	// server startup event log
 	serverStartDuration := time.Since(serverStart)

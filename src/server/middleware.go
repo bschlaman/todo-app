@@ -229,11 +229,14 @@ func cachingMiddleware(apiType string, cache *cacheStore) utils.Middleware {
 				return
 			}
 
-			recorder := &responseRecorder{w, new(bytes.Buffer)}
+			recorder := &responseRecorder{w, new(bytes.Buffer), http.StatusOK}
 
 			h.ServeHTTP(recorder, r)
 
-			cache.set(cacheKey, recorder.body.Bytes())
+			// only cache response if status code is 200
+			if recorder.statusCode == http.StatusOK {
+				cache.set(cacheKey, recorder.body.Bytes())
+			}
 			cacheMutex.Unlock()
 		})
 	}
