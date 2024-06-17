@@ -265,13 +265,7 @@ export default function SprintboardPage() {
   return (
     <>
       {/* Sprintboard Header */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
+      <div className="flex items-center justify-around p-4">
         <EntityCreationStation
           // eh, ?? "" could be better...
           // if selectedSprintId is null, look for "", which should return undefined
@@ -289,7 +283,7 @@ export default function SprintboardPage() {
           setTagAssignments={setTagAssignments}
         />
         {/* Entity filtering  */}
-        <div style={{ maxWidth: "50vw", fontSize: "1.3rem" }}>
+        <div className="text-lg">
           {tags.map((tag) => (
             <TagOption
               key={tag.id}
@@ -303,6 +297,8 @@ export default function SprintboardPage() {
               }}
             />
           ))}
+        </div>
+        <div>
           {
             // TODO (2023.06.02): make this a function, since it is
             // used in more than one place
@@ -358,12 +354,7 @@ export default function SprintboardPage() {
           />
         </div>
       </div>
-      <div
-        style={{
-          display: "flex",
-          gap: "1rem",
-        }}
-      >
+      <div className="flex gap-4">
         <DndProvider backend={HTML5Backend}>
           <Bucket status={TASK_STATUS.BACKLOG}>
             {renderTaskCardsForStatus(TASK_STATUS.BACKLOG)}

@@ -144,7 +144,7 @@ export default function StoryCard({
   function renderArchiveButton() {
     return (
       <button
-        className="ml-4 rounded-md bg-slate-50 px-1 outline outline-1"
+        className="ml-4 rounded-md bg-slate-100 px-1 outline outline-1 hover:bg-slate-400"
         onClick={() => {
           void (async () => {
             if (!window.confirm("Archive this story?")) return;
@@ -177,7 +177,7 @@ export default function StoryCard({
     <div
       // storyURIFragment
       id={story.id}
-      className="relative w-[30%] rounded-md bg-slate-300 p-4 pt-10"
+      className="relative w-[30%] rounded-md bg-slate-200 p-4 pt-10"
       style={{
         boxShadow: selected
           ? "0 0 4px 4px rgba(255, 70, 50, 0.7)"
@@ -209,7 +209,7 @@ export default function StoryCard({
           {title}
         </h3>
       )}
-      <div className="absolute left-3 top-3">
+      <div className="absolute left-3 top-3 bg-slate-100">
         <CopyToClipboardButton value={storyPageRef}></CopyToClipboardButton>
       </div>
       <a className="absolute right-3 top-3" href={storyPageRef} title="Edit">
@@ -287,7 +287,7 @@ export default function StoryCard({
         <p>
           <strong>Tasks in this story</strong>
         </p>
-        <ul>
+        <ul className="list-disc pl-8">
           {tasksByStoryId
             .get(story.id)
             ?.sort((a, b) => a.status.localeCompare(b.status))

@@ -50,15 +50,14 @@ function renderCreationButton(
   setOpen: React.Dispatch<React.SetStateAction<boolean>>,
 ) {
   return (
-    <Button
-      variant="contained"
-      color="primary"
+    <button
+      className="whitespace-nowrap rounded-lg bg-slate-800 px-4 py-1 text-slate-100 hover:bg-slate-600"
       onClick={() => {
         setOpen(true);
       }}
     >
       {buttonText}
-    </Button>
+    </button>
   );
 }
 
@@ -915,7 +914,7 @@ export function CopyToNewStory({
   return (
     <>
       <button
-        className="rounded-md bg-slate-50 px-1 outline outline-1"
+        className="rounded-md bg-slate-100 px-1 outline outline-1 hover:bg-slate-400"
         onClick={() => {
           setOpen(true);
         }}
@@ -1043,7 +1042,7 @@ export default function EntityCreationStation({
   setTagAssignments,
 }: EntityCreationStationProps) {
   return (
-    <div style={{ display: "flex", gap: "1rem" }}>
+    <div className="flex flex-wrap gap-2">
       <CreateTask
         stories={stories}
         tagsById={tagsById}
