@@ -3,34 +3,29 @@ import ReactDOM from "react-dom/client";
 import "../../css/tmp.tailwind.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Story, { loader as storyLoader } from "../../routes/story";
-import Stories, { loader as storiesLoader, StoriesRoot } from "./stories";
+import StoriesRoot from "./stories";
+import { getStories } from "../../ts/lib/api";
 
-const router = createBrowserRouter([
-  {
-    path: "/stories",
-    element: <StoriesRoot />,
-    // errorElement: <ErrorPage />,
-    loader: storiesLoader,
-    // action: rootAction,
-    children: [
-      { index: true, element: <Stories /> },
-      {
-        path: "/stories/story/:story_id",
-        element: <Story />,
-        loader: storyLoader,
-      },
-    ],
-    // children: [
-    //   { index: true, element: <Index /> },
-    //   {
-    //     path: "stories/:story_id/edit",
-    //     element: <EditStory />,
-    //     loader: storyLoader,
-    //     action: editAction,
-    //   },
-    // ]
-  },
-]);
+const router = createBrowserRouter(
+  [
+    {
+      path: "/",
+      element: <StoriesRoot />,
+      // errorElement: <ErrorPage />,
+      loader: async () => await getStories(),
+      // action: rootAction,
+      children: [
+        { index: true, element: <div>click on the stories below</div> },
+        {
+          path: "/story/:story_sqid",
+          element: <Story />,
+          loader: storyLoader,
+        },
+      ],
+    },
+  ],
+  { basename: "/stories" },
+);
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>

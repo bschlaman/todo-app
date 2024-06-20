@@ -56,14 +56,6 @@ export default function TaskCard({
     );
   }
 
-  function specialStyles(task: Task) {
-    // done status takes precedence over bulk task
-    if (task.status === TASK_STATUS.DONE)
-      return { borderLeft: "6px solid var(--color4)" };
-    if (task.bulk_task) return { borderLeft: "12px solid lightblue" };
-    return {};
-  }
-
   // workaround for strict mode messing up drag previews
   if (!called) return null;
 
@@ -72,12 +64,15 @@ export default function TaskCard({
       className="relative mb-4 rounded-md bg-slate-50 p-5 shadow-md outline outline-2 outline-slate-700"
       style={{
         opacity: isDragging ? 0.7 : 1,
-        ...specialStyles(task),
+        ...(task.status === TASK_STATUS.DONE
+          ? { borderLeft: "6px solid green" }
+          : {}),
+        ...(task.bulk_task ? { borderLeft: "12px solid lightblue" } : {}),
       }}
       // TODO (2023.05.21): check this issue: https://github.com/react-dnd/react-dnd/issues/3452
       ref={preview}
     >
-      <h3 className="mb-4 border-b-2 border-b-slate-400 text-lg font-bold">
+      <h3 className="mb-4 border-b border-b-slate-400 text-xl font-bold">
         {task.title}
       </h3>
       <div className="absolute bottom-3 right-3">

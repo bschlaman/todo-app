@@ -367,7 +367,7 @@ export default function SprintboardPage() {
           </Bucket>
         </DndProvider>
       </div>
-      <div className="mt-8 flex flex-wrap gap-4">
+      <div className="mt-8 flex flex-wrap gap-4 mx-4">
         {stories
           .filter((story) => filterStory(story, selectedSprintId))
           .map((story) => (

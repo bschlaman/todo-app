@@ -5,7 +5,7 @@ import { Story } from "../ts/model/entities";
 import type { LoaderFunctionArgs } from "react-router-dom";
 
 export async function loader({ params }: LoaderFunctionArgs) {
-  return await getStoryById(params["story_id"] ?? "");
+  return await getStoryById(params["story_sqid"] ?? "");
 }
 
 export default function Story() {
