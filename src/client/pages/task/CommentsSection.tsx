@@ -68,7 +68,7 @@ export default function CommentsSection({
         // is a bad idea, since it may conflict with other entities
         <Comment key={comment.id} comment={comment}></Comment>
       ))}
-      <div className="relative mt-4 rounded-md p-4 outline outline-2">
+      <div className="relative mt-4 rounded-md bg-zinc-100 p-4 outline outline-2">
         <textarea
           className="my-4 w-full resize-none rounded-md p-4"
           onKeyDown={(e) => {

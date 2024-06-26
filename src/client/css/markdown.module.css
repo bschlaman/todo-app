@@ -15,6 +15,16 @@
     font-weight: bold;
 }
 
+.markdown h4 {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.markdown hr {
+    border: 1px solid lightgrey;
+    border-radius: 1px;
+}
+
 .markdown blockquote {
     border-left: 3px solid lightgray;
     padding-left: 10px;
