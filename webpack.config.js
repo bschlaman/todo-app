@@ -7,13 +7,10 @@ const publicDir = "dist";
 module.exports = {
   mode: "development",
   devtool: "inline-source-map",
-  entry: pages_v2.reduce(
-    (config, page) => {
-      config[page] = `./src/client/pages/${page}/index.tsx`;
-      return config;
-    },
-    {},
-  ),
+  entry: pages_v2.reduce((config, page) => {
+    config[page] = `./src/client/pages/${page}/index.tsx`;
+    return config;
+  }, {}),
   resolve: {
     extensions: [".ts", ".tsx", ".js"],
   },
@@ -65,6 +62,7 @@ module.exports = {
     ],
   ),
   devServer: {
+    allowedHosts: ["all"],
     client: {
       progress: true,
       overlay: false, // TODO: set this to true once I can

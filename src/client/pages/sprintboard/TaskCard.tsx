@@ -48,7 +48,7 @@ export default function TaskCard({
   function renderHandle() {
     return (
       <p
-        className="absolute left-1/2 top-2.5 m-0 -translate-x-1/2 -translate-y-1/2 cursor-grab text-center text-gray-500 active:cursor-grabbing"
+        className="absolute left-1/2 top-2.5 m-0 -translate-x-1/2 -translate-y-1/2 cursor-grab select-none text-center text-gray-500 active:cursor-grabbing"
         ref={drag}
       >
         &#8801;
@@ -85,7 +85,7 @@ export default function TaskCard({
       {!task.bulk_task && task.status !== TASK_STATUS.DONE && (
         <ReactMarkdownCustom content={task.description} />
       )}
-      <div className="mb-4">
+      <div className="my-4">
         {renderTagBadgesForStoryId(
           task.story_id,
           tagsById,

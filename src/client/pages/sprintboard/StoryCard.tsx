@@ -177,7 +177,7 @@ export default function StoryCard({
     <div
       // storyURIFragment
       id={story.id}
-      className="relative w-[30%] rounded-md bg-slate-200 p-4 pt-10"
+      className="relative w-[30%] rounded-md bg-zinc-200 p-4 pt-10"
       style={{
         boxShadow: selected
           ? "0 0 4px 4px rgba(255, 70, 50, 0.7)"
@@ -252,6 +252,7 @@ export default function StoryCard({
         // used in more than one place
       }
       <select
+        className="rounded-lg border border-zinc-300 bg-transparent p-2.5 text-sm text-zinc-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
         onChange={(e) => {
           setSelectedSprintId(e.target.value);
           void (async () => {

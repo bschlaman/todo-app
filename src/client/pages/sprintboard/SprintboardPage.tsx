@@ -304,6 +304,7 @@ export default function SprintboardPage() {
             // used in more than one place
           }
           <select
+            className="rounded-lg border border-zinc-300 bg-transparent p-2.5 text-sm text-zinc-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
             onChange={(e) => {
               setSelectedSprintId(e.target.value);
             }}
@@ -367,7 +368,7 @@ export default function SprintboardPage() {
           </Bucket>
         </DndProvider>
       </div>
-      <div className="mt-8 flex flex-wrap gap-4 mx-4">
+      <div className="mx-4 mt-8 flex flex-wrap gap-4">
         {stories
           .filter((story) => filterStory(story, selectedSprintId))
           .map((story) => (

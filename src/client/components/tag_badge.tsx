@@ -5,7 +5,7 @@ import { Tag } from "../ts/model/entities";
 export function renderTagBadgesForStoryId(
   storyId: string,
   tagsById: Map<string, Tag>,
-  assocTagIdsByStoryId: Map<string, string[]>
+  assocTagIdsByStoryId: Map<string, string[]>,
 ) {
   const tagBadges: JSX.Element[] = [];
   assocTagIdsByStoryId.get(storyId)?.forEach((tagId) => {
@@ -19,14 +19,9 @@ export function renderTagBadgesForStoryId(
 export default function TagBadge({ tag }: { tag: Tag }) {
   return (
     <span
+      className="m-1 rounded-md p-1 text-xs font-bold text-white"
       style={{
         background: TAG_COLORS[tag.title as keyof typeof TAG_COLORS],
-        color: "white",
-        borderRadius: "0.4rem",
-        fontSize: "0.7rem",
-        fontWeight: "bold",
-        padding: "0.3rem",
-        margin: "0.2rem",
       }}
       title={tag.description}
     >

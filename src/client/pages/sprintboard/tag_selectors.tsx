@@ -20,6 +20,7 @@ export function TagOption({
       <input
         id={inputId}
         type="checkbox"
+        className="hidden"
         checked={checked}
         // wrap the onChange fn with a fn that I can pass the
         // tag.id.  I can't get that from the event itself
@@ -28,8 +29,13 @@ export function TagOption({
       />
       <label
         htmlFor={inputId}
+        className="cursor-pointer select-none rounded-md p-0.5"
         style={{
           color: TAG_COLORS[tag.title as keyof typeof TAG_COLORS],
+          outline: checked
+            ? `2px solid ${TAG_COLORS[tag.title as keyof typeof TAG_COLORS]}`
+            : "none",
+          fontWeight: checked ? "bold" : "normal",
         }}
         title={tag.description}
       >

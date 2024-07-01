@@ -1,23 +1,28 @@
 .markdown h1 {
-    font-size: 3rem;
-    margin-top: 1rem;
+    font-size: 2.5rem;
     font-weight: bold;
 }
 
 .markdown h2 {
     font-size: 2rem;
-    margin-top: 1rem;
+    font-weight: bold;
 }
 
 .markdown h3 {
     font-size: 1.5rem;
-    margin-top: 1rem;
     font-weight: bold;
 }
 
 .markdown h4 {
     font-size: 1.2rem;
     font-weight: bold;
+}
+
+.markdown h1:not(:first-of-type),
+.markdown h2:not(:first-of-type),
+.markdown h3:not(:first-of-type),
+.markdown h4:not(:first-of-type) {
+    margin-top: 1rem;
 }
 
 .markdown hr {
@@ -30,15 +35,14 @@
     padding-left: 10px;
 }
 
-.markdown ol{
-    list-style-type: decimal;
-}
-
+.markdown ol,
 .markdown ul {
-    list-style-type: disc;
+    /* undo tailwind's css reset for lists */
+    list-style-type: revert;
 }
 
-.markdown ul, .markdown ol {
+.markdown ul,
+.markdown ol {
     margin: 0.5rem 0 0.5rem 0;
     padding-left: 2rem;
     list-style-position: outside;
@@ -50,7 +54,8 @@
     border: 1px solid black;
 }
 
-.markdown a, .markdown a:visited {
-	text-decoration: none;
-	color: #1b48aa;
+.markdown a,
+.markdown a:visited {
+    text-decoration: none;
+    color: #1b48aa;
 }

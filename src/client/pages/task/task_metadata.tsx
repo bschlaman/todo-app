@@ -128,6 +128,7 @@ export default function TaskMetadata({
   function renderStatusDropdown(taskStatus: string) {
     return (
       <select
+        className="rounded-lg border border-zinc-300 bg-transparent p-2.5 text-sm text-zinc-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
         name="status"
         value={taskStatus}
         onChange={handleTaskMetadataChange}

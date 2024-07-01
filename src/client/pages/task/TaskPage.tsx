@@ -79,7 +79,7 @@ function TaskView({
         ></CopyToClipboardButton>
       </div>
       <TaskMetadata task={task} onTaskUpdate={onTaskUpdate} />
-      <div className="relative rounded-md bg-zinc-100 p-8">
+      <div className="relative mt-4 rounded-md bg-zinc-100 p-8">
         {isEditingDesc ? (
           <>
             <textarea
