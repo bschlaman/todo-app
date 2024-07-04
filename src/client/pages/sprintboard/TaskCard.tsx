@@ -35,11 +35,11 @@ export default function TaskCard({
   const [{ isDragging }, drag, preview] = useDrag(
     () => ({
       type: DRAG_TYPE.CARD,
-      item: { taskId: task.id },
-      collect: (monitor) => ({ isDragging: !!monitor.isDragging() }),
+      item: task,
+      collect: (monitor) => ({ isDragging: monitor.isDragging() }),
       end: (draggedItem, monitor) => {
         const dropRes = monitor.getDropResult<{ status: TASK_STATUS }>();
-        if (dropRes !== null) moveTask(draggedItem.taskId, dropRes.status);
+        if (dropRes !== null) moveTask(draggedItem.id, dropRes.status);
       },
     }),
     [],

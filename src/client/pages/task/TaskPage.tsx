@@ -112,6 +112,11 @@ function TaskView({
             <ReactMarkdownCustom content={description} />
           </div>
         )}
+        {isEditingDesc && (
+          <p className="absolute bottom-2 right-4 font-thin">
+            {description.length ?? 0} / {config?.task_desc_max_len}
+          </p>
+        )}
         <div className="absolute right-1 top-1">
           <input
             id="preview-md"
