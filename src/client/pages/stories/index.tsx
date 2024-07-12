@@ -15,7 +15,14 @@ const router = createBrowserRouter(
       loader: async () => await getStories(),
       // action: rootAction,
       children: [
-        { index: true, element: <div>click on the stories below</div> },
+        {
+          index: true,
+          element: (
+            <div className="text-stone-600">
+              Click on one of the stories to edit
+            </div>
+          ),
+        },
         {
           path: "/story/:story_sqid",
           element: <Story />,
