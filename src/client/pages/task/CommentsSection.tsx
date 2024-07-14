@@ -86,7 +86,7 @@ export default function CommentsSection({
           autoFocus
         />
         <button
-          className="rounded-md bg-blue-500 p-1 text-slate-100"
+          className="rounded-md bg-blue-500 p-1 text-zinc-100"
           onClick={handleCreateComment}
         >
           Post
@@ -103,7 +103,7 @@ function Comment({ comment }: { comment: TaskComment }) {
   const [rawMode, setRawMode] = useState(false);
 
   return (
-    <div className="relative mt-4 rounded-md p-4 pt-6 outline outline-2 outline-slate-700">
+    <div className="relative mt-4 rounded-md p-4 pt-6 outline outline-2 outline-zinc-700">
       <p className="absolute right-2 top-1 text-sm font-thin">{comment.id}</p>
       <p className="absolute bottom-1 right-2 text-sm font-thin">
         {formatDate(new Date(comment.created_at))}

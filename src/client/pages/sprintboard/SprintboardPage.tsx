@@ -263,7 +263,7 @@ export default function SprintboardPage() {
   if (errors.length > 0) return <ErrorBanner errors={errors} />;
 
   return (
-    <>
+    <div className="dark:bg-zinc-900">
       {/* Sprintboard Header */}
       <div className="flex items-center justify-around p-4">
         <EntityCreationStation
@@ -324,14 +324,9 @@ export default function SprintboardPage() {
               ))}
           </select>
           {/* All + None anchors */}
-          <div
-            style={{
-              display: "inline-flex",
-              gap: "1rem",
-              margin: "0 1rem 0 1rem",
-            }}
-          >
+          <div className="inline-flex gap-4 p-2">
             <a
+              className="text-blue-500"
               href="#"
               onClick={() => {
                 setActiveTagIds(tags.map((tag) => tag.id));
@@ -340,6 +335,7 @@ export default function SprintboardPage() {
               All
             </a>
             <a
+              className="text-blue-500"
               href="#"
               onClick={() => {
                 setActiveTagIds([]);
@@ -390,6 +386,6 @@ export default function SprintboardPage() {
             />
           ))}
       </div>
-    </>
+    </div>
   );
 }

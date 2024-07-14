@@ -51,7 +51,7 @@ function renderCreationButton(
 ) {
   return (
     <button
-      className="whitespace-nowrap rounded-lg bg-slate-800 px-4 py-1 text-slate-100 hover:bg-slate-600"
+      className="whitespace-nowrap rounded-lg bg-zinc-800 px-4 py-1 text-zinc-100 hover:bg-zinc-600"
       onClick={() => {
         setOpen(true);
       }}
@@ -914,7 +914,7 @@ export function CopyToNewStory({
   return (
     <>
       <button
-        className="rounded-md bg-slate-100 px-1 outline outline-1 hover:bg-slate-400"
+        className="rounded-md bg-zinc-100 px-1 outline outline-1 hover:bg-zinc-400 dark:bg-zinc-900"
         onClick={() => {
           setOpen(true);
         }}

@@ -123,7 +123,7 @@ export default function StoryCard({
       <table className="mt-2 text-sm">
         <tbody>
           {storyRelTableRows
-            .filter(([relStory, _]) => relStory !== undefined)
+            .filter(([relStory]) => relStory !== undefined)
             .map(([relStory, emoji]) => (
               <tr key={relStory?.id}>
                 <td className="whitespace-nowrap font-extralight">
@@ -144,7 +144,7 @@ export default function StoryCard({
   function renderArchiveButton() {
     return (
       <button
-        className="ml-4 rounded-md bg-slate-100 px-1 outline outline-1 hover:bg-slate-400"
+        className="ml-4 rounded-md bg-zinc-100 px-1 outline outline-1 hover:bg-zinc-400 dark:bg-zinc-900"
         onClick={() => {
           void (async () => {
             if (!window.confirm("Archive this story?")) return;
@@ -177,7 +177,7 @@ export default function StoryCard({
     <div
       // storyURIFragment
       id={story.id}
-      className="relative w-[30%] rounded-md bg-zinc-200 p-4 pt-10"
+      className="relative w-[30%] rounded-md bg-zinc-200 p-4 pt-10 dark:bg-zinc-600 dark:text-zinc-50"
       style={{
         boxShadow: selected
           ? "0 0 4px 4px rgba(255, 70, 50, 0.7)"
@@ -209,7 +209,7 @@ export default function StoryCard({
           {title}
         </h3>
       )}
-      <div className="absolute left-3 top-3 bg-slate-100">
+      <div className="absolute left-3 top-3 rounded-md bg-zinc-100 dark:bg-zinc-900">
         <CopyToClipboardButton value={storyPageRef}></CopyToClipboardButton>
       </div>
       <a className="absolute right-3 top-3" href={storyPageRef} title="Edit">
@@ -252,7 +252,7 @@ export default function StoryCard({
         // used in more than one place
       }
       <select
-        className="rounded-lg border border-zinc-300 bg-transparent p-2.5 text-sm text-zinc-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+        className="rounded-lg border border-zinc-300 bg-transparent p-2.5 text-sm text-zinc-900 dark:border-zinc-600 dark:bg-zinc-700 dark:text-white dark:placeholder:text-zinc-400"
         onChange={(e) => {
           setSelectedSprintId(e.target.value);
           void (async () => {

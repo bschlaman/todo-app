@@ -26,7 +26,7 @@ export default function LoginPage() {
           Enter Password
         </label>
         <input
-          className="my-4 block w-full rounded-md bg-slate-200 p-4"
+          className="my-4 block w-full rounded-md bg-zinc-200 p-4"
           autoFocus
           type="password"
           required

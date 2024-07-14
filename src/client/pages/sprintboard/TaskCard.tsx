@@ -61,7 +61,7 @@ export default function TaskCard({
 
   return (
     <div
-      className="relative mb-4 rounded-md bg-slate-50 p-5 shadow-md outline outline-2 outline-slate-700"
+      className="relative mb-4 rounded-md bg-zinc-50 p-5 shadow-md outline outline-2 outline-zinc-700 dark:bg-zinc-800 dark:text-zinc-50"
       style={{
         opacity: isDragging ? 0.7 : 1,
         ...(task.status === TASK_STATUS.DONE
@@ -72,7 +72,7 @@ export default function TaskCard({
       // TODO (2023.05.21): check this issue: https://github.com/react-dnd/react-dnd/issues/3452
       ref={preview}
     >
-      <h3 className="mb-4 border-b border-b-slate-400 text-xl font-bold">
+      <h3 className="mb-4 border-b border-b-zinc-400 text-xl font-bold">
         {task.title}
       </h3>
       <div className="absolute bottom-3 right-3">
@@ -93,7 +93,7 @@ export default function TaskCard({
         )}
       </div>
       <a
-        className="text-sm text-slate-600 underline"
+        className="text-sm text-zinc-600 underline"
         href={"#" + (story?.id ?? "")}
       >
         {story?.title ?? "-"}

@@ -26,7 +26,7 @@ export function formatDateCompact(date: Date) {
 
 export function sprintToString(sprint: Sprint) {
   return `${sprint.title} (${formatDateCompact(
-    new Date(sprint.start_date)
+    new Date(sprint.start_date),
   )} - ${formatDateCompact(new Date(sprint.end_date))})`;
 }
 
@@ -39,4 +39,8 @@ export function formatId(id: string) {
 
 export function inProgress(task: Task) {
   return ["BACKLOG", "DOING"].includes(task.status);
+}
+
+export function isDarkMode() {
+  return !!window.matchMedia("(prefers-color-scheme: dark)").matches;
 }

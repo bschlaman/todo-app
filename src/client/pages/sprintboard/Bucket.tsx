@@ -2,11 +2,13 @@ import React, { ReactNode } from "react";
 import { TASK_STATUS, Task } from "../../ts/model/entities";
 import { DRAG_TYPE } from "./drag";
 import { useDrop } from "react-dnd";
+import { isDarkMode } from "../../ts/lib/utils";
 
 interface BucketProps {
   status: TASK_STATUS;
   children?: ReactNode;
 }
+
 export default function Bucket({ status, children }: BucketProps) {
   const [{ isOver, canDrop }, drop] = useDrop(() => ({
     accept: DRAG_TYPE.CARD,
@@ -20,11 +22,16 @@ export default function Bucket({ status, children }: BucketProps) {
 
   const active = isOver && canDrop;
 
+  function backgroundValue(active: boolean) {
+    if (isDarkMode()) return active ? "SlateGray" : "black";
+    return active ? "darkgrey" : "lightgrey";
+  }
+
   return (
     <div
       className="relative w-full overflow-hidden p-4 pt-8 shadow-inner"
       style={{
-        background: active ? "darkgrey" : "lightgrey",
+        background: backgroundValue(active),
       }}
       ref={drop}
     >
