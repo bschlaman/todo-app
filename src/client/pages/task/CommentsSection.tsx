@@ -104,8 +104,10 @@ function Comment({ comment }: { comment: TaskComment }) {
 
   return (
     <div className="relative mt-4 rounded-md p-4 pt-6 outline outline-2 outline-zinc-700">
-      <p className="absolute right-2 top-1 text-sm font-thin">{comment.id}</p>
-      <p className="absolute bottom-1 right-2 text-sm font-thin">
+      <p className="absolute right-2 top-1 select-none text-sm font-thin">
+        {comment.id}
+      </p>
+      <p className="absolute bottom-1 right-2 select-none text-sm font-thin">
         {formatDate(new Date(comment.created_at))}
       </p>
       <p
