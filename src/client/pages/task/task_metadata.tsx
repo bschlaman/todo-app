@@ -234,8 +234,11 @@ function StoryDropdown({
         },
       }}
     >
+      <ListSubheader key={NULL_STORY_IDENTIFIER} style={{ fontSize: "1.5rem" }}>
+        {NULL_STORY_IDENTIFIER}
+      </ListSubheader>
       <MenuItem
-        style={{ marginLeft: "9rem", background: "grey" }}
+        style={{ marginLeft: "9rem", borderBottom: "1px solid #ddd" }}
         value={NULL_STORY_IDENTIFIER}
       >
         <strong>{NULL_STORY_IDENTIFIER}</strong>

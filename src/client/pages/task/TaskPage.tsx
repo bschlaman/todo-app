@@ -45,19 +45,20 @@ function TaskView({
 
   return (
     <>
-      <div className="flex items-center gap-8">
+      <div className="flex items-center justify-between gap-8">
         <a className="rounded-md border-2 border-blue-500 pr-2" href="/">
           〈Back
         </a>
         {isEditingTitle ? (
-          <div>
+          <div className="grow">
             <textarea
-              className="resize-none"
+              className="w-full resize-none rounded-md p-2 dark:bg-zinc-950"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               maxLength={config?.task_title_max_len}
             />
             <button
+              className="m-4 rounded-sm px-2 outline outline-2 dark:bg-zinc-950"
               onClick={() => {
                 setIsEditingTitle(false);
                 void onTaskUpdate({ ...task, title });
@@ -79,11 +80,11 @@ function TaskView({
         ></CopyToClipboardButton>
       </div>
       <TaskMetadata task={task} onTaskUpdate={onTaskUpdate} />
-      <div className="relative mt-4 rounded-md bg-zinc-100 p-8">
+      <div className="relative mt-4 rounded-md bg-zinc-100 p-8 dark:bg-zinc-600">
         {isEditingDesc ? (
           <>
             <textarea
-              className="h-56 w-full resize-none rounded-sm"
+              className="h-56 w-full resize-none rounded-sm dark:bg-zinc-900"
               value={description}
               ref={descriptionRef}
               onChange={(e) => {
@@ -226,14 +227,16 @@ export default function TaskPage() {
   if (task === null) return <Loading />;
 
   return (
-    <main className="mx-auto mt-4 w-[80vw] max-w-3xl items-center">
-      <TaskView task={task} config={config} onTaskUpdate={handleTaskUpdate} />
-      <SessionTimeRemainingIndicator
-        sessionTimeRemainingSeconds={
-          checkSessionRes.session_time_remaining_seconds
-        }
-      />
-      <CommentsSection taskId={task.id} config={config} />
-    </main>
+    <div className="min-h-dvh bg-zinc-200 dark:bg-zinc-900">
+      <main className="mx-auto w-[80vw] max-w-3xl items-center pt-4 dark:text-white">
+        <TaskView task={task} config={config} onTaskUpdate={handleTaskUpdate} />
+        <SessionTimeRemainingIndicator
+          sessionTimeRemainingSeconds={
+            checkSessionRes.session_time_remaining_seconds
+          }
+        />
+        <CommentsSection taskId={task.id} config={config} />
+      </main>
+    </div>
   );
 }

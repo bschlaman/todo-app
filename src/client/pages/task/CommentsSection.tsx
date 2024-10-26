@@ -68,9 +68,9 @@ export default function CommentsSection({
         // is a bad idea, since it may conflict with other entities
         <Comment key={comment.id} comment={comment}></Comment>
       ))}
-      <div className="relative mt-4 rounded-md bg-zinc-100 p-4 outline outline-2">
+      <div className="relative mt-4 rounded-md bg-zinc-100 p-4 outline outline-2 dark:bg-zinc-600">
         <textarea
-          className="my-4 w-full resize-none rounded-md p-4"
+          className="my-4 w-full resize-none rounded-md p-4 dark:bg-zinc-900"
           onKeyDown={(e) => {
             if (e.ctrlKey && e.key === "Enter") {
               handleCreateComment();
