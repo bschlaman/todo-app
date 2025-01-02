@@ -8,7 +8,7 @@ import {
   TableBody,
 } from "@mui/material";
 import React from "react";
-import { ReactMarkdown } from "react-markdown/lib/react-markdown";
+import ReactMarkdown from "react-markdown";
 
 export interface ProtoTask {
   title: string;

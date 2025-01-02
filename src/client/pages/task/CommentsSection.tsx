@@ -3,7 +3,7 @@ import ErrorBanner from "../../components/banners";
 import { getCommentsByTaskId, createComment } from "../../ts/lib/api";
 import { formatDate } from "../../ts/lib/utils";
 import { Config, TaskComment } from "../../ts/model/entities";
-import ReactMarkdownCustom from "../../components/markdown";
+import ReactMarkdownCustom, { ErrorBoundary } from "../../components/markdown";
 import { makeTimedPageLoadApiCall } from "../../ts/lib/api_utils";
 
 export default function CommentsSection({
@@ -124,7 +124,9 @@ function Comment({ comment }: { comment: TaskComment }) {
       {rawMode ? (
         <div className="whitespace-pre-wrap">{comment.text}</div>
       ) : (
-        <ReactMarkdownCustom content={comment.text} />
+        <ErrorBoundary>
+          <ReactMarkdownCustom content={comment.text} />
+        </ErrorBoundary>
       )}
     </div>
   );
