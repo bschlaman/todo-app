@@ -16,7 +16,19 @@ export default function ReactMarkdownCustom({ content }: { content: string }) {
   return (
     <Markdown
       remarkPlugins={[remarkGfm, remarkMath]}
-      rehypePlugins={[rehypeKatex]}
+      rehypePlugins={[
+        [
+          rehypeKatex,
+          {
+            macros: {
+              "\\RR": "\\mathbb{R}",
+              "\\EE": "\\mathbb{E}",
+              "\\T": "\\intercal",
+              "\\rank": "\\operatorname{rank}",
+            },
+          },
+        ],
+      ]}
       className={styles.markdown}
       components={{
         // need to destructure `ref` due to some type issue with react-syntax-highlighter
