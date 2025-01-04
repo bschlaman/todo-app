@@ -30,6 +30,8 @@ export default function StoryCard({
   tagAssignments,
   storyRelationships,
   selected,
+  filtered,
+  onStoryFilterToggle,
   setTasks,
   setStories,
   setTagAssignments,
@@ -44,6 +46,8 @@ export default function StoryCard({
   tagAssignments: TagAssignment[];
   storyRelationships: StoryRelationship[];
   selected: boolean;
+  filtered: boolean;
+  onStoryFilterToggle: (storyId: string, checked: boolean) => void;
   setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
   setStories: React.Dispatch<React.SetStateAction<Story[]>>;
   setTagAssignments: React.Dispatch<React.SetStateAction<TagAssignment[]>>;
@@ -212,6 +216,12 @@ export default function StoryCard({
       <div className="absolute left-3 top-3 rounded-md bg-zinc-100 dark:bg-zinc-900">
         <CopyToClipboardButton value={storyPageRef}></CopyToClipboardButton>
       </div>
+      <input
+        type="checkbox"
+        checked={filtered}
+        // similar pattern to onTagToggle usage in TagOption
+        onChange={(e) => onStoryFilterToggle(story.id, e.target.checked)}
+      ></input>
       <a className="absolute right-3 top-3" href={storyPageRef} title="Edit">
         📝
       </a>

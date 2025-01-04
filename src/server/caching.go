@@ -26,7 +26,13 @@ func (cs *cacheStore) get(key string) ([]byte, bool) {
 		return nil, false
 	}
 
-	if time.Now().Unix() > item.createdAt+int64(cacheTTLSeconds) {
+	var cacheTTL_ time.Duration
+	if env.DevMode {
+		cacheTTL_ = devModeCacheTTL
+	} else {
+		cacheTTL_ = cacheTTL
+	}
+	if time.Now().Unix() > item.createdAt+int64(cacheTTL_.Seconds()) {
 		return nil, false
 	}
 

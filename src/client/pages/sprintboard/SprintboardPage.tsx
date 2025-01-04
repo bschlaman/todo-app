@@ -40,6 +40,7 @@ import { CheckSessionRes } from "../../ts/model/responses";
 const LOCAL_STORAGE_KEYS = {
   selectedSprintId: "viewing_sprint_id",
   activeTagIds: "active_tag_ids",
+  storyFilter: "story_filter",
 };
 
 export default function SprintboardPage() {
@@ -58,6 +59,10 @@ export default function SprintboardPage() {
   );
   const [activeTagIds, setActiveTagIds] = useState<string[]>(
     JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEYS.activeTagIds) ?? "[]"),
+  );
+  // list of story Ids to filter on, which overrides the tag filter
+  const [storyFilter, setStoryFilter] = useState<string[]>(
+    JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEYS.storyFilter) ?? "[]"),
   );
   const [checkSessionRes, setCheckSessionRes] = useState<CheckSessionRes>({
     session_time_remaining_seconds: 0,
@@ -98,6 +103,12 @@ export default function SprintboardPage() {
       JSON.stringify(activeTagIds),
     );
   }, [activeTagIds]);
+  useEffect(() => {
+    localStorage.setItem(
+      LOCAL_STORAGE_KEYS.storyFilter,
+      JSON.stringify(storyFilter),
+    );
+  }, [storyFilter]);
 
   const tasksById = useMemo(() => {
     const _map = new Map<string, Task>();
@@ -160,9 +171,17 @@ export default function SprintboardPage() {
           selectedSprintId,
           assocTagIdsByStoryId,
           activeTagIds,
+          storyFilter,
         ),
       ),
-    [tasks, storiesById, selectedSprintId, assocTagIdsByStoryId, activeTagIds],
+    [
+      tasks,
+      storiesById,
+      selectedSprintId,
+      assocTagIdsByStoryId,
+      activeTagIds,
+      storyFilter,
+    ],
   );
 
   const taskBucketsByStatus = useMemo(() => {
@@ -284,19 +303,25 @@ export default function SprintboardPage() {
         />
         {/* Entity filtering  */}
         <div className="text-lg">
-          {tags.map((tag) => (
-            <TagOption
-              key={tag.id}
-              tag={tag}
-              checked={activeTagIds.includes(tag.id)}
-              onTagToggle={(tagId: string, checked: boolean) => {
-                setActiveTagIds((prev) => {
-                  if (checked) return [...prev, tagId];
-                  return prev.filter((id) => id !== tagId);
-                });
-              }}
-            />
-          ))}
+          {storyFilter.length === 0 ? (
+            tags.map((tag) => (
+              <TagOption
+                key={tag.id}
+                tag={tag}
+                checked={activeTagIds.includes(tag.id)}
+                onTagToggle={(tagId: string, checked: boolean) => {
+                  setActiveTagIds((prev) => {
+                    if (checked) return [...prev, tagId];
+                    return prev.filter((id) => id !== tagId);
+                  });
+                }}
+              />
+            ))
+          ) : (
+            <div className="italic text-gray-800">
+              Story filtering is enabled. Disable to see tag filters.
+            </div>
+          )}
         </div>
         <div>
           {
@@ -343,6 +368,15 @@ export default function SprintboardPage() {
             >
               None
             </a>
+            <a
+              className="text-blue-500"
+              href="#"
+              onClick={() => {
+                setStoryFilter([]);
+              }}
+            >
+              Clear story filter
+            </a>
           </div>
           <SessionTimeRemainingIndicator
             sessionTimeRemainingSeconds={
@@ -378,6 +412,13 @@ export default function SprintboardPage() {
               tagAssignments={tagAssignments}
               storyRelationships={storyRelationships}
               selected={hash === `#${story.id}`}
+              filtered={storyFilter.includes(story.id)}
+              onStoryFilterToggle={(storyId: string, checked: boolean) => {
+                setStoryFilter((prev) => {
+                  if (checked) return [...prev, storyId];
+                  return prev.filter((id) => id !== storyId);
+                });
+              }}
               setTasks={setTasks}
               setStories={setStories}
               setTagAssignments={setTagAssignments}

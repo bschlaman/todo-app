@@ -1,39 +1,17 @@
-### Design
+# <div align="center" style="font-weight: 400; background: Maroon; padding: 1rem; border-radius: 1rem">Brendan Schlaman | `todo-app` v2.0 🚀</div>
 
-- views
-  - single issue view
-    - detailed view of single task
-    - contains all details including comments with markdown rendering
-    - `/task/{id}`
-  - task board
-    - draggable summary of individual tasks
-    - new task feature
+## How to develop
 
-task board -> "edit" -> single issue view
-single issue view -> "save" -> single issue view
+1. set env `DEV_MODE=true`
+1. run `npx webpack serve`
+1. navigate to e.g. `localhost:8080/login` to set session
+1. currently, UI does not redirect correctly, so navigate to desired url, e.g. `localhost:8080/sprintboard`
 
-### Routing challenge
+## Metrics
 
-Plan is to reroute `/task/{id}` to `/task` so that I can use an `http.FileServer` as the Handler,
-but unless I try to identify ids (or files),
-a file server will wrongfully also reroute requests for things like javascript and css files.
+TODO: document metrics strategy
 
-### Metrics
-
-- namespace: todo-app
-- unit: `types.StandardUnitCount`
-- value: 1
-- dimensions
-  - name: `api_type` value: `GET|PUT|DELETE`
-  - name: `api_name` value: `GetStoryById`
-
-Currently, I am not emitting metrics for certain operations:
-
-1. event logging
-1. session operations
-1. others?
-
-### Other design decisions
+## Design quirks
 
 - 2024.01.25: the functions in `src/server/middleware.go` aren't themselves middleware;
   rather, they _return_ middlewares (`utils.Middleware`).

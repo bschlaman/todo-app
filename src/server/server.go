@@ -20,16 +20,18 @@ import (
 
 // TODO: pull these from config table
 const (
-	serverName             string           = "TODO-APP-SERVER"
-	logPath                string           = "logs/output.log"
-	staticDir              string           = "dist"
-	sprintDuration         time.Duration    = 24 * 14 * time.Hour
-	sessionDuration        time.Duration    = 2 * time.Hour
+	serverName      string        = "TODO-APP-SERVER"
+	logPath         string        = "logs/output.log"
+	staticDir       string        = "dist"
+	sprintDuration  time.Duration = 24 * 14 * time.Hour
+	sessionDuration time.Duration = 2 * time.Hour
+	// I used to use this const table as a config and changed it in code
 	enableDebugSessionAPIs bool             = false
 	metricNamespace        string           = "todo-app/api"
 	createEntityIDKey      CustomContextKey = "createReqIDKey"
 	getRequestBytesKey     CustomContextKey = "getReqKey"
-	cacheTTLSeconds        int              = 2
+	cacheTTL               time.Duration    = 2 * time.Second
+	devModeCacheTTL        time.Duration    = 5 * time.Minute
 	rootServerPath         string           = "/sprintboard"
 )
 
@@ -47,6 +49,7 @@ type Env struct {
 	LoginPw     string
 	CallerID    string
 	Sqids       *sqids.Sqids
+	DevMode     bool
 	// future state: possibly store db connection here
 }
 
@@ -98,7 +101,7 @@ func init() {
 	sessions = make(map[string]model.SessionRecord)
 	cache = &cacheStore{items: make(map[string]*cacheItem)}
 	s, _ := sqids.New(sqids.Options{Alphabet: os.Getenv("SQIDS_ALPHABET"), MinLength: 6})
-	env = &Env{logger.New(mw), cfg, cwClient, os.Getenv("LOGIN_PW"), os.Getenv("CALLER_ID"), s}
+	env = &Env{logger.New(mw), cfg, cwClient, os.Getenv("LOGIN_PW"), os.Getenv("CALLER_ID"), s, false}
 	log = env.Log
 }
 
@@ -135,6 +138,11 @@ func main() {
 	log.Infof("using caller identity: %s", env.CallerID)
 	if os.Getenv("SQIDS_ALPHABET") == "" {
 		log.Fatal("SQIDS_ALPHABET env var not set")
+	}
+
+	if os.Getenv("DEV_MODE") == "true" {
+		log.Info("[WARNING] DEV_MODE is enabled")
+		env.DevMode = true
 	}
 
 	// server startup event log
