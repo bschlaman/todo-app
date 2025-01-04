@@ -183,9 +183,10 @@ export default function StoryCard({
       id={story.id}
       className="relative w-[30%] rounded-md bg-zinc-200 p-4 pt-10 dark:bg-zinc-600 dark:text-zinc-50"
       style={{
-        boxShadow: selected
-          ? "0 0 4px 4px rgba(255, 70, 50, 0.7)"
-          : "3px 3px 2px darkgrey",
+        boxShadow:
+          selected || filtered
+            ? "0 0 4px 4px rgba(255, 70, 50, 0.7)"
+            : "3px 3px 2px darkgrey",
       }}
     >
       {isEditingTitle ? (
@@ -217,6 +218,7 @@ export default function StoryCard({
         <CopyToClipboardButton value={storyPageRef}></CopyToClipboardButton>
       </div>
       <input
+        className="absolute right-10 top-3 size-5"
         type="checkbox"
         checked={filtered}
         // similar pattern to onTagToggle usage in TagOption
