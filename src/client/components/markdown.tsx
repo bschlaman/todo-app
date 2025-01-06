@@ -9,13 +9,25 @@ import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
+import type { Root } from "mdast";
+import { visit } from "unist-util-visit";
 import styles from "../css/markdown.module.css";
 import "katex/dist/katex.min.css";
 
 export default function ReactMarkdownCustom({ content }: { content: string }) {
   return (
     <Markdown
-      remarkPlugins={[remarkGfm, remarkMath]}
+      remarkPlugins={[
+        remarkGfm,
+        remarkMath,
+        // For fenced code blocks with no language hint (so we can match /language-(\w+)/).
+        // see: https://github.com/orgs/remarkjs/discussions/1346
+        () => (tree: Root) => {
+          visit(tree, "code", (node) => {
+            node.lang = node.lang ?? "plaintext";
+          });
+        },
+      ]}
       rehypePlugins={[
         [
           rehypeKatex,
