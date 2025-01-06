@@ -10,6 +10,8 @@ import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import type { Root } from "mdast";
+import { findAndReplace } from "mdast-util-find-and-replace";
+import { nameToEmoji } from "gemoji";
 import { visit } from "unist-util-visit";
 import styles from "../css/markdown.module.css";
 import "katex/dist/katex.min.css";
@@ -25,6 +27,39 @@ export default function ReactMarkdownCustom({ content }: { content: string }) {
         () => (tree: Root) => {
           visit(tree, "code", (node) => {
             node.lang = node.lang ?? "plaintext";
+          });
+        },
+        // Emoji support with :<emoji>: from remark tutorial
+        // Mostly just to experiment with custom remark plugins
+        () => (tree: Root) => {
+          findAndReplace(tree, [
+            /:(\+1|[-\w]+):/g,
+            function (_: string, $1: string) {
+              return Object.hasOwn(nameToEmoji, $1) ? nameToEmoji[$1] : false;
+            },
+          ]);
+        },
+        // Remove leading whitespace from code blocks.
+        // Currently only supports spaces.
+        // Potential tab solution here: https://chatgpt.com/c/677c4f5e-d968-8006-b0f0-cf52b236da1c
+        () => (tree: Root) => {
+          visit(tree, "code", (node) => {
+            const lines = node.value.split("\n");
+
+            // Filter out empty lines, then find the minimal leading spaces
+            const nonEmpty = lines.filter((l) => l.trim() !== "");
+            if (!nonEmpty.length) return; // No indentation to adjust if empty
+
+            const minIndent = Math.min(
+              ...nonEmpty.map((l) => (l.match(/^ +/) || [""])[0].length),
+            );
+
+            // Remove that common indent from each line
+            node.value = lines
+              .map((l) =>
+                l.startsWith(" ".repeat(minIndent)) ? l.slice(minIndent) : l,
+              )
+              .join("\n");
           });
         },
       ]}
