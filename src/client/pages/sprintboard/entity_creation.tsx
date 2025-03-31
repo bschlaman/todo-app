@@ -770,6 +770,7 @@ export function CopyToNewStory({
   tasksByStoryId,
   tagsById,
   tagAssignments,
+  storyRelationships,
   setTasks,
   setStories,
   setTagAssignments,
@@ -781,6 +782,7 @@ export function CopyToNewStory({
   tasksByStoryId: Map<string, Task[]>;
   tagsById: Map<string, Tag>;
   tagAssignments: TagAssignment[];
+  storyRelationships: StoryRelationship[];
   setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
   setStories: React.Dispatch<React.SetStateAction<Story[]>>;
   setTagAssignments: React.Dispatch<React.SetStateAction<TagAssignment[]>>;
@@ -911,10 +913,24 @@ export function CopyToNewStory({
     })();
   }
 
+  const disableButton = storyRelationships.some(
+    (storyRelationship) =>
+      storyRelationship.story_id_a === continuedStory.id &&
+      storyRelationship.relation === STORY_RELATIONSHIP.ContinuedBy,
+  );
   return (
     <>
       <button
         className="rounded-md bg-zinc-100 px-1 outline outline-1 hover:bg-zinc-400 dark:bg-zinc-900"
+        style={
+          disableButton
+            ? {
+                cursor: "not-allowed",
+                opacity: "50%",
+              }
+            : {}
+        }
+        disabled={disableButton}
         onClick={() => {
           setOpen(true);
         }}

@@ -320,6 +320,7 @@ export default function StoryCard({
           tasksByStoryId={tasksByStoryId}
           tagsById={tagsById}
           tagAssignments={tagAssignments}
+          storyRelationships={storyRelationships}
           setTasks={setTasks}
           setStories={setStories}
           setTagAssignments={setTagAssignments}
