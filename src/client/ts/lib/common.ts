@@ -13,7 +13,10 @@ export const TAG_COLORS = {
   "CVE Engine": "black",
   "Chess Engine": "lightgrey",
   "Grad School": "DarkSlateGray",
+  "Data-Model Structure Research": "DarkOrange",
 } as const;
+
+export const DEFAULT_TAG_COLOR = "Red";
 
 // since tasks may not have a parent story, we need something
 // to display as a stand-in in UI elements such as task cards
@@ -72,7 +75,7 @@ export function replaceDateTextsWithSpans() {
           elem: node.parentElement,
           match,
         },
-        span.outerHTML
+        span.outerHTML,
       );
     }
   }

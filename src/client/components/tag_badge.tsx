@@ -1,5 +1,5 @@
 import React from "react";
-import { TAG_COLORS } from "../ts/lib/common";
+import { DEFAULT_TAG_COLOR, TAG_COLORS } from "../ts/lib/common";
 import { Tag } from "../ts/model/entities";
 
 export function renderTagBadgesForStoryId(
@@ -21,7 +21,10 @@ export default function TagBadge({ tag }: { tag: Tag }) {
     <span
       className="m-1 rounded-md p-1 text-xs font-bold text-white"
       style={{
-        background: TAG_COLORS[tag.title as keyof typeof TAG_COLORS],
+        background:
+          tag.title in TAG_COLORS
+            ? TAG_COLORS[tag.title as keyof typeof TAG_COLORS]
+            : DEFAULT_TAG_COLOR,
       }}
       title={tag.description}
     >

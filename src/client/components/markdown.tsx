@@ -98,6 +98,11 @@ export default function ReactMarkdownCustom({ content }: { content: string }) {
             </code>
           );
         },
+        task: ({ node, ...props }) => {
+          // node.data?.hProperties has { id: "XYZ" }
+          const { id } = (node.data?.hProperties as any) || {};
+          return <Task id={id} />;
+        },
       }}
     >
       {content}
