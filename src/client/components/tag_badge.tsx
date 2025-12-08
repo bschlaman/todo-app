@@ -7,7 +7,7 @@ export function renderTagBadgesForStoryId(
   tagsById: Map<string, Tag>,
   assocTagIdsByStoryId: Map<string, string[]>,
 ) {
-  const tagBadges: JSX.Element[] = [];
+  const tagBadges: React.JSX.Element[] = [];
   assocTagIdsByStoryId.get(storyId)?.forEach((tagId) => {
     const tag = tagsById.get(tagId);
     if (tag === undefined) throw new Error("tag not found: " + tagId);

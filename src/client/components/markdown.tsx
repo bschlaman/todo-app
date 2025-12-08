@@ -9,12 +9,19 @@ import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
-import type { Root } from "mdast";
+import type { Code, Root } from "mdast";
+import type { Element } from "hast";
 import { findAndReplace } from "mdast-util-find-and-replace";
 import { nameToEmoji } from "gemoji";
 import { visit } from "unist-util-visit";
 import styles from "../css/markdown.module.css";
 import "katex/dist/katex.min.css";
+
+function Task(props: { taskId: string }) {
+  return (
+    <span style={{ color: "blue", fontWeight: "bold" }}>[TASK {props.taskId}]</span>
+  );
+}
 
 export default function ReactMarkdownCustom({ content }: { content: string }) {
   return (
@@ -25,7 +32,7 @@ export default function ReactMarkdownCustom({ content }: { content: string }) {
         // For fenced code blocks with no language hint (so we can match /language-(\w+)/).
         // see: https://github.com/orgs/remarkjs/discussions/1346
         () => (tree: Root) => {
-          visit(tree, "code", (node) => {
+          visit(tree, "code", (node: Code) => {
             node.lang = node.lang ?? "plaintext";
           });
         },
@@ -62,6 +69,22 @@ export default function ReactMarkdownCustom({ content }: { content: string }) {
               .join("\n");
           });
         },
+        () => (tree: Root) => {
+          findAndReplace(tree, [
+            /task:([A-Za-z0-9]+)/g,
+            function (_: string, $1: string) {
+              // might be able to type this correctly with https://github.com/syntax-tree/mdast-util-to-hast
+              return {
+                type: "task",
+                data: {
+                  hName: "task", // Tells react-markdown to render <task>…</task>
+                  hProperties: { taskId: $1 },
+                  hChildren: [],
+                },
+              } as any;
+            }
+          ]);
+        },
       ]}
       rehypePlugins={[
         [
@@ -85,7 +108,6 @@ export default function ReactMarkdownCustom({ content }: { content: string }) {
       components={{
         // need to destructure `ref` due to some type issue with react-syntax-highlighter
         // see: https://github.com/remarkjs/react-markdown/issues/666#issuecomment-1001215783
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         code({ className, children, ref, ...props }) {
           const match = /language-(\w+)/.exec(className ?? "");
           return match ? (
@@ -103,10 +125,9 @@ export default function ReactMarkdownCustom({ content }: { content: string }) {
             </code>
           );
         },
-        task: ({ node, ...props }) => {
-          // node.data?.hProperties has { id: "XYZ" }
-          const { id } = (node.data?.hProperties as any) || {};
-          return <Task id={id} />;
+        task: ({ node } : {node: Element}) => {
+          const { taskId } = node.properties as { taskId: string };
+          return <Task taskId={taskId} />;
         },
       }}
     >
