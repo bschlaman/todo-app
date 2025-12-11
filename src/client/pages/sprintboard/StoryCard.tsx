@@ -190,21 +190,36 @@ export default function StoryCard({
       }}
     >
       {isEditingTitle ? (
-        <div className="mt-8 flex gap-8">
+        <div className="mt-2 flex flex-col gap-2">
           <textarea
-            className="resize-none"
+            className="w-full resize-none rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-blue-400 dark:focus:ring-blue-800"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             maxLength={config?.story_title_max_len}
+            placeholder="Story title..."
+            rows={2}
+            autoFocus
           />
-          <button
-            onClick={() => {
-              setIsEditingTitle(false);
-              void handleStoryUpdate({ ...story, title });
-            }}
-          >
-            Save
-          </button>
+          <div className="flex gap-2">
+            <button
+              className="rounded-md bg-blue-600 px-3 py-1 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-offset-zinc-800"
+              onClick={() => {
+                setIsEditingTitle(false);
+                void handleStoryUpdate({ ...story, title });
+              }}
+            >
+              Save
+            </button>
+            <button
+              className="rounded-md bg-zinc-500 px-3 py-1 text-sm font-medium text-white hover:bg-zinc-600 focus:outline-none focus:ring-2 focus:ring-zinc-500 focus:ring-offset-2 dark:bg-zinc-600 dark:hover:bg-zinc-700 dark:focus:ring-offset-zinc-800"
+              onClick={() => {
+                setIsEditingTitle(false);
+                setTitle(story.title); // Reset to original value
+              }}
+            >
+              Cancel
+            </button>
+          </div>
         </div>
       ) : (
         <h3
@@ -228,20 +243,36 @@ export default function StoryCard({
         📝
       </a>
       {isEditingDescription ? (
-        <div className="mt-8 flex gap-8">
+        <div className="mt-2 flex flex-col gap-2">
           <textarea
+            className="min-h-[120px] w-full resize-y rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-blue-400 dark:focus:ring-blue-800"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             maxLength={config?.story_desc_max_len}
+            placeholder="Story description (supports Markdown)..."
+            rows={6}
+            autoFocus
           />
-          <button
-            onClick={() => {
-              setIsEditingDescription(false);
-              void handleStoryUpdate({ ...story, description });
-            }}
-          >
-            Save
-          </button>
+          <div className="flex gap-2">
+            <button
+              className="rounded-md bg-blue-600 px-3 py-1 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-offset-zinc-800"
+              onClick={() => {
+                setIsEditingDescription(false);
+                void handleStoryUpdate({ ...story, description });
+              }}
+            >
+              Save
+            </button>
+            <button
+              className="rounded-md bg-zinc-500 px-3 py-1 text-sm font-medium text-white hover:bg-zinc-600 focus:outline-none focus:ring-2 focus:ring-zinc-500 focus:ring-offset-2 dark:bg-zinc-600 dark:hover:bg-zinc-700 dark:focus:ring-offset-zinc-800"
+              onClick={() => {
+                setIsEditingDescription(false);
+                setDescription(story.description); // Reset to original value
+              }}
+            >
+              Cancel
+            </button>
+          </div>
         </div>
       ) : (
         <div onDoubleClick={() => setIsEditingDescription(true)}>

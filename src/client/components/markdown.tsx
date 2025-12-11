@@ -19,120 +19,124 @@ import "katex/dist/katex.min.css";
 
 function Task(props: { taskId: string }) {
   return (
-    <span style={{ color: "blue", fontWeight: "bold" }}>[TASK {props.taskId}]</span>
+    <span style={{ color: "blue", fontWeight: "bold" }}>
+      [TASK {props.taskId}]
+    </span>
   );
 }
 
 export default function ReactMarkdownCustom({ content }: { content: string }) {
   return (
-    <Markdown
-      remarkPlugins={[
-        remarkGfm,
-        remarkMath,
-        // For fenced code blocks with no language hint (so we can match /language-(\w+)/).
-        // see: https://github.com/orgs/remarkjs/discussions/1346
-        () => (tree: Root) => {
-          visit(tree, "code", (node: Code) => {
-            node.lang = node.lang ?? "plaintext";
-          });
-        },
-        // Emoji support with :<emoji>: from remark tutorial
-        // Mostly just to experiment with custom remark plugins
-        () => (tree: Root) => {
-          findAndReplace(tree, [
-            /:(\+1|[-\w]+):/g,
-            function (_: string, $1: string) {
-              return Object.hasOwn(nameToEmoji, $1) ? nameToEmoji[$1] : false;
-            },
-          ]);
-        },
-        // Remove leading whitespace from code blocks.
-        // Currently only supports spaces.
-        // Potential tab solution here: https://chatgpt.com/c/677c4f5e-d968-8006-b0f0-cf52b236da1c
-        () => (tree: Root) => {
-          visit(tree, "code", (node) => {
-            const lines = node.value.split("\n");
-
-            // Filter out empty lines, then find the minimal leading spaces
-            const nonEmpty = lines.filter((l) => l.trim() !== "");
-            if (!nonEmpty.length) return; // No indentation to adjust if empty
-
-            const minIndent = Math.min(
-              ...nonEmpty.map((l) => (l.match(/^ +/) || [""])[0].length),
-            );
-
-            // Remove that common indent from each line
-            node.value = lines
-              .map((l) =>
-                l.startsWith(" ".repeat(minIndent)) ? l.slice(minIndent) : l,
-              )
-              .join("\n");
-          });
-        },
-        () => (tree: Root) => {
-          findAndReplace(tree, [
-            /task:([A-Za-z0-9]+)/g,
-            function (_: string, $1: string) {
-              // might be able to type this correctly with https://github.com/syntax-tree/mdast-util-to-hast
-              return {
-                type: "task",
-                data: {
-                  hName: "task", // Tells react-markdown to render <task>…</task>
-                  hProperties: { taskId: $1 },
-                  hChildren: [],
-                },
-              } as any;
-            }
-          ]);
-        },
-      ]}
-      rehypePlugins={[
-        [
-          rehypeKatex,
-          {
-            macros: {
-              "\\RR": "\\mathbb{R}",
-              "\\gn": "\\;\\big\\vert\\;",
-              "\\KL": "\\mathrm{KL}",
-              "\\EE": "\\mathbb{E}",
-              "\\X": "\\mathcal{X}",
-              "\\Y": "\\mathcal{Y}",
-              "\\F": "\\mathcal{F}",
-              "\\T": "\\intercal",
-              "\\rank": "\\operatorname{rank}",
-            },
+    // Need to surround <Markdown/> in <div/> to add className: https://github.com/remarkjs/react-markdown/blob/main/changelog.md#remove-classname
+    <div className={styles.markdown}>
+      <Markdown
+        remarkPlugins={[
+          remarkGfm,
+          remarkMath,
+          // For fenced code blocks with no language hint (so we can match /language-(\w+)/).
+          // see: https://github.com/orgs/remarkjs/discussions/1346
+          () => (tree: Root) => {
+            visit(tree, "code", (node: Code) => {
+              node.lang = node.lang ?? "plaintext";
+            });
           },
-        ],
-      ]}
-      className={styles.markdown}
-      components={{
-        // need to destructure `ref` due to some type issue with react-syntax-highlighter
-        // see: https://github.com/remarkjs/react-markdown/issues/666#issuecomment-1001215783
-        code({ className, children, ref, ...props }) {
-          const match = /language-(\w+)/.exec(className ?? "");
-          return match ? (
-            <SyntaxHighlighter
-              {...props}
-              style={docco}
-              language={match?.[1]}
-              PreTag="div" // so custom render doesn't target DOM
-            >
-              {String(children).replace(/\n$/, "")}
-            </SyntaxHighlighter>
-          ) : (
-            <code {...props} className={`${className ?? ""} inline-code`}>
-              {children}
-            </code>
-          );
-        },
-        task: ({ node } : {node: Element}) => {
-          const { taskId } = node.properties as { taskId: string };
-          return <Task taskId={taskId} />;
-        },
-      }}
-    >
-      {content}
-    </Markdown>
+          // Emoji support with :<emoji>: from remark tutorial
+          // Mostly just to experiment with custom remark plugins
+          () => (tree: Root) => {
+            findAndReplace(tree, [
+              /:(\+1|[-\w]+):/g,
+              function (_: string, $1: string) {
+                return Object.hasOwn(nameToEmoji, $1) ? nameToEmoji[$1] : false;
+              },
+            ]);
+          },
+          // Remove leading whitespace from code blocks.
+          // Currently only supports spaces.
+          // Potential tab solution here: https://chatgpt.com/c/677c4f5e-d968-8006-b0f0-cf52b236da1c
+          () => (tree: Root) => {
+            visit(tree, "code", (node) => {
+              const lines = node.value.split("\n");
+
+              // Filter out empty lines, then find the minimal leading spaces
+              const nonEmpty = lines.filter((l) => l.trim() !== "");
+              if (!nonEmpty.length) return; // No indentation to adjust if empty
+
+              const minIndent = Math.min(
+                ...nonEmpty.map((l) => (l.match(/^ +/) || [""])[0].length),
+              );
+
+              // Remove that common indent from each line
+              node.value = lines
+                .map((l) =>
+                  l.startsWith(" ".repeat(minIndent)) ? l.slice(minIndent) : l,
+                )
+                .join("\n");
+            });
+          },
+          () => (tree: Root) => {
+            findAndReplace(tree, [
+              /task:([A-Za-z0-9]+)/g,
+              function (_: string, $1: string) {
+                // might be able to type this correctly with https://github.com/syntax-tree/mdast-util-to-hast
+                return {
+                  type: "task",
+                  data: {
+                    hName: "task", // Tells react-markdown to render <task>…</task>
+                    hProperties: { taskId: $1 },
+                    hChildren: [],
+                  },
+                };
+              },
+            ]);
+          },
+        ]}
+        rehypePlugins={[
+          [
+            rehypeKatex,
+            {
+              macros: {
+                "\\RR": "\\mathbb{R}",
+                "\\gn": "\\;\\big\\vert\\;",
+                "\\KL": "\\mathrm{KL}",
+                "\\EE": "\\mathbb{E}",
+                "\\X": "\\mathcal{X}",
+                "\\Y": "\\mathcal{Y}",
+                "\\F": "\\mathcal{F}",
+                "\\T": "\\intercal",
+                "\\rank": "\\operatorname{rank}",
+              },
+            },
+          ],
+        ]}
+        components={{
+          // need to destructure `ref` due to some type issue with react-syntax-highlighter
+          // see: https://github.com/remarkjs/react-markdown/issues/666#issuecomment-1001215783
+          code({ className, children, ref, ...props }) {
+            const match = /language-(\w+)/.exec(className ?? "");
+            return match ? (
+              <SyntaxHighlighter
+                {...props}
+                style={docco}
+                language={match?.[1]}
+                PreTag="div" // so custom render doesn't target DOM
+              >
+                {String(children).replace(/\n$/, "")}
+              </SyntaxHighlighter>
+            ) : (
+              <code {...props} className={`${className ?? ""} inline-code`}>
+                {children}
+              </code>
+            );
+          },
+          task: ({ node }: { node: Element }) => {
+            const { taskId } = node.properties as { taskId: string };
+            return <Task taskId={taskId} />;
+          },
+        }}
+      >
+        {content}
+      </Markdown>
+    </div>
   );
 }
 

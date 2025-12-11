@@ -34,7 +34,7 @@ export default function Card({ isDropped, task, moveTask }: CardProps) {
         if (dropRes !== null) moveTask(draggedItem.taskId, dropRes.status);
       },
     }),
-    []
+    [],
   );
   return (
     <div ref={dragRef} style={{ ...style, opacity }}>

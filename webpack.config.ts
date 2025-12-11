@@ -1,16 +1,22 @@
-const path = require("path");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
+import path from "path";
+import type webpack from "webpack";
+// needed when declaring a `devServer`
+import "webpack-dev-server";
+import HtmlWebpackPlugin from "html-webpack-plugin";
 
 const pages_v2 = ["login", "task", "sprintboard", "stories"];
 const publicDir = "dist";
 
-module.exports = {
+export default {
   mode: "development",
   devtool: "inline-source-map",
-  entry: pages_v2.reduce((config, page) => {
-    config[page] = `./src/client/pages/${page}/index.tsx`;
-    return config;
-  }, {}),
+  entry: pages_v2.reduce(
+    (cfg, page) => {
+      cfg[page] = `./src/client/pages/${page}/index.tsx`;
+      return cfg;
+    },
+    {} as Record<string, string>,
+  ),
   resolve: {
     extensions: [".ts", ".tsx", ".js"],
   },
@@ -32,8 +38,12 @@ module.exports = {
         use: ["style-loader", "css-loader"],
       },
       {
-        test: /\.tsx?$/,
-        use: "ts-loader",
+        test: /\.([cm]?ts|tsx)$/,
+        use: {
+          loader: "ts-loader",
+          //         webpack bundle determines include/exclude, not tsconfig.json
+          options: { onlyCompileBundledFiles: true },
+        },
         include: path.resolve(__dirname, "src", "client"),
         exclude: /node_modules/,
       },
@@ -42,8 +52,8 @@ module.exports = {
   experiments: {
     topLevelAwait: true,
   },
-  plugins: [].concat(
-    pages_v2.map(
+  plugins: [
+    ...pages_v2.map(
       (page) =>
         new HtmlWebpackPlugin({
           template: `./src/client/templates/root.html`,
@@ -52,15 +62,13 @@ module.exports = {
           title: `Todosky | ${page}`,
         }),
     ),
-    [
-      // new HtmlWebpackPlugin({
-      //   template: `./src/client/templates/root.html`,
-      //   filename: `./stories/index.html`,
-      //   chunks: ["stories"],
-      //   title: `Todosky | stories`,
-      // }),
-    ],
-  ),
+    // new HtmlWebpackPlugin({
+    //   template: `./src/client/templates/root.html`,
+    //   filename: `./stories/index.html`,
+    //   chunks: ["stories"],
+    //   title: `Todosky | stories`,
+    // }),
+  ],
   devServer: {
     allowedHosts: ["all"],
     client: {
@@ -81,4 +89,4 @@ module.exports = {
       directory: path.resolve(__dirname, "dist"),
     },
   },
-};
+} satisfies webpack.Configuration;

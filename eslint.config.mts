@@ -37,5 +37,6 @@ export default defineConfig([
     rules: {
       "css/no-duplicate-imports": "error",
     },
+    extends: ["css/recommended"],
   },
 ]);
