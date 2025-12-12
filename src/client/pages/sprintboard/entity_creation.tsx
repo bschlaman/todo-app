@@ -24,15 +24,15 @@ import {
   updateTaskById,
 } from "../../ts/lib/api";
 import {
-  Config,
+  type Config,
   STORY_RELATIONSHIP,
-  Sprint,
-  Story,
-  StoryRelationship,
+  type Sprint,
+  type Story,
+  type StoryRelationship,
   TASK_STATUS,
-  Tag,
-  TagAssignment,
-  Task,
+  type Tag,
+  type TagAssignment,
+  type Task,
 } from "../../ts/model/entities";
 import { NULL_STORY_IDENTIFIER } from "../../ts/lib/common";
 import { TagOption } from "./tag_selectors";
@@ -42,7 +42,7 @@ import { StorySelect } from "../../components/story_select";
 import DownloadCSVButton from "../../components/download_csv";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import DoneIcon from "@mui/icons-material/Done";
-import ProtoTaskTable, { ProtoTask } from "../../components/task_table";
+import ProtoTaskTable, { type ProtoTask } from "../../components/task_table";
 import Papa from "papaparse";
 
 function renderCreationButton(

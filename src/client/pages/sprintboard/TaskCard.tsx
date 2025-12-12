@@ -1,5 +1,10 @@
-import React, { useEffect, useState } from "react";
-import { TASK_STATUS, Story, Tag, Task } from "../../ts/model/entities";
+import { useEffect, useState } from "react";
+import {
+  TASK_STATUS,
+  type Story,
+  type Tag,
+  type Task,
+} from "../../ts/model/entities";
 import CopyToClipboardButton from "../../components/copy_to_clipboard_button";
 import { DRAG_TYPE } from "./drag";
 import { useDrag } from "react-dnd";

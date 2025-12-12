@@ -1,5 +1,4 @@
-import React from "react";
-import { Tag } from "../../ts/model/entities";
+import type { Tag } from "../../ts/model/entities";
 import { TAG_COLORS, DEFAULT_TAG_COLOR } from "../../ts/lib/common";
 
 export function TagOption({

@@ -1,6 +1,6 @@
-import React, { CSSProperties } from "react";
+import { type CSSProperties } from "react";
 import { useDrag } from "react-dnd";
-import { TASK_STATUS, Task } from "../../ts/model/entities";
+import { TASK_STATUS, type Task } from "../../ts/model/entities";
 
 export enum DRAG_TYPE {
   CARD = "card",

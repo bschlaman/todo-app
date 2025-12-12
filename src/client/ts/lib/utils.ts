@@ -1,4 +1,4 @@
-import { Sprint, Task } from "../model/entities";
+import type { Sprint, Task } from "../model/entities";
 
 // UTIL FUNCTIONS (PURE)
 

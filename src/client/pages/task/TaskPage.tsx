@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ErrorBanner from "../../components/banners";
-import { Config, Task } from "../../ts/model/entities";
+import type { Config, Task } from "../../ts/model/entities";
 import {
   checkSession,
   getConfig,
@@ -14,10 +14,10 @@ import ReactMarkdownCustom from "../../components/markdown";
 import TaskMetadata from "./task_metadata";
 import { SessionTimeRemainingIndicator } from "../../components/session";
 import {
-  TimedApiResult,
+  type TimedApiResult,
   makeTimedPageLoadApiCall,
 } from "../../ts/lib/api_utils";
-import { CheckSessionRes } from "../../ts/model/responses";
+import type { CheckSessionRes } from "../../ts/model/responses";
 
 function TaskView({
   task,

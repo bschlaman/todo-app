@@ -1,7 +1,7 @@
 // This file contains methods to determine if an entity should be rendered on the sprintboard page
 // e.g. based on status, current sprint, etc.
 
-import { Story, Task } from "../../ts/model/entities";
+import type { Story, Task } from "../../ts/model/entities";
 import { isActive } from "../../ts/model/status";
 
 export function filterTask(

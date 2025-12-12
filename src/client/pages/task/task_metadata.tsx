@@ -1,5 +1,5 @@
 import {
-  SelectChangeEvent,
+  type SelectChangeEvent,
   Select,
   MenuItem,
   ListSubheader,
@@ -16,17 +16,17 @@ import {
 import { NULL_STORY_IDENTIFIER } from "../../ts/lib/common";
 import { formatId, formatDate } from "../../ts/lib/utils";
 import {
-  Task,
-  Story,
-  Sprint,
-  Tag,
-  TagAssignment,
+  type Task,
+  type Story,
+  type Sprint,
+  type Tag,
+  type TagAssignment,
   TASK_STATUS,
 } from "../../ts/model/entities";
 import { isActive } from "../../ts/model/status";
 import {
   makeTimedPageLoadApiCall,
-  TimedApiResult,
+  type TimedApiResult,
 } from "../../ts/lib/api_utils";
 
 export default function TaskMetadata({

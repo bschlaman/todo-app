@@ -7,7 +7,6 @@ import {
   TableCell,
   TableBody,
 } from "@mui/material";
-import React from "react";
 import ReactMarkdown from "react-markdown";
 
 export interface ProtoTask {

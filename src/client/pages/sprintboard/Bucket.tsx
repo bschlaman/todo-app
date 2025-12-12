@@ -1,5 +1,5 @@
-import React, { ReactNode } from "react";
-import { TASK_STATUS, Task } from "../../ts/model/entities";
+import { type ReactNode } from "react";
+import { TASK_STATUS, type Task } from "../../ts/model/entities";
 import { DRAG_TYPE } from "./drag";
 import { useDrop } from "react-dnd";
 import { isDarkMode } from "../../ts/lib/utils";

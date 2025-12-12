@@ -1,6 +1,6 @@
 import React from "react";
 import { DEFAULT_TAG_COLOR, TAG_COLORS } from "../ts/lib/common";
-import { Tag } from "../ts/model/entities";
+import type { Tag } from "../ts/model/entities";
 
 export function renderTagBadgesForStoryId(
   storyId: string,

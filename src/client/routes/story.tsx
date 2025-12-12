@@ -1,7 +1,6 @@
-import React from "react";
 import { getStoryById } from "../ts/lib/api";
 import { useLoaderData } from "react-router-dom";
-import { Story } from "../ts/model/entities";
+import type { Story } from "../ts/model/entities";
 import type { LoaderFunctionArgs } from "react-router-dom";
 import ReactMarkdownCustom from "../components/markdown";
 

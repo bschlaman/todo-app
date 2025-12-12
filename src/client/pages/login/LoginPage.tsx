@@ -1,5 +1,3 @@
-import React from "react";
-
 enum HttpMethod {
   POST = "POST",
   GET = "GET",

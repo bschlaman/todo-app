@@ -1,15 +1,15 @@
 import React, { useMemo, useState } from "react";
 import CopyToClipboardButton from "../../components/copy_to_clipboard_button";
 import {
-  Sprint,
-  Story,
-  StoryRelationship,
-  Tag,
-  TagAssignment,
+  type Sprint,
+  type Story,
+  type StoryRelationship,
+  type Tag,
+  type TagAssignment,
   STORY_RELATIONSHIP,
-  Task,
+  type Task,
   STORY_STATUS,
-  Config,
+  type Config,
 } from "../../ts/model/entities";
 import { TagOption } from "./tag_selectors";
 import { sprintToString } from "../../ts/lib/utils";

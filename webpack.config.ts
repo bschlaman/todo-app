@@ -22,19 +22,19 @@ export default {
   },
   output: {
     filename: "./[name]/[name].bundle.js",
-    path: path.resolve(__dirname, publicDir),
+    path: path.resolve(import.meta.dirname, publicDir),
   },
   module: {
     rules: [
       {
         test: /\.css$/i,
-        include: path.resolve(__dirname, "src", "client"),
+        include: path.resolve(import.meta.dirname, "src", "client"),
         use: ["style-loader", "css-loader", "postcss-loader"],
       },
       {
         // needed for katex/dist/katex.min.css
         test: /\.css$/i,
-        include: path.resolve(__dirname, "node_modules/katex/dist"),
+        include: path.resolve(import.meta.dirname, "node_modules/katex/dist"),
         use: ["style-loader", "css-loader"],
       },
       {
@@ -44,7 +44,7 @@ export default {
           //         webpack bundle determines include/exclude, not tsconfig.json
           options: { onlyCompileBundledFiles: true },
         },
-        include: path.resolve(__dirname, "src", "client"),
+        include: path.resolve(import.meta.dirname, "src", "client"),
         exclude: /node_modules/,
       },
     ],
@@ -86,7 +86,7 @@ export default {
     ],
     watchFiles: ["src/client/**/*"],
     static: {
-      directory: path.resolve(__dirname, "dist"),
+      directory: path.resolve(import.meta.dirname, "dist"),
     },
   },
 } satisfies webpack.Configuration;

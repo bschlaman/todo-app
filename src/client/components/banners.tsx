@@ -1,5 +1,3 @@
-import React from "react";
-
 export default function ErrorBanner({ errors }: { errors: Error[] }) {
   return (
     <div

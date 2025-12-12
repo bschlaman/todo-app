@@ -1,8 +1,8 @@
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import ErrorBanner from "../../components/banners";
 import { getCommentsByTaskId, createComment } from "../../ts/lib/api";
 import { formatDate } from "../../ts/lib/utils";
-import { Config, TaskComment } from "../../ts/model/entities";
+import type { Config, TaskComment } from "../../ts/model/entities";
 import ReactMarkdownCustom, { ErrorBoundary } from "../../components/markdown";
 import { makeTimedPageLoadApiCall } from "../../ts/lib/api_utils";
 

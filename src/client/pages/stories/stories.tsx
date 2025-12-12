@@ -1,6 +1,5 @@
-import React from "react";
 import { Link, Outlet, useLoaderData } from "react-router-dom";
-import { Story } from "../../ts/model/entities";
+import type { Story } from "../../ts/model/entities";
 import ReactMarkdownCustom from "../../components/markdown";
 
 export default function StoriesRoot() {

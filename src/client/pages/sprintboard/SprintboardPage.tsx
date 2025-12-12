@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import ErrorBanner from "../../components/banners";
 import {
   checkSession,
@@ -12,14 +12,14 @@ import {
   updateTaskById,
 } from "../../ts/lib/api";
 import {
-  Config,
-  Sprint,
-  Story,
-  StoryRelationship,
+  type Config,
+  type Sprint,
+  type Story,
+  type StoryRelationship,
   TASK_STATUS,
-  Tag,
-  TagAssignment,
-  Task,
+  type Tag,
+  type TagAssignment,
+  type Task,
 } from "../../ts/model/entities";
 import Bucket from "./Bucket";
 import { sprintToString } from "../../ts/lib/utils";
@@ -32,10 +32,10 @@ import StoryCard from "./StoryCard";
 import { filterStory, filterTask } from "./render_filters";
 import { SessionTimeRemainingIndicator } from "../../components/session";
 import {
-  TimedApiResult,
+  type TimedApiResult,
   makeTimedPageLoadApiCall,
 } from "../../ts/lib/api_utils";
-import { CheckSessionRes } from "../../ts/model/responses";
+import type { CheckSessionRes } from "../../ts/model/responses";
 
 const LOCAL_STORAGE_KEYS = {
   selectedSprintId: "viewing_sprint_id",

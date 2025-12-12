@@ -1,17 +1,17 @@
 // GLOBAL CONSTS
 
 import {
-  Task,
-  Story,
-  Sprint,
-  Tag,
-  TagAssignment,
-  TaskComment,
-  Config,
-  StoryRelationship,
+  type Task,
+  type Story,
+  type Sprint,
+  type Tag,
+  type TagAssignment,
+  type TaskComment,
+  type Config,
+  type StoryRelationship,
   STORY_RELATIONSHIP,
 } from "../model/entities";
-import { CheckSessionRes } from "../model/responses";
+import type { CheckSessionRes } from "../model/responses";
 
 const routes = {
   checkSession: "/api/check_session",

@@ -18,6 +18,7 @@ export default defineConfig([
   {
     files: ["**/*.{js,mjs,cjs,jsx,mjsx,ts,tsx,mtsx}"],
     ...reactPlugin.configs.flat["recommended"],
+    ...reactPlugin.configs.flat["jsx-runtime"], // required in addition to previous line since I'm using jsx-runtime
     settings: {
       react: {
         version: "detect",
