@@ -136,7 +136,9 @@ export function CreateTask({
             autoFocus
             fullWidth
             margin="dense"
-            inputProps={{ maxLength: config?.task_title_max_len }}
+            slotProps={{
+              htmlInput: { maxLength: config?.task_title_max_len }
+            }}
           />
           <TextField
             inputRef={descriptionRef}
@@ -146,7 +148,9 @@ export function CreateTask({
             minRows={3}
             fullWidth
             margin="dense"
-            inputProps={{ maxLength: config?.task_desc_max_len }}
+            slotProps={{
+              htmlInput: { maxLength: config?.task_desc_max_len }
+            }}
           />
           <FormControl fullWidth margin="dense">
             <InputLabel>Parent Story</InputLabel>
@@ -237,7 +241,9 @@ export function CreateStory({
             autoFocus
             fullWidth
             margin="dense"
-            inputProps={{ maxLength: config?.story_title_max_len }}
+            slotProps={{
+              htmlInput: { maxLength: config?.story_title_max_len }
+            }}
           />
           <TextField
             inputRef={descriptionRef}
@@ -247,7 +253,9 @@ export function CreateStory({
             minRows={3}
             fullWidth
             margin="dense"
-            inputProps={{ maxLength: config?.story_desc_max_len }}
+            slotProps={{
+              htmlInput: { maxLength: config?.story_desc_max_len }
+            }}
           />
           <FormControl fullWidth margin="dense">
             <InputLabel id="sprint-label">Parent Sprint</InputLabel>
@@ -370,7 +378,9 @@ export function CreateSprint({
             autoFocus
             fullWidth
             margin="dense"
-            inputProps={{ maxLength: config?.sprint_title_max_len }}
+            slotProps={{
+              htmlInput: { maxLength: config?.sprint_title_max_len }
+            }}
           />
           <DatePicker
             inputRef={startDateRef}
@@ -441,7 +451,9 @@ export function CreateTag({
             autoFocus
             fullWidth
             margin="dense"
-            inputProps={{ maxLength: config?.tag_title_max_len }}
+            slotProps={{
+              htmlInput: { maxLength: config?.tag_title_max_len }
+            }}
           />
           <TextField
             inputRef={descriptionRef}
@@ -451,7 +463,9 @@ export function CreateTag({
             minRows={3}
             fullWidth
             margin="dense"
-            inputProps={{ maxLength: config?.tag_desc_max_len }}
+            slotProps={{
+              htmlInput: { maxLength: config?.tag_desc_max_len }
+            }}
           />
         </DialogContent>
         {renderDialogActions(handleClose, handleSave)}
@@ -558,9 +572,13 @@ export function CreateBulkTask({
             autoFocus
             fullWidth
             margin="dense"
-            inputProps={{ maxLength: config?.task_title_max_len }}
+            slotProps={{
+              htmlInput: { maxLength: config?.task_title_max_len }
+            }}
           />
-          <Typography variant="caption" margin="dense">
+          <Typography variant="caption" sx={{
+            margin: "dense"
+          }}>
             Preview:
           </Typography>
           <p>{BULK_TASK_PREFIX + commonTitle}</p>
@@ -572,7 +590,9 @@ export function CreateBulkTask({
             minRows={3}
             fullWidth
             margin="dense"
-            inputProps={{ maxLength: config?.task_desc_max_len }}
+            slotProps={{
+              htmlInput: { maxLength: config?.task_desc_max_len }
+            }}
           />
           <FormControl fullWidth margin="dense">
             <InputLabel>Parent Story</InputLabel>
@@ -686,7 +706,9 @@ export function BatchUploadTask({
       >
         <DialogTitle id="form-dialog-title">Batch Task Upload</DialogTitle>
         <DialogContent>
-          <Typography margin="dense">
+          <Typography sx={{
+            margin: "dense"
+          }}>
             Download the CSV template, add tasks, and then re-upload it to
             create tasks in a batch.
           </Typography>
@@ -951,7 +973,9 @@ export function CopyToNewStory({
             fullWidth
             margin="dense"
             defaultValue={continuedStory.title}
-            inputProps={{ maxLength: config?.story_title_max_len }}
+            slotProps={{
+              htmlInput: { maxLength: config?.story_title_max_len }
+            }}
           />
           <TextField
             inputRef={descriptionRef}
@@ -961,7 +985,9 @@ export function CopyToNewStory({
             fullWidth
             margin="dense"
             defaultValue={continuedStory.description}
-            inputProps={{ maxLength: config?.story_desc_max_len }}
+            slotProps={{
+              htmlInput: { maxLength: config?.story_desc_max_len }
+            }}
           />
           <FormControl fullWidth margin="dense">
             <InputLabel id="sprint-label">Parent Sprint</InputLabel>

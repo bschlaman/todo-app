@@ -1,10 +1,10 @@
+import React, { useState, useEffect, useMemo } from "react";
 import {
   type SelectChangeEvent,
   Select,
   MenuItem,
   ListSubheader,
 } from "@mui/material";
-import React, { useState, useEffect, useMemo } from "react";
 import ErrorBanner from "../../components/banners";
 import { renderStorySelectMenuItem } from "../../components/story_select";
 import {
@@ -28,6 +28,7 @@ import {
   makeTimedPageLoadApiCall,
   type TimedApiResult,
 } from "../../ts/lib/api_utils";
+import type { CSSObject } from "@emotion/react";
 
 export default function TaskMetadata({
   task,
@@ -119,7 +120,7 @@ export default function TaskMetadata({
   ) {
     return (
       <div className="flex">
-        <p className="mr-4 font-bold">{label}:</p>
+        <p className="mr-4 font-bold dark:text-zinc-200">{label}:</p>
         <p title={hover}>{value}</p>
       </div>
     );
@@ -156,11 +157,11 @@ export default function TaskMetadata({
           "Created",
           formatDate(new Date(task.created_at)),
         )}
-        <p className="mr-4 font-bold">Status:</p>
+        <p className="mr-4 font-bold dark:text-zinc-200">Status:</p>
         {renderStatusDropdown(task.status)}
       </div>
       <div className="mt-4 flex items-center">
-        <p className="mr-4 font-bold">Parent story:</p>
+        <p className="mr-4 font-bold dark:text-zinc-200">Parent story:</p>
         <StoryDropdown
           taskStoryId={task.story_id}
           stories={stories}
@@ -222,6 +223,7 @@ function StoryDropdown({
   // If I don't perform this array length check,
   // might try and render the select with a value which is not
   // available yet
+  // TODO (2025.12.12) this theme thing is basically totally broken
   return stories.length > 0 && sprints.length > 0 ? (
     <Select
       name="story_id"
@@ -233,13 +235,45 @@ function StoryDropdown({
           alignItems: "center",
         },
       }}
+      // https://mui.com/system/getting-started/the-sx-prop/
+      // maybe I can remove the `as CSSObject` someday
+      sx={[
+        (theme) => theme.applyStyles("dark", { color: "white" }) as CSSObject,
+      ]}
     >
-      <ListSubheader key={NULL_STORY_IDENTIFIER} style={{ fontSize: "1.5rem" }}>
+      <ListSubheader
+        key={NULL_STORY_IDENTIFIER}
+        sx={[
+          (theme) => ({
+            fontSize: "1.5rem",
+            backgroundColor: theme.palette.background.paper,
+            color: theme.palette.text.primary,
+          }),
+          (theme) =>
+            theme.applyStyles("dark", {
+              backgroundColor: "#374151",
+              color: "white",
+            }) as CSSObject,
+        ]}
+      >
         {NULL_STORY_IDENTIFIER}
       </ListSubheader>
       <MenuItem
-        style={{ marginLeft: "9rem", borderBottom: "1px solid #ddd" }}
         value={NULL_STORY_IDENTIFIER}
+        sx={[
+          (theme) => ({
+            marginLeft: "9rem",
+            borderBottom: `1px solid ${theme.palette.divider}`,
+            backgroundColor: theme.palette.background.paper,
+            color: theme.palette.text.primary,
+          }),
+          (theme) =>
+            theme.applyStyles("dark", {
+              borderBottom: "1px solid #4B5563",
+              backgroundColor: "#374151",
+              color: "white",
+            }) as CSSObject,
+        ]}
       >
         <strong>{NULL_STORY_IDENTIFIER}</strong>
       </MenuItem>
@@ -249,15 +283,47 @@ function StoryDropdown({
         if (stories === undefined) return [];
 
         return [
-          <ListSubheader key={sprint.id} style={{ fontSize: "1.5rem" }}>
+          <ListSubheader
+            key={sprint.id}
+            sx={[
+              (theme) => ({
+                fontSize: "1.5rem",
+                backgroundColor: theme.palette.background.paper,
+                color: theme.palette.text.primary,
+              }),
+              (theme) =>
+                theme.applyStyles("dark", {
+                  backgroundColor: "#374151",
+                  color: "white",
+                }) as CSSObject,
+            ]}
+          >
             {sprint.title}
           </ListSubheader>,
           ...stories.map((story) => (
             <MenuItem
               key={story.id}
               value={story.id}
-              style={{ borderBottom: "1px solid #ddd" }}
               disabled={!isActive(story)}
+              sx={[
+                (theme) => ({
+                  borderBottom: `1px solid ${theme.palette.divider}`,
+                  backgroundColor: theme.palette.background.paper,
+                  color: theme.palette.text.primary,
+                  "&.Mui-disabled": {
+                    color: theme.palette.text.disabled,
+                  },
+                }),
+                (theme) =>
+                  theme.applyStyles("dark", {
+                    borderBottom: "1px solid #4B5563",
+                    backgroundColor: "#374151",
+                    color: "white",
+                    "&.Mui-disabled": {
+                      color: "#9CA3AF",
+                    },
+                  }) as CSSObject,
+              ]}
             >
               {renderStorySelectMenuItem(story, tagsById, assocTagIdsByStoryId)}
             </MenuItem>
@@ -265,7 +331,5 @@ function StoryDropdown({
         ];
       })}
     </Select>
-  ) : (
-    <></>
-  );
+  ) : null;
 }

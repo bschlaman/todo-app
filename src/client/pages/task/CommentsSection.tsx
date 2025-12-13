@@ -66,7 +66,7 @@ export default function CommentsSection({
       {comments.map((comment) => (
         // TODO (2023.05.15): using an integer id (as is also the case with tag_assignments)
         // is a bad idea, since it may conflict with other entities
-        <Comment key={comment.id} comment={comment}></Comment>
+        (<Comment key={comment.id} comment={comment}></Comment>)
       ))}
       <div className="relative mt-4 rounded-md bg-zinc-100 p-4 outline outline-2 dark:bg-zinc-600">
         <textarea

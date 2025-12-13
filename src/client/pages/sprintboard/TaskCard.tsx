@@ -77,7 +77,7 @@ export default function TaskCard({
       // TODO (2023.05.21): check this issue: https://github.com/react-dnd/react-dnd/issues/3452
       ref={preview}
     >
-      <h3 className="mb-4 border-b border-b-zinc-400 text-xl font-bold">
+      <h3 className="mb-4 border-b border-b-zinc-400 text-xl font-bold dark:text-zinc-200">
         {task.title}
       </h3>
       <div className="absolute bottom-3 right-3">

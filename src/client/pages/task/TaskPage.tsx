@@ -69,7 +69,7 @@ function TaskView({
           </div>
         ) : (
           <h2
-            className="text-lg font-bold"
+            className="text-lg font-bold dark:text-zinc-200"
             onDoubleClick={() => setIsEditingTitle(true)}
           >
             {title}
