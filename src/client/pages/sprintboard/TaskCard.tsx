@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type Ref } from "react";
 import {
   TASK_STATUS,
   type Story,
@@ -54,7 +54,7 @@ export default function TaskCard({
     return (
       <p
         className="absolute left-1/2 top-2.5 m-0 -translate-x-1/2 -translate-y-1/2 cursor-grab select-none text-center text-gray-500 active:cursor-grabbing"
-        ref={drag}
+        ref={drag as unknown as Ref<HTMLDivElement>}
       >
         &#8801;
       </p>
@@ -75,7 +75,7 @@ export default function TaskCard({
         ...(task.bulk_task ? { borderLeft: "12px solid lightblue" } : {}),
       }}
       // TODO (2023.05.21): check this issue: https://github.com/react-dnd/react-dnd/issues/3452
-      ref={preview}
+      ref={preview as unknown as Ref<HTMLDivElement>}
     >
       <h3 className="mb-4 border-b border-b-zinc-400 text-xl font-bold dark:text-zinc-200">
         {task.title}

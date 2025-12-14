@@ -14,7 +14,11 @@ import {
   getTagAssignments,
 } from "../../ts/lib/api";
 import { NULL_STORY_IDENTIFIER } from "../../ts/lib/common";
-import { formatId, formatDate } from "../../ts/lib/utils";
+import {
+  formatId,
+  formatDate,
+  handleCopyToClipboardHTTP,
+} from "../../ts/lib/utils";
 import {
   type Task,
   type Story,
@@ -117,11 +121,32 @@ export default function TaskMetadata({
     label: string,
     value: string,
     hover?: string,
+    onClick?: () => void,
   ) {
+    const clickable = onClick !== undefined;
+    const handleKeyDown = (
+      event: React.KeyboardEvent<HTMLParagraphElement>,
+    ) => {
+      if (onClick === undefined) return;
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        onClick();
+      }
+    };
+
     return (
       <div className="flex">
         <p className="mr-4 font-bold dark:text-zinc-200">{label}:</p>
-        <p title={hover}>{value}</p>
+        <p
+          title={hover}
+          role={clickable ? "button" : undefined}
+          tabIndex={clickable ? 0 : undefined}
+          className={clickable ? "cursor-pointer" : undefined}
+          onClick={onClick}
+          onKeyDown={handleKeyDown}
+        >
+          {value}
+        </p>
       </div>
     );
   }
@@ -145,6 +170,11 @@ export default function TaskMetadata({
 
   if (errors.length > 0) return <ErrorBanner errors={errors} />;
 
+  const createdAtDate = useMemo(
+    () => new Date(task.created_at),
+    [task.created_at],
+  );
+
   // TODO (2023.05.06): this is a weaker part of the UI, could use a redesign
   // Idea: make a task metadata component, where the value could be any
   // other component (e.g. <p> or <select>)
@@ -155,7 +185,9 @@ export default function TaskMetadata({
         {renderTaskMetadataPair("sqid", task.sqid)}
         {renderTaskMetadataPair(
           "Created",
-          formatDate(new Date(task.created_at)),
+          formatDate(createdAtDate),
+          createdAtDate.toString(),
+          () => handleCopyToClipboardHTTP(createdAtDate.toString()),
         )}
         <p className="mr-4 font-bold dark:text-zinc-200">Status:</p>
         {renderStatusDropdown(task.status)}

@@ -44,3 +44,20 @@ export function inProgress(task: Task) {
 export function isDarkMode() {
   return !!window.matchMedia("(prefers-color-scheme: dark)").matches;
 }
+
+// this function is a workaround that provides
+// copy-to-clipboard functionality without using the
+// ClipboardAPI, which only works over HTTPS or localhost
+export async function handleCopyToClipboardHTTP(content: string) {
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(content);
+    return;
+  }
+
+  const textarea = document.createElement("textarea");
+  textarea.textContent = content;
+  document.body.appendChild(textarea);
+  textarea.select();
+  document.execCommand("copy");
+  document.body.removeChild(textarea);
+}

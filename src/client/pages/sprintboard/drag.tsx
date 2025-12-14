@@ -1,4 +1,4 @@
-import { type CSSProperties } from "react";
+import type { CSSProperties, Ref } from "react";
 import { useDrag } from "react-dnd";
 import { TASK_STATUS, type Task } from "../../ts/model/entities";
 
@@ -37,7 +37,10 @@ export default function Card({ isDropped, task, moveTask }: CardProps) {
     [],
   );
   return (
-    <div ref={dragRef} style={{ ...style, opacity }}>
+    <div
+      ref={dragRef as unknown as Ref<HTMLDivElement>}
+      style={{ ...style, opacity }}
+    >
       {isDropped ? <s>{task.title}</s> : task.title}
     </div>
   );

@@ -1,4 +1,4 @@
-import { type ReactNode } from "react";
+import { type ReactNode, type Ref } from "react";
 import { TASK_STATUS, type Task } from "../../ts/model/entities";
 import { DRAG_TYPE } from "./drag";
 import { useDrop } from "react-dnd";
@@ -33,7 +33,7 @@ export default function Bucket({ status, children }: BucketProps) {
       style={{
         background: backgroundValue(active),
       }}
-      ref={drop}
+      ref={drop as unknown as Ref<HTMLDivElement>}
     >
       <p className="absolute top-1">{status}</p>
       {children}

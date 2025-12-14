@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { handleCopyToClipboardHTTP } from "../ts/lib/utils";
 
 const buttonStyles = {
   button: {
@@ -35,18 +36,6 @@ const buttonStyles = {
     `,
 };
 
-// this function is a workaround that provides
-// copy-to-clipboard functionality without using the
-// ClipboardAPI, which only works over HTTPS
-function handleCopyHTTP(content: string) {
-  const textarea = document.createElement("textarea");
-  textarea.textContent = content;
-  document.body.appendChild(textarea);
-  textarea.select();
-  document.execCommand("copy");
-  document.body.removeChild(textarea);
-}
-
 export default function CopyToClipboardButton({ value }: { value: string }) {
   const [copyStatus, setCopyStatus] = useState(false);
   return (
@@ -58,12 +47,7 @@ export default function CopyToClipboardButton({ value }: { value: string }) {
       onClick={() => {
         void (async () => {
           try {
-            // TODO: workaround!  Remove when possible
-            if (navigator.clipboard !== undefined) {
-              await navigator.clipboard.writeText(value);
-            } else {
-              handleCopyHTTP(value);
-            }
+            handleCopyToClipboardHTTP(value);
             setCopyStatus(true);
             setTimeout(() => {
               setCopyStatus(false);
