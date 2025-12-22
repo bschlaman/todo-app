@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS public.comments
 		task_id uuid NOT NULL,
 		created_at timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
 		updated_at timestamp without time zone,
-		text character varying(2000) NOT NULL,
+		text character varying(8000) NOT NULL,
 		edited boolean NOT NULL DEFAULT false,
 		CONSTRAINT fk_task_id FOREIGN KEY(task_id) REFERENCES tasks(id),
 		CONSTRAINT text_not_empty CHECK (text <> '')

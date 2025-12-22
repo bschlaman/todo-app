@@ -1,6 +1,10 @@
 import { useState, useRef, useEffect } from "react";
 import ErrorBanner from "../../components/banners";
-import { getCommentsByTaskId, createComment } from "../../ts/lib/api";
+import {
+  getCommentsByTaskId,
+  createComment,
+  updateCommentById,
+} from "../../ts/lib/api";
 import { formatDate } from "../../ts/lib/utils";
 import type { Config, TaskComment } from "../../ts/model/entities";
 import ReactMarkdownCustom, { ErrorBoundary } from "../../components/markdown";
@@ -61,12 +65,26 @@ export default function CommentsSection({
     })();
   }
 
+  function handleUpdateComment(commentId: string, newText: string) {
+    void (async () => {
+      await updateCommentById(parseInt(commentId), newText);
+      // Refresh comments to show the updated version
+      const updatedComments = await getCommentsByTaskId(taskId);
+      setComments(updatedComments);
+    })();
+  }
+
   return (
     <>
       {comments.map((comment) => (
         // TODO (2023.05.15): using an integer id (as is also the case with tag_assignments)
         // is a bad idea, since it may conflict with other entities
-        (<Comment key={comment.id} comment={comment}></Comment>)
+        <Comment
+          key={comment.id}
+          comment={comment}
+          onUpdate={handleUpdateComment}
+          config={config}
+        />
       ))}
       <div className="relative mt-4 rounded-md bg-zinc-100 p-4 outline outline-2 dark:bg-zinc-600">
         <textarea
@@ -99,8 +117,40 @@ export default function CommentsSection({
   );
 }
 
-function Comment({ comment }: { comment: TaskComment }) {
+function Comment({
+  comment,
+  onUpdate,
+  config,
+}: {
+  comment: TaskComment;
+  onUpdate: (commentId: string, newText: string) => void;
+  config: Config | null;
+}) {
   const [rawMode, setRawMode] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editText, setEditText] = useState(comment.text);
+  const editTextareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Auto focus the textarea when editing, and place the cursor at the end of the content
+  useEffect(() => {
+    if (!isEditing) return;
+    if (editTextareaRef.current === null) return;
+    editTextareaRef.current.focus();
+    editTextareaRef.current.selectionStart =
+      editTextareaRef.current.value.length;
+    editTextareaRef.current.selectionEnd = editTextareaRef.current.value.length;
+  }, [isEditing]);
+
+  function handleSaveEdit() {
+    if (editText.trim() === "") return;
+    onUpdate(comment.id, editText);
+    setIsEditing(false);
+  }
+
+  function handleCancelEdit() {
+    setEditText(comment.text);
+    setIsEditing(false);
+  }
 
   return (
     <div className="relative mt-4 rounded-md p-4 pt-6 outline outline-2 outline-zinc-700">
@@ -109,24 +159,74 @@ function Comment({ comment }: { comment: TaskComment }) {
       </p>
       <p className="absolute bottom-1 right-2 select-none text-sm font-thin">
         {formatDate(new Date(comment.created_at))}
+        {comment.edited && " (edited)"}
       </p>
-      <p
-        className="absolute left-2 top-1 select-none text-sm font-thin italic"
-        style={{
-          textDecoration: rawMode ? "underline" : "none",
-        }}
-        onClick={() => {
-          setRawMode((rm) => !rm);
-        }}
-      >
-        Raw
-      </p>
-      {rawMode ? (
-        <div className="whitespace-pre-wrap">{comment.text}</div>
+      <div className="absolute left-2 top-1 flex gap-2">
+        <p
+          className="cursor-pointer select-none text-sm font-thin italic"
+          style={{
+            textDecoration: rawMode ? "underline" : "none",
+          }}
+          onClick={() => {
+            setRawMode((rm) => !rm);
+          }}
+        >
+          Raw
+        </p>
+        {!isEditing && (
+          <p
+            className="cursor-pointer select-none text-sm font-thin italic hover:underline"
+            onClick={() => {
+              setIsEditing(true);
+            }}
+          >
+            Edit
+          </p>
+        )}
+      </div>
+      {isEditing ? (
+        <div className="mt-4">
+          <textarea
+            className="w-full resize-none rounded-md border border-zinc-300 p-2 dark:border-zinc-600 dark:bg-zinc-900"
+            value={editText}
+            onChange={(e) => setEditText(e.target.value)}
+            maxLength={config?.comment_max_len}
+            onKeyDown={(e) => {
+              if (e.ctrlKey && e.key === "Enter") {
+                handleSaveEdit();
+              }
+            }}
+            ref={editTextareaRef}
+            autoFocus
+          />
+          <div className="mt-2 flex gap-2">
+            <button
+              className="rounded-md bg-green-500 px-2 py-1 text-sm text-zinc-100"
+              onClick={handleSaveEdit}
+            >
+              Save
+            </button>
+            <button
+              className="rounded-md bg-gray-500 px-2 py-1 text-sm text-zinc-100"
+              onClick={handleCancelEdit}
+            >
+              Cancel
+            </button>
+          </div>
+          <p className="mt-1 text-right text-sm font-thin">
+            {editText.length} / {config?.comment_max_len}
+          </p>
+        </div>
       ) : (
-        <ErrorBoundary>
-          <ReactMarkdownCustom content={comment.text} />
-        </ErrorBoundary>
+        <>
+          {rawMode ? (
+            <div className="whitespace-pre-wrap">{comment.text}</div>
+          ) : (
+            <ErrorBoundary>
+              <ReactMarkdownCustom content={comment.text} />
+            </ErrorBoundary>
+          )}
+        </>
       )}
     </div>
   );

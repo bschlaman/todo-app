@@ -109,9 +109,17 @@ function TaskView({
             </button>
           </>
         ) : (
-          <div onDoubleClick={() => setIsEditingDesc(true)}>
+          <>
             <ReactMarkdownCustom content={description} />
-          </div>
+            {!isEditingDesc && (
+              <button
+                className="absolute left-2 top-2 select-none text-sm font-thin italic cursor-pointer hover:underline text-zinc-600 dark:text-zinc-400"
+                onClick={() => setIsEditingDesc(true)}
+              >
+                Edit
+              </button>
+            )}
+          </>
         )}
         {isEditingDesc && (
           <p className="absolute bottom-2 right-4 font-thin">

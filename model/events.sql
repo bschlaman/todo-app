@@ -11,6 +11,7 @@ CREATE TYPE event_action AS ENUM (
 	'PutStory',
 	'CreateTask',
 	'CreateComment',
+	'PutComment',
 	'GetCommentsByTaskID',
 	'GetStories',
 	'GetStoryByID',

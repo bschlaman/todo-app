@@ -14,6 +14,11 @@ type CreateCommentReq struct {
 	TaskID string `json:"task_id"`
 }
 
+type PutCommentReq struct {
+	ID   int    `json:"id"`
+	Text string `json:"text"`
+}
+
 type PutStoryReq struct {
 	ID          string `json:"id"`
 	Status      string `json:"status"`

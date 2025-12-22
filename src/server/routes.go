@@ -41,6 +41,7 @@ func registerHandlers() {
 		{"/api/create_task", createTaskHandle, "CreateTask", APIType.Create},
 		// comments
 		{"/api/create_comment", createCommentHandle, "CreateComment", APIType.Create},
+		{"/api/put_comment", putCommentHandle, "PutComment", APIType.Put},
 		{"/api/get_comments_by_task_id", getCommentsByTaskIDHandle, "GetCommentsByTaskID", APIType.GetMany},
 		// stories
 		{"/api/get_stories", getStoriesHandle, "GetStories", APIType.GetMany},

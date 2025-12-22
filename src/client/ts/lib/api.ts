@@ -31,6 +31,7 @@ const routes = {
   getTaskById: "/api/get_task",
   getCommentsByTaskId: "/api/get_comments_by_task_id",
   createComment: "/api/create_comment",
+  updateComment: "/api/put_comment",
   getStoryById: "/api/get_story",
 
   getTags: "/api/get_tags",
@@ -135,7 +136,7 @@ export async function getTagAssignments(): Promise<TagAssignment[]> {
 
 export async function createComment(
   taskId: string,
-  text: string
+  text: string,
 ): Promise<TaskComment> {
   const res = await fetch(`${routes.createComment}`, {
     method: "POST",
@@ -154,7 +155,7 @@ export async function createTask(
   title: string,
   description: string,
   storyId: string | null,
-  bulkTask = false
+  bulkTask = false,
 ): Promise<Task> {
   const res = await fetch(routes.createTask, {
     method: "POST",
@@ -174,7 +175,7 @@ export async function createTask(
 export async function createStory(
   title: string,
   description: string,
-  sprintId: string
+  sprintId: string,
 ): Promise<Story> {
   const res = await fetch(routes.createStory, {
     method: "POST",
@@ -193,7 +194,7 @@ export async function createStory(
 export async function createSprint(
   title: string,
   startdate: Date,
-  enddate: Date
+  enddate: Date,
 ): Promise<Sprint> {
   const res = await fetch(routes.createSprint, {
     method: "POST",
@@ -211,7 +212,7 @@ export async function createSprint(
 
 export async function createTag(
   title: string,
-  description: string
+  description: string,
 ): Promise<Tag> {
   const res = await fetch(routes.createTag, {
     method: "POST",
@@ -228,7 +229,7 @@ export async function createTag(
 
 export async function createTagAssignment(
   tagId: string,
-  storyId: string
+  storyId: string,
 ): Promise<TagAssignment> {
   const res = await fetch(routes.createTagAssignment, {
     method: "POST",
@@ -246,7 +247,7 @@ export async function createTagAssignment(
 export async function createStoryRelationship(
   storyIdA: string,
   storyIdB: string,
-  relation: STORY_RELATIONSHIP
+  relation: STORY_RELATIONSHIP,
 ): Promise<StoryRelationship> {
   const res = await fetch(routes.createStoryRelationship, {
     method: "POST",
@@ -264,7 +265,7 @@ export async function createStoryRelationship(
 
 export async function destroyTagAssignment(
   tagId: string,
-  storyId: string
+  storyId: string,
 ): Promise<JSON> {
   const res = await fetch(routes.destroyTagAssignment, {
     method: "POST",
@@ -297,7 +298,7 @@ export async function updateTaskById(
   status: string,
   title: string,
   description: string,
-  storyId: string | null
+  storyId: string | null,
 ): Promise<JSON> {
   try {
     const res = await fetch(routes.updateTask, {
@@ -325,7 +326,7 @@ export async function updateStoryById(
   status: string,
   title: string,
   description: string,
-  sprintId: string
+  sprintId: string,
 ): Promise<JSON> {
   try {
     const res = await fetch(routes.updateStory, {
@@ -339,6 +340,28 @@ export async function updateStoryById(
         title,
         description,
         sprint_id: sprintId,
+      }),
+    });
+    return await handleApiRes(res);
+  } catch (err) {
+    if (err instanceof Error) handleApiErr(err);
+    throw err;
+  }
+}
+
+export async function updateCommentById(
+  id: number,
+  text: string,
+): Promise<JSON> {
+  try {
+    const res = await fetch(routes.updateComment, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id,
+        text,
       }),
     });
     return await handleApiRes(res);
@@ -420,6 +443,7 @@ async function handleApiRes(res: Response) {
     return await res.json();
   } catch (err) {
     console.warn("response was not json:", new URL(res.url).pathname);
+    console.warn(err);
     return null;
   }
 }

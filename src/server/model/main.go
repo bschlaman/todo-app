@@ -404,6 +404,36 @@ func CreateComment(log *logger.BLogger, createReq CreateCommentReq) (*Comment, e
 	return &Comment{id, createReq.TaskID, cAt, uAt, text, edited}, nil
 }
 
+func PutComment(log *logger.BLogger, putReq PutCommentReq) error {
+	if putReq.Text == "" {
+		log.Error("putComment: Text blank")
+		return InputError{}
+	}
+
+	conn, err := database.GetPgxConn()
+	if err != nil {
+		log.Errorf("unable to connect to database: %v", err)
+		return err
+	}
+	defer conn.Release()
+
+	_, err = conn.Exec(context.Background(),
+		`UPDATE comments SET
+			updated_at = CURRENT_TIMESTAMP,
+			text = $1,
+			edited = true
+			WHERE id = $2`,
+		putReq.Text,
+		putReq.ID,
+	)
+	if err != nil {
+		log.Errorf("conn.Exec failed: %v", err)
+		return err
+	}
+
+	return nil
+}
+
 func PutStory(log *logger.BLogger, putReq PutStoryReq) error {
 	conn, err := database.GetPgxConn()
 	if err != nil {

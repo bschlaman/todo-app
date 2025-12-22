@@ -375,6 +375,28 @@ func putTaskHandle() http.Handler {
 	})
 }
 
+func putCommentHandle() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		putReq := model.PutCommentReq{}
+		if err := json.NewDecoder(r.Body).Decode(&putReq); err != nil {
+			log.Errorf("unable to decode json: %v", err)
+			http.Error(w, "something went wrong", http.StatusBadRequest)
+			return
+		}
+
+		err := model.PutComment(env.Log, putReq)
+		if err != nil {
+			log.Errorf("comment update failed: %v", err)
+			if errors.Is(err, model.InputError{}) {
+				http.Error(w, "something went wrong", http.StatusBadRequest)
+			} else {
+				http.Error(w, "something went wrong", http.StatusInternalServerError)
+			}
+			return
+		}
+	})
+}
+
 func getSprintsHandle() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		sprints, err := model.GetSprints(env.Log)

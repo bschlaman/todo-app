@@ -19,6 +19,6 @@ VALUES ('server_name', 'TODO-APP-SERVER'),
 	('task_title_max_len', '150'),
 	('story_desc_max_len', '2000'),
 	('task_desc_max_len', '2000'),
-	('comment_max_len', '2000'),
+	('comment_max_len', '8000'),
 	('tag_title_max_len', '30'),
 	('tag_desc_max_len', '2000');
