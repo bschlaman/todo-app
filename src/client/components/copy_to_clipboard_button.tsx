@@ -62,3 +62,24 @@ export default function CopyToClipboardButton({ value }: { value: string }) {
     </button>
   );
 }
+
+export function CopyIcon({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    handleCopyToClipboardHTTP(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <button
+      onClick={handleCopy}
+      className={`absolute right-2 top-2 cursor-pointer rounded border-0 px-2 py-1 text-xs text-white opacity-80 transition-all duration-200 hover:opacity-100 ${
+        copied ? "bg-green-600" : "bg-gray-500"
+      }`}
+    >
+      {copied ? "✓" : "📋"}
+    </button>
+  );
+}

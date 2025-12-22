@@ -1,4 +1,4 @@
-import React, { type ErrorInfo } from "react";
+import React, { type ErrorInfo, useState } from "react";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { docco } from "react-syntax-highlighter/dist/esm/styles/hljs";
 // I have used these in the past and like them.
@@ -16,14 +16,8 @@ import { nameToEmoji } from "gemoji";
 import { visit } from "unist-util-visit";
 import styles from "../css/markdown.module.css";
 import "katex/dist/katex.min.css";
-
-function Task(props: { taskId: string }) {
-  return (
-    <span style={{ color: "blue", fontWeight: "bold" }}>
-      [TASK {props.taskId}]
-    </span>
-  );
-}
+import InlineTaskCard from "./inline_task_card";
+import { CopyIcon } from "./copy_to_clipboard_button";
 
 export default function ReactMarkdownCustom({ content }: { content: string }) {
   return (
@@ -113,15 +107,19 @@ export default function ReactMarkdownCustom({ content }: { content: string }) {
           // see: https://github.com/remarkjs/react-markdown/issues/666#issuecomment-1001215783
           code({ className, children, ref, ...props }) {
             const match = /language-(\w+)/.exec(className ?? "");
+            const codeContent = String(children).replace(/\n$/, "");
             return match ? (
-              <SyntaxHighlighter
-                {...props}
-                style={docco}
-                language={match?.[1]}
-                PreTag="div" // so custom render doesn't target DOM
-              >
-                {String(children).replace(/\n$/, "")}
-              </SyntaxHighlighter>
+              <div style={{ position: "relative" }}>
+                <SyntaxHighlighter
+                  {...props}
+                  style={docco}
+                  language={match?.[1]}
+                  PreTag="div" // so custom render doesn't target DOM
+                >
+                  {codeContent}
+                </SyntaxHighlighter>
+                <CopyIcon text={codeContent} />
+              </div>
             ) : (
               <code {...props} className={`${className ?? ""} inline-code`}>
                 {children}
@@ -130,7 +128,7 @@ export default function ReactMarkdownCustom({ content }: { content: string }) {
           },
           task: ({ node }: { node: Element }) => {
             const { taskId } = node.properties as { taskId: string };
-            return <Task taskId={taskId} />;
+            return <InlineTaskCard taskId={taskId} />;
           },
         }}
       >
