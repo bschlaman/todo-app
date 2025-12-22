@@ -30,7 +30,7 @@ func getPgxPool() *pgxpool.Pool {
 			var err error
 			// use ConnectConfig so I can specify values
 			config, _ := pgxpool.ParseConfig(os.Getenv("DATABASE_URL"))
-			config.MaxConns = 4
+			config.MaxConns = 10
 			pool, err = pgxpool.ConnectConfig(context.Background(), config)
 			if err != nil {
 				fmt.Printf("[FATAL] could not establish a connection pool: %v", err)
