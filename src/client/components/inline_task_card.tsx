@@ -1,9 +1,16 @@
+import { useEffect } from "react";
 import type { TASK_STATUS } from "../ts/model/entities";
 import { handleCopyToClipboardHTTP } from "../ts/lib/utils";
 import { useTasksContext } from "../contexts/TasksContext";
 
 export default function InlineTaskCard({ taskId }: { taskId: string }) {
-  const { getTaskById, loading, error } = useTasksContext();
+  const { getTaskById, loading, error, fetchTasks } = useTasksContext();
+
+  // Trigger lazy loading of tasks when this component mounts
+  useEffect(() => {
+    void fetchTasks();
+  }, [fetchTasks]);
+
   const task = getTaskById(taskId);
 
   const getStatusColor = (status: TASK_STATUS): string => {

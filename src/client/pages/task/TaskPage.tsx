@@ -109,32 +109,19 @@ function TaskView({
             </button>
           </>
         ) : (
-          <>
-            <ReactMarkdownCustom content={description} />
-            {!isEditingDesc && (
-              <button
-                className="absolute left-2 top-2 select-none text-sm font-thin italic cursor-pointer hover:underline text-zinc-600 dark:text-zinc-400"
-                onClick={() => setIsEditingDesc(true)}
-              >
-                Edit
-              </button>
-            )}
-          </>
+          <ReactMarkdownCustom content={description} />
         )}
+        <button
+          className="absolute right-2 top-2 cursor-pointer select-none text-sm font-thin italic text-zinc-600 hover:underline dark:text-zinc-400"
+          onClick={() => setIsEditingDesc(!isEditingDesc)}
+        >
+          {isEditingDesc ? "Cancel" : "Edit"}
+        </button>
         {isEditingDesc && (
           <p className="absolute bottom-2 right-4 font-thin">
             {description.length ?? 0} / {config?.task_desc_max_len}
           </p>
         )}
-        <div className="absolute right-1 top-1">
-          <input
-            id="preview-md"
-            type="checkbox"
-            checked={!isEditingDesc}
-            onChange={() => setIsEditingDesc(!isEditingDesc)}
-          />
-          <label htmlFor="preview-md">Rendered</label>
-        </div>
       </div>
     </>
   );
