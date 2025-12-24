@@ -1,26 +1,10 @@
-import { useState, useEffect } from "react";
-import { getTaskById } from "../ts/lib/api";
-import type { Task, TASK_STATUS } from "../ts/model/entities";
+import type { TASK_STATUS } from "../ts/model/entities";
 import { handleCopyToClipboardHTTP } from "../ts/lib/utils";
+import { useTasksContext } from "../contexts/TasksContext";
 
 export default function InlineTaskCard({ taskId }: { taskId: string }) {
-  const [task, setTask] = useState<Task | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    void (async () => {
-      try {
-        setLoading(true);
-        const taskData = await getTaskById(taskId);
-        setTask(taskData);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load task");
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, [taskId]);
+  const { getTaskById, loading, error } = useTasksContext();
+  const task = getTaskById(taskId);
 
   const getStatusColor = (status: TASK_STATUS): string => {
     switch (status) {
@@ -63,7 +47,7 @@ export default function InlineTaskCard({ taskId }: { taskId: string }) {
     <span className="group relative mx-0.5 inline-block rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-sm shadow-sm">
       <a
         href={`/task/${task.id}`}
-        className="mr-1.5 font-semibold text-blue-600 hover:text-blue-800 hover:underline"
+        className="mr-1.5 font-semibold text-blue-600 hover:text-blue-800"
       >
         {task.title}
       </a>

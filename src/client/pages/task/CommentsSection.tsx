@@ -68,9 +68,14 @@ export default function CommentsSection({
   function handleUpdateComment(commentId: string, newText: string) {
     void (async () => {
       await updateCommentById(parseInt(commentId), newText);
-      // Refresh comments to show the updated version
-      const updatedComments = await getCommentsByTaskId(taskId);
-      setComments(updatedComments);
+      // Update the comment locally in state instead of fetching all comments
+      setComments((comments) =>
+        comments.map((comment) =>
+          comment.id === commentId
+            ? { ...comment, text: newText, edited: "true" }
+            : comment,
+        ),
+      );
     })();
   }
 

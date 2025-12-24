@@ -75,7 +75,7 @@ export function CopyIcon({ text }: { text: string }) {
   return (
     <button
       onClick={handleCopy}
-      className={`absolute right-2 top-2 cursor-pointer rounded border-0 px-2 py-1 text-xs text-white opacity-80 transition-all duration-200 hover:opacity-100 ${
+      className={`absolute right-2 top-2 cursor-pointer rounded border-0 px-2 py-1 text-xs text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100 ${
         copied ? "bg-green-600" : "bg-gray-500"
       }`}
     >

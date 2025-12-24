@@ -1,4 +1,4 @@
-import React, { type ErrorInfo, useState } from "react";
+import React, { type ErrorInfo } from "react";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { docco } from "react-syntax-highlighter/dist/esm/styles/hljs";
 // I have used these in the past and like them.
@@ -109,7 +109,7 @@ export default function ReactMarkdownCustom({ content }: { content: string }) {
             const match = /language-(\w+)/.exec(className ?? "");
             const codeContent = String(children).replace(/\n$/, "");
             return match ? (
-              <div style={{ position: "relative" }}>
+              <div className="group relative">
                 <SyntaxHighlighter
                   {...props}
                   style={docco}

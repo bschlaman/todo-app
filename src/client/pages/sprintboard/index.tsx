@@ -4,21 +4,24 @@ import SprintboardPage from "./SprintboardPage";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
+import { TasksProvider } from "../../contexts/TasksContext";
 import "../../css/tmp.tailwind.css";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <ThemeProvider
-        // required for automatic dark mode
-        theme={createTheme({
-          colorSchemes: {
-            dark: true,
-          },
-        })}
-      >
-        <SprintboardPage />
-      </ThemeProvider>
-    </LocalizationProvider>
+    <TasksProvider>
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <ThemeProvider
+          // required for automatic dark mode
+          theme={createTheme({
+            colorSchemes: {
+              dark: true,
+            },
+          })}
+        >
+          <SprintboardPage />
+        </ThemeProvider>
+      </LocalizationProvider>
+    </TasksProvider>
   </React.StrictMode>,
 );

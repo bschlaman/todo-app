@@ -76,7 +76,7 @@ function TaskView({
           </h2>
         )}
         <CopyToClipboardButton
-          value={window.location.pathname}
+          value={`\`${window.location.pathname}\` task:${window.location.pathname.split("/").at(-1)}`}
         ></CopyToClipboardButton>
       </div>
       <TaskMetadata task={task} onTaskUpdate={onTaskUpdate} />
