@@ -3,7 +3,7 @@ import { handleCopyToClipboardHTTP } from "../ts/lib/utils";
 
 const buttonStyles = {
   button: {
-    border: "2px solid lightgrey",
+    border: "2px solid darkgrey",
     borderRadius: "4px",
     width: "100px",
   },
@@ -44,6 +44,7 @@ export default function CopyToClipboardButton({ value }: { value: string }) {
         ...buttonStyles.button,
         ...(copyStatus ? buttonStyles.greenBorder : {}),
       }}
+      title={value}
       onClick={() => {
         void (async () => {
           try {

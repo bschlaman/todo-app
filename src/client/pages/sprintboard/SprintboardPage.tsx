@@ -31,6 +31,7 @@ import EntityCreationStation from "./entity_creation";
 import StoryCard from "./StoryCard";
 import { filterStory, filterTask } from "./render_filters";
 import { SessionTimeRemainingIndicator } from "../../components/session";
+import { CopyModeIndicator } from "../../components/copy_mode_indicator";
 import {
   type TimedApiResult,
   makeTimedPageLoadApiCall,
@@ -383,6 +384,7 @@ export default function SprintboardPage() {
               checkSessionRes.session_time_remaining_seconds
             }
           />
+          <CopyModeIndicator />
         </div>
       </div>
       <div className="flex gap-4">

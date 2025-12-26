@@ -6,6 +6,7 @@ import {
   type Task,
 } from "../../ts/model/entities";
 import CopyToClipboardButton from "../../components/copy_to_clipboard_button";
+import { useTaskCopyValue } from "../../components/copy_mode_indicator";
 import { DRAG_TYPE } from "./drag";
 import { useDrag } from "react-dnd";
 import { renderTagBadgesForStoryId } from "../../components/tag_badge";
@@ -50,6 +51,11 @@ export default function TaskCard({
     [],
   );
 
+  // Call hook before any early returns to avoid Rules of Hooks violation
+  // TODO: I think this could be alleviated by creating a CopyTaskToClipboardButton
+  // which gets passed the task and the copy mode.  Then we can probably get rid of useSyncExternalStore in src/client/components/copy_mode_indicator.tsx.
+  const copyValue = useTaskCopyValue(task);
+
   function renderHandle() {
     return (
       <p
@@ -81,7 +87,7 @@ export default function TaskCard({
         {task.title}
       </h3>
       <div className="absolute bottom-3 right-3">
-        <CopyToClipboardButton value={taskPageRef}></CopyToClipboardButton>
+        <CopyToClipboardButton value={copyValue}></CopyToClipboardButton>
       </div>
       {renderHandle()}
       <a className="absolute right-3 top-3" href={taskPageRef} title="Edit">

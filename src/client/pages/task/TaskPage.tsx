@@ -14,6 +14,10 @@ import ReactMarkdownCustom from "../../components/markdown";
 import TaskMetadata from "./task_metadata";
 import { SessionTimeRemainingIndicator } from "../../components/session";
 import {
+  CopyModeIndicator,
+  useTaskCopyValue,
+} from "../../components/copy_mode_indicator";
+import {
   type TimedApiResult,
   makeTimedPageLoadApiCall,
 } from "../../ts/lib/api_utils";
@@ -76,7 +80,7 @@ function TaskView({
           </h2>
         )}
         <CopyToClipboardButton
-          value={`\`${window.location.pathname}\` task:${window.location.pathname.split("/").at(-1)}`}
+          value={useTaskCopyValue(task)}
         ></CopyToClipboardButton>
       </div>
       <TaskMetadata task={task} onTaskUpdate={onTaskUpdate} />
@@ -230,6 +234,7 @@ export default function TaskPage() {
             checkSessionRes.session_time_remaining_seconds
           }
         />
+        <CopyModeIndicator />
         <CommentsSection taskId={task.id} config={config} />
       </main>
     </div>
