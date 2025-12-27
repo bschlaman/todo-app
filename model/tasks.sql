@@ -24,3 +24,9 @@ CREATE TABLE IF NOT EXISTS public.tasks (
 );
 
 CREATE INDEX tasks_sqid_index ON tasks (sqid);
+
+-- Prevent duplicate task creation within a short time window
+-- This constraint prevents double-click submissions by ensuring no two tasks
+-- with the same title, description, and story_id are created within the same second
+CREATE UNIQUE INDEX idx_tasks_duplicate_prevention
+ON tasks (title, description, story_id, status, DATE_TRUNC('second', created_at));

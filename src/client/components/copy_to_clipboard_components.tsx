@@ -47,6 +47,8 @@ export function CopyIcon({ text }: { text: string }) {
 export function CopyDateButton() {
   const [copied, setCopied] = useState(false);
 
+  const isoDate = new Date().toISOString().split("T")[0]!.replaceAll("-", ".");
+
   return (
     <button
       className={`rounded px-2 py-1 text-xs transition-colors ${
@@ -55,10 +57,6 @@ export function CopyDateButton() {
           : "bg-gray-200 text-gray-700 hover:bg-gray-300"
       }`}
       onClick={() => {
-        const isoDate = new Date()
-          .toISOString()
-          .split("T")[0]!
-          .replaceAll("-", ".");
         handleCopyToClipboardHTTP(isoDate);
         setCopied(true);
         setTimeout(() => setCopied(false), 3000);
@@ -66,7 +64,13 @@ export function CopyDateButton() {
       type="button"
       title="Copy today's date in ISO format"
     >
-      {copied ? "✓ Copied" : "📅 Copy Date"}
+      {copied ? (
+        "✓ Copied"
+      ) : (
+        <>
+          📅 copy <strong>{isoDate}</strong>
+        </>
+      )}
     </button>
   );
 }

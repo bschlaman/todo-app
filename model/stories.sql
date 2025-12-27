@@ -24,3 +24,9 @@ CREATE TABLE IF NOT EXISTS public.stories (
 );
 
 CREATE INDEX stories_sqid_index ON stories (sqid);
+
+-- Prevent duplicate story creation within a short time window
+-- This constraint prevents double-click submissions by ensuring no two stories
+-- with the same title, description, and sprint_id are created within the same second
+CREATE UNIQUE INDEX idx_stories_duplicate_prevention
+ON stories (title, description, sprint_id, status, DATE_TRUNC('second', created_at));

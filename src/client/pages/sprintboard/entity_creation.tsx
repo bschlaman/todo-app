@@ -12,6 +12,8 @@ import {
   Typography,
   Chip,
   LinearProgress,
+  CircularProgress,
+  Box,
 } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
 import {
@@ -65,12 +67,24 @@ function renderCreationButton(
 export function renderDialogActions(
   handleClose: React.MouseEventHandler<HTMLButtonElement>,
   handleSave: React.MouseEventHandler<HTMLButtonElement>,
+  isLoading?: boolean,
 ) {
   return (
     <DialogActions>
-      <Button onClick={handleClose}>Cancel</Button>
-      <Button onClick={handleSave} color="primary">
-        Create
+      <Button onClick={handleClose} disabled={isLoading ?? false}>
+        Cancel
+      </Button>
+      {isLoading && (
+        <Box display="flex" justifyContent="center" p={2}>
+          <CircularProgress size={24} />
+        </Box>
+      )}
+      <Button
+        onClick={handleSave}
+        color="primary"
+        disabled={isLoading ?? false}
+      >
+        {isLoading ? "Creating..." : "Create"}
       </Button>
     </DialogActions>
   );
@@ -90,6 +104,7 @@ export function CreateTask({
   setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
 }) {
   const [open, setOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const titleRef = useRef<HTMLInputElement>(null);
   const descriptionRef = useRef<HTMLInputElement>(null);
   const [storyId, setStoryId] = useState(NULL_STORY_IDENTIFIER);
@@ -103,17 +118,27 @@ export function CreateTask({
   }
 
   function handleSave() {
+    if (isLoading) return; // Prevent double-click
+
     void (async () => {
       if (titleRef.current === null) return;
       if (descriptionRef.current === null) return;
-      const task = await createTask(
-        titleRef.current.value,
-        descriptionRef.current.value,
-        storyId === NULL_STORY_IDENTIFIER ? null : storyId,
-        false,
-      );
-      setTasks((tasks) => [...tasks, task]);
-      handleClose();
+
+      setIsLoading(true);
+      try {
+        const task = await createTask(
+          titleRef.current.value,
+          descriptionRef.current.value,
+          storyId === NULL_STORY_IDENTIFIER ? null : storyId,
+          false,
+        );
+        setTasks((tasks) => [...tasks, task]);
+        handleClose();
+      } catch (error) {
+        console.error("Failed to create task:", error);
+      } finally {
+        setIsLoading(false);
+      }
     })();
   }
 
@@ -173,7 +198,7 @@ export function CreateTask({
             />
           </FormControl>
         </DialogContent>
-        {renderDialogActions(handleClose, handleSave)}
+        {renderDialogActions(handleClose, handleSave, isLoading)}
       </Dialog>
     </>
   );
@@ -195,6 +220,7 @@ export function CreateStory({
   setTagAssignments: React.Dispatch<React.SetStateAction<TagAssignment[]>>;
 }) {
   const [open, setOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const titleRef = useRef<HTMLInputElement>(null);
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
@@ -209,25 +235,35 @@ export function CreateStory({
   }
 
   function handleSave() {
+    if (isLoading) return; // Prevent double-click
+
     void (async () => {
       if (titleRef.current === null) return;
       if (descriptionRef.current === null) return;
       if (sprintIdRef.current === null) return;
-      const story = await createStory(
-        titleRef.current.value,
-        descriptionRef.current.value,
-        sprintIdRef.current.value,
-      );
-      setStories((stories) => [...stories, story]);
-      for (const tagId of selectedTagIds) {
-        const tagAssignment = await createTagAssignment(tagId, story.id);
-        setTagAssignments((tagAssignments) => [
-          ...tagAssignments,
-          tagAssignment,
-        ]);
-        console.log("Created tag assignment", tagAssignment);
+
+      setIsLoading(true);
+      try {
+        const story = await createStory(
+          titleRef.current.value,
+          descriptionRef.current.value,
+          sprintIdRef.current.value,
+        );
+        setStories((stories) => [...stories, story]);
+        for (const tagId of selectedTagIds) {
+          const tagAssignment = await createTagAssignment(tagId, story.id);
+          setTagAssignments((tagAssignments) => [
+            ...tagAssignments,
+            tagAssignment,
+          ]);
+          console.log("Created tag assignment", tagAssignment);
+        }
+        handleClose();
+      } catch (error) {
+        console.error("Failed to create story:", error);
+      } finally {
+        setIsLoading(false);
       }
-      handleClose();
     })();
   }
 
@@ -304,7 +340,7 @@ export function CreateStory({
             ></TagOption>
           ))}
         </DialogContent>
-        {renderDialogActions(handleClose, handleSave)}
+        {renderDialogActions(handleClose, handleSave, isLoading)}
       </Dialog>
     </>
   );
