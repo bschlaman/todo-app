@@ -17,7 +17,7 @@ import { visit } from "unist-util-visit";
 import styles from "../css/markdown.module.css";
 import "katex/dist/katex.min.css";
 import InlineTaskCard from "./inline_task_card";
-import { CopyIcon } from "./copy_to_clipboard_button";
+import { CopyIcon } from "./copy_to_clipboard_components";
 
 export default function ReactMarkdownCustom({ content }: { content: string }) {
   return (

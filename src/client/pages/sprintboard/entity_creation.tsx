@@ -44,6 +44,7 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import DoneIcon from "@mui/icons-material/Done";
 import ProtoTaskTable, { type ProtoTask } from "../../components/task_table";
 import Papa from "papaparse";
+import { CopyDateButton } from "../../components/copy_to_clipboard_components";
 
 function renderCreationButton(
   buttonText: string,
@@ -126,8 +127,17 @@ export function CreateTask({
         // needed due to a bug with autofocus in strict mode
         // https://github.com/mui/material-ui/issues/33004
         disableRestoreFocus
+        // needed to enable copy to clipboard inside MUI
+        // https://github.com/mac-s-g/react-json-view/issues/131
+        disableEnforceFocus
       >
-        <DialogTitle id="form-dialog-title">Create Task</DialogTitle>
+        <DialogTitle
+          id="form-dialog-title"
+          className="flex items-center justify-between"
+        >
+          <span>Create Task</span>
+          <CopyDateButton />
+        </DialogTitle>
         <DialogContent>
           <TextField
             inputRef={titleRef}
@@ -137,7 +147,7 @@ export function CreateTask({
             fullWidth
             margin="dense"
             slotProps={{
-              htmlInput: { maxLength: config?.task_title_max_len }
+              htmlInput: { maxLength: config?.task_title_max_len },
             }}
           />
           <TextField
@@ -149,7 +159,7 @@ export function CreateTask({
             fullWidth
             margin="dense"
             slotProps={{
-              htmlInput: { maxLength: config?.task_desc_max_len }
+              htmlInput: { maxLength: config?.task_desc_max_len },
             }}
           />
           <FormControl fullWidth margin="dense">
@@ -242,7 +252,7 @@ export function CreateStory({
             fullWidth
             margin="dense"
             slotProps={{
-              htmlInput: { maxLength: config?.story_title_max_len }
+              htmlInput: { maxLength: config?.story_title_max_len },
             }}
           />
           <TextField
@@ -254,7 +264,7 @@ export function CreateStory({
             fullWidth
             margin="dense"
             slotProps={{
-              htmlInput: { maxLength: config?.story_desc_max_len }
+              htmlInput: { maxLength: config?.story_desc_max_len },
             }}
           />
           <FormControl fullWidth margin="dense">
@@ -379,7 +389,7 @@ export function CreateSprint({
             fullWidth
             margin="dense"
             slotProps={{
-              htmlInput: { maxLength: config?.sprint_title_max_len }
+              htmlInput: { maxLength: config?.sprint_title_max_len },
             }}
           />
           <DatePicker
@@ -452,7 +462,7 @@ export function CreateTag({
             fullWidth
             margin="dense"
             slotProps={{
-              htmlInput: { maxLength: config?.tag_title_max_len }
+              htmlInput: { maxLength: config?.tag_title_max_len },
             }}
           />
           <TextField
@@ -464,7 +474,7 @@ export function CreateTag({
             fullWidth
             margin="dense"
             slotProps={{
-              htmlInput: { maxLength: config?.tag_desc_max_len }
+              htmlInput: { maxLength: config?.tag_desc_max_len },
             }}
           />
         </DialogContent>
@@ -531,7 +541,6 @@ export function CreateBulkTask({
     const sprintEnd = new Date(sprint.end_date);
     for (
       const d = sprintStart;
-      // eslint-disable-next-line no-unmodified-loop-condition
       d <= sprintEnd;
       d.setUTCDate(d.getUTCDate() + 1)
     ) {
@@ -573,12 +582,15 @@ export function CreateBulkTask({
             fullWidth
             margin="dense"
             slotProps={{
-              htmlInput: { maxLength: config?.task_title_max_len }
+              htmlInput: { maxLength: config?.task_title_max_len },
             }}
           />
-          <Typography variant="caption" sx={{
-            margin: "dense"
-          }}>
+          <Typography
+            variant="caption"
+            sx={{
+              margin: "dense",
+            }}
+          >
             Preview:
           </Typography>
           <p>{BULK_TASK_PREFIX + commonTitle}</p>
@@ -591,7 +603,7 @@ export function CreateBulkTask({
             fullWidth
             margin="dense"
             slotProps={{
-              htmlInput: { maxLength: config?.task_desc_max_len }
+              htmlInput: { maxLength: config?.task_desc_max_len },
             }}
           />
           <FormControl fullWidth margin="dense">
@@ -706,9 +718,11 @@ export function BatchUploadTask({
       >
         <DialogTitle id="form-dialog-title">Batch Task Upload</DialogTitle>
         <DialogContent>
-          <Typography sx={{
-            margin: "dense"
-          }}>
+          <Typography
+            sx={{
+              margin: "dense",
+            }}
+          >
             Download the CSV template, add tasks, and then re-upload it to
             create tasks in a batch.
           </Typography>
@@ -974,7 +988,7 @@ export function CopyToNewStory({
             margin="dense"
             defaultValue={continuedStory.title}
             slotProps={{
-              htmlInput: { maxLength: config?.story_title_max_len }
+              htmlInput: { maxLength: config?.story_title_max_len },
             }}
           />
           <TextField
@@ -986,7 +1000,7 @@ export function CopyToNewStory({
             margin="dense"
             defaultValue={continuedStory.description}
             slotProps={{
-              htmlInput: { maxLength: config?.story_desc_max_len }
+              htmlInput: { maxLength: config?.story_desc_max_len },
             }}
           />
           <FormControl fullWidth margin="dense">

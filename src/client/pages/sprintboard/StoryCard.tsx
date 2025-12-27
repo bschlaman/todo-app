@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import CopyToClipboardButton from "../../components/copy_to_clipboard_button";
+import { CopyToClipboardButton } from "../../components/copy_to_clipboard_components";
 import {
   type Sprint,
   type Story,

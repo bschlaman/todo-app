@@ -44,7 +44,7 @@ export function useTaskCopyValue(task: Task): string {
   }
 }
 
-export function CopyModeIndicator() {
+export default function CopyModeToggle() {
   const [copyMode, setCopyMode] = useState<CopyMode>(
     (localStorage.getItem(COPY_MODE_STORAGE_KEY) as CopyMode) ?? CopyMode.SQID,
   );

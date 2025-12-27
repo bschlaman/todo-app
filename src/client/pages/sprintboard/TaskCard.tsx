@@ -5,8 +5,8 @@ import {
   type Tag,
   type Task,
 } from "../../ts/model/entities";
-import CopyToClipboardButton from "../../components/copy_to_clipboard_button";
-import { useTaskCopyValue } from "../../components/copy_mode_indicator";
+import { CopyToClipboardButton } from "../../components/copy_to_clipboard_components";
+import { useTaskCopyValue } from "../../components/copy_mode_toggle";
 import { DRAG_TYPE } from "./drag";
 import { useDrag } from "react-dnd";
 import { renderTagBadgesForStoryId } from "../../components/tag_badge";

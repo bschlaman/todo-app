@@ -9,14 +9,16 @@ import {
 } from "../../ts/lib/api";
 import Loading from "../../components/loading";
 import CommentsSection from "./CommentsSection";
-import CopyToClipboardButton from "../../components/copy_to_clipboard_button";
+import {
+  CopyToClipboardButton,
+  CopyDateButton,
+} from "../../components/copy_to_clipboard_components";
 import ReactMarkdownCustom from "../../components/markdown";
 import TaskMetadata from "./task_metadata";
 import { SessionTimeRemainingIndicator } from "../../components/session";
-import {
-  CopyModeIndicator,
+import CopyModeToggle, {
   useTaskCopyValue,
-} from "../../components/copy_mode_indicator";
+} from "../../components/copy_mode_toggle";
 import {
   type TimedApiResult,
   makeTimedPageLoadApiCall,
@@ -61,15 +63,18 @@ function TaskView({
               onChange={(e) => setTitle(e.target.value)}
               maxLength={config?.task_title_max_len}
             />
-            <button
-              className="m-4 rounded-sm px-2 outline outline-2 dark:bg-zinc-950"
-              onClick={() => {
-                setIsEditingTitle(false);
-                void onTaskUpdate({ ...task, title });
-              }}
-            >
-              Save
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                className="m-4 rounded-sm px-2 outline outline-2 dark:bg-zinc-950"
+                onClick={() => {
+                  setIsEditingTitle(false);
+                  void onTaskUpdate({ ...task, title });
+                }}
+              >
+                Save
+              </button>
+              <CopyDateButton />
+            </div>
           </div>
         ) : (
           <h2
@@ -79,6 +84,7 @@ function TaskView({
             {title}
           </h2>
         )}
+        <CopyModeToggle />
         <CopyToClipboardButton
           value={useTaskCopyValue(task)}
         ></CopyToClipboardButton>
@@ -234,7 +240,6 @@ export default function TaskPage() {
             checkSessionRes.session_time_remaining_seconds
           }
         />
-        <CopyModeIndicator />
         <CommentsSection taskId={task.id} config={config} />
       </main>
     </div>
