@@ -67,7 +67,7 @@ func registerHandlers() {
 
 	for _, route := range apiRoutes {
 		middlewares := []utils.Middleware{
-			utils.LogReqSimple(log),
+			improvedLogReqMiddleware(log),
 			cachingMiddleware(route.APIType, cache),
 			logEventMiddleware(route.APIName, route.APIType, env.CallerID),
 			sessionMiddleware(),

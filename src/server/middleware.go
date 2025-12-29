@@ -2,16 +2,18 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"mime"
 	"net/http"
 	"net/url"
 	"regexp"
 	"strings"
-	"sync"
 	"time"
 
+	"github.com/bschlaman/b-utils/pkg/logger"
 	"github.com/bschlaman/b-utils/pkg/utils"
 	"github.com/bschlaman/todo-app/model"
+	"github.com/fatih/color"
 )
 
 func chainMiddlewares(h http.Handler, middlewares ...utils.Middleware) http.Handler {
@@ -207,37 +209,149 @@ func enforceJSONMiddleware() utils.Middleware {
 	}
 }
 
+
+// improvedLogReqMiddleware creates a logging middleware that logs requests in a readable format
+// including timestamp, method, URI, and cache status
+func improvedLogReqMiddleware(l *logger.BLogger) utils.Middleware {
+	return func(h http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			start := time.Now()
+
+			// Create a custom ResponseWriter to capture cache status
+			cacheStatus := CacheSkipped // default
+			crw := &cacheResponseWriter{
+				ResponseWriter: w,
+				cacheStatus:    &cacheStatus,
+			}
+
+			h.ServeHTTP(crw, r)
+
+			// Log the request with modern colored formatting
+			// Define color functions for different elements - make methods dim
+			var methodColorFunc func(a ...interface{}) string
+			switch r.Method {
+			case "GET":
+				methodColorFunc = color.New(color.FgGreen, color.Faint).SprintFunc()
+			case "POST":
+				methodColorFunc = color.New(color.FgBlue, color.Faint).SprintFunc()
+			case "PUT":
+				methodColorFunc = color.New(color.FgYellow, color.Faint).SprintFunc()
+			case "DELETE":
+				methodColorFunc = color.New(color.FgRed, color.Faint).SprintFunc()
+			case "PATCH":
+				methodColorFunc = color.New(color.FgMagenta, color.Faint).SprintFunc()
+			default:
+				methodColorFunc = color.New(color.FgCyan, color.Faint).SprintFunc()
+			}
+
+			// Color code the cache status
+			var cacheColorFunc func(a ...interface{}) string
+			switch *crw.cacheStatus {
+			case CacheHit:
+				cacheColorFunc = color.New(color.FgGreen).SprintFunc()
+			case CacheMiss:
+				cacheColorFunc = color.New(color.FgYellow).SprintFunc()
+			case CacheSkipped:
+				cacheColorFunc = color.New(color.FgCyan).SprintFunc()
+			}
+
+			// Duration coloring based on response time - all dim, no color for fast requests
+			duration := time.Since(start).Milliseconds()
+			var durationColorFunc func(a ...interface{}) string
+			switch {
+			case duration < 50:
+				durationColorFunc = color.New(color.Faint).SprintFunc()
+			case duration < 200:
+				durationColorFunc = color.New(color.FgYellow, color.Faint).SprintFunc()
+			default:
+				durationColorFunc = color.New(color.FgRed, color.Faint).SprintFunc()
+			}
+
+			// Create colored components with padding for alignment
+			coloredMethod := methodColorFunc(fmt.Sprintf("%-6s", r.Method))
+			coloredPath := color.New(color.FgCyan).Sprint(fmt.Sprintf("%-30s", r.URL.Path))
+			coloredCache := cacheColorFunc(fmt.Sprintf("%-5s", *crw.cacheStatus))
+			coloredDuration := durationColorFunc(fmt.Sprintf("%dms", duration))
+			arrow := color.New(color.Bold).Sprint("→")
+
+			logLine := fmt.Sprintf("%s %s %s %s (%s)",
+				coloredMethod,
+				coloredPath,
+				arrow,
+				coloredCache,
+				coloredDuration,
+			)
+
+			l.Info(logLine)
+		})
+	}
+}
+
+// ########################################
+// Caching
+// ########################################
+
+// Context keys for passing cache status through middleware chain
+type contextKey string
+
+const cacheStatusKey contextKey = "cache_status"
+
+// CacheStatus represents whether a request was a cache hit, miss, or not cached
+type CacheStatus string
+
+const (
+	CacheHit     CacheStatus = "HIT"
+	CacheMiss    CacheStatus = "MISS"
+	CacheSkipped CacheStatus = "SKIP"
+)
+
+// cacheResponseWriter wraps http.ResponseWriter to track cache status
+type cacheResponseWriter struct {
+	http.ResponseWriter
+	cacheStatus *CacheStatus
+}
+
+func (crw *cacheResponseWriter) setCacheStatus(status CacheStatus) {
+	*crw.cacheStatus = status
+}
+
+// cachingMiddleware uses ResponseWriter to communicate cache status to logging middleware
 func cachingMiddleware(apiType string, cache *cacheStore) utils.Middleware {
 	return func(h http.Handler) http.Handler {
-		cacheMutex := &sync.Mutex{}
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			// if it's not a get request, don't do anything
-			if apiType != APIType.Get && apiType != APIType.GetMany {
+			// Check if we have a cache response writer to set status
+			if crw, ok := w.(*cacheResponseWriter); ok {
+				// if it's not a get request, mark as skipped and continue
+				if apiType != APIType.Get && apiType != APIType.GetMany {
+					crw.setCacheStatus(CacheSkipped)
+					h.ServeHTTP(w, r)
+					return
+				}
+
+				cacheKey := r.URL.String()
+				response, found := cache.get(cacheKey)
+
+				if found {
+					// Cache hit; do not continue the middleware chain
+					crw.setCacheStatus(CacheHit)
+					w.Header().Set("Content-Type", "application/json")
+					w.Write(response)
+					return
+				}
+
+				// Cache miss - set status and continue to handler
+				crw.setCacheStatus(CacheMiss)
+				recorder := &responseRecorder{w, new(bytes.Buffer), http.StatusOK}
+				h.ServeHTTP(recorder, r)
+
+				// only cache response if status code is 200
+				if recorder.statusCode == http.StatusOK {
+					cache.set(cacheKey, recorder.body.Bytes())
+				}
+			} else {
+				// Fallback for when not wrapped by cacheResponseWriter
 				h.ServeHTTP(w, r)
-				return
 			}
-
-			cacheKey := r.URL.String()
-			cacheMutex.Lock()
-			response, found := cache.get(cacheKey)
-
-			if found {
-				log.Infof("cache hit for key: %s", cacheKey)
-				cacheMutex.Unlock()
-				w.Header().Set("Content-Type", "application/json")
-				w.Write(response)
-				return
-			}
-
-			recorder := &responseRecorder{w, new(bytes.Buffer), http.StatusOK}
-
-			h.ServeHTTP(recorder, r)
-
-			// only cache response if status code is 200
-			if recorder.statusCode == http.StatusOK {
-				cache.set(cacheKey, recorder.body.Bytes())
-			}
-			cacheMutex.Unlock()
 		})
 	}
 }
