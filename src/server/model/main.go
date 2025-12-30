@@ -1068,3 +1068,51 @@ func PutSessionLastAccessed(log *logger.BLogger, sessionID string, sessionLastAc
 
 	return nil
 }
+
+// BatchUpdateSessionsLastAccessed updates multiple sessions' last accessed times in a single transaction
+func BatchUpdateSessionsLastAccessed(log *logger.BLogger, updates map[string]time.Time) error {
+	if len(updates) == 0 {
+		return nil
+	}
+
+	conn, err := database.GetPgxConn()
+	if err != nil {
+		log.Errorf("unable to connect to database: %v", err)
+		return err
+	}
+	defer conn.Release()
+
+	// Start transaction
+	tx, err := conn.Begin(context.Background())
+	if err != nil {
+		log.Errorf("failed to begin transaction: %v", err)
+		return err
+	}
+	defer tx.Rollback(context.Background()) // This will be a no-op if transaction is committed
+
+	// Prepare the statement
+	stmt := `UPDATE sessions SET
+		updated_at = CURRENT_TIMESTAMP,
+		session_last_accessed = $1,
+		edited = true
+		WHERE session_id = $2`
+
+	// Execute updates in batches within the transaction
+	for sessionID, lastAccessed := range updates {
+		_, err = tx.Exec(context.Background(), stmt, lastAccessed, sessionID)
+		if err != nil {
+			log.Errorf("failed to update session %s: %v", sessionID, err)
+			return err // This will trigger the rollback
+		}
+	}
+
+	// Commit the transaction
+	err = tx.Commit(context.Background())
+	if err != nil {
+		log.Errorf("failed to commit transaction: %v", err)
+		return err
+	}
+
+	log.Infof("successfully batch updated %d sessions in database", len(updates))
+	return nil
+}

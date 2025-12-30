@@ -52,9 +52,8 @@ func loginHandle() http.Handler {
 			http.Error(w, "could not create session", http.StatusInternalServerError)
 			return
 		}
-		// save the session in memory such that it can be searched quickly
-		// TODO (2023.09.29): turn this into a SyncSessions call to the db
-		sessions[sessionRecord.SessionID] = *sessionRecord
+		// save the session in memory
+		sessionManager.SetSession(sessionRecord.SessionID, *sessionRecord)
 
 		cookie := &http.Cookie{
 			Name:     "session",
@@ -73,7 +72,7 @@ func checkSessionHandle() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// if the call makes it this far, we know the session is valid
 		cookie, _ := r.Cookie("session")
-		s := sessions[cookie.Value]
+		s, _ := sessionManager.GetSession(cookie.Value)
 
 		timeRemaining := s.SessionCreatedAt.Add(sessionDuration).Sub(time.Now())
 
@@ -97,10 +96,7 @@ func checkSessionHandle() http.Handler {
 // Used for debugging
 func getSessionsHandle() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		var sessionValues []model.SessionRecord
-		for _, s := range sessions {
-			sessionValues = append(sessionValues, s)
-		}
+		sessionValues := sessionManager.GetAllSessions()
 
 		js, err := json.Marshal(sessionValues)
 		if err != nil {
@@ -114,9 +110,11 @@ func getSessionsHandle() http.Handler {
 	})
 }
 
+// clearSessionsHandle clears the sessions in memory.
+// Used for debugging
 func clearSessionsHandle() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		sessions = make(map[string]model.SessionRecord)
+		sessionManager.ClearAllSessions()
 		js, err := json.Marshal(&struct {
 			Message string `json:"message"`
 		}{

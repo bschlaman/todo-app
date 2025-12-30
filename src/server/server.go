@@ -14,7 +14,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/sts"
 	"github.com/bschlaman/b-utils/pkg/logger"
 	"github.com/bschlaman/todo-app/database"
-	"github.com/bschlaman/todo-app/model"
 	"github.com/sqids/sqids-go"
 )
 
@@ -59,7 +58,7 @@ var env *Env
 // i.e. avoid e.Log
 var log *logger.BLogger
 
-var sessions map[string]model.SessionRecord
+var sessionManager *SessionManager
 
 var cache *cacheStore
 
@@ -98,7 +97,7 @@ func init() {
 	cwClient := cloudwatch.NewFromConfig(cfg)
 
 	// init globals
-	sessions = make(map[string]model.SessionRecord)
+	sessionManager = NewSessionManager()
 	cache = &cacheStore{items: make(map[string]*cacheItem)}
 	s, _ := sqids.New(sqids.Options{Alphabet: os.Getenv("SQIDS_ALPHABET"), MinLength: 6})
 	env = &Env{logger.New(mw), cfg, cwClient, os.Getenv("LOGIN_PW"), os.Getenv("CALLER_ID"), s, false}
@@ -108,8 +107,9 @@ func init() {
 func main() {
 	registerHandlers()
 
-	// Make sure we can connect to the database
+	defer sessionManager.Stop()
 	defer database.ClosePool()
+	// Make sure we can connect to the database
 	conn, err := database.GetPgxConn()
 	if err != nil || conn.Ping(context.Background()) != nil {
 		log.Fatal(err)
