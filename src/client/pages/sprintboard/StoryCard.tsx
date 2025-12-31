@@ -11,7 +11,7 @@ import {
   STORY_STATUS,
   type Config,
 } from "../../ts/model/entities";
-import { TagOption } from "./tag_selectors";
+import { TagCircleIndicators } from "../../components/tag_circle_indicators";
 import { sprintToString } from "../../ts/lib/utils";
 import {
   createTagAssignment,
@@ -279,17 +279,13 @@ export default function StoryCard({
           <ReactMarkdownCustom content={story.description} />
         </div>
       )}
-      {Array.from(tagsById).map(([, tag]) => (
-        <TagOption
-          key={tag.id}
-          tag={tag}
-          checked={selectedTagIds.includes(tag.id)}
-          // linter complains if void call not wrapped in {}
-          onTagToggle={(tagId: string, checked: boolean) => {
-            void handleStoryCardTagChange(tagId, checked);
-          }}
-        ></TagOption>
-      ))}
+      <TagCircleIndicators
+        tagsById={tagsById}
+        selectedTagIds={selectedTagIds}
+        onTagToggle={(tagId: string, checked: boolean) => {
+          void handleStoryCardTagChange(tagId, checked);
+        }}
+      />
       {
         // TODO (2023.06.02): make this a function, since it is
         // used in more than one place
