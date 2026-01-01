@@ -5,7 +5,7 @@ import type { Story, Tag } from "../ts/model/entities";
 import { isActive } from "../ts/model/status";
 import { NULL_STORY_IDENTIFIER } from "../ts/lib/common";
 
-export function renderStorySelectMenuItem(
+export function renderStorySelectMenuItem2(
   story: Story,
   tagsById: Map<string, Tag>,
   assocTagIdsByStoryId: Map<string, string[]>,
@@ -28,6 +28,25 @@ export function renderStorySelectMenuItem(
       </div>
       {story.title}
     </>
+  );
+}
+
+export function renderStorySelectMenuItem(
+  story: Story,
+  tagsById: Map<string, Tag>,
+  assocTagIdsByStoryId: Map<string, string[]>,
+) {
+  return (
+    <div className="flex w-full items-start gap-4">
+      <div className="flex w-40 shrink-0 flex-wrap gap-1">
+        {assocTagIdsByStoryId.get(story.id)?.map((tagId) => {
+          const tag = tagsById.get(tagId);
+          if (tag === undefined) return <></>;
+          return <TagBadge key={tagId} tag={tag} />;
+        })}
+      </div>
+      <div className="min-w-0 flex-1 font-medium">{story.title}</div>
+    </div>
   );
 }
 
