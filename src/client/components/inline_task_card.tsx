@@ -18,9 +18,9 @@ export default function InlineTaskCard({ taskId }: { taskId: string }) {
     // Made colors less bright/more muted
     switch (status) {
       case TASK_STATUS.DONE:
-        return "#20a03a"; // Darker green
+        return "#1a682a"; // Darker green
       case TASK_STATUS.DOING:
-        return "#0066cc"; // Darker blue
+        return "#084d92"; // Darker blue
       case TASK_STATUS.BACKLOG:
         return "#5a6169"; // Slightly darker gray
       case TASK_STATUS.DEPRIORITIZED:

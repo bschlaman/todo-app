@@ -1,19 +1,24 @@
-import React from "react";
 import { DEFAULT_TAG_COLOR, TAG_COLORS } from "../ts/lib/common";
 import type { Tag } from "../ts/model/entities";
 
-export function renderTagBadgesForStoryId(
-  storyId: string,
-  tagsById: Map<string, Tag>,
-  assocTagIdsByStoryId: Map<string, string[]>,
-) {
-  const tagBadges: React.JSX.Element[] = [];
-  assocTagIdsByStoryId.get(storyId)?.forEach((tagId) => {
-    const tag = tagsById.get(tagId);
-    if (tag === undefined) throw new Error("tag not found: " + tagId);
-    tagBadges.push(<TagBadge key={tagId} tag={tag}></TagBadge>);
-  });
-  return <>{tagBadges}</>;
+export function TagBadgesForStoryId({
+  storyId,
+  tagsById,
+  assocTagIdsByStoryId,
+}: {
+  storyId: string;
+  tagsById: Map<string, Tag>;
+  assocTagIdsByStoryId: Map<string, string[]>;
+}) {
+  return (
+    <div className="flex flex-wrap">
+      {assocTagIdsByStoryId.get(storyId)?.map((tagId) => {
+        const tag = tagsById.get(tagId);
+        if (tag === undefined) throw new Error("tag not found: " + tagId);
+        return <TagBadge key={tagId} tag={tag} />;
+      })}
+    </div>
+  );
 }
 
 export default function TagBadge({ tag }: { tag: Tag }) {

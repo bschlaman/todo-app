@@ -9,7 +9,7 @@ import { CopyToClipboardButton } from "../../components/copy_to_clipboard_compon
 import { useTaskCopyValue } from "../../components/copy_mode_toggle";
 import { DRAG_TYPE } from "./drag";
 import { useDrag } from "react-dnd";
-import { renderTagBadgesForStoryId } from "../../components/tag_badge";
+import { TagBadgesForStoryId } from "../../components/tag_badge";
 import ReactMarkdownCustom from "../../components/markdown";
 
 // TODO 2023.11.11: if switching to dnd-kit, remember to use setActivatorNodeRef
@@ -97,11 +97,11 @@ export default function TaskCard({
         <ReactMarkdownCustom content={task.description} />
       )}
       <div className="my-4">
-        {renderTagBadgesForStoryId(
-          task.story_id,
-          tagsById,
-          assocTagIdsByStoryId,
-        )}
+        <TagBadgesForStoryId
+          storyId={task.story_id}
+          tagsById={tagsById}
+          assocTagIdsByStoryId={assocTagIdsByStoryId}
+        />
       </div>
       <a
         className="text-sm text-zinc-600 underline"
