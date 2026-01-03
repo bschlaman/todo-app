@@ -90,13 +90,16 @@ export default function ReactMarkdownCustom({ content }: { content: string }) {
             {
               macros: {
                 "\\RR": "\\mathbb{R}",
+                "\\PP": "\\mathbb{P}",
+                "\\QQ": "\\mathbb{Q}",
                 "\\gn": "\\;\\big\\vert\\;",
                 "\\KL": "\\mathrm{KL}",
                 "\\EE": "\\mathbb{E}",
+                "\\N": "\\mathcal{N}",
                 "\\X": "\\mathcal{X}",
                 "\\Y": "\\mathcal{Y}",
                 "\\F": "\\mathcal{F}",
-                "\\T": "\\intercal",
+                "\\T": "\\top",
                 "\\rank": "\\operatorname{rank}",
               },
             },
