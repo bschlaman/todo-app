@@ -93,7 +93,7 @@ export default function CommentsSection({
       ))}
       <div className="relative mt-4 rounded-md bg-zinc-100 p-4 outline outline-2 dark:bg-zinc-600">
         <textarea
-          className="my-4 w-full resize-none rounded-md p-4 dark:bg-zinc-900"
+          className="my-4 w-full resize-y rounded-md p-4 dark:bg-zinc-900"
           onKeyDown={(e) => {
             if (e.ctrlKey && e.key === "Enter") {
               handleCreateComment();
@@ -192,7 +192,7 @@ function Comment({
       {isEditing ? (
         <div className="mt-4">
           <textarea
-            className="w-full resize-none rounded-md border border-zinc-300 p-2 dark:border-zinc-600 dark:bg-zinc-900"
+            className="h-32 w-full resize-y rounded-md border border-zinc-300 p-2 dark:border-zinc-600 dark:bg-zinc-900"
             value={editText}
             onChange={(e) => setEditText(e.target.value)}
             maxLength={config?.comment_max_len}

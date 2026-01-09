@@ -28,6 +28,7 @@
 .markdown hr {
   border: 1px solid lightgrey;
   border-radius: 1px;
+  margin: 8px 0 8px 0;
 }
 
 .markdown blockquote {
