@@ -9,6 +9,7 @@ import { formatDate } from "../../ts/lib/utils";
 import type { Config, TaskComment } from "../../ts/model/entities";
 import ReactMarkdownCustom, { ErrorBoundary } from "../../components/markdown";
 import { makeTimedPageLoadApiCall } from "../../ts/lib/api_utils";
+import { CopyIcon } from "../../components/copy_to_clipboard_components";
 
 export default function CommentsSection({
   taskId,
@@ -225,7 +226,10 @@ function Comment({
       ) : (
         <>
           {rawMode ? (
-            <div className="whitespace-pre-wrap">{comment.text}</div>
+            <div className="group relative">
+              <div className="whitespace-pre-wrap">{comment.text}</div>
+              <CopyIcon text={comment.text} />
+            </div>
           ) : (
             <ErrorBoundary>
               <ReactMarkdownCustom content={comment.text} />
