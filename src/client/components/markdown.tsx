@@ -1,10 +1,6 @@
 import React, { type ErrorInfo } from "react";
-import SyntaxHighlighter from "react-syntax-highlighter";
-import { docco } from "react-syntax-highlighter/dist/esm/styles/hljs";
-// I have used these in the past and like them.
-// Note that hljs is the default; prism must be imported as Prism
-// import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-// import { materialLight } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { coldarkDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
@@ -115,7 +111,7 @@ export default function ReactMarkdownCustom({ content }: { content: string }) {
               <div className="group relative">
                 <SyntaxHighlighter
                   {...props}
-                  style={docco}
+                  style={coldarkDark}
                   language={match?.[1]}
                   PreTag="div" // so custom render doesn't target DOM
                 >
