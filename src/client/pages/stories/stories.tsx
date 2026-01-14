@@ -1,4 +1,4 @@
-import { Link, Outlet, useLoaderData } from "react-router-dom";
+import { Link, Outlet, useLoaderData } from "react-router";
 import type { Story } from "../../ts/model/entities";
 import ReactMarkdownCustom from "../../components/markdown";
 

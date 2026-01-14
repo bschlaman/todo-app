@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS public.sprints
 		id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
 		created_at timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
 		updated_at timestamp without time zone,
-		title character varying(150) NOT NULL,
+		title character varying(150) UNIQUE NOT NULL,
 		start_date date NOT NULL,
 		end_date date NOT NULL,
 		edited boolean NOT NULL DEFAULT false,

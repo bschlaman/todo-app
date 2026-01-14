@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "../../css/tmp.tailwind.css";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router";
 import Story, { loader as storyLoader } from "../../routes/story";
 import StoriesRoot from "./stories";
 import { getStories } from "../../ts/lib/api";
