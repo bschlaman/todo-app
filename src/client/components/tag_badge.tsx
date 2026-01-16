@@ -24,7 +24,7 @@ export function TagBadgesForStoryId({
 export default function TagBadge({ tag }: { tag: Tag }) {
   return (
     <span
-      className="m-1 rounded-md p-1 text-xs font-bold text-white"
+      className="m-1 rounded-md p-1 text-xs font-bold text-zinc-200 opacity-60"
       style={{
         background:
           tag.title in TAG_COLORS

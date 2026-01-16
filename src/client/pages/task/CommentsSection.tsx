@@ -160,35 +160,37 @@ function Comment({
 
   return (
     <div className="relative mt-4 rounded-md p-4 pt-6 outline outline-2 outline-zinc-700">
-      <p className="absolute right-2 top-1 select-none text-sm font-thin">
+      <p className="absolute right-2 top-1 select-none text-sm font-thin text-zinc-600">
         {comment.id}
       </p>
-      <p className="absolute bottom-1 right-2 select-none text-sm font-thin">
+      <p className="absolute bottom-1 right-2 select-none text-sm font-thin text-zinc-600">
         {formatDate(new Date(comment.created_at))}
         {comment.edited && " (edited)"}
       </p>
-      <div className="absolute left-2 top-1 flex gap-2">
-        <p
-          className="cursor-pointer select-none text-sm font-thin italic"
-          style={{
-            textDecoration: rawMode ? "underline" : "none",
-          }}
-          onClick={() => {
-            setRawMode((rm) => !rm);
-          }}
-        >
-          Raw
-        </p>
-        {!isEditing && (
+      <div className="group absolute left-2 top-1">
+        <div className="flex gap-2 opacity-0 transition-opacity group-hover:opacity-100">
           <p
-            className="cursor-pointer select-none text-sm font-thin italic hover:underline"
+            className="cursor-pointer select-none text-sm font-thin italic"
+            style={{
+              textDecoration: rawMode ? "underline" : "none",
+            }}
             onClick={() => {
-              setIsEditing(true);
+              setRawMode((rm) => !rm);
             }}
           >
-            Edit
+            Raw
           </p>
-        )}
+          {!isEditing && (
+            <p
+              className="cursor-pointer select-none text-sm font-thin italic hover:underline"
+              onClick={() => {
+                setIsEditing(true);
+              }}
+            >
+              Edit
+            </p>
+          )}
+        </div>
       </div>
       {isEditing ? (
         <div className="mt-4">

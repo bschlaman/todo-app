@@ -11,7 +11,7 @@ export function CopyToClipboardButton({ value }: { value: string }) {
   const [copyStatus, setCopyStatus] = useState(false);
   return (
     <button
-      className="w-28 rounded border-2 border-gray-400 bg-gray-100 px-3 py-1 text-sm font-medium text-gray-700 transition-all duration-300 ease-in-out hover:border-gray-500 hover:bg-gray-200 dark:border-gray-500 dark:bg-gray-700 dark:text-gray-200 dark:hover:border-gray-400 dark:hover:bg-gray-600"
+      className="rounded border border-gray-300 bg-transparent px-2 py-1 text-xs text-gray-500 opacity-60 transition-all duration-300 ease-in-out hover:border-gray-400 hover:bg-gray-50 hover:text-gray-700 hover:opacity-100 dark:border-gray-600 dark:text-gray-400 dark:hover:border-gray-500 dark:hover:bg-gray-800 dark:hover:text-gray-300"
       style={copyStatus ? successStyles : undefined}
       title={value}
       onClick={() => {
@@ -20,7 +20,7 @@ export function CopyToClipboardButton({ value }: { value: string }) {
         setTimeout(() => setCopyStatus(false), 3000);
       }}
     >
-      {copyStatus ? "✅" : "Copy to 📋"}
+      {copyStatus ? "✅" : "📋"}
     </button>
   );
 }
@@ -39,7 +39,7 @@ export function CopyIcon({ text }: { text: string }) {
         copied ? "bg-green-600" : "bg-gray-500"
       }`}
     >
-      {copied ? "✓" : "📋"}
+      {copied ? "✓" : "⏍"}
     </button>
   );
 }

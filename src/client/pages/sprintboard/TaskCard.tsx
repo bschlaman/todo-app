@@ -90,13 +90,17 @@ export default function TaskCard({
         <CopyToClipboardButton value={copyValue}></CopyToClipboardButton>
       </div>
       {renderHandle()}
-      <a className="absolute right-3 top-3" href={taskPageRef} title="Edit">
+      <a
+        className="absolute right-3 top-3 opacity-60"
+        href={taskPageRef}
+        title="Edit"
+      >
         📝
       </a>
       {!task.bulk_task && task.status !== TASK_STATUS.DONE && (
         <ReactMarkdownCustom content={task.description} />
       )}
-      <div className="my-4">
+      <div className="mb-2 mt-4">
         <TagBadgesForStoryId
           storyId={task.story_id}
           tagsById={tagsById}
@@ -104,7 +108,7 @@ export default function TaskCard({
         />
       </div>
       <a
-        className="text-sm text-zinc-600 underline"
+        className="text-xs text-zinc-600 underline"
         href={"#" + (story?.id ?? "")}
       >
         {story?.title ?? "-"}
