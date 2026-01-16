@@ -26,7 +26,7 @@ export default function InlineTaskCard({ taskId }: { taskId: string }) {
 
   if (loading) {
     return (
-      <span className="inline-block whitespace-nowrap rounded border border-gray-300 bg-gray-100 px-2 py-1 text-sm text-gray-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400">
+      <span className="inline-block whitespace-nowrap rounded-sm border border-gray-300 bg-gray-100 px-2 py-1 text-sm text-gray-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400">
         Loading task {taskId}...
       </span>
     );
@@ -34,7 +34,7 @@ export default function InlineTaskCard({ taskId }: { taskId: string }) {
 
   if (error || !task) {
     return (
-      <span className="inline-block whitespace-nowrap rounded border border-red-200 bg-red-100 px-2 py-1 text-sm text-red-800 dark:border-red-800 dark:bg-red-900 dark:text-red-200">
+      <span className="inline-block whitespace-nowrap rounded-sm border border-red-200 bg-red-100 px-2 py-1 text-sm text-red-800 dark:border-red-800 dark:bg-red-900 dark:text-red-200">
         Task {taskId} (error: {error || "not found"})
       </span>
     );
@@ -42,7 +42,7 @@ export default function InlineTaskCard({ taskId }: { taskId: string }) {
 
   return (
     <span
-      className="group relative mx-0.5 inline-block whitespace-nowrap rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-sm shadow-sm dark:border-gray-600 dark:bg-gray-800"
+      className="group relative mx-0.5 inline-block whitespace-nowrap rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-sm shadow-xs dark:border-gray-600 dark:bg-gray-800"
       style={{
         opacity: isTaskDimmed(task.status) ? 0.5 : 1,
       }}
@@ -59,7 +59,7 @@ export default function InlineTaskCard({ taskId }: { taskId: string }) {
         {task.title}
       </a>
       <span
-        className="mr-1 inline-block rounded px-1.5 py-0.5 text-xs font-medium text-white"
+        className="mr-1 inline-block rounded-sm px-1.5 py-0.5 text-xs font-medium text-white"
         style={{ backgroundColor: statusColorMap(task.status) }}
       >
         {task.status}

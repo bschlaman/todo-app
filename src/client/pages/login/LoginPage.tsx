@@ -16,7 +16,7 @@ export default function LoginPage() {
   return (
     <main className="flex h-dvh items-center justify-center">
       <form
-        className="w-[30rem] rounded-lg p-10 shadow-lg outline outline-2 outline-emerald-500"
+        className="w-120 rounded-lg p-10 shadow-lg outline-solid outline-2 outline-emerald-500"
         action={routes.login.path}
         method={routes.login.method}
       >

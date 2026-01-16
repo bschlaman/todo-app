@@ -22,7 +22,7 @@ export function TagCircleIndicators({
         return (
           <button
             key={tag.id}
-            className="flex size-4 items-center justify-center rounded-full border transition-all duration-200 hover:scale-125 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:ring-offset-1"
+            className="flex size-4 items-center justify-center rounded-full border transition-all duration-200 hover:scale-125 focus:outline-hidden focus:ring-1 focus:ring-blue-500 focus:ring-offset-1"
             style={{
               backgroundColor: tagColor,
               outline: isSelected ? "2px solid white" : "transparent",

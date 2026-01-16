@@ -65,7 +65,7 @@ function TaskView({
             />
             <div className="flex items-center gap-2">
               <button
-                className="m-4 rounded-sm px-2 outline outline-2 dark:bg-zinc-950"
+                className="m-4 rounded-xs px-2 outline-solid outline-2 dark:bg-zinc-950"
                 onClick={() => {
                   setIsEditingTitle(false);
                   void onTaskUpdate({ ...task, title });
@@ -94,7 +94,7 @@ function TaskView({
         {isEditingDesc ? (
           <>
             <textarea
-              className="h-56 w-full resize-none rounded-sm dark:bg-zinc-900"
+              className="h-56 w-full resize-none rounded-xs dark:bg-zinc-900"
               value={description}
               ref={descriptionRef}
               onChange={(e) => {
@@ -109,7 +109,7 @@ function TaskView({
               maxLength={config?.task_desc_max_len}
             />
             <button
-              className="absolute right-28 top-1 rounded-sm outline outline-2"
+              className="absolute right-28 top-1 rounded-xs outline-solid outline-2"
               onClick={() => {
                 setIsEditingDesc(false);
                 void onTaskUpdate({ ...task, description });

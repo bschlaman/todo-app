@@ -27,7 +27,7 @@ export default function StoriesRoot() {
           ))}
         </div>
       </div>
-      <div className="grow p-4 outline outline-2 outline-black">
+      <div className="grow p-4 outline-solid outline-2 outline-black">
         <Outlet />
       </div>
     </div>

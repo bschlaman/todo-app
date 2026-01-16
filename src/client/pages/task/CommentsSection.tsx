@@ -92,7 +92,7 @@ export default function CommentsSection({
           config={config}
         />
       ))}
-      <div className="relative mt-4 rounded-md bg-zinc-100 p-4 outline outline-2 dark:bg-zinc-600">
+      <div className="relative mt-4 rounded-md bg-zinc-100 p-4 outline-solid outline-2 dark:bg-zinc-600">
         <textarea
           className="my-4 w-full resize-y rounded-md p-4 dark:bg-zinc-900"
           onKeyDown={(e) => {
@@ -159,7 +159,7 @@ function Comment({
   }
 
   return (
-    <div className="relative mt-4 rounded-md p-4 pt-6 outline outline-2 outline-zinc-700">
+    <div className="relative mt-4 rounded-md p-4 pt-6 outline-solid outline-2 outline-zinc-700">
       <p className="absolute right-2 top-1 select-none text-sm font-thin text-zinc-600">
         {comment.id}
       </p>

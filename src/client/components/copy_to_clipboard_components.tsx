@@ -11,7 +11,7 @@ export function CopyToClipboardButton({ value }: { value: string }) {
   const [copyStatus, setCopyStatus] = useState(false);
   return (
     <button
-      className="rounded border border-gray-300 bg-transparent px-2 py-1 text-xs text-gray-500 opacity-60 transition-all duration-300 ease-in-out hover:border-gray-400 hover:bg-gray-50 hover:text-gray-700 hover:opacity-100 dark:border-gray-600 dark:text-gray-400 dark:hover:border-gray-500 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+      className="rounded-sm border border-gray-300 bg-transparent px-2 py-1 text-xs text-gray-500 opacity-60 transition-all duration-300 ease-in-out hover:border-gray-400 hover:bg-gray-50 hover:text-gray-700 hover:opacity-100 dark:border-gray-600 dark:text-gray-400 dark:hover:border-gray-500 dark:hover:bg-gray-800 dark:hover:text-gray-300"
       style={copyStatus ? successStyles : undefined}
       title={value}
       onClick={() => {

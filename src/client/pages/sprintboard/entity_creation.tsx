@@ -993,7 +993,7 @@ export function CopyToNewStory({
   return (
     <>
       <button
-        className="rounded-md bg-zinc-100 px-1 outline outline-1 hover:bg-zinc-400 dark:bg-zinc-900"
+        className="rounded-md bg-zinc-100 px-1 outline-solid outline-1 hover:bg-zinc-400 dark:bg-zinc-900"
         style={
           disableButton
             ? {

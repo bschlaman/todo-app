@@ -72,7 +72,7 @@ export default function TaskCard({
 
   return (
     <div
-      className="relative mb-4 rounded-md bg-zinc-50 p-5 shadow-md outline outline-2 outline-zinc-700 dark:bg-zinc-800 dark:text-zinc-50"
+      className="relative mb-4 rounded-md bg-zinc-50 p-5 shadow-md outline-solid outline-2 outline-zinc-700 dark:bg-zinc-800 dark:text-zinc-50"
       style={{
         opacity: isDragging ? 0.7 : 1,
         ...(task.status === TASK_STATUS.DONE
