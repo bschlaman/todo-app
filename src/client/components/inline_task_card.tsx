@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { TASK_STATUS } from "../ts/model/entities";
-import { handleCopyToClipboardHTTP } from "../ts/lib/utils";
+import { handleCopyToClipboardHTTP, statusColorMap } from "../ts/lib/utils";
 import { useTasksContext } from "../contexts/TasksContext";
 
 export default function InlineTaskCard({ taskId }: { taskId: string }) {
@@ -13,28 +13,6 @@ export default function InlineTaskCard({ taskId }: { taskId: string }) {
   }, [fetchTasks]);
 
   const task = getTaskById(taskId);
-
-  const getStatusColor = (status: TASK_STATUS): string => {
-    // Made colors less bright/more muted
-    switch (status) {
-      case TASK_STATUS.DONE:
-        return "#1a682a"; // Darker green
-      case TASK_STATUS.DOING:
-        return "#084d92"; // Darker blue
-      case TASK_STATUS.BACKLOG:
-        return "#5a6169"; // Slightly darker gray
-      case TASK_STATUS.DEPRIORITIZED:
-        return "#cc9a00"; // Darker yellow
-      case TASK_STATUS.ARCHIVE:
-        return "#138496"; // Darker teal
-      case TASK_STATUS.DUPLICATE:
-        return "#b02a37"; // Darker red
-      case TASK_STATUS["DEADLINE PASSED"]:
-        return "#b02a37"; // Darker red
-      default:
-        return "#5a6169";
-    }
-  };
 
   // Helper to determine if task should be dimmed - now includes DONE tasks
   const isTaskDimmed = (status: TASK_STATUS): boolean => {
@@ -82,7 +60,7 @@ export default function InlineTaskCard({ taskId }: { taskId: string }) {
       </a>
       <span
         className="mr-1 inline-block rounded px-1.5 py-0.5 text-xs font-medium text-white"
-        style={{ backgroundColor: getStatusColor(task.status) }}
+        style={{ backgroundColor: statusColorMap(task.status) }}
       >
         {task.status}
       </span>

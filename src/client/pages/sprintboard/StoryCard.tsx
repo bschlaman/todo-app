@@ -12,7 +12,7 @@ import {
   type Config,
 } from "../../ts/model/entities";
 import { TagCircleIndicators } from "../../components/tag_circle_indicators";
-import { sprintToString } from "../../ts/lib/utils";
+import { sprintToString, statusColorMap } from "../../ts/lib/utils";
 import {
   createTagAssignment,
   destroyTagAssignment,
@@ -323,18 +323,24 @@ export default function StoryCard({
             </option>
           ))}
       </select>
-      <div className="mt-4 text-sm">
+      <div className="mt-4 text-sm dark:text-zinc-200">
         <p>
           <strong>Tasks in this story</strong>
         </p>
-        <ul className="list-disc pl-8">
+        <ul className="list-none pl-8 dark:text-zinc-300">
           {tasksByStoryId
             .get(story.id)
             ?.sort((a, b) => a.status.localeCompare(b.status))
             .map((task) => (
               <li key={task.id}>
-                <p className="inline font-light">({task.status}) </p>
-                {task.title}
+                <p
+                  className="inline font-light"
+                  title={task.status}
+                  style={{ color: statusColorMap(task.status) }}
+                >
+                  ●
+                </p>
+                <p className="inline font-light"> {task.title}</p>
               </li>
             ))}
         </ul>
