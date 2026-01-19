@@ -11,7 +11,7 @@ import {
   STORY_STATUS,
   type Config,
 } from "../../ts/model/entities";
-import { TagCircleIndicators } from "../../components/tag_circle_indicators";
+import { TagCircleIndicators } from "../../components/tags";
 import { sprintToString, statusColorMap } from "../../ts/lib/utils";
 import {
   createTagAssignment,

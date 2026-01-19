@@ -9,7 +9,7 @@ import { CopyToClipboardButton } from "../../components/copy_to_clipboard_compon
 import { useTaskCopyValue } from "../../components/copy_mode_toggle";
 import { DRAG_TYPE } from "./drag";
 import { useDrag } from "react-dnd";
-import { TagBadgesForStoryId } from "../../components/tag_badge";
+import { TagBadgesForStoryId, TagCircles } from "../../components/tags";
 import ReactMarkdownCustom from "../../components/markdown";
 
 // TODO 2023.11.11: if switching to dnd-kit, remember to use setActivatorNodeRef
@@ -59,7 +59,7 @@ export default function TaskCard({
   function renderHandle() {
     return (
       <p
-        className="absolute left-1/2 top-2.5 m-0 -translate-x-1/2 -translate-y-1/2 cursor-grab select-none text-center text-gray-500 active:cursor-grabbing"
+        className="absolute top-2.5 left-1/2 m-0 -translate-x-1/2 -translate-y-1/2 cursor-grab text-center text-gray-500 select-none active:cursor-grabbing"
         ref={drag as unknown as Ref<HTMLDivElement>}
       >
         &#8801;
@@ -72,7 +72,7 @@ export default function TaskCard({
 
   return (
     <div
-      className="relative mb-4 rounded-md bg-zinc-50 p-5 shadow-md outline-solid outline-2 outline-zinc-700 dark:bg-zinc-800 dark:text-zinc-50"
+      className="relative mb-4 rounded-md bg-zinc-50 p-5 shadow-md outline-2 outline-zinc-700 outline-solid dark:bg-zinc-800 dark:text-zinc-50"
       style={{
         opacity: isDragging ? 0.7 : 1,
         ...(task.status === TASK_STATUS.DONE
@@ -86,12 +86,12 @@ export default function TaskCard({
       <h3 className="mb-4 border-b border-b-zinc-400 text-xl font-bold dark:text-zinc-200">
         {task.title}
       </h3>
-      <div className="absolute bottom-3 right-3">
+      <div className="absolute right-3 bottom-3">
         <CopyToClipboardButton value={copyValue}></CopyToClipboardButton>
       </div>
       {renderHandle()}
       <a
-        className="absolute right-3 top-3 opacity-60"
+        className="absolute top-3 right-3 opacity-60"
         href={taskPageRef}
         title="Edit"
       >
@@ -100,12 +100,20 @@ export default function TaskCard({
       {!task.bulk_task && task.status !== TASK_STATUS.DONE && (
         <ReactMarkdownCustom content={task.description} />
       )}
-      <div className="mb-2 mt-4">
-        <TagBadgesForStoryId
-          storyId={task.story_id}
-          tagsById={tagsById}
-          assocTagIdsByStoryId={assocTagIdsByStoryId}
-        />
+      <div className="mt-4 mb-2">
+        {task.status === TASK_STATUS.DONE ? (
+          <TagCircles
+            storyId={task.story_id}
+            tagsById={tagsById}
+            assocTagIdsByStoryId={assocTagIdsByStoryId}
+          />
+        ) : (
+          <TagBadgesForStoryId
+            storyId={task.story_id}
+            tagsById={tagsById}
+            assocTagIdsByStoryId={assocTagIdsByStoryId}
+          />
+        )}
       </div>
       <a
         className="text-xs text-zinc-600 underline"

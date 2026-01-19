@@ -1,6 +1,6 @@
 import { MenuItem, Select } from "@mui/material";
 import React from "react";
-import TagBadge from "./tag_badge";
+import { TagBadge } from "./tags";
 import type { Story, Tag } from "../ts/model/entities";
 import { isActive } from "../ts/model/status";
 import { NULL_STORY_IDENTIFIER } from "../ts/lib/common";
