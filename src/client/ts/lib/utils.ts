@@ -1,28 +1,6 @@
-import { TASK_STATUS, type Sprint, type Task } from "../model/entities";
+import type { Sprint, Task } from "../model/entities";
 
 // UTIL FUNCTIONS
-
-export function statusColorMap(status: TASK_STATUS): string {
-  // Made colors less bright/more muted
-  switch (status) {
-    case TASK_STATUS.DONE:
-      return "#1a682a"; // Darker green
-    case TASK_STATUS.DOING:
-      return "#084d92"; // Darker blue
-    case TASK_STATUS.BACKLOG:
-      return "#5a6169"; // Slightly darker gray
-    case TASK_STATUS.DEPRIORITIZED:
-      return "#cc9a00"; // Darker yellow
-    case TASK_STATUS.ARCHIVE:
-      return "#138496"; // Darker teal
-    case TASK_STATUS.DUPLICATE:
-      return "#342176";
-    case TASK_STATUS["DEADLINE PASSED"]:
-      return "#b02a37"; // Darker red
-    default:
-      return "#5a6169";
-  }
-}
 
 export function clearInputValues(...inputElements: Array<{ value: string }>) {
   inputElements.forEach((inputElement) => {

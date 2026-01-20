@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { TASK_STATUS } from "../ts/model/entities";
-import { handleCopyToClipboardHTTP, statusColorMap } from "../ts/lib/utils";
+import { handleCopyToClipboardHTTP } from "../ts/lib/utils";
 import { useTasksContext } from "../contexts/TasksContext";
+import { statusColorMap } from "../ts/lib/common";
 
 export default function InlineTaskCard({ taskId }: { taskId: string }) {
   const { getTaskById, loading, error, fetchTasks } = useTasksContext();

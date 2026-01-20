@@ -12,7 +12,7 @@ import {
   type Config,
 } from "../../ts/model/entities";
 import { TagCircleIndicators } from "../../components/tags";
-import { sprintToString, statusColorMap } from "../../ts/lib/utils";
+import { sprintToString } from "../../ts/lib/utils";
 import {
   createTagAssignment,
   destroyTagAssignment,
@@ -20,6 +20,7 @@ import {
 } from "../../ts/lib/api";
 import { CopyToNewStory } from "./entity_creation";
 import ReactMarkdownCustom from "../../components/markdown";
+import { statusColorMap } from "../../ts/lib/common";
 
 export default function StoryCard({
   story,
@@ -130,7 +131,7 @@ export default function StoryCard({
             .filter(([relStory]) => relStory !== undefined)
             .map(([relStory, emoji]) => (
               <tr key={relStory?.id}>
-                <td className="whitespace-nowrap font-extralight">
+                <td className="font-extralight whitespace-nowrap">
                   {emoji} {sprintsById.get(relStory?.sprint_id ?? "")?.title}
                 </td>
                 <td className="pl-3">
@@ -142,23 +143,6 @@ export default function StoryCard({
             ))}
         </tbody>
       </table>
-    );
-  }
-
-  function renderArchiveButton() {
-    return (
-      <button
-        className="ml-4 rounded-md bg-zinc-100 px-1 outline-solid outline-1 hover:bg-zinc-400 dark:bg-zinc-900"
-        onClick={() => {
-          void (async () => {
-            if (!window.confirm("Archive this story?")) return;
-            const updatedStory = { ...story, status: STORY_STATUS.ARCHIVE };
-            await handleStoryUpdate(updatedStory);
-          })();
-        }}
-      >
-        Archive
-      </button>
     );
   }
 
@@ -192,7 +176,7 @@ export default function StoryCard({
       {isEditingTitle ? (
         <div className="mt-2 flex flex-col gap-2">
           <textarea
-            className="w-full resize-none rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-blue-500 focus:outline-hidden focus:ring-2 focus:ring-blue-200 dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-blue-400 dark:focus:ring-blue-800"
+            className="w-full resize-none rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-hidden dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-blue-400 dark:focus:ring-blue-800"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             maxLength={config?.story_title_max_len}
@@ -202,7 +186,7 @@ export default function StoryCard({
           />
           <div className="flex gap-2">
             <button
-              className="rounded-md bg-blue-600 px-3 py-1 text-sm font-medium text-white hover:bg-blue-700 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-offset-zinc-800"
+              className="rounded-md bg-blue-600 px-3 py-1 text-sm font-medium text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-hidden dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-offset-zinc-800"
               onClick={() => {
                 setIsEditingTitle(false);
                 void handleStoryUpdate({ ...story, title });
@@ -211,7 +195,7 @@ export default function StoryCard({
               Save
             </button>
             <button
-              className="rounded-md bg-zinc-500 px-3 py-1 text-sm font-medium text-white hover:bg-zinc-600 focus:outline-hidden focus:ring-2 focus:ring-zinc-500 focus:ring-offset-2 dark:bg-zinc-600 dark:hover:bg-zinc-700 dark:focus:ring-offset-zinc-800"
+              className="rounded-md bg-zinc-500 px-3 py-1 text-sm font-medium text-white hover:bg-zinc-600 focus:ring-2 focus:ring-zinc-500 focus:ring-offset-2 focus:outline-hidden dark:bg-zinc-600 dark:hover:bg-zinc-700 dark:focus:ring-offset-zinc-800"
               onClick={() => {
                 setIsEditingTitle(false);
                 setTitle(story.title); // Reset to original value
@@ -229,23 +213,23 @@ export default function StoryCard({
           {title}
         </h3>
       )}
-      <div className="absolute left-3 top-3 rounded-md bg-zinc-100 dark:bg-zinc-900">
+      <div className="absolute top-3 left-3 rounded-md bg-zinc-100 dark:bg-zinc-900">
         <CopyToClipboardButton value={storyPageRef}></CopyToClipboardButton>
       </div>
       <input
-        className="absolute right-10 top-3 size-5"
+        className="absolute top-3 right-10 size-5"
         type="checkbox"
         checked={filtered}
         // similar pattern to onTagToggle usage in TagOption
         onChange={(e) => onStoryFilterToggle(story.id, e.target.checked)}
       ></input>
-      <a className="absolute right-3 top-3" href={storyPageRef} title="Edit">
+      <a className="absolute top-3 right-3" href={storyPageRef} title="Edit">
         📝
       </a>
       {isEditingDescription ? (
         <div className="mt-2 flex flex-col gap-2">
           <textarea
-            className="min-h-[120px] w-full resize-y rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-blue-500 focus:outline-hidden focus:ring-2 focus:ring-blue-200 dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-blue-400 dark:focus:ring-blue-800"
+            className="min-h-[120px] w-full resize-y rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-hidden dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-blue-400 dark:focus:ring-blue-800"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             maxLength={config?.story_desc_max_len}
@@ -255,7 +239,7 @@ export default function StoryCard({
           />
           <div className="flex gap-2">
             <button
-              className="rounded-md bg-blue-600 px-3 py-1 text-sm font-medium text-white hover:bg-blue-700 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-offset-zinc-800"
+              className="rounded-md bg-blue-600 px-3 py-1 text-sm font-medium text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-hidden dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-offset-zinc-800"
               onClick={() => {
                 setIsEditingDescription(false);
                 void handleStoryUpdate({ ...story, description });
@@ -264,7 +248,7 @@ export default function StoryCard({
               Save
             </button>
             <button
-              className="rounded-md bg-zinc-500 px-3 py-1 text-sm font-medium text-white hover:bg-zinc-600 focus:outline-hidden focus:ring-2 focus:ring-zinc-500 focus:ring-offset-2 dark:bg-zinc-600 dark:hover:bg-zinc-700 dark:focus:ring-offset-zinc-800"
+              className="rounded-md bg-zinc-500 px-3 py-1 text-sm font-medium text-white hover:bg-zinc-600 focus:ring-2 focus:ring-zinc-500 focus:ring-offset-2 focus:outline-hidden dark:bg-zinc-600 dark:hover:bg-zinc-700 dark:focus:ring-offset-zinc-800"
               onClick={() => {
                 setIsEditingDescription(false);
                 setDescription(story.description); // Reset to original value
@@ -324,23 +308,26 @@ export default function StoryCard({
           ))}
       </select>
       <div className="mt-4 text-sm dark:text-zinc-200">
-        <p>
-          <strong>Tasks in this story</strong>
+        <p className="flex items-center italic before:mr-2 before:h-px before:flex-[0.2] before:bg-zinc-400 after:ml-2 after:h-px after:flex-1 after:bg-zinc-400 dark:before:bg-zinc-500 dark:after:bg-zinc-500">
+          Tasks
         </p>
         <ul className="list-none pl-8 dark:text-zinc-300">
           {tasksByStoryId
             .get(story.id)
             ?.sort((a, b) => a.status.localeCompare(b.status))
             .map((task) => (
-              <li key={task.id}>
-                <p
-                  className="inline font-light"
+              <li key={task.id} className="flex items-start gap-1">
+                <a
+                  href={`/task/${task.sqid}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="shrink-0 font-light hover:opacity-70"
                   title={task.status}
                   style={{ color: statusColorMap(task.status) }}
                 >
                   ●
-                </p>
-                <p className="inline font-light"> {task.title}</p>
+                </a>
+                <p className="font-light">{task.title}</p>
               </li>
             ))}
         </ul>
@@ -360,7 +347,18 @@ export default function StoryCard({
           setStoryRelationships={setStoryRelationships}
           config={config}
         />
-        {renderArchiveButton()}
+        <button
+          className="ml-4 rounded-md bg-zinc-100 px-1 outline-1 outline-solid hover:bg-zinc-400 dark:bg-zinc-900"
+          onClick={() => {
+            void (async () => {
+              if (!window.confirm("Archive this story?")) return;
+              const updatedStory = { ...story, status: STORY_STATUS.ARCHIVE };
+              await handleStoryUpdate(updatedStory);
+            })();
+          }}
+        >
+          Archive
+        </button>
       </div>
     </div>
   );
