@@ -98,7 +98,9 @@ export default function TaskCard({
         📝
       </a>
       {!task.bulk_task && task.status !== TASK_STATUS.DONE && (
-        <ReactMarkdownCustom content={task.description} />
+        <div className="dark:text-zinc-400">
+          <ReactMarkdownCustom content={task.description} />
+        </div>
       )}
       <div className="mt-4 mb-2">
         {task.status === TASK_STATUS.DONE ? (
