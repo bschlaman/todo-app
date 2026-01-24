@@ -993,21 +993,13 @@ export function CopyToNewStory({
   return (
     <>
       <button
-        className="rounded-md bg-zinc-100 px-1 outline-solid outline-1 hover:bg-zinc-400 dark:bg-zinc-900"
-        style={
-          disableButton
-            ? {
-                cursor: "not-allowed",
-                opacity: "50%",
-              }
-            : {}
-        }
+        className="rounded-lg bg-blue-100 px-3 py-2 text-sm font-medium text-blue-700 hover:bg-blue-200 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         disabled={disableButton}
         onClick={() => {
           setOpen(true);
         }}
       >
-        Copy to new story
+        Copy
       </button>
       <Dialog
         open={open}
