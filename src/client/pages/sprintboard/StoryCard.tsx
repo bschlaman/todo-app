@@ -31,8 +31,10 @@ export default function StoryCard({
   tagAssignments,
   storyRelationships,
   selected,
-  filtered,
-  onStoryFilterToggle,
+  soloStories,
+  muteStories,
+  onSoloToggle,
+  onMuteToggle,
   setTasks,
   setStories,
   setTagAssignments,
@@ -47,8 +49,10 @@ export default function StoryCard({
   tagAssignments: TagAssignment[];
   storyRelationships: StoryRelationship[];
   selected: boolean;
-  filtered: boolean;
-  onStoryFilterToggle: (storyId: string, checked: boolean) => void;
+  soloStories: string[];
+  muteStories: string[];
+  onSoloToggle: (storyId: string, checked: boolean) => void;
+  onMuteToggle: (storyId: string, checked: boolean) => void;
   setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
   setStories: React.Dispatch<React.SetStateAction<Story[]>>;
   setTagAssignments: React.Dispatch<React.SetStateAction<TagAssignment[]>>;
@@ -204,20 +208,52 @@ export default function StoryCard({
       className="relative w-[30%] rounded-lg border border-zinc-400 bg-zinc-100 p-6 shadow-sm transition-all duration-200 hover:shadow-md dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
       style={{
         boxShadow:
-          selected || filtered
+          selected || soloStories.includes(story.id)
             ? "0 0 0 2px rgb(239 68 68), 0 4px 6px -1px rgb(0 0 0 / 0.1)"
             : undefined,
+        opacity:
+          muteStories.includes(story.id) ||
+          (soloStories.length > 0 && !soloStories.includes(story.id))
+            ? 0.1
+            : 1,
       }}
     >
       {/* Header with controls */}
       <div className="absolute top-4 right-4 left-4 flex items-center justify-between">
         <CopyToClipboardButton value={storyPageRef}></CopyToClipboardButton>
         <div className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            checked={filtered}
-            onChange={(e) => onStoryFilterToggle(story.id, e.target.checked)}
-          />
+          {/* Solo/Mute controls stacked vertically */}
+          <div className="flex flex-col">
+            <button
+              className={
+                "w-5 h-3 text-xs font-bold border border-zinc-400 flex items-center justify-center transition-colors " +
+                (soloStories.includes(story.id)
+                  ? "bg-yellow-400 text-black border-yellow-600"
+                  : "bg-zinc-200 text-zinc-600 hover:bg-zinc-300 dark:bg-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-600")
+              }
+              // style={{textDecoration: soloed? "underline": undefined}}
+              onClick={() =>
+                onSoloToggle(story.id, !soloStories.includes(story.id))
+              }
+              title="Solo (show only this story when active)"
+            >
+              s
+            </button>
+            <button
+              className={
+                "w-5 h-3 text-xs font-bold border border-zinc-400 border-t-0 flex items-center justify-center transition-colors underline" +
+                (muteStories.includes(story.id)
+                  ? "bg-red-400 text-white border-red-600"
+                  : "bg-zinc-200 text-zinc-600 hover:bg-zinc-300 dark:bg-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-600")
+              }
+              onClick={() =>
+                onMuteToggle(story.id, !muteStories.includes(story.id))
+              }
+              title="Mute (hide this story)"
+            >
+              m
+            </button>
+          </div>
           <a
             className="transition-transform hover:scale-110"
             href={storyPageRef}

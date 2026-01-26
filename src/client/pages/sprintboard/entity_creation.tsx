@@ -999,7 +999,7 @@ export function CopyToNewStory({
           setOpen(true);
         }}
       >
-        Copy
+        Continue
       </button>
       <Dialog
         open={open}

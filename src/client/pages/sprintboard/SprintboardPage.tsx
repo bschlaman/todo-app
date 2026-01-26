@@ -29,7 +29,7 @@ import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import EntityCreationStation from "./entity_creation";
 import StoryCard from "./StoryCard";
-import { filterStory, filterTask } from "./render_filters";
+import { filterStoryForRender, filterTaskForRender } from "./render_filters";
 import { SessionTimeRemainingIndicator } from "../../components/session";
 import CopyModeToggle from "../../components/copy_mode_toggle";
 import {
@@ -42,6 +42,8 @@ const LOCAL_STORAGE_KEYS = {
   selectedSprintId: "viewing_sprint_id",
   activeTagIds: "active_tag_ids",
   storyFilter: "story_filter",
+  soloStories: "solo_stories",
+  muteStories: "mute_stories",
 };
 
 export default function SprintboardPage() {
@@ -61,9 +63,13 @@ export default function SprintboardPage() {
   const [activeTagIds, setActiveTagIds] = useState<string[]>(
     JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEYS.activeTagIds) ?? "[]"),
   );
-  // list of story Ids to filter on, which overrides the tag filter
-  const [storyFilter, setStoryFilter] = useState<string[]>(
-    JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEYS.storyFilter) ?? "[]"),
+  // list of story IDs that are "soloed" (like solo in DAW)
+  const [soloStories, setSoloStories] = useState<string[]>(
+    JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEYS.soloStories) ?? "[]"),
+  );
+  // list of story IDs that are "muted" (like mute in DAW)
+  const [muteStories, setMuteStories] = useState<string[]>(
+    JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEYS.muteStories) ?? "[]"),
   );
   const [checkSessionRes, setCheckSessionRes] = useState<CheckSessionRes>({
     session_time_remaining_seconds: 0,
@@ -106,10 +112,16 @@ export default function SprintboardPage() {
   }, [activeTagIds]);
   useEffect(() => {
     localStorage.setItem(
-      LOCAL_STORAGE_KEYS.storyFilter,
-      JSON.stringify(storyFilter),
+      LOCAL_STORAGE_KEYS.soloStories,
+      JSON.stringify(soloStories),
     );
-  }, [storyFilter]);
+  }, [soloStories]);
+  useEffect(() => {
+    localStorage.setItem(
+      LOCAL_STORAGE_KEYS.muteStories,
+      JSON.stringify(muteStories),
+    );
+  }, [muteStories]);
 
   const tasksById = useMemo(() => {
     const _map = new Map<string, Task>();
@@ -166,13 +178,14 @@ export default function SprintboardPage() {
   const tasksToRender = useMemo(
     () =>
       tasks.filter((task) =>
-        filterTask(
+        filterTaskForRender(
           task,
           storiesById,
           selectedSprintId,
           assocTagIdsByStoryId,
           activeTagIds,
-          storyFilter,
+          soloStories,
+          muteStories,
         ),
       ),
     [
@@ -181,7 +194,8 @@ export default function SprintboardPage() {
       selectedSprintId,
       assocTagIdsByStoryId,
       activeTagIds,
-      storyFilter,
+      soloStories,
+      muteStories,
     ],
   );
 
@@ -304,7 +318,7 @@ export default function SprintboardPage() {
         />
         {/* Entity filtering  */}
         <div className="text-lg">
-          {storyFilter.length === 0 ? (
+          {soloStories.length === 0 ? (
             tags.map((tag) => (
               <TagOption
                 key={tag.id}
@@ -319,7 +333,7 @@ export default function SprintboardPage() {
               />
             ))
           ) : (
-            <div className="italic text-gray-800">
+            <div className="text-gray-800 italic">
               Story filtering is enabled. Disable to see tag filters.
             </div>
           )}
@@ -373,10 +387,19 @@ export default function SprintboardPage() {
               className="text-blue-500"
               href="#"
               onClick={() => {
-                setStoryFilter([]);
+                setSoloStories([]);
               }}
             >
-              Clear story filter
+              Unsolo all
+            </a>
+            <a
+              className="text-blue-500"
+              href="#"
+              onClick={() => {
+                setMuteStories([]);
+              }}
+            >
+              Unmute all
             </a>
           </div>
           <SessionTimeRemainingIndicator
@@ -402,7 +425,7 @@ export default function SprintboardPage() {
       </div>
       <div className="mx-4 mt-8 flex flex-wrap gap-4">
         {stories
-          .filter((story) => filterStory(story, selectedSprintId))
+          .filter((story) => filterStoryForRender(story, selectedSprintId))
           .map((story) => (
             <StoryCard
               key={story.id}
@@ -414,9 +437,16 @@ export default function SprintboardPage() {
               tagAssignments={tagAssignments}
               storyRelationships={storyRelationships}
               selected={hash === `#${story.id}`}
-              filtered={storyFilter.includes(story.id)}
-              onStoryFilterToggle={(storyId: string, checked: boolean) => {
-                setStoryFilter((prev) => {
+              soloStories={soloStories}
+              muteStories={muteStories}
+              onSoloToggle={(storyId: string, checked: boolean) => {
+                setSoloStories((prev) => {
+                  if (checked) return [...prev, storyId];
+                  return prev.filter((id) => id !== storyId);
+                });
+              }}
+              onMuteToggle={(storyId: string, checked: boolean) => {
+                setMuteStories((prev) => {
                   if (checked) return [...prev, storyId];
                   return prev.filter((id) => id !== storyId);
                 });
