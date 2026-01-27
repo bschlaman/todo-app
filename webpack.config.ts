@@ -21,7 +21,8 @@ export default {
     extensions: [".ts", ".tsx", ".js"],
   },
   output: {
-    filename: "./[name]/[name].bundle.js",
+    // [contenthash] to prevent caching when I make changes
+    filename: "./[name]/[name].[contenthash].bundle.js",
     path: path.resolve(import.meta.dirname, publicDir),
   },
   module: {
@@ -60,14 +61,12 @@ export default {
           filename: `./${page}/index.html`,
           chunks: [page],
           title: `Todosky | ${page}`,
+          // publicPath = "/" is needed for all SPA pages.
+          // this is because we leave URIs like /stories/story/xyz intact,
+          // so the browser is unable to resolve the relative <script> path in index.html correctly.
+          publicPath: page === "stories" ? "/" : "auto",
         }),
     ),
-    // new HtmlWebpackPlugin({
-    //   template: `./src/client/templates/root.html`,
-    //   filename: `./stories/index.html`,
-    //   chunks: ["stories"],
-    //   title: `Todosky | stories`,
-    // }),
   ],
   devServer: {
     allowedHosts: ["all"],
@@ -76,7 +75,10 @@ export default {
       overlay: false, // TODO: set this to true once I can
     },
     historyApiFallback: {
-      rewrites: [{ from: /^\/task/, to: "/task" }],
+      rewrites: [
+        { from: /^\/task/, to: "/task" },
+        { from: /^\/stories(\/.*)?$/, to: "/stories" },
+      ],
     },
     proxy: [
       {

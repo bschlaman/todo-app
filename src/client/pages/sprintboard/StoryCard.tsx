@@ -256,7 +256,7 @@ export default function StoryCard({
           </div>
           <a
             className="transition-transform hover:scale-110"
-            href={storyPageRef}
+            href={`/stories/${storyPageRef}`}
             title="Edit"
           >
             📝

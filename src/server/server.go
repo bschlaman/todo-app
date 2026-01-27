@@ -21,7 +21,7 @@ import (
 const (
 	serverName      string        = "TODO-APP-SERVER"
 	logPath         string        = "logs/output.log"
-	staticDir       string        = "dist"
+	staticDirName       string        = "dist"
 	sprintDuration  time.Duration = 24 * 14 * time.Hour
 	sessionDuration time.Duration = 2 * time.Hour
 	// I used to use this const table as a config and changed it in code
@@ -105,7 +105,8 @@ func init() {
 }
 
 func main() {
-	registerHandlers()
+	registerStaticAssetHandlers()
+	registerAPIHandlers()
 
 	defer sessionManager.Stop()
 	defer database.ClosePool()

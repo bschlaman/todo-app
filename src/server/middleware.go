@@ -6,6 +6,8 @@ import (
 	"mime"
 	"net/http"
 	"net/url"
+	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
@@ -112,6 +114,37 @@ func matchIDRedirMiddleware() utils.Middleware {
 		})
 	}
 }
+
+// spaRewriteMiddleware is used for parts of my application which are Single Page Applications.
+// For this to work, client-side routing owns sub-paths; the server should return /path/index.html.
+func spaRewriteMiddleware(staticDirRoot string) utils.Middleware {
+	return func(h http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			// Resolve the path the file server would try to serve
+			fsPath := filepath.Join(staticDirRoot, filepath.Clean(r.URL.Path))
+			if strings.HasPrefix(r.URL.Path, "/stories/") {
+				println(r.URL.Path)
+				println(fsPath)
+			}
+
+			// If an actual file exists (e.g. bundle, css, favicon), let it through
+			if info, err := os.Stat(fsPath); err == nil && !info.IsDir() {
+				println("inside os.Stat")
+				println(fsPath)
+				h.ServeHTTP(w, r)
+				return
+			}
+
+			// stories SPA
+			if strings.HasPrefix(r.URL.Path, "/stories/") {
+				r.URL.Path = "/stories/"
+			}
+
+			h.ServeHTTP(w, r)
+		})
+	}
+}
+
 
 func redirectRootPathMiddleware() utils.Middleware {
 	return func(h http.Handler) http.Handler {

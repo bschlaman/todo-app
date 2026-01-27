@@ -2,21 +2,25 @@ package main
 
 import (
 	"net/http"
-	"path"
+	"path/filepath"
 
 	"github.com/bschlaman/b-utils/pkg/utils"
 )
 
-func registerHandlers() {
-	// special case handlers
-	fs := http.FileServer(http.Dir(path.Join("../..", staticDir)))
+// probably a more correct name than "Asset"...
+func registerStaticAssetHandlers() {
+	staticDir := http.Dir(filepath.Join("../..", staticDirName))
+	fs := http.FileServer(staticDir)
 	http.Handle("/", chainMiddlewares(fs, []utils.Middleware{
 		utils.LogReq(log),
 		sessionMiddleware(),
 		redirectRootPathMiddleware(),
 		matchIDRedirMiddleware(),
+		spaRewriteMiddleware(string(staticDir)),
 	}...))
+}
 
+func registerAPIHandlers() {
 	if enableDebugSessionAPIs {
 		http.Handle("/api/clear_sessions", clearSessionsHandle())
 		http.Handle("/api/get_sessions", getSessionsHandle())
