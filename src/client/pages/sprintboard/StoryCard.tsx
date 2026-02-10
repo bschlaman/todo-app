@@ -205,7 +205,7 @@ export default function StoryCard({
     <div
       // storyURIFragment
       id={story.id}
-      className="relative w-[30%] rounded-lg border border-zinc-400 bg-zinc-100 p-6 shadow-sm transition-all duration-200 hover:shadow-md dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
+      className="relative w-[30%] overflow-hidden rounded-lg border border-zinc-400 bg-zinc-100 p-6 shadow-sm transition-all duration-200 hover:shadow-md dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
       style={{
         boxShadow:
           selected || soloStories.includes(story.id)

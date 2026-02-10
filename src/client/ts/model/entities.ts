@@ -51,7 +51,7 @@ export interface Task {
 }
 
 export interface TaskComment {
-  id: string;
+  id: number;
   task_id: string;
   created_at: string;
   updated_at: string;
