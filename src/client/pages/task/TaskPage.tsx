@@ -197,8 +197,6 @@ export default function TaskPage() {
     window.history.replaceState({}, "", `/task/${task.sqid}${window.location.hash}`);
   }, [task]);
 
-  // this function should be a mirror of handleStoryUpdate.
-  // consider moving to a util along with updateTaskStatusById
   async function handleTaskUpdate(updatedTask: Task) {
     if (task === null) return;
     if (Object.keys(updatedTask).length !== Object.keys(task).length)
@@ -240,7 +238,7 @@ export default function TaskPage() {
             checkSessionRes.session_time_remaining_seconds
           }
         />
-        <CommentsSection taskId={task.id} config={config} />
+        <CommentsSection taskId={task.id} taskMarkup={`task:${task.sqid}`} config={config} />
       </main>
     </div>
   );

@@ -14,9 +14,11 @@ import { CopyIcon } from "../../components/copy_to_clipboard_components";
 
 export default function CommentsSection({
   taskId,
+  taskMarkup,
   config,
 }: {
   taskId: string;
+  taskMarkup: string;
   // Config | null because we want this to be best-effort
   config: Config | null;
 }) {
@@ -118,12 +120,10 @@ export default function CommentsSection({
   return (
     <>
       {comments.map((comment) => (
-        // TODO (2023.05.15): using an integer id (as is also the case with tag_assignments)
-        // is a bad idea, since it may conflict with other entities
         <Comment
           key={comment.id}
           comment={comment}
-          relativeURI={`${window.location.pathname}#${comment.id}`}
+          commentMarkup={`${taskMarkup}#${comment.id}`}
           onUpdate={handleUpdateComment}
           selected={hash === `#${comment.id}`}
           config={config}
@@ -197,13 +197,13 @@ export default function CommentsSection({
 
 function Comment({
   comment,
-  relativeURI,
+  commentMarkup,
   selected,
   onUpdate,
   config,
 }: {
   comment: TaskComment;
-  relativeURI: string;
+  commentMarkup: string;
   selected: boolean;
   onUpdate: (commentId: number, newText: string) => void;
   config: Config | null;
@@ -212,7 +212,7 @@ function Comment({
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(comment.text);
   const editTextareaRef = useRef<HTMLTextAreaElement>(null);
-  const [copiedLink, setCopiedLink] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   // Auto focus the textarea when editing, and place the cursor at the end of the content
   useEffect(() => {
@@ -246,19 +246,19 @@ function Comment({
     >
       <button
         className={`absolute top-1 right-2 rounded px-2 py-0.5 text-sm font-thin text-zinc-600 transition-all duration-150 select-none ${
-          copiedLink
+          copied
             ? "bg-green-200 text-green-800 dark:bg-green-800/40 dark:text-green-200"
             : "hover:bg-zinc-100 dark:hover:bg-zinc-700"
         }`}
         title="Copy link to this comment"
         onClick={() => {
-          handleCopyToClipboardHTTP(relativeURI);
-          setCopiedLink(true);
-          setTimeout(() => setCopiedLink(false), 1800);
+          handleCopyToClipboardHTTP(commentMarkup);
+          setCopied(true);
+          setTimeout(() => setCopied(false), 1800);
         }}
         type="button"
       >
-        {copiedLink ? "copied!" : comment.id}
+        {copied ? "copied!" : comment.id}
       </button>
       <p className="absolute right-2 bottom-1 text-sm font-thin text-zinc-600 select-none">
         {formatDate(new Date(comment.created_at))}

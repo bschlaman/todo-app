@@ -76,8 +76,6 @@ export default function StoryCard({
     [tagAssignments, story],
   );
 
-  // this function should be a mirror of handleTaskUpdate.
-  // consider moving to a util along with updateTaskStatusById
   async function handleStoryUpdate(updatedStory: Story) {
     if (story === null) return;
     if (Object.keys(updatedStory).length !== Object.keys(story).length)

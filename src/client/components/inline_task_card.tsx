@@ -4,7 +4,13 @@ import { handleCopyToClipboardHTTP } from "../ts/lib/utils";
 import { useTasksContext } from "../contexts/TasksContext";
 import { statusColorMap } from "../ts/lib/common";
 
-export default function InlineTaskCard({ taskId }: { taskId: string }) {
+export default function InlineTaskCard({
+  taskId,
+  commentId,
+}: {
+  taskId: string;
+  commentId?: number;
+}) {
   const { getTaskById, loading, error, fetchTasks } = useTasksContext();
   const [showCheckmark, setShowCheckmark] = useState(false);
 
@@ -27,7 +33,7 @@ export default function InlineTaskCard({ taskId }: { taskId: string }) {
 
   if (loading) {
     return (
-      <span className="inline-block whitespace-nowrap rounded-sm border border-gray-300 bg-gray-100 px-2 py-1 text-sm text-gray-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400">
+      <span className="inline-block rounded-sm border border-gray-300 bg-gray-100 px-2 py-1 text-sm whitespace-nowrap text-gray-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400">
         Loading task {taskId}...
       </span>
     );
@@ -35,7 +41,7 @@ export default function InlineTaskCard({ taskId }: { taskId: string }) {
 
   if (error || !task) {
     return (
-      <span className="inline-block whitespace-nowrap rounded-sm border border-red-200 bg-red-100 px-2 py-1 text-sm text-red-800 dark:border-red-800 dark:bg-red-900 dark:text-red-200">
+      <span className="inline-block rounded-sm border border-red-200 bg-red-100 px-2 py-1 text-sm whitespace-nowrap text-red-800 dark:border-red-800 dark:bg-red-900 dark:text-red-200">
         Task {taskId} (error: {error || "not found"})
       </span>
     );
@@ -43,13 +49,14 @@ export default function InlineTaskCard({ taskId }: { taskId: string }) {
 
   return (
     <span
-      className="group relative mx-0.5 inline-block whitespace-nowrap rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-sm shadow-xs dark:border-gray-600 dark:bg-gray-800"
+      className="group relative mx-0.5 inline-block rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-sm whitespace-nowrap shadow-xs dark:border-gray-600 dark:bg-gray-800"
       style={{
         opacity: isTaskDimmed(task.status) ? 0.5 : 1,
       }}
     >
+      {commentId && <span>Comment </span>}
       <a
-        href={`/task/${task.id}`}
+        href={`/task/${task.id}${commentId ? `#${commentId}` : ""}`}
         className="mr-1.5 font-semibold text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
         style={{
           textDecoration: isTaskCompleted(task.status)
@@ -71,7 +78,7 @@ export default function InlineTaskCard({ taskId }: { taskId: string }) {
           setShowCheckmark(true);
           setTimeout(() => setShowCheckmark(false), 2000);
         }}
-        className="ml-1 inline-block text-xs text-gray-400 opacity-0 transition-opacity duration-200 hover:text-gray-600 group-hover:opacity-100 dark:text-gray-500 dark:hover:text-gray-400"
+        className="ml-1 inline-block text-xs text-gray-400 opacity-0 transition-opacity duration-200 group-hover:opacity-100 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-400"
         title={`Copy SQID: ${task.sqid}`}
       >
         {showCheckmark ? "✓" : "📋"}

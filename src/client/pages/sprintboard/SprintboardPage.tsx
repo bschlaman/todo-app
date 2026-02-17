@@ -276,7 +276,6 @@ export default function SprintboardPage() {
     ));
   }
 
-  // TODO (2024.01.25): consider consolidating with handleStoryUpdate and handleTaskUpdate
   function updateTaskStatusById(taskId: string, status: TASK_STATUS) {
     const task = tasksById.get(taskId);
     if (task === undefined) throw new Error("task not found: " + taskId);

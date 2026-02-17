@@ -65,14 +65,14 @@ export default function ReactMarkdownCustom({ content }: { content: string }) {
           },
           () => (tree: Root) => {
             findAndReplace(tree, [
-              /task:([A-Za-z0-9]+)/g,
-              function (_: string, $1: string) {
+              /task:([A-Za-z0-9]+)(?:#(\d+))?/g,
+              function (_: string, $1: string, $2: string | undefined) {
                 // might be able to type this correctly with https://github.com/syntax-tree/mdast-util-to-hast
                 return {
                   type: "task",
                   data: {
                     hName: "task", // Tells react-markdown to render <task>…</task>
-                    hProperties: { taskId: $1 },
+                    hProperties: { taskId: $1, commentId: $2 },
                     hChildren: [],
                   },
                 };
@@ -163,8 +163,16 @@ export default function ReactMarkdownCustom({ content }: { content: string }) {
             );
           },
           task: ({ node }: { node: Element }) => {
-            const { taskId } = node.properties as { taskId: string };
-            return <InlineTaskCard taskId={taskId} />;
+            const { taskId, commentId } = node.properties as {
+              taskId: string;
+              commentId?: string;
+            };
+            return (
+              <InlineTaskCard
+                taskId={taskId}
+                {...(commentId && { commentId: parseInt(commentId) })}
+              />
+            );
           },
         }}
       >
