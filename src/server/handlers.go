@@ -4,8 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"io"
 	"net/http"
 	"net/url"
+	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -741,6 +745,56 @@ func destroyStoryRelationshipByIDHandle() http.Handler {
 			}
 			return
 		}
+	})
+}
+
+
+func uploadImageHandle() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		r.Body = http.MaxBytesReader(w, r.Body, maxUploadSize)
+
+		if err := r.ParseMultipartForm(maxUploadSize); err != nil {
+			log.Errorf("file too large or bad form: %v", err)
+			http.Error(w, "file too large", http.StatusBadRequest)
+			return
+		}
+
+		file, header, err := r.FormFile("image")
+		if err != nil {
+			log.Errorf("could not read form file: %v", err)
+			http.Error(w, "missing image field", http.StatusBadRequest)
+			return
+		}
+		defer file.Close()
+
+		// TODO: file type should be determined by the server, with ext set accordingly.
+		filename := uuid.NewString() + filepath.Ext(header.Filename)
+
+		dst, err := os.Create(filepath.Join("../..", uploadsDir, filename))
+		if err != nil {
+			log.Errorf("could not create file: %v", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+		defer dst.Close()
+
+		if _, err := io.Copy(dst, file); err != nil {
+			log.Errorf("could not write file: %v", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+
+		js, err := json.Marshal(&struct {
+			URL string `json:"url"`
+		}{fmt.Sprintf("/uploads/%s", filename)})
+		if err != nil {
+			log.Errorf("json.Marshal failed: %v", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(js)
 	})
 }
 

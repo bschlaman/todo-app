@@ -44,6 +44,7 @@ const routes = {
   getStoryRelationships: "/api/get_story_relationships",
   createStoryRelationship: "/api/create_story_relationship",
   destroyStoryRelationshipById: "/api/destroy_story_relationship_by_id",
+  uploadImage: "/api/upload_image",
 };
 
 let ERROR_MESSAGE_PARENT_DIV: HTMLDivElement | undefined;
@@ -418,6 +419,16 @@ export async function destroyStoryRelationshipById(id: string): Promise<JSON> {
     }),
   });
   return await handleApiRes(res);
+}
+
+export async function uploadImage(file: File): Promise<{ url: string }> {
+  const formData = new FormData();
+  formData.append("image", file);
+  const res = await fetch(routes.uploadImage, {
+    method: "POST",
+    body: formData,
+  });
+  return (await handleApiRes(res)) as { url: string };
 }
 
 export async function getStoryRelationships(): Promise<StoryRelationship[]> {

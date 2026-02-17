@@ -25,7 +25,8 @@ CREATE TYPE event_action AS ENUM (
 	'CreateTag',
 	'GetStoryRelationships',
 	'CreateStoryRelationship',
-	'DestroyStoryRelationship'
+	'DestroyStoryRelationship',
+	'UploadImage'
 );
 
 CREATE TYPE event_action_type AS ENUM (
@@ -35,7 +36,8 @@ CREATE TYPE event_action_type AS ENUM (
 	'GetMany',
 	'Put',
 	'Create',
-	'Destroy'
+	'Destroy',
+	'Upload'
 );
 
 -- trying out both kinds of IDs; will consolidate later

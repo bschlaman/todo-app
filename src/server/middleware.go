@@ -129,8 +129,6 @@ func spaRewriteMiddleware(staticDirRoot string) utils.Middleware {
 
 			// If an actual file exists (e.g. bundle, css, favicon), let it through
 			if info, err := os.Stat(fsPath); err == nil && !info.IsDir() {
-				println("inside os.Stat")
-				println(fsPath)
 				h.ServeHTTP(w, r)
 				return
 			}
@@ -198,7 +196,7 @@ func logEventMiddleware(apiName, apiType, callerID string) utils.Middleware {
 }
 
 // This middleware is not necessary, it's just here as an example
-func enforceJSONMiddleware() utils.Middleware {
+func enforceMediaTypeMiddleware() utils.Middleware {
 	return func(h http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// don't enforce on GET requests
@@ -216,8 +214,8 @@ func enforceJSONMiddleware() utils.Middleware {
 					return
 				}
 
-				if mt != "application/json" {
-					http.Error(w, "Content-Type header must be application/json", http.StatusUnsupportedMediaType)
+				if mt != "application/json" && mt != "multipart/form-data" {
+					http.Error(w, "Content-Type header must be application/json or multipart/form-data", http.StatusUnsupportedMediaType)
 					return
 				}
 			}

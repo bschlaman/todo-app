@@ -32,6 +32,8 @@ const (
 	cacheTTL               time.Duration    = 2 * time.Second
 	devModeCacheTTL        time.Duration    = 5 * time.Minute
 	rootServerPath         string           = "/sprintboard"
+	uploadsDir    = "uploads"
+	maxUploadSize = 10 << 20 // 10 MB
 )
 
 // CustomContextKey is a type that represents
@@ -71,6 +73,7 @@ var APIType = struct {
 	Put     string
 	Create  string
 	Destroy string
+	Upload string
 }{
 	"Util",
 	"Auth",
@@ -79,6 +82,7 @@ var APIType = struct {
 	"Put",
 	"Create",
 	"Destroy",
+	"Upload",
 }
 
 func init() {

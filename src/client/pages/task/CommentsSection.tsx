@@ -4,6 +4,7 @@ import {
   getCommentsByTaskId,
   createComment,
   updateCommentById,
+  uploadImage,
 } from "../../ts/lib/api";
 import { formatDate, handleCopyToClipboardHTTP } from "../../ts/lib/utils";
 import type { Config, TaskComment } from "../../ts/model/entities";
@@ -22,6 +23,7 @@ export default function CommentsSection({
   const [comments, setComments] = useState<TaskComment[]>([]);
   const [createCommentText, setCreateCommentText] = useState("");
   const [errors, setErrors] = useState<Error[]>([]);
+  const [uploading, setUploading] = useState(false);
   // used to focus the element after comment creation
   const inputRef = useRef<HTMLTextAreaElement>(null);
   // React does not know about window.location.hash,
@@ -135,6 +137,29 @@ export default function CommentsSection({
               handleCreateComment();
             }
           }}
+          onPaste={(e) => {
+            for (const item of e.clipboardData.items) {
+              if (!item.type.startsWith("image/")) continue;
+              e.preventDefault();
+              const file = item.getAsFile();
+              if (!file) continue;
+              setUploading(true);
+              void (async () => {
+                try {
+                  const { url } = await uploadImage(file);
+                  const mdImage = `![image](${url})`;
+                  setCreateCommentText((prev) =>
+                    prev ? `${prev}\n${mdImage}` : mdImage,
+                  );
+                } catch (err) {
+                  console.error("image upload failed:", err);
+                } finally {
+                  setUploading(false);
+                }
+              })();
+              break;
+            }
+          }}
           ref={inputRef}
           onChange={(e) => {
             setCreateCommentText(e.target.value);
@@ -144,12 +169,24 @@ export default function CommentsSection({
           maxLength={config?.comment_max_len}
           autoFocus
         />
-        <button
-          className="rounded-md bg-blue-500 p-1 text-zinc-100"
-          onClick={handleCreateComment}
-        >
-          Post
-        </button>
+        <div className="flex gap-2">
+          <button
+            className="rounded-md bg-blue-500 p-1 text-zinc-100"
+            onClick={handleCreateComment}
+          >
+            Post
+          </button>
+          <ImageUploadButton
+            uploading={uploading}
+            setUploading={setUploading}
+            onUpload={(url) => {
+              const mdImage = `![image](${url})`;
+              setCreateCommentText((prev) =>
+                prev ? `${prev}\n${mdImage}` : mdImage,
+              );
+            }}
+          />
+        </div>
         <p className="absolute right-4 bottom-2 font-thin">
           {createCommentText.length ?? 0} / {config?.comment_max_len}
         </p>
@@ -300,5 +337,55 @@ function Comment({
         </>
       )}
     </div>
+  );
+}
+
+function ImageUploadButton({
+  uploading,
+  setUploading,
+  onUpload,
+}: {
+  uploading: boolean;
+  setUploading: (v: boolean) => void;
+  onUpload: (url: string) => void;
+}) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    void (async () => {
+      try {
+        const { url } = await uploadImage(file);
+        onUpload(url);
+      } catch (err) {
+        console.error("image upload failed:", err);
+      } finally {
+        setUploading(false);
+        // Reset so re-selecting the same file triggers onChange again
+        if (fileInputRef.current) fileInputRef.current.value = "";
+      }
+    })();
+  }
+
+  return (
+    <>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleFileChange}
+      />
+      <button
+        className="rounded-md bg-zinc-500 p-1 text-zinc-100"
+        onClick={() => fileInputRef.current?.click()}
+        disabled={uploading}
+        type="button"
+      >
+        {uploading ? "Uploading…" : "📎 Image 🖼"}
+      </button>
+    </>
   );
 }

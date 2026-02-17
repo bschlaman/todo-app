@@ -18,6 +18,15 @@ func registerStaticAssetHandlers() {
 		matchIDRedirMiddleware(),
 		spaRewriteMiddleware(string(staticDir)),
 	}...))
+
+	// Serve uploaded files
+	uploadsFS := http.FileServer(http.Dir(filepath.Join("../..", uploadsDir)))
+	http.Handle("/uploads/", chainMiddlewares(
+		http.StripPrefix("/uploads/", uploadsFS),
+		[]utils.Middleware{
+			utils.LogReq(log),
+			sessionMiddleware(),
+		}...))
 }
 
 func registerAPIHandlers() {
@@ -67,6 +76,8 @@ func registerAPIHandlers() {
 		{"/api/get_story_relationships", getStoryRelationshipsHandle, "GetStoryRelationships", APIType.GetMany},
 		{"/api/create_story_relationship", createStoryRelationshipHandle, "CreateStoryRelationship", APIType.Create},
 		{"/api/destroy_story_relationship", destroyStoryRelationshipByIDHandle, "DestroyStoryRelationship", APIType.Destroy},
+		// uploads
+		{"/api/upload_image", uploadImageHandle, "UploadImage", APIType.Upload},
 	}
 
 	for _, route := range apiRoutes {
@@ -77,7 +88,7 @@ func registerAPIHandlers() {
 			sessionMiddleware(),
 			putAPILatencyMetricMiddleware(route.APIName, route.APIType),
 			incrementAPIMetricMiddleware(route.APIName, route.APIType),
-			enforceJSONMiddleware(),
+			enforceMediaTypeMiddleware(),
 		}
 		http.Handle(route.Path, chainMiddlewares(route.Handler(), middlewares...))
 	}
