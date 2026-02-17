@@ -1,17 +1,27 @@
 package main
 
 import (
+	"bytes"
 	"context"
+	"crypto/sha256"
 	"encoding/json"
+	"encoding/hex"
 	"errors"
 	"fmt"
+	"image"
 	"io"
+	"mime"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
+
+	_ "image/gif"
+	_ "image/jpeg"
+	_ "image/png"
 
 	"github.com/bschlaman/todo-app/model"
 	"github.com/google/uuid"
@@ -778,15 +788,72 @@ func uploadImageHandle() http.Handler {
 		}
 		defer dst.Close()
 
-		if _, err := io.Copy(dst, file); err != nil {
+		hasher := sha256.New()
+		var imageBytes bytes.Buffer
+		written, err := io.Copy(io.MultiWriter(dst, hasher, &imageBytes), file)
+		if err != nil {
 			log.Errorf("could not write file: %v", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+
+		mimeType := header.Header.Get("Content-Type")
+		if mimeType == "" {
+			mimeType = mime.TypeByExtension(filepath.Ext(header.Filename))
+		}
+		if parsed, _, err := mime.ParseMediaType(mimeType); err == nil {
+			mimeType = parsed
+		}
+		if mimeType == "" {
+			mimeType = "application/octet-stream"
+		}
+
+		cfg, _, err := image.DecodeConfig(bytes.NewReader(imageBytes.Bytes()))
+		if err != nil {
+			log.Errorf("could not decode image config: %v", err)
+			http.Error(w, "invalid image", http.StatusBadRequest)
+			return
+		}
+
+		remoteAddr := r.RemoteAddr
+		if host, _, err := net.SplitHostPort(r.RemoteAddr); err == nil {
+			remoteAddr = host
+		}
+
+		var uploaderIP *string
+		if remoteAddr != "" {
+			uploaderIP = &remoteAddr
+		}
+
+		var clientFilename *string
+		if header.Filename != "" {
+			clientFilename = &header.Filename
+		}
+
+		publicURL := fmt.Sprintf("/uploads/%s", filename)
+
+		err = model.CreateUploadWithArtifact(log, model.CreateUploadArtifactReq{
+			CallerID:       env.CallerID,
+			UploaderIP:     uploaderIP,
+			ClientFilename: clientFilename,
+			UploadType:     "IMAGE",
+			StorageKey:     filename,
+			PublicURL:      publicURL,
+			PixelWidth:     cfg.Width,
+			PixelHeight:    cfg.Height,
+			ByteSize:       written,
+			MimeType:       mimeType,
+			SHA256Hex:      hex.EncodeToString(hasher.Sum(nil)),
+		})
+		if err != nil {
+			log.Errorf("could not persist upload metadata: %v", err)
 			http.Error(w, "something went wrong", http.StatusInternalServerError)
 			return
 		}
 
 		js, err := json.Marshal(&struct {
 			URL string `json:"url"`
-		}{fmt.Sprintf("/uploads/%s", filename)})
+		}{publicURL})
 		if err != nil {
 			log.Errorf("json.Marshal failed: %v", err)
 			http.Error(w, "something went wrong", http.StatusInternalServerError)

@@ -76,3 +76,17 @@ type CreateStoryRelationshipReq struct {
 type DestroyStoryRelationshipByIDReq struct {
 	ID int `json:"id"`
 }
+
+type CreateUploadArtifactReq struct {
+	CallerID       string
+	UploaderIP     *string
+	ClientFilename *string
+	UploadType     string
+	StorageKey     string
+	PublicURL      string
+	PixelWidth     int
+	PixelHeight    int
+	ByteSize       int64
+	MimeType       string
+	SHA256Hex      string
+}
