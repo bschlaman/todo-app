@@ -107,6 +107,7 @@ export function TagCircleIndicators({
     <div className="flex flex-wrap gap-1 py-2">
       {Array.from(tagsById).map(([, tag]) => (
         <TagCircleToggle
+          key={tag.id}
           tag={tag}
           isSelected={selectedTagIds.includes(tag.id)}
           onTagToggle={onTagToggle}
