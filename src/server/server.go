@@ -11,9 +11,11 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/cloudwatch"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
 	"github.com/bschlaman/b-utils/pkg/logger"
 	"github.com/bschlaman/todo-app/database"
+	"github.com/bschlaman/todo-app/storage"
 	"github.com/sqids/sqids-go"
 )
 
@@ -47,6 +49,7 @@ type Env struct {
 	Log         *logger.BLogger
 	AWSCfg      aws.Config
 	AWSCWClient *cloudwatch.Client
+	S3Uploader  *storage.S3Uploader
 	LoginPw     string
 	CallerID    string
 	Sqids       *sqids.Sqids
@@ -99,12 +102,22 @@ func init() {
 		panic(err)
 	}
 	cwClient := cloudwatch.NewFromConfig(cfg)
+	s3Client := s3.NewFromConfig(cfg)
+	s3Uploader, err := storage.NewS3Uploader(
+		s3Client,
+		os.Getenv("UPLOADS_S3_BUCKET"),
+		os.Getenv("UPLOADS_S3_KEY_PREFIX"),
+		15*time.Second,
+	)
+	if err != nil {
+		panic(err)
+	}
 
 	// init globals
 	sessionManager = NewSessionManager()
 	cache = &cacheStore{items: make(map[string]*cacheItem)}
 	s, _ := sqids.New(sqids.Options{Alphabet: os.Getenv("SQIDS_ALPHABET"), MinLength: 6})
-	env = &Env{logger.New(mw), cfg, cwClient, os.Getenv("LOGIN_PW"), os.Getenv("CALLER_ID"), s, false}
+	env = &Env{logger.New(mw), cfg, cwClient, s3Uploader, os.Getenv("LOGIN_PW"), os.Getenv("CALLER_ID"), s, false}
 	log = env.Log
 }
 

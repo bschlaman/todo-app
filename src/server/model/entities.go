@@ -102,3 +102,14 @@ type ServerConfig struct {
 	TaskDescMaxLen        int    `json:"task_desc_max_len"`
 	CommentMaxLen         int    `json:"comment_max_len"`
 }
+
+type UploadArtifact struct {
+	ArtifactType string
+	StorageKey   string
+	PublicURL    *string
+	PixelWidth   int
+	PixelHeight  int
+	ByteSize     int64
+	MimeType     string
+	SHA256Hex    string
+}

@@ -2,6 +2,11 @@ CREATE TYPE upload_type AS ENUM (
   'IMAGE'
 );
 
+CREATE TYPE upload_artifact_type AS ENUM (
+  'LOCAL',
+  'S3'
+);
+
 CREATE TABLE IF NOT EXISTS public.uploads (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
 
@@ -18,13 +23,14 @@ CREATE TABLE IF NOT EXISTS public.uploads (
 CREATE TABLE IF NOT EXISTS public.upload_artifacts (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
 
-  upload_id uuid NOT NULL UNIQUE REFERENCES public.uploads(id) ON DELETE CASCADE,
+  upload_id uuid NOT NULL REFERENCES public.uploads(id) ON DELETE CASCADE,
 
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now(),
 
-  storage_key text NOT NULL UNIQUE CHECK (length(btrim(storage_key)) > 0),
-  public_url text NOT NULL CHECK (length(btrim(public_url)) > 0),
+  artifact_type upload_artifact_type NOT NULL,
+  storage_key text NOT NULL CHECK (length(btrim(storage_key)) > 0),
+  public_url text CHECK (public_url IS NULL OR length(btrim(public_url)) > 0),
 
   pixel_width integer NOT NULL CHECK (pixel_width > 0),
   pixel_height integer NOT NULL CHECK (pixel_height > 0),
@@ -33,6 +39,8 @@ CREATE TABLE IF NOT EXISTS public.upload_artifacts (
 
   sha256_hex text NOT NULL CHECK (sha256_hex ~ '^[0-9a-f]{64}$')
 );
+
+CREATE INDEX IF NOT EXISTS idx_upload_artifacts_upload_id ON public.upload_artifacts(upload_id);
 
 CREATE OR REPLACE FUNCTION public.set_updated_at()
 RETURNS trigger

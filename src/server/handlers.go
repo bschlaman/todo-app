@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"context"
 	"crypto/sha256"
-	"encoding/json"
 	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"image"
@@ -758,7 +758,6 @@ func destroyStoryRelationshipByIDHandle() http.Handler {
 	})
 }
 
-
 func uploadImageHandle() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		r.Body = http.MaxBytesReader(w, r.Body, maxUploadSize)
@@ -780,6 +779,7 @@ func uploadImageHandle() http.Handler {
 		// TODO: file type should be determined by the server, with ext set accordingly.
 		filename := uuid.NewString() + filepath.Ext(header.Filename)
 
+		// TODO: local file save logic should go to storage package
 		dst, err := os.Create(filepath.Join("../..", uploadsDir, filename))
 		if err != nil {
 			log.Errorf("could not create file: %v", err)
@@ -830,20 +830,42 @@ func uploadImageHandle() http.Handler {
 			clientFilename = &header.Filename
 		}
 
-		publicURL := fmt.Sprintf("/uploads/%s", filename)
+		localUploadPath := fmt.Sprintf("/uploads/%s", filename)
+		artifactReqs := []model.UploadArtifact{
+			{
+				ArtifactType: "LOCAL",
+				StorageKey:   filename,
+				PublicURL:    &localUploadPath,
+				PixelWidth:   cfg.Width,
+				PixelHeight:  cfg.Height,
+				ByteSize:     written,
+				MimeType:     mimeType,
+				SHA256Hex:    hex.EncodeToString(hasher.Sum(nil)),
+			},
+		}
 
-		err = model.CreateUploadWithArtifact(log, model.CreateUploadArtifactReq{
-			CallerID:       env.CallerID,
+		s3Meta, err := env.S3Uploader.Upload(r.Context(), filename, mimeType, imageBytes.Bytes())
+		if err == nil {
+			artifactReqs = append(artifactReqs, model.UploadArtifact{
+				ArtifactType: "S3",
+				StorageKey:   s3Meta.StorageKey,
+				PublicURL:    &s3Meta.PublicURL,
+				PixelWidth:   cfg.Width,
+				PixelHeight:  cfg.Height,
+				ByteSize:     written,
+				MimeType:     mimeType,
+				SHA256Hex:    hex.EncodeToString(hasher.Sum(nil)),
+			})
+			log.Infof("s3 upload succeeded for %s to %s", filename, s3Meta.PublicURL)
+		} else {
+			log.Errorf("s3 upload failed for %s: %v", filename, err)
+		}
+
+		err = model.CreateUploadWithArtifacts(log, env.CallerID, model.CreateUploadWithArtifactsReq{
 			UploaderIP:     uploaderIP,
 			ClientFilename: clientFilename,
 			UploadType:     "IMAGE",
-			StorageKey:     filename,
-			PublicURL:      publicURL,
-			PixelWidth:     cfg.Width,
-			PixelHeight:    cfg.Height,
-			ByteSize:       written,
-			MimeType:       mimeType,
-			SHA256Hex:      hex.EncodeToString(hasher.Sum(nil)),
+			Artifacts:      artifactReqs,
 		})
 		if err != nil {
 			log.Errorf("could not persist upload metadata: %v", err)
@@ -853,7 +875,7 @@ func uploadImageHandle() http.Handler {
 
 		js, err := json.Marshal(&struct {
 			URL string `json:"url"`
-		}{publicURL})
+		}{localUploadPath})
 		if err != nil {
 			log.Errorf("json.Marshal failed: %v", err)
 			http.Error(w, "something went wrong", http.StatusInternalServerError)

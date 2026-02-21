@@ -1117,10 +1117,17 @@ func BatchUpdateSessionsLastAccessed(log *logger.BLogger, updates map[string]tim
 	return nil
 }
 
-func CreateUploadWithArtifact(log *logger.BLogger, createReq CreateUploadArtifactReq) error {
-	if createReq.CallerID == "" || createReq.UploadType == "" || createReq.StorageKey == "" || createReq.PublicURL == "" || createReq.MimeType == "" || createReq.SHA256Hex == "" || createReq.PixelWidth <= 0 || createReq.PixelHeight <= 0 {
-		log.Error("createUploadWithArtifact: required field(s) blank")
+// TODO: still undecided but may be better to split the upload and artifact logic into 2 db calls
+func CreateUploadWithArtifacts(log *logger.BLogger, callerID string, createReq CreateUploadWithArtifactsReq) error {
+	if createReq.UploadType == "" || len(createReq.Artifacts) == 0 {
+		log.Error("createUploadWithArtifacts: required field(s) blank")
 		return InputError{}
+	}
+	for _, artifact := range createReq.Artifacts {
+		if artifact.ArtifactType == "" || artifact.StorageKey == "" || artifact.MimeType == "" || artifact.SHA256Hex == "" || artifact.PixelWidth <= 0 || artifact.PixelHeight <= 0 {
+			log.Error("createUploadWithArtifacts: artifact required field(s) blank")
+			return InputError{}
+		}
 	}
 
 	conn, err := database.GetPgxConn()
@@ -1152,7 +1159,7 @@ func CreateUploadWithArtifact(log *logger.BLogger, createReq CreateUploadArtifac
 				$3,
 				$4
 			) RETURNING id`,
-		createReq.CallerID,
+		callerID,
 		createReq.UploaderIP,
 		createReq.ClientFilename,
 		createReq.UploadType,
@@ -1162,40 +1169,45 @@ func CreateUploadWithArtifact(log *logger.BLogger, createReq CreateUploadArtifac
 		return err
 	}
 
-	_, err = tx.Exec(context.Background(),
-		`INSERT INTO upload_artifacts (
-				updated_at,
-				upload_id,
-				storage_key,
-				public_url,
-				pixel_width,
-				pixel_height,
-				byte_size,
-				mime_type,
-				sha256_hex
-			) VALUES (
-				CURRENT_TIMESTAMP,
-				$1,
-				$2,
-				$3,
-				$4,
-				$5,
-				$6,
-				$7,
-				$8
-			)`,
-		uploadID,
-		createReq.StorageKey,
-		createReq.PublicURL,
-		createReq.PixelWidth,
-		createReq.PixelHeight,
-		createReq.ByteSize,
-		createReq.MimeType,
-		createReq.SHA256Hex,
-	)
-	if err != nil {
-		log.Errorf("failed to insert upload artifact: %v", err)
-		return err
+	for _, artifact := range createReq.Artifacts {
+		_, err = tx.Exec(context.Background(),
+			`INSERT INTO upload_artifacts (
+					updated_at,
+					upload_id,
+					artifact_type,
+					storage_key,
+					public_url,
+					pixel_width,
+					pixel_height,
+					byte_size,
+					mime_type,
+					sha256_hex
+				) VALUES (
+					CURRENT_TIMESTAMP,
+					$1,
+					$2,
+					$3,
+					$4,
+					$5,
+					$6,
+					$7,
+					$8,
+					$9
+				)`,
+			uploadID,
+			artifact.ArtifactType,
+			artifact.StorageKey,
+			artifact.PublicURL,
+			artifact.PixelWidth,
+			artifact.PixelHeight,
+			artifact.ByteSize,
+			artifact.MimeType,
+			artifact.SHA256Hex,
+		)
+		if err != nil {
+			log.Errorf("failed to insert upload artifact: %v", err)
+			return err
+		}
 	}
 
 	err = tx.Commit(context.Background())
