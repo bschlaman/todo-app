@@ -88,7 +88,7 @@ func checkSessionHandle() http.Handler {
 		cookie, _ := r.Cookie("session")
 		s, _ := sessionManager.GetSession(cookie.Value)
 
-		timeRemaining := s.SessionCreatedAt.Add(sessionDuration).Sub(time.Now())
+		timeRemaining := time.Until(s.SessionCreatedAt.Add(sessionDuration))
 
 		js, err := json.Marshal(&struct {
 			TimeRemainingSeconds int `json:"session_time_remaining_seconds"`

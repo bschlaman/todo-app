@@ -15,6 +15,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/sts"
 	"github.com/bschlaman/b-utils/pkg/logger"
 	"github.com/bschlaman/todo-app/database"
+	"github.com/bschlaman/todo-app/session"
 	"github.com/bschlaman/todo-app/storage"
 	"github.com/sqids/sqids-go"
 )
@@ -23,7 +24,7 @@ import (
 const (
 	serverName      string        = "TODO-APP-SERVER"
 	logPath         string        = "logs/output.log"
-	staticDirName       string        = "dist"
+	staticDirName   string        = "dist"
 	sprintDuration  time.Duration = 24 * 14 * time.Hour
 	sessionDuration time.Duration = 2 * time.Hour
 	// I used to use this const table as a config and changed it in code
@@ -34,8 +35,8 @@ const (
 	cacheTTL               time.Duration    = 2 * time.Second
 	devModeCacheTTL        time.Duration    = 5 * time.Minute
 	rootServerPath         string           = "/sprintboard"
-	uploadsDir    = "uploads"
-	maxUploadSize = 10 << 20 // 10 MB
+	uploadsDir                              = "uploads"
+	maxUploadSize                           = 10 << 20 // 10 MB
 )
 
 // CustomContextKey is a type that represents
@@ -63,7 +64,7 @@ var env *Env
 // i.e. avoid e.Log
 var log *logger.BLogger
 
-var sessionManager *SessionManager
+var sessionManager *session.Manager
 
 var cache *cacheStore
 
@@ -76,7 +77,7 @@ var APIType = struct {
 	Put     string
 	Create  string
 	Destroy string
-	Upload string
+	Upload  string
 }{
 	"Util",
 	"Auth",
@@ -114,7 +115,7 @@ func init() {
 	}
 
 	// init globals
-	sessionManager = NewSessionManager()
+	sessionManager = session.NewManager(logger.New(mw))
 	cache = &cacheStore{items: make(map[string]*cacheItem)}
 	s, _ := sqids.New(sqids.Options{Alphabet: os.Getenv("SQIDS_ALPHABET"), MinLength: 6})
 	env = &Env{logger.New(mw), cfg, cwClient, s3Uploader, os.Getenv("LOGIN_PW"), os.Getenv("CALLER_ID"), s, false}
