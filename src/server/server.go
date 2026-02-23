@@ -15,6 +15,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/sts"
 	"github.com/bschlaman/b-utils/pkg/logger"
 	"github.com/bschlaman/todo-app/database"
+	"github.com/bschlaman/todo-app/metrics"
 	"github.com/bschlaman/todo-app/session"
 	"github.com/bschlaman/todo-app/storage"
 	"github.com/sqids/sqids-go"
@@ -66,6 +67,8 @@ var log *logger.BLogger
 
 var sessionManager *session.Manager
 
+var metricsPublisher *metrics.Publisher
+
 var cache *cacheStore
 
 // APIType is a kind of enum for classifications of api calls
@@ -115,10 +118,12 @@ func init() {
 	}
 
 	// init globals
-	sessionManager = session.NewManager(logger.New(mw))
+	l := logger.New(mw)
+	sessionManager = session.NewManager(l)
+	metricsPublisher = metrics.NewPublisher(cwClient, metricNamespace, l)
 	cache = &cacheStore{items: make(map[string]*cacheItem)}
 	s, _ := sqids.New(sqids.Options{Alphabet: os.Getenv("SQIDS_ALPHABET"), MinLength: 6})
-	env = &Env{logger.New(mw), cfg, cwClient, s3Uploader, os.Getenv("LOGIN_PW"), os.Getenv("CALLER_ID"), s, false}
+	env = &Env{l, cfg, cwClient, s3Uploader, os.Getenv("LOGIN_PW"), os.Getenv("CALLER_ID"), s, false}
 	log = env.Log
 }
 

@@ -143,7 +143,6 @@ func spaRewriteMiddleware(staticDirRoot string) utils.Middleware {
 	}
 }
 
-
 func redirectRootPathMiddleware() utils.Middleware {
 	return func(h http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -161,7 +160,7 @@ func redirectRootPathMiddleware() utils.Middleware {
 func incrementAPIMetricMiddleware(apiName, apiType string) utils.Middleware {
 	return func(h http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			go incrementAPIMetric(apiName, apiType)
+			go metricsPublisher.IncrementAPIMetric(apiName, apiType)
 			h.ServeHTTP(w, r)
 		})
 	}
@@ -172,7 +171,7 @@ func putAPILatencyMetricMiddleware(apiName, apiType string) utils.Middleware {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			start := time.Now()
 			h.ServeHTTP(w, r)
-			go putLatencyMetric(time.Since(start), apiName, apiType)
+			go metricsPublisher.PutLatencyMetric(time.Since(start), apiName, apiType)
 		})
 	}
 }
@@ -224,7 +223,6 @@ func enforceMediaTypeMiddleware() utils.Middleware {
 		})
 	}
 }
-
 
 // improvedLogReqMiddleware creates a logging middleware that logs requests in a readable format
 // including timestamp, method, URI, and cache status
