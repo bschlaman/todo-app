@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"mime"
 	"net/http"
@@ -14,6 +13,7 @@ import (
 
 	"github.com/bschlaman/b-utils/pkg/logger"
 	"github.com/bschlaman/b-utils/pkg/utils"
+	"github.com/bschlaman/todo-app/cache"
 	"github.com/fatih/color"
 )
 
@@ -189,7 +189,7 @@ func logEventMiddleware(apiName, apiType, callerID string) utils.Middleware {
 
 			getRequestBytes, _ := r.Context().Value(getRequestBytesKey).(int)
 
-			go logEvent(env.Log, time.Since(start), apiName, apiType, callerID, &createEntityID, &getRequestBytes)
+			go eventRecorder.LogEvent(time.Since(start), apiName, apiType, callerID, &createEntityID, &getRequestBytes)
 		})
 	}
 }
@@ -232,11 +232,8 @@ func improvedLogReqMiddleware(l *logger.BLogger) utils.Middleware {
 			start := time.Now()
 
 			// Create a custom ResponseWriter to capture cache status
-			cacheStatus := CacheSkipped // default
-			crw := &cacheResponseWriter{
-				ResponseWriter: w,
-				cacheStatus:    &cacheStatus,
-			}
+			cacheStatus := cache.Skipped // default
+			crw := cache.NewResponseWriter(w, &cacheStatus)
 
 			h.ServeHTTP(crw, r)
 
@@ -260,12 +257,12 @@ func improvedLogReqMiddleware(l *logger.BLogger) utils.Middleware {
 
 			// Color code the cache status
 			var cacheColorFunc func(a ...interface{}) string
-			switch *crw.cacheStatus {
-			case CacheHit:
+			switch cacheStatus {
+			case cache.Hit:
 				cacheColorFunc = color.New(color.FgGreen).SprintFunc()
-			case CacheMiss:
+			case cache.Miss:
 				cacheColorFunc = color.New(color.FgYellow).SprintFunc()
-			case CacheSkipped:
+			case cache.Skipped:
 				cacheColorFunc = color.New(color.FgCyan).SprintFunc()
 			}
 
@@ -284,7 +281,7 @@ func improvedLogReqMiddleware(l *logger.BLogger) utils.Middleware {
 			// Create colored components with padding for alignment
 			coloredMethod := methodColorFunc(fmt.Sprintf("%-6s", r.Method))
 			coloredPath := color.New(color.FgCyan).Sprint(fmt.Sprintf("%-30s", r.URL.Path))
-			coloredCache := cacheColorFunc(fmt.Sprintf("%-5s", *crw.cacheStatus))
+			coloredCache := cacheColorFunc(fmt.Sprintf("%-5s", cacheStatus))
 			coloredDuration := durationColorFunc(fmt.Sprintf("%dms", duration))
 			arrow := color.New(color.Bold).Sprint("→")
 
@@ -297,75 +294,6 @@ func improvedLogReqMiddleware(l *logger.BLogger) utils.Middleware {
 			)
 
 			l.Info(logLine)
-		})
-	}
-}
-
-// ########################################
-// Caching
-// ########################################
-
-// Context keys for passing cache status through middleware chain
-type contextKey string
-
-const cacheStatusKey contextKey = "cache_status"
-
-// CacheStatus represents whether a request was a cache hit, miss, or not cached
-type CacheStatus string
-
-const (
-	CacheHit     CacheStatus = "HIT"
-	CacheMiss    CacheStatus = "MISS"
-	CacheSkipped CacheStatus = "SKIP"
-)
-
-// cacheResponseWriter wraps http.ResponseWriter to track cache status
-type cacheResponseWriter struct {
-	http.ResponseWriter
-	cacheStatus *CacheStatus
-}
-
-func (crw *cacheResponseWriter) setCacheStatus(status CacheStatus) {
-	*crw.cacheStatus = status
-}
-
-// cachingMiddleware uses ResponseWriter to communicate cache status to logging middleware
-func cachingMiddleware(apiType string, cache *cacheStore) utils.Middleware {
-	return func(h http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			// Check if we have a cache response writer to set status
-			if crw, ok := w.(*cacheResponseWriter); ok {
-				// if it's not a get request, mark as skipped and continue
-				if apiType != APIType.Get && apiType != APIType.GetMany {
-					crw.setCacheStatus(CacheSkipped)
-					h.ServeHTTP(w, r)
-					return
-				}
-
-				cacheKey := r.URL.String()
-				response, found := cache.get(cacheKey)
-
-				if found {
-					// Cache hit; do not continue the middleware chain
-					crw.setCacheStatus(CacheHit)
-					w.Header().Set("Content-Type", "application/json")
-					w.Write(response)
-					return
-				}
-
-				// Cache miss - set status and continue to handler
-				crw.setCacheStatus(CacheMiss)
-				recorder := &responseRecorder{w, new(bytes.Buffer), http.StatusOK}
-				h.ServeHTTP(recorder, r)
-
-				// only cache response if status code is 200
-				if recorder.statusCode == http.StatusOK {
-					cache.set(cacheKey, recorder.body.Bytes())
-				}
-			} else {
-				// Fallback for when not wrapped by cacheResponseWriter
-				h.ServeHTTP(w, r)
-			}
 		})
 	}
 }

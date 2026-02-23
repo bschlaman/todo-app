@@ -14,7 +14,9 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
 	"github.com/bschlaman/b-utils/pkg/logger"
+	"github.com/bschlaman/todo-app/cache"
 	"github.com/bschlaman/todo-app/database"
+	"github.com/bschlaman/todo-app/eventlog"
 	"github.com/bschlaman/todo-app/metrics"
 	"github.com/bschlaman/todo-app/session"
 	"github.com/bschlaman/todo-app/storage"
@@ -69,7 +71,9 @@ var sessionManager *session.Manager
 
 var metricsPublisher *metrics.Publisher
 
-var cache *cacheStore
+var eventRecorder *eventlog.Recorder
+
+var apiCache *cache.Store
 
 // APIType is a kind of enum for classifications of api calls
 var APIType = struct {
@@ -121,7 +125,12 @@ func init() {
 	l := logger.New(mw)
 	sessionManager = session.NewManager(l)
 	metricsPublisher = metrics.NewPublisher(cwClient, metricNamespace, l)
-	cache = &cacheStore{items: make(map[string]*cacheItem)}
+	eventRecorder = eventlog.NewRecorder(l)
+	cttl := cacheTTL
+	if os.Getenv("DEV_MODE") == "true" {
+		cttl = devModeCacheTTL
+	}
+	apiCache = cache.NewStore(cttl)
 	s, _ := sqids.New(sqids.Options{Alphabet: os.Getenv("SQIDS_ALPHABET"), MinLength: 6})
 	env = &Env{l, cfg, cwClient, s3Uploader, os.Getenv("LOGIN_PW"), os.Getenv("CALLER_ID"), s, false}
 	log = env.Log
@@ -171,7 +180,7 @@ func main() {
 
 	// server startup event log
 	serverStartDuration := time.Since(serverStart)
-	logEventApplicationStartup(log, serverStartDuration, env.CallerID)
+	eventRecorder.LogApplicationStartup(serverStartDuration, env.CallerID)
 	log.Infof("server start duration: %s", serverStartDuration)
 
 	// Start the server

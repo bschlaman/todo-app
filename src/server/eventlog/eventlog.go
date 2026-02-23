@@ -1,4 +1,4 @@
-package main
+package eventlog
 
 import (
 	"context"
@@ -8,9 +8,18 @@ import (
 	"github.com/bschlaman/todo-app/database"
 )
 
-// TODO (2022.11.30): this should belong to the model
-func logEvent(
-	log *logger.BLogger,
+// Recorder persists application event logs to the database.
+type Recorder struct {
+	log *logger.BLogger
+}
+
+// NewRecorder creates a new event log Recorder.
+func NewRecorder(log *logger.BLogger) *Recorder {
+	return &Recorder{log: log}
+}
+
+// LogEvent inserts an API event into the events table.
+func (r *Recorder) LogEvent(
 	latency time.Duration,
 	apiName, apiType, callerID string,
 	createEntityID *string,
@@ -18,7 +27,7 @@ func logEvent(
 ) error {
 	conn, err := database.GetPgxConn()
 	if err != nil {
-		log.Errorf("unable to connect to database: %v", err)
+		r.log.Errorf("unable to connect to database: %v", err)
 		return err
 	}
 	defer conn.Release()
@@ -47,17 +56,14 @@ func logEvent(
 		latency,
 	)
 	if err != nil {
-		log.Errorf("Exec failed: %v", err)
+		r.log.Errorf("Exec failed: %v", err)
 		return err
 	}
 
 	return nil
 }
 
-func logEventApplicationStartup(
-	log *logger.BLogger,
-	latency time.Duration,
-	callerID string,
-) error {
-	return logEvent(log, latency, "AppStartup", "Util", callerID, nil, nil)
+// LogApplicationStartup records a server startup event.
+func (r *Recorder) LogApplicationStartup(latency time.Duration, callerID string) error {
+	return r.LogEvent(latency, "AppStartup", "Util", callerID, nil, nil)
 }
