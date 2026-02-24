@@ -126,20 +126,19 @@ func init() {
 	sessionManager = session.NewManager(l)
 	metricsPublisher = metrics.NewPublisher(cwClient, metricNamespace, l)
 	eventRecorder = eventlog.NewRecorder(l)
+	devMode := false
 	cttl := cacheTTL
 	if os.Getenv("DEV_MODE") == "true" {
 		cttl = devModeCacheTTL
+		devMode = true
 	}
 	apiCache = cache.NewStore(cttl)
 	s, _ := sqids.New(sqids.Options{Alphabet: os.Getenv("SQIDS_ALPHABET"), MinLength: 6})
-	env = &Env{l, cfg, cwClient, s3Uploader, os.Getenv("LOGIN_PW"), os.Getenv("CALLER_ID"), s, false}
+	env = &Env{l, cfg, cwClient, s3Uploader, os.Getenv("LOGIN_PW"), os.Getenv("CALLER_ID"), s, devMode}
 	log = env.Log
 }
 
 func main() {
-	registerStaticAssetHandlers()
-	registerAPIHandlers()
-
 	defer sessionManager.Stop()
 	defer database.ClosePool()
 	// Make sure we can connect to the database
@@ -172,11 +171,13 @@ func main() {
 	if os.Getenv("SQIDS_ALPHABET") == "" {
 		log.Fatal("SQIDS_ALPHABET env var not set")
 	}
-
-	if os.Getenv("DEV_MODE") == "true" {
-		log.Info("[WARNING] DEV_MODE is enabled")
-		env.DevMode = true
+	if env.DevMode {
+		log.Info("⚠️ Heads up!  DEV_MODE is enabled ⚠️")
 	}
+
+	// register handlers
+	registerStaticAssetHandlers()
+	registerAPIHandlers()
 
 	// server startup event log
 	serverStartDuration := time.Since(serverStart)
