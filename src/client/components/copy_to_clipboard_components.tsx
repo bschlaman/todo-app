@@ -47,7 +47,14 @@ export function CopyIcon({ text }: { text: string }) {
 export function CopyDateButton() {
   const [copied, setCopied] = useState(false);
 
-  const isoDate = new Date().toISOString().split("T")[0]!.replaceAll("-", ".");
+  // local version of new Date().toISOString().split("T")[0]!.replaceAll("-", ".")
+  const isoDate = new Intl.DateTimeFormat("sv-SE", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  })
+    .format(new Date())
+    .replaceAll("-", ".");
 
   return (
     <button

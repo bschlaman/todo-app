@@ -6,7 +6,6 @@ import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import type { Code, Root } from "mdast";
-import type { Element } from "hast";
 import { findAndReplace } from "mdast-util-find-and-replace";
 import { nameToEmoji } from "gemoji";
 import { visit } from "unist-util-visit";
@@ -17,7 +16,7 @@ import { CopyIcon } from "./copy_to_clipboard_components";
 
 export default function ReactMarkdownCustom({ content }: { content: string }) {
   return (
-    // Need to surround <Markdown/> in <div/> to add className: https://github.com/remarkjs/react-markdown/blob/main/changelog.md#remove-classname
+    // Need to surround <Markdown/> in <div> to add className: https://github.com/remarkjs/react-markdown/blob/main/changelog.md#remove-classname
     <div className={styles.markdown}>
       <Markdown
         remarkPlugins={[
@@ -63,6 +62,23 @@ export default function ReactMarkdownCustom({ content }: { content: string }) {
                 .join("\n");
             });
           },
+          // Style ISO dates (e.g. 2024-01-15, 2024.01.15) as styled spans
+          () => (tree: Root) => {
+            findAndReplace(tree, [
+              /\d{4}[-.]\d{2}[-.]\d{2}/g,
+              function (match: string) {
+                return {
+                  type: "isoDate",
+                  data: {
+                    hName: "span",
+                    hProperties: { className: "iso-date", dataIsoDate: match },
+                    hChildren: [{ type: "text", value: match }],
+                  },
+                };
+              },
+            ]);
+          },
+          // custom <task></task> element
           () => (tree: Root) => {
             findAndReplace(tree, [
               /task:([A-Za-z0-9]+)(?:#(\d+))?/g,
@@ -85,16 +101,8 @@ export default function ReactMarkdownCustom({ content }: { content: string }) {
             rehypeKatex,
             {
               macros: {
-                "\\RR": "\\mathbb{R}",
-                "\\PP": "\\mathbb{P}",
-                "\\QQ": "\\mathbb{Q}",
                 "\\gn": "\\;\\big\\vert\\;",
                 "\\KL": "\\mathrm{KL}",
-                "\\EE": "\\mathbb{E}",
-                "\\N": "\\mathcal{N}",
-                "\\X": "\\mathcal{X}",
-                "\\Y": "\\mathcal{Y}",
-                "\\F": "\\mathcal{F}",
                 "\\T": "\\top",
                 "\\rank": "\\operatorname{rank}",
                 "\\Cov": "\\operatorname{Cov}",
@@ -107,10 +115,18 @@ export default function ReactMarkdownCustom({ content }: { content: string }) {
                 "\\ES": "\\operatorname{ES}",
                 "\\MSE": "\\operatorname{MSE}",
                 // blackboard bold
+                "\\RR": "\\mathbb{R}",
+                "\\PP": "\\mathbb{P}",
+                "\\QQ": "\\mathbb{Q}",
+                "\\EE": "\\mathbb{E}",
                 "\\FF": "\\mathbb{F}",
                 "\\ZZ": "\\mathbb{Z}",
                 "\\SS": "\\mathbb{S}",
                 // calligraphic
+                "\\N": "\\mathcal{N}",
+                "\\X": "\\mathcal{X}",
+                "\\Y": "\\mathcal{Y}",
+                "\\F": "\\mathcal{F}",
                 "\\R": "\\mathcal{R}",
                 "\\E": "\\mathcal{E}",
                 "\\B": "\\mathcal{B}",
@@ -162,11 +178,7 @@ export default function ReactMarkdownCustom({ content }: { content: string }) {
               </code>
             );
           },
-          task: ({ node }: { node: Element }) => {
-            const { taskId, commentId } = node.properties as {
-              taskId: string;
-              commentId?: string;
-            };
+          task: ({ taskId, commentId }) => {
             return (
               <InlineTaskCard
                 taskId={taskId}

@@ -68,6 +68,20 @@
   }
 }
 
+.markdown :global(.iso-date) {
+  background-color: #e8f0fe;
+  padding: 0.1rem 0.3rem;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.9em;
+}
+
+@media (prefers-color-scheme: dark) {
+  .markdown :global(.iso-date) {
+    background-color: #1e2b5f;
+  }
+}
+
 .markdown :global(.inline-code) {
   border-radius: 4px;
   padding: 0.1rem 0.3rem;
