@@ -104,6 +104,14 @@ function TaskView({
                 if (e.ctrlKey && e.key === "Enter") {
                   setIsEditingDesc(false);
                   void onTaskUpdate({ ...task, description });
+                  return;
+                }
+                if (e.key === "Tab") {
+                  // preserving undo buffer currently has no alternative, see
+                  // https://developer.mozilla.org/en-US/docs/Web/API/Document/execCommand
+                  // so this is considered an acceptable use of deprecated API.
+                  e.preventDefault();
+                  document.execCommand("insertText", false, "    ");
                 }
               }}
               maxLength={config?.task_desc_max_len}
@@ -194,7 +202,11 @@ export default function TaskPage() {
   useEffect(() => {
     if (task === null) return;
     document.title = task.title;
-    window.history.replaceState({}, "", `/task/${task.sqid}${window.location.hash}`);
+    window.history.replaceState(
+      {},
+      "",
+      `/task/${task.sqid}${window.location.hash}`,
+    );
   }, [task]);
 
   async function handleTaskUpdate(updatedTask: Task) {
@@ -238,7 +250,11 @@ export default function TaskPage() {
             checkSessionRes.session_time_remaining_seconds
           }
         />
-        <CommentsSection taskId={task.id} taskMarkup={`task:${task.sqid}`} config={config} />
+        <CommentsSection
+          taskId={task.id}
+          taskMarkup={`task:${task.sqid}`}
+          config={config}
+        />
       </main>
     </div>
   );

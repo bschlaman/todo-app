@@ -11,6 +11,7 @@ import type { Config, TaskComment } from "../../ts/model/entities";
 import ReactMarkdownCustom, { ErrorBoundary } from "../../components/markdown";
 import { makeTimedPageLoadApiCall } from "../../ts/lib/api_utils";
 import { CopyIcon } from "../../components/copy_to_clipboard_components";
+import { handleRawMDFormat } from "../../ts/lib/common";
 
 export default function CommentsSection({
   taskId,
@@ -135,6 +136,14 @@ export default function CommentsSection({
           onKeyDown={(e) => {
             if (e.ctrlKey && e.key === "Enter") {
               handleCreateComment();
+              return;
+            }
+            if (e.key === "Tab") {
+              // preserving undo buffer currently has no alternative, see
+              // https://developer.mozilla.org/en-US/docs/Web/API/Document/execCommand
+              // so this is considered an acceptable use of deprecated API.
+              e.preventDefault();
+              document.execCommand("insertText", false, "    ");
             }
           }}
           onPaste={(e) => {
@@ -299,6 +308,14 @@ function Comment({
             onKeyDown={(e) => {
               if (e.ctrlKey && e.key === "Enter") {
                 handleSaveEdit();
+                return;
+              }
+              if (e.key === "Tab") {
+                // preserving undo buffer currently has no alternative, see
+                // https://developer.mozilla.org/en-US/docs/Web/API/Document/execCommand
+                // so this is considered an acceptable use of deprecated API.
+                e.preventDefault();
+                document.execCommand("insertText", false, "    ");
               }
             }}
             ref={editTextareaRef}
@@ -316,6 +333,19 @@ function Comment({
               onClick={handleCancelEdit}
             >
               Cancel
+            </button>
+            <button
+              className="rounded-md bg-blue-500 px-2 py-1 text-sm text-zinc-100"
+              onClick={() => {
+                if (!editTextareaRef.current) return;
+                const formattedText = handleRawMDFormat(
+                  editTextareaRef.current.value,
+                );
+                editTextareaRef.current.select(); // select all
+                document.execCommand("insertText", false, formattedText);
+              }}
+            >
+              Format
             </button>
           </div>
           <p className="mt-1 text-right text-sm font-thin">
