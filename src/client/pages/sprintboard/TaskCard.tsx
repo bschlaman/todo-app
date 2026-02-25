@@ -117,12 +117,19 @@ export default function TaskCard({
           />
         )}
       </div>
-      <a
-        className="text-xs text-zinc-600 underline"
-        href={"#" + (story?.id ?? "")}
-      >
-        {story?.title ?? "-"}
-      </a>
+      <div className="flex items-center gap-2">
+        <a
+          className="text-xs text-zinc-600 underline"
+          href={"#" + (story?.id ?? "")}
+        >
+          {story?.title ?? "-"}
+        </a>
+        {!!task.comment_count && (
+          <span className="text-xs text-zinc-600" title="Comments">
+            🗨 {task.comment_count}
+          </span>
+        )}
+      </div>
     </div>
   );
 }

@@ -44,3 +44,6 @@ CREATE TABLE IF NOT EXISTS public.comments
 		CONSTRAINT fk_task_id FOREIGN KEY(task_id) REFERENCES tasks(id),
 		CONSTRAINT text_not_empty CHECK (text <> '')
 );
+-- Index on task_id to speed up joins and lookups by task,
+-- since PostgreSQL does not automatically index foreign key columns
+CREATE INDEX IF NOT EXISTS idx_comments_task_id ON comments(task_id);

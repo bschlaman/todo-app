@@ -84,7 +84,7 @@ func registerAPIHandlers() {
 		middlewares := []utils.Middleware{
 			improvedLogReqMiddleware(log),
 			apiCache.Middleware(route.APIType == APIType.Get || route.APIType == APIType.GetMany),
-			logEventMiddleware(route.APIName, route.APIType, env.CallerID),
+			eventRecorder.Middleware(env.CallerID, route.APIName, route.APIType, createEntityIDKey, getRequestBytesKey),
 			sessionMiddleware(),
 			putAPILatencyMetricMiddleware(route.APIName, route.APIType),
 			incrementAPIMetricMiddleware(route.APIName, route.APIType),

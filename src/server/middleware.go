@@ -176,24 +176,6 @@ func putAPILatencyMetricMiddleware(apiName, apiType string) utils.Middleware {
 	}
 }
 
-func logEventMiddleware(apiName, apiType, callerID string) utils.Middleware {
-	return func(h http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			start := time.Now()
-
-			h.ServeHTTP(w, r)
-
-			// TODO (2022.12.01): this results in 0 value strings / ints
-			// being sent to the db - figure out a better way
-			createEntityID, _ := r.Context().Value(createEntityIDKey).(string)
-
-			getRequestBytes, _ := r.Context().Value(getRequestBytesKey).(int)
-
-			go eventRecorder.LogEvent(time.Since(start), apiName, apiType, callerID, &createEntityID, &getRequestBytes)
-		})
-	}
-}
-
 // This middleware is not necessary, it's just here as an example
 func enforceMediaTypeMiddleware() utils.Middleware {
 	return func(h http.Handler) http.Handler {

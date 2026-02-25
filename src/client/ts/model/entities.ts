@@ -48,6 +48,7 @@ export interface Task {
   story_id: string;
   edited: string;
   bulk_task: boolean;
+  comment_count?: number;
 }
 
 export interface TaskComment {

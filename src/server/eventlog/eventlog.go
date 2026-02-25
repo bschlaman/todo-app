@@ -2,10 +2,13 @@ package eventlog
 
 import (
 	"context"
+	"net/http"
 	"time"
 
 	"github.com/bschlaman/b-utils/pkg/logger"
+	"github.com/bschlaman/b-utils/pkg/utils"
 	"github.com/bschlaman/todo-app/database"
+	"github.com/bschlaman/todo-app/model"
 )
 
 // Recorder persists application event logs to the database.
@@ -19,12 +22,7 @@ func NewRecorder(log *logger.BLogger) *Recorder {
 }
 
 // LogEvent inserts an API event into the events table.
-func (r *Recorder) LogEvent(
-	latency time.Duration,
-	apiName, apiType, callerID string,
-	createEntityID *string,
-	getResponseBytes *int,
-) error {
+func (r *Recorder) LogEvent(eventRecord model.EventRecord) error {
 	conn, err := database.GetPgxConn()
 	if err != nil {
 		r.log.Errorf("unable to connect to database: %v", err)
@@ -48,12 +46,12 @@ func (r *Recorder) LogEvent(
 				$5,
 				$6
 			);`,
-		callerID,
-		apiName,
-		apiType,
-		createEntityID,
-		getResponseBytes,
-		latency,
+		eventRecord.CallerID,
+		eventRecord.ApiName,
+		eventRecord.ApiType,
+		eventRecord.CreateEntityID,
+		eventRecord.GetResponseBytes,
+		eventRecord.Latency,
 	)
 	if err != nil {
 		r.log.Errorf("Exec failed: %v", err)
@@ -63,7 +61,25 @@ func (r *Recorder) LogEvent(
 	return nil
 }
 
+func (rec *Recorder) Middleware(callerID, apiName, apiType string, createEntityIDKey, getRequestBytesKey any) utils.Middleware {
+	return func(h http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			start := time.Now()
+
+			h.ServeHTTP(w, r)
+
+			// TODO (2022.12.01): this results in 0 value strings / ints
+			// being sent to the db - figure out a better way
+			createEntityID, _ := r.Context().Value(createEntityIDKey).(string)
+
+			getRequestBytes, _ := r.Context().Value(getRequestBytesKey).(int)
+
+			go rec.LogEvent(model.EventRecord{CallerID: callerID, ApiName: apiName, ApiType: apiType, CreateEntityID: &createEntityID, GetResponseBytes: &getRequestBytes, Latency: time.Since(start)})
+		})
+	}
+}
+
 // LogApplicationStartup records a server startup event.
 func (r *Recorder) LogApplicationStartup(latency time.Duration, callerID string) error {
-	return r.LogEvent(latency, "AppStartup", "Util", callerID, nil, nil)
+	return r.LogEvent(model.EventRecord{CallerID: callerID, ApiName: "AppStartup", ApiType: "Util", CreateEntityID: nil, GetResponseBytes: nil, Latency: latency})
 }

@@ -3,16 +3,17 @@ package model
 import "time"
 
 type Task struct {
-	ID          string    `json:"id"`
-	Sqid        string    `json:"sqid"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
-	Title       string    `json:"title"`
-	Description string    `json:"description"`
-	Status      string    `json:"status"`
-	StoryID     *string   `json:"story_id"`
-	Edited      bool      `json:"edited"`
-	BulkTask    bool      `json:"bulk_task"`
+	ID           string    `json:"id"`
+	Sqid         string    `json:"sqid"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
+	Title        string    `json:"title"`
+	Description  string    `json:"description"`
+	Status       string    `json:"status"`
+	StoryID      *string   `json:"story_id"`
+	Edited       bool      `json:"edited"`
+	BulkTask     bool      `json:"bulk_task"`
+	CommentCount *int      `json:"comment_count,omitempty"`
 }
 
 type Comment struct {
@@ -82,6 +83,16 @@ type SessionRecord struct {
 	SessionID           string    `json:"session_id"`
 	SessionCreatedAt    time.Time `json:"session_created_at"`
 	SessionLastAccessed time.Time `json:"session_last_accessed"`
+}
+
+// EventRecord is a server-side event which is logged by eventlog.go.
+type EventRecord struct {
+	CallerID         string
+	ApiName          string
+	ApiType          string
+	CreateEntityID   *string
+	GetResponseBytes *int
+	Latency          time.Duration
 }
 
 type ServerConfigRow struct {

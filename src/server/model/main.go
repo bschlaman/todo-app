@@ -147,7 +147,7 @@ func GetTaskBySQID(log *logger.BLogger, taskSQID string) (*Task, error) {
 		return nil, err
 	}
 
-	return &Task{id, sqid, cAt, uAt, title, desc, status, storyID, edited, bulkTask}, nil
+	return &Task{id, sqid, cAt, uAt, title, desc, status, storyID, edited, bulkTask, nil}, nil
 }
 
 // LEGACY: used for getting by UUIDv4
@@ -185,7 +185,7 @@ func GetTaskByID(log *logger.BLogger, taskID string) (*Task, error) {
 		return nil, err
 	}
 
-	return &Task{id, sqid, cAt, uAt, title, desc, status, storyID, edited, bulkTask}, nil
+	return &Task{id, sqid, cAt, uAt, title, desc, status, storyID, edited, bulkTask, nil}, nil
 }
 
 func GetStoryBySQID(log *logger.BLogger, storySQID string) (*Story, error) {
@@ -269,17 +269,20 @@ func GetTasks(log *logger.BLogger) ([]Task, error) {
 
 	rows, err := conn.Query(context.Background(),
 		`SELECT
-				id,
-				sqid,
-				created_at,
-				updated_at,
-				title,
-				description,
-				status,
-				story_id,
-				edited,
-				bulk_task
-				FROM tasks`,
+				t.id,
+				t.sqid,
+				t.created_at,
+				t.updated_at,
+				t.title,
+				t.description,
+				t.status,
+				t.story_id,
+				t.edited,
+				t.bulk_task,
+				COUNT(c.id) AS comment_count
+				FROM tasks t
+				LEFT JOIN comments c ON c.task_id = t.id
+				GROUP BY t.id`,
 	)
 	if err != nil {
 		log.Errorf("Query failed: %v", err)
@@ -293,8 +296,9 @@ func GetTasks(log *logger.BLogger) ([]Task, error) {
 		var storyID *string
 		var cAt, uAt time.Time
 		var edited, bulkTask bool
-		rows.Scan(&id, &sqid, &cAt, &uAt, &title, &desc, &status, &storyID, &edited, &bulkTask)
-		tasks = append(tasks, Task{id, sqid, cAt, uAt, title, desc, status, storyID, edited, bulkTask})
+		var commentCount int
+		rows.Scan(&id, &sqid, &cAt, &uAt, &title, &desc, &status, &storyID, &edited, &bulkTask, &commentCount)
+		tasks = append(tasks, Task{id, sqid, cAt, uAt, title, desc, status, storyID, edited, bulkTask, &commentCount})
 	}
 	if rows.Err() != nil {
 		log.Errorf("Query failed: %v", rows.Err())
@@ -357,7 +361,7 @@ func CreateTask(log *logger.BLogger, s *sqids.Sqids, createReq CreateTaskReq) (*
 		return nil, err
 	}
 
-	return &Task{id, sqid, cAt, uAt, title, desc, status, storyID, edited, bulkTask}, nil
+	return &Task{id, sqid, cAt, uAt, title, desc, status, storyID, edited, bulkTask, nil}, nil
 }
 
 func CreateComment(log *logger.BLogger, createReq CreateCommentReq) (*Comment, error) {
