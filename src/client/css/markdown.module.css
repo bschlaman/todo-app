@@ -82,6 +82,11 @@
   }
 }
 
+.markdown :global(.file-path) {
+  font-family: monospace;
+  color: #d4a017;
+}
+
 .markdown :global(.inline-code) {
   border-radius: 4px;
   padding: 0.1rem 0.3rem;

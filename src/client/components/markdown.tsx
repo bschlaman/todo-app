@@ -62,7 +62,7 @@ export default function ReactMarkdownCustom({ content }: { content: string }) {
                 .join("\n");
             });
           },
-          // Style ISO dates (e.g. 2024-01-15, 2024.01.15) as styled spans
+          // Style ISO dates (e.g. 2024-01-15, 2024.01.15) as <span class="iso-date">
           () => (tree: Root) => {
             findAndReplace(tree, [
               /\d{4}[-.]\d{2}[-.]\d{2}/g,
@@ -83,13 +83,28 @@ export default function ReactMarkdownCustom({ content }: { content: string }) {
             findAndReplace(tree, [
               /task:([A-Za-z0-9]+)(?:#(\d+))?/g,
               function (_: string, $1: string, $2: string | undefined) {
-                // might be able to type this correctly with https://github.com/syntax-tree/mdast-util-to-hast
                 return {
                   type: "task",
                   data: {
                     hName: "task", // Tells react-markdown to render <task>…</task>
                     hProperties: { taskId: $1, commentId: $2 },
                     hChildren: [],
+                  },
+                };
+              },
+            ]);
+          },
+          // Style file:// paths with <span class="file-path">
+          () => (tree: Root) => {
+            findAndReplace(tree, [
+              /file:\/\/\S+/g,
+              function (match: string) {
+                return {
+                  type: "filePath",
+                  data: {
+                    hName: "span",
+                    hProperties: { className: "file-path" },
+                    hChildren: [{ type: "text", value: match }],
                   },
                 };
               },

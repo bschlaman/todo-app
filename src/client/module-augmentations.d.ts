@@ -22,9 +22,19 @@ declare module "mdast" {
     };
   }
 
+  interface FilePathNode {
+    type: "filePath";
+    data: {
+      hName: "span";
+      hProperties: { className: string };
+      hChildren: [{ type: "text"; value: string }];
+    };
+  }
+
   interface PhrasingContentMap {
     isoDate: IsoDateNode;
     task: TaskNode;
+    filePath: FilePathNode;
   }
 }
 
