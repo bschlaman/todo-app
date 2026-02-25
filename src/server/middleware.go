@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math/rand/v2"
 	"mime"
 	"net/http"
 	"net/url"
@@ -176,11 +177,36 @@ func putAPILatencyMetricMiddleware(apiName, apiType string) utils.Middleware {
 	}
 }
 
-// This middleware is not necessary, it's just here as an example
+// chaosMiddleware randomly fails a percentage of requests to aid in testing
+// client-side error handling.  Only intended for use in dev mode.
+func chaosMiddleware(devMode bool, failRate float64, apiType string) utils.Middleware {
+	return func(h http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if !devMode {
+				h.ServeHTTP(w, r)
+				return
+			}
+			// Don't break auth or utility routes
+			if apiType == APIType.Auth || apiType == APIType.Util {
+				h.ServeHTTP(w, r)
+				return
+			}
+			if rand.Float64() < failRate {
+				log.Infof("🔥 chaos: simulated failure on %s", r.URL.Path)
+				http.Error(w, "chaos: simulated failure", http.StatusInternalServerError)
+				return
+			}
+			h.ServeHTTP(w, r)
+		})
+	}
+}
+
+// enforceMediaTypeMiddleware is an inert middleware, just here as an example
 func enforceMediaTypeMiddleware() utils.Middleware {
 	return func(h http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// don't enforce on GET requests
+			// (we could be checking e.g. if apiType == APIType.Auth)
 			if r.Method == "GET" || r.URL.Path == "/api/login" {
 				h.ServeHTTP(w, r)
 				return

@@ -97,6 +97,11 @@ export default function TaskMetadata({
     return _map;
   }, [tagAssignments]);
 
+  const createdAtDate = useMemo(
+    () => new Date(task.created_at),
+    [task.created_at],
+  );
+
   function handleTaskMetadataChange(
     event: React.ChangeEvent<HTMLSelectElement> | SelectChangeEvent<string>,
   ) {
@@ -162,11 +167,6 @@ export default function TaskMetadata({
   }
 
   if (errors.length > 0) return <ErrorBanner errors={errors} />;
-
-  const createdAtDate = useMemo(
-    () => new Date(task.created_at),
-    [task.created_at],
-  );
 
   // TODO (2023.05.06): this is a weaker part of the UI, could use a redesign
   // Idea: make a task metadata component, where the value could be any

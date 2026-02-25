@@ -116,9 +116,8 @@ func (s *Store) Middleware(cacheable bool) utils.Middleware {
 			}
 
 			cacheKey := r.URL.String()
-			response, found := s.Get(cacheKey)
 
-			if found {
+			if response, found := s.Get(cacheKey); found {
 				*crw.StatusPtr = Hit
 				w.Header().Set("Content-Type", "application/json")
 				w.Write(response)

@@ -88,6 +88,7 @@ func registerAPIHandlers() {
 			sessionMiddleware(),
 			putAPILatencyMetricMiddleware(route.APIName, route.APIType),
 			incrementAPIMetricMiddleware(route.APIName, route.APIType),
+			chaosMiddleware(env.DevMode, 0.2, route.APIType),
 			enforceMediaTypeMiddleware(),
 		}
 		http.Handle(route.Path, chainMiddlewares(route.Handler(), middlewares...))

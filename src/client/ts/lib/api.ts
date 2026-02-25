@@ -12,6 +12,7 @@ import {
   STORY_RELATIONSHIP,
 } from "../model/entities";
 import type { CheckSessionRes } from "../model/responses";
+import { showToast } from "./api_utils";
 
 const routes = {
   checkSession: "/api/check_session",
@@ -46,11 +47,6 @@ const routes = {
   destroyStoryRelationshipById: "/api/destroy_story_relationship_by_id",
   uploadImage: "/api/upload_image",
 };
-
-let ERROR_MESSAGE_PARENT_DIV: HTMLDivElement | undefined;
-export function setErrorMessageParentDiv(div: HTMLDivElement) {
-  ERROR_MESSAGE_PARENT_DIV = div;
-}
 
 // API
 
@@ -459,15 +455,11 @@ async function handleApiRes(res: Response) {
   }
 }
 
-// handleApiRes handles the common error path for API calls.
+// handleApiErr handles the common error path for API calls.
+// Currently uses a vanilla DOM toast for simplicity.
+// The more wholistic approach is using useSyncExternalStore with a module-level toast store;
+// this is how toast libs do it and is recommended for bridging non-React code into React-managed UI.
 function handleApiErr(err: Error) {
-  console.error("(handleApiErr) error occured:", err);
-  if (ERROR_MESSAGE_PARENT_DIV instanceof HTMLDivElement) {
-    const errorDiv = document.createElement("div");
-    errorDiv.classList.add("error-message");
-    errorDiv.textContent = err.message;
-    ERROR_MESSAGE_PARENT_DIV.appendChild(errorDiv);
-  } else {
-    alert(err);
-  }
+  console.error("(handleApiErr) error occurred:", err);
+  showToast(err.message);
 }
