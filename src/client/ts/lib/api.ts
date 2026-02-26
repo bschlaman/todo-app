@@ -190,8 +190,8 @@ export async function createStory(
 
 export async function createSprint(
   title: string,
-  startdate: Date,
-  enddate: Date,
+  startDate: string,
+  endDate: string,
 ): Promise<Sprint> {
   const res = await fetch(routes.createSprint, {
     method: "POST",
@@ -200,8 +200,8 @@ export async function createSprint(
     },
     body: JSON.stringify({
       title,
-      start_date: startdate,
-      end_date: enddate,
+      start_date: startDate,
+      end_date: endDate,
     }),
   });
   return (await handleApiRes(res)) as Sprint;

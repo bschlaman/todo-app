@@ -38,7 +38,7 @@ import {
 } from "../../ts/model/entities";
 import { NULL_STORY_IDENTIFIER } from "../../ts/lib/common";
 import { TagOption } from "./tag_selectors";
-import { formatSeconds, sprintToString } from "../../ts/lib/utils";
+import { sprintToString } from "../../ts/lib/utils";
 import { DatePicker } from "@mui/x-date-pickers";
 import { StorySelect } from "../../components/story_select";
 import DownloadCSVButton from "../../components/download_csv";
@@ -47,6 +47,7 @@ import DoneIcon from "@mui/icons-material/Done";
 import ProtoTaskTable, { type ProtoTask } from "../../components/task_table";
 import Papa from "papaparse";
 import { CopyDateButton } from "../../components/copy_to_clipboard_components";
+import dayjs, { type Dayjs } from "dayjs";
 
 function renderCreationButton(
   buttonText: string,
@@ -313,11 +314,7 @@ export function CreateStory({
               margin="dense"
             >
               {sprints
-                ?.sort(
-                  (s0, s1) =>
-                    new Date(s1.start_date).getTime() -
-                    new Date(s0.start_date).getTime(),
-                )
+                ?.sort((s0, s1) => s1.start_date.localeCompare(s0.start_date))
                 .slice(0, 5)
                 .map((sprint) => (
                   <MenuItem key={sprint.id} value={sprint.id}>
@@ -355,8 +352,8 @@ export function CreateSprint({
 }) {
   const [open, setOpen] = useState(false);
   const titleRef = useRef<HTMLInputElement>(null);
-  const startDateRef = useRef<HTMLInputElement>(null);
-  const endDateRef = useRef<HTMLInputElement>(null);
+  const [startDate, setStartDate] = useState<Dayjs | null>(null);
+  const [endDate, setEndDate] = useState<Dayjs | null>(null);
 
   useEffect(() => {
     if (open) titleRef.current?.focus();
@@ -369,8 +366,8 @@ export function CreateSprint({
   function handleSave() {
     void (async () => {
       if (titleRef.current === null) return;
-      if (startDateRef.current === null) return;
-      if (endDateRef.current === null) return;
+      if (startDate === null) return;
+      if (endDate === null) return;
       if (config === null) return;
 
       // sanity check sprint duration.
@@ -378,26 +375,20 @@ export function CreateSprint({
       // I don't think I want to enforce this.
       // Probably better to check that it's within a range to protect
       // against clearly incorrect sprint durations.
-      const newSprintDuration = Math.floor(
-        new Date(endDateRef.current.value).getTime() / 1000 -
-          new Date(startDateRef.current.value).getTime() / 1000 +
-          // Add 1 day to the sprint duration, as sprint end dates are somewhat
-          // incorrectly modeled in the db.
-          // A sprint should technically "end" at midnight the following day.
-          86400,
+      const newSprintDurationDays =
+        endDate.startOf("day").diff(startDate.startOf("day"), "day") + 1;
+      const expectedSprintDurationDays = Math.round(
+        config.sprint_duration_seconds / (24 * 60 * 60),
       );
-      // Allow for a 1hr delta to account for daylight savings in March and November
-      if (Math.abs(newSprintDuration - config.sprint_duration_seconds) > 3600)
+      if (newSprintDurationDays !== expectedSprintDurationDays)
         throw Error(
-          `Sprint duration must be ${formatSeconds(
-            config?.sprint_duration_seconds ?? -1,
-          )}; instead got ${formatSeconds(newSprintDuration)}`,
+          `Sprint duration must be ${expectedSprintDurationDays} days; instead got ${newSprintDurationDays} days`,
         );
 
       const sprint = await createSprint(
         titleRef.current.value,
-        new Date(startDateRef.current.value),
-        new Date(endDateRef.current.value),
+        startDate.format("YYYY-MM-DD"),
+        endDate.format("YYYY-MM-DD"),
       );
       setSprints((sprints) => [...sprints, sprint]);
       handleClose();
@@ -429,13 +420,19 @@ export function CreateSprint({
             }}
           />
           <DatePicker
-            inputRef={startDateRef}
             label="Start Date"
+            value={startDate}
+            onChange={(value) => {
+              setStartDate(value);
+            }}
             showDaysOutsideCurrentMonth
           />
           <DatePicker
-            inputRef={endDateRef}
             label="End Date"
+            value={endDate}
+            onChange={(value) => {
+              setEndDate(value);
+            }}
             showDaysOutsideCurrentMonth
           />
         </DialogContent>
@@ -573,16 +570,12 @@ export function CreateBulkTask({
   ) {
     const sprint = sprintsById.get(selectedSprintId ?? "");
     if (sprint === undefined) return;
-    const sprintStart = new Date(sprint.start_date);
-    const sprintEnd = new Date(sprint.end_date);
     for (
-      const d = sprintStart;
-      d <= sprintEnd;
-      d.setUTCDate(d.getUTCDate() + 1)
+      let date = dayjs(sprint.start_date);
+      !date.isAfter(dayjs(sprint.end_date), "day");
+      date = date.add(1, "day")
     ) {
-      const monthString = String(d.getUTCMonth() + 1).padStart(2, "0");
-      const dateString = String(d.getUTCDate()).padStart(2, "0");
-      const prefix = `[${monthString}.${dateString}] `;
+      const prefix = `[${date.format("MM")}.${date.format("DD")}] `;
       console.assert(prefix.length === BULK_TASK_PREFIX.length);
       const task = await createTask(
         prefix + commonTitle,
@@ -1043,21 +1036,14 @@ export function CopyToNewStory({
                 // on the order of rendering and data fetch
                 sprints.length > 0 &&
                 sprints.reduce((prev, curr) =>
-                  new Date(prev.start_date).getTime() >
-                  new Date(curr.start_date).getTime()
-                    ? prev
-                    : curr,
+                  prev.start_date > curr.start_date ? prev : curr,
                 ).id
               }
               margin="dense"
             >
               {sprints.length > 0 &&
                 sprints
-                  .sort(
-                    (s0, s1) =>
-                      new Date(s1.start_date).getTime() -
-                      new Date(s0.start_date).getTime(),
-                  )
+                  .sort((s0, s1) => s1.start_date.localeCompare(s0.start_date))
                   .slice(0, 5)
                   .map((sprint) => (
                     <MenuItem key={sprint.id} value={sprint.id}>

@@ -443,7 +443,11 @@ func createSprintHandle() http.Handler {
 		entity, err := model.CreateSprint(env.Log, createReq)
 		if err != nil {
 			log.Errorf("sprint creation failed: %v", err)
-			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			if errors.Is(err, model.InputError{}) {
+				http.Error(w, "something went wrong", http.StatusBadRequest)
+			} else {
+				http.Error(w, "something went wrong", http.StatusInternalServerError)
+			}
 			return
 		}
 

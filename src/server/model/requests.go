@@ -1,7 +1,5 @@
 package model
 
-import "time"
-
 type CreateTaskReq struct {
 	Title       string  `json:"title"`
 	Description string  `json:"description"`
@@ -36,9 +34,9 @@ type PutTaskReq struct {
 }
 
 type CreateSprintReq struct {
-	Title     string    `json:"title"`
-	StartDate time.Time `json:"start_date"`
-	EndDate   time.Time `json:"end_date"`
+	Title     string `json:"title"`
+	StartDate string `json:"start_date"`
+	EndDate   string `json:"end_date"`
 }
 
 type CreateStoryReq struct {

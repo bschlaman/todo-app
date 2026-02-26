@@ -531,7 +531,7 @@ func GetSprints(log *logger.BLogger) ([]Sprint, error) {
 		var cAt, uAt, sd, ed time.Time
 		var edited bool
 		rows.Scan(&id, &cAt, &uAt, &title, &sd, &ed, &edited)
-		sprints = append(sprints, Sprint{id, cAt, uAt, title, sd, ed, edited})
+		sprints = append(sprints, Sprint{id, cAt, uAt, title, sd.Format("2006-01-02"), ed.Format("2006-01-02"), edited})
 	}
 	if rows.Err() != nil {
 		log.Errorf("Query failed: %v", rows.Err())
@@ -542,6 +542,25 @@ func GetSprints(log *logger.BLogger) ([]Sprint, error) {
 }
 
 func CreateSprint(log *logger.BLogger, createReq CreateSprintReq) (*Sprint, error) {
+	startDate, err := time.Parse("2006-01-02", createReq.StartDate)
+	if err != nil {
+		log.Infof("invalid sprint start date: %v", createReq.StartDate)
+		return nil, InputError{}
+	}
+	endDate, err := time.Parse("2006-01-02", createReq.EndDate)
+	if err != nil {
+		log.Infof("invalid sprint end date: %v", createReq.EndDate)
+		return nil, InputError{}
+	}
+	if !startDate.Before(endDate) {
+		log.Infof(
+			"invalid sprint range: start=%s end=%s",
+			createReq.StartDate,
+			createReq.EndDate,
+		)
+		return nil, InputError{}
+	}
+
 	conn, err := database.GetPgxConn()
 	if err != nil {
 		log.Errorf("unable to connect to database: %v", err)
@@ -573,16 +592,15 @@ func CreateSprint(log *logger.BLogger, createReq CreateSprintReq) (*Sprint, erro
 				end_date,
 				edited`,
 		createReq.Title,
-		createReq.StartDate,
-		// createReq.StartDate.Add(sprintDuration),
-		createReq.EndDate,
+		startDate.Format("2006-01-02"),
+		endDate.Format("2006-01-02"),
 	).Scan(&id, &cAt, &uAt, &title, &sd, &ed, &edited)
 	if err != nil {
 		log.Errorf("conn.Exec failed: %v", err)
 		return nil, err
 	}
 
-	return &Sprint{id, cAt, uAt, title, sd, ed, edited}, nil
+	return &Sprint{id, cAt, uAt, title, sd.Format("2006-01-02"), ed.Format("2006-01-02"), edited}, nil
 }
 
 func GetStories(log *logger.BLogger) ([]Story, error) {

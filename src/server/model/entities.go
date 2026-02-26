@@ -47,8 +47,8 @@ type Sprint struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 	Title     string    `json:"title"`
-	StartDate time.Time `json:"start_date"`
-	EndDate   time.Time `json:"end_date"`
+	StartDate string    `json:"start_date"`
+	EndDate   string    `json:"end_date"`
 	Edited    bool      `json:"edited"`
 }
 

@@ -142,8 +142,7 @@ export function StoryDropdown({
   sprints
     .sort(
       (sprint0, sprint1) =>
-        new Date(sprint1.start_date).getTime() -
-        new Date(sprint0.start_date).getTime(),
+        sprint1.start_date.localeCompare(sprint0.start_date),
     )
     .forEach((sprint) => {
       if (sprintsBeforeTask === 0) return;

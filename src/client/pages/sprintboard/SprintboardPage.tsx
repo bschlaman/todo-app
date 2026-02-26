@@ -351,9 +351,7 @@ export default function SprintboardPage() {
           >
             {sprints
               .sort(
-                (s0, s1) =>
-                  new Date(s1.start_date).getTime() -
-                  new Date(s0.start_date).getTime(),
+                (s0, s1) => s1.start_date.localeCompare(s0.start_date),
               )
               .slice(0, 5)
               .map((sprint) => (

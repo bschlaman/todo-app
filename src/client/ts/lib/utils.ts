@@ -20,14 +20,15 @@ export function formatSeconds(seconds: number) {
   }s`;
 }
 
-export function formatDateCompact(date: Date) {
-  return `${date.getUTCMonth() + 1}.${date.getUTCDate()}`;
+function formatISODateCompact(date: string) {
+  const [, month = "0", day = "0"] = date.split("-");
+  return `${Number(month)}.${Number(day)}`;
 }
 
 export function sprintToString(sprint: Sprint) {
-  return `${sprint.title} (${formatDateCompact(
-    new Date(sprint.start_date),
-  )} - ${formatDateCompact(new Date(sprint.end_date))})`;
+  return `${sprint.title} (${formatISODateCompact(
+    sprint.start_date,
+  )} - ${formatISODateCompact(sprint.end_date)})`;
 }
 
 export function formatId(id: string) {
