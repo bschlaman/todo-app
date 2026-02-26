@@ -11,7 +11,7 @@ import type { Config, TaskComment } from "../../ts/model/entities";
 import ReactMarkdownCustom, { ErrorBoundary } from "../../components/markdown";
 import { makeTimedPageLoadApiCall } from "../../ts/lib/api_utils";
 import { CopyIcon } from "../../components/copy_to_clipboard_components";
-import { handleRawMDFormat } from "../../ts/lib/common";
+import FormatMarkdownButton from "../../components/format_button";
 
 export default function CommentsSection({
   taskId,
@@ -27,8 +27,7 @@ export default function CommentsSection({
   const [createCommentText, setCreateCommentText] = useState("");
   const [errors, setErrors] = useState<Error[]>([]);
   const [uploading, setUploading] = useState(false);
-  // used to focus the element after comment creation
-  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const createCommentTextareaRef = useRef<HTMLTextAreaElement>(null);
   // React does not know about window.location.hash,
   // so have to store this as state and pass it down to Comment components
   const [hash, setHash] = useState(window.location.hash);
@@ -93,10 +92,10 @@ export default function CommentsSection({
       const comment = await createComment(taskId, createCommentText);
       setComments([...comments, comment]);
       setCreateCommentText("");
-      inputRef.current?.focus();
+      createCommentTextareaRef.current?.focus();
       // Small delay required make this work (perhaps something to do with render scheduling)
       setTimeout(() => {
-        inputRef.current?.parentElement?.scrollIntoView({
+        createCommentTextareaRef.current?.parentElement?.scrollIntoView({
           behavior: "smooth",
           block: "start",
         });
@@ -169,7 +168,7 @@ export default function CommentsSection({
               break;
             }
           }}
-          ref={inputRef}
+          ref={createCommentTextareaRef}
           onChange={(e) => {
             setCreateCommentText(e.target.value);
           }}
@@ -195,6 +194,7 @@ export default function CommentsSection({
               );
             }}
           />
+          <FormatMarkdownButton textareaRef={createCommentTextareaRef} />
         </div>
         <p className="absolute right-4 bottom-2 font-thin">
           {createCommentText.length ?? 0} / {config?.comment_max_len}
@@ -334,19 +334,7 @@ function Comment({
             >
               Cancel
             </button>
-            <button
-              className="rounded-md bg-blue-500 px-2 py-1 text-sm text-zinc-100"
-              onClick={() => {
-                if (!editTextareaRef.current) return;
-                const formattedText = handleRawMDFormat(
-                  editTextareaRef.current.value,
-                );
-                editTextareaRef.current.select(); // select all
-                document.execCommand("insertText", false, formattedText);
-              }}
-            >
-              Format
-            </button>
+            <FormatMarkdownButton textareaRef={editTextareaRef} />
           </div>
           <p className="mt-1 text-right text-sm font-thin">
             {editText.length} / {config?.comment_max_len}

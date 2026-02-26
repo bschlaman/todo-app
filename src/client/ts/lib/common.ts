@@ -52,8 +52,15 @@ export const NULL_STORY_IDENTIFIER = "NONE";
 export const hoverClass = "droppable-hover";
 
 export function handleRawMDFormat(content: string): string {
-  return content
-    .replace(/\\mathcal\{([A-Z])\}/g, "\\$1")
-    .replace(/\\mathbb\{([ERPQ])\}/g, "\\$1$1")
-    .replace(/\$\$[ \t]*(.+?)[ \t]*\$\$/g, "$$$$\n    $1\n$$$$");
+  return (
+    content
+      // per-line trailing tabs + spaces
+      .replace(/[ \t]+$/gm, "")
+      .trim()
+      // latex macros
+      .replace(/\\mathcal\{([A-Z])\}/g, "\\$1")
+      .replace(/\\mathbb\{([ERPQ])\}/g, "\\$1$1")
+      // inline $$...$$
+      .replace(/\$\$[ \t]*(.+?)[ \t]*\$\$/g, "$$$$\n    $1\n$$$$")
+  );
 }

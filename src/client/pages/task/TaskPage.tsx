@@ -24,6 +24,7 @@ import {
   makeTimedPageLoadApiCall,
 } from "../../ts/lib/api_utils";
 import type { CheckSessionRes } from "../../ts/model/responses";
+import FormatMarkdownButton from "../../components/format_button";
 
 function TaskView({
   task,
@@ -65,7 +66,7 @@ function TaskView({
             />
             <div className="flex items-center gap-2">
               <button
-                className="m-4 rounded-xs px-2 outline-solid outline-2 dark:bg-zinc-950"
+                className="m-4 rounded-xs px-2 outline-2 outline-solid dark:bg-zinc-950"
                 onClick={() => {
                   setIsEditingTitle(false);
                   void onTaskUpdate({ ...task, title });
@@ -116,27 +117,30 @@ function TaskView({
               }}
               maxLength={config?.task_desc_max_len}
             />
-            <button
-              className="absolute right-28 top-1 rounded-xs outline-solid outline-2"
-              onClick={() => {
-                setIsEditingDesc(false);
-                void onTaskUpdate({ ...task, description });
-              }}
-            >
-              Save
-            </button>
+            <div className="absolute top-1 right-28 flex items-center gap-2">
+              <button
+                className="rounded-sm outline-2"
+                onClick={() => {
+                  setIsEditingDesc(false);
+                  void onTaskUpdate({ ...task, description });
+                }}
+              >
+                Save
+              </button>
+              <FormatMarkdownButton textareaRef={descriptionRef} />
+            </div>
           </>
         ) : (
           <ReactMarkdownCustom content={description} />
         )}
         <button
-          className="absolute right-2 top-2 cursor-pointer select-none text-sm font-thin italic text-zinc-600 hover:underline dark:text-zinc-400"
+          className="absolute top-2 right-2 cursor-pointer text-sm font-thin text-zinc-600 italic select-none hover:underline dark:text-zinc-400"
           onClick={() => setIsEditingDesc(!isEditingDesc)}
         >
           {isEditingDesc ? "Cancel" : "Edit"}
         </button>
         {isEditingDesc && (
-          <p className="absolute bottom-2 right-4 font-thin">
+          <p className="absolute right-4 bottom-2 font-thin">
             {description.length ?? 0} / {config?.task_desc_max_len}
           </p>
         )}
