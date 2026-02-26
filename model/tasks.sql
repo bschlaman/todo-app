@@ -10,23 +10,24 @@ CREATE TYPE task_status AS ENUM (
 
 CREATE TABLE IF NOT EXISTS public.tasks (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    sqid character varying(36) NOT NULL UNIQUE,
-    created_at timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    sqid varchar(36) NOT NULL UNIQUE,
+    created_at timestamp without time zone NOT NULL DEFAULT now(),
     updated_at timestamp without time zone,
-    title character varying(150) NOT NULL,
-    description character varying(2000),
+    title varchar(150) NOT NULL CHECK (title <> ''),
+    description varchar(2000),
+    -- TODO: this should be `status task_status NOT NULL DEFAULT 'BACKLOG'`
     status task_status DEFAULT 'BACKLOG'::task_status,
-    story_id uuid,
+    story_id uuid REFERENCES stories(id),
+    bucket_id uuid REFERENCES buckets(id),
     edited boolean NOT NULL DEFAULT false,
     bulk_task boolean NOT NULL DEFAULT false,
-    CONSTRAINT fk_story_id FOREIGN KEY(story_id) REFERENCES stories(id),
-    CONSTRAINT title_not_empty CHECK (title <> '')
+    CHECK (story_id IS NULL OR bucket_id IS NULL)
 );
 
-CREATE INDEX tasks_sqid_index ON tasks (sqid);
+CREATE INDEX IF NOT EXISTS tasks_sqid_index ON tasks (sqid);
 
 -- Prevent duplicate task creation within a short time window
 -- This constraint prevents double-click submissions by ensuring no two tasks
 -- with the same title, description, and story_id are created within the same second
-CREATE UNIQUE INDEX idx_tasks_duplicate_prevention
-ON tasks (title, description, story_id, status, DATE_TRUNC('second', created_at));
+CREATE UNIQUE INDEX IF NOT EXISTS idx_tasks_duplicate_prevention
+ON tasks (title, description, story_id, status, date_trunc('second', created_at));

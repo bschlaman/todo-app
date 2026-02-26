@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS public.tags
 		CONSTRAINT title_not_empty CHECK (title <> '')
 );
 
+-- TODO: rename to story_tag_assignments
 CREATE TABLE IF NOT EXISTS public.tag_assignments
 (
 		id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
@@ -31,6 +32,17 @@ CREATE TABLE IF NOT EXISTS public.tag_assignments
 		CONSTRAINT fk_tag_id FOREIGN KEY(tag_id) REFERENCES tags(id),
 		CONSTRAINT fk_story_id FOREIGN KEY(story_id) REFERENCES stories(id),
 		UNIQUE (tag_id, story_id)
+);
+
+CREATE TABLE IF NOT EXISTS public.bucket_tag_assignments
+(
+		id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+		created_at timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+		tag_id uuid NOT NULL,
+		bucket_id uuid NOT NULL,
+		CONSTRAINT fk_tag_id FOREIGN KEY(tag_id) REFERENCES tags(id),
+		CONSTRAINT fk_bucket_id FOREIGN KEY(bucket_id) REFERENCES buckets(id),
+		UNIQUE (tag_id, bucket_id)
 );
 
 CREATE TABLE IF NOT EXISTS public.comments
