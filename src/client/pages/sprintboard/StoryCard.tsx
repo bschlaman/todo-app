@@ -392,9 +392,7 @@ export default function StoryCard({
                 value={selectedSprintId}
               >
                 {Array.from(sprintsById.values())
-                  .sort(
-                    (s0, s1) => s1.start_date.localeCompare(s0.start_date),
-                  )
+                  .sort((s0, s1) => s1.start_date.localeCompare(s0.start_date))
                   .slice(0, 5)
                   .map((sprint) => (
                     <option key={sprint.id} value={sprint.id}>

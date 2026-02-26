@@ -25,6 +25,13 @@ ALTER TABLE tasks ADD COLUMN IF NOT EXISTS bucket_id uuid REFERENCES buckets(id)
 ALTER TABLE tasks ADD CONSTRAINT task_single_parent
     CHECK (story_id IS NULL OR bucket_id IS NULL);
 
+-- Add new event_action values for bucket CRUD
+ALTER TYPE event_action ADD VALUE IF NOT EXISTS 'GetBuckets';
+ALTER TYPE event_action ADD VALUE IF NOT EXISTS 'CreateBucket';
+ALTER TYPE event_action ADD VALUE IF NOT EXISTS 'GetBucketTagAssignments';
+ALTER TYPE event_action ADD VALUE IF NOT EXISTS 'CreateBucketTagAssignment';
+ALTER TYPE event_action ADD VALUE IF NOT EXISTS 'DestroyBucketTagAssignmentByID';
+
 -- Tag assignments for buckets (mirrors tag_assignments for stories)
 CREATE TABLE IF NOT EXISTS public.bucket_tag_assignments
 (

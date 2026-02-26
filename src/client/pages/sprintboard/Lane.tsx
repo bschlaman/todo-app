@@ -4,12 +4,12 @@ import { DRAG_TYPE } from "./drag";
 import { useDrop } from "react-dnd";
 import { isDarkMode } from "../../ts/lib/utils";
 
-interface BucketProps {
+interface LaneProps {
   status: TASK_STATUS;
   children?: ReactNode;
 }
 
-export default function Bucket({ status, children }: BucketProps) {
+export default function Lane({ status, children }: LaneProps) {
   const [{ isOver, canDrop }, drop] = useDrop(() => ({
     accept: DRAG_TYPE.CARD,
     canDrop: (_, monitor) => monitor.getItem<Task>().status !== status,

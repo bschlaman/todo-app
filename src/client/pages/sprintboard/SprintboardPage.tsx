@@ -9,9 +9,13 @@ import {
   getTagAssignments,
   getTags,
   getTasks,
+  getBuckets,
+  getBucketTagAssignments,
   updateTaskById,
 } from "../../ts/lib/api";
 import {
+  type Bucket,
+  type BucketTagAssignment,
   type Config,
   type Sprint,
   type Story,
@@ -21,7 +25,7 @@ import {
   type TagAssignment,
   type Task,
 } from "../../ts/model/entities";
-import Bucket from "./Bucket";
+import Lane from "./Lane";
 import { sprintToString } from "../../ts/lib/utils";
 import { TagOption } from "./tag_selectors";
 import TaskCard from "./TaskCard";
@@ -37,6 +41,7 @@ import {
   makeTimedPageLoadApiCall,
 } from "../../ts/lib/api_utils";
 import type { CheckSessionRes } from "../../ts/model/responses";
+import BucketCard from "./BucketCard";
 
 const LOCAL_STORAGE_KEYS = {
   selectedSprintId: "viewing_sprint_id",
@@ -51,6 +56,10 @@ export default function SprintboardPage() {
   const [stories, setStories] = useState<Story[]>([]);
   const [sprints, setSprints] = useState<Sprint[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
+  const [buckets, setBuckets] = useState<Bucket[]>([]);
+  const [bucketTagAssignments, setBucketTagAssignments] = useState<
+    BucketTagAssignment[]
+  >([]);
   const [tagAssignments, setTagAssignments] = useState<TagAssignment[]>([]);
   const [storyRelationships, setStoryRelationships] = useState<
     StoryRelationship[]
@@ -150,8 +159,19 @@ export default function SprintboardPage() {
   const tasksByStoryId = useMemo(() => {
     const _map = new Map<string, Task[]>();
     for (const task of tasks) {
+      if (!task.story_id) continue;
       if (!_map.has(task.story_id)) _map.set(task.story_id, []);
       _map.get(task.story_id)?.push(task);
+    }
+    return _map;
+  }, [tasks]);
+
+  const tasksByBucketId = useMemo(() => {
+    const _map = new Map<string, Task[]>();
+    for (const task of tasks) {
+      if (!task.bucket_id) continue;
+      if (!_map.has(task.bucket_id)) _map.set(task.bucket_id, []);
+      _map.get(task.bucket_id)?.push(task);
     }
     return _map;
   }, [tasks]);
@@ -174,6 +194,16 @@ export default function SprintboardPage() {
     }
     return _map;
   }, [tagAssignments]);
+
+  const assocTagIdsByBucketId = useMemo(() => {
+    const _map = new Map<string, string[]>();
+    for (const tagAssignment of tagAssignments) {
+      if (!_map.has(tagAssignment.story_id))
+        _map.set(tagAssignment.story_id, []);
+      _map.get(tagAssignment.story_id)?.push(tagAssignment.tag_id);
+    }
+    return _map;
+  }, [bucketTagAssignments]);
 
   const tasksToRender = useMemo(
     () =>
@@ -240,6 +270,18 @@ export default function SprintboardPage() {
           setErrors,
           setStoryRelationships,
           "getStoryRelationships",
+        ),
+        makeTimedPageLoadApiCall(
+          getBuckets,
+          setErrors,
+          setBuckets,
+          "getBuckets",
+        ),
+        makeTimedPageLoadApiCall(
+          getBucketTagAssignments,
+          setErrors,
+          setBucketTagAssignments,
+          "getBucketTagAssignments",
         ),
         makeTimedPageLoadApiCall(getConfig, setErrors, setConfig, "getConfig"),
         makeTimedPageLoadApiCall(
@@ -314,6 +356,7 @@ export default function SprintboardPage() {
           setSprints={setSprints}
           setTags={setTags}
           setTagAssignments={setTagAssignments}
+          setBuckets={setBuckets}
         />
         {/* Entity filtering  */}
         <div className="text-lg">
@@ -350,9 +393,7 @@ export default function SprintboardPage() {
             value={selectedSprintId ?? ""}
           >
             {sprints
-              .sort(
-                (s0, s1) => s1.start_date.localeCompare(s0.start_date),
-              )
+              .sort((s0, s1) => s1.start_date.localeCompare(s0.start_date))
               .slice(0, 5)
               .map((sprint) => (
                 <option key={sprint.id} value={sprint.id}>
@@ -409,15 +450,15 @@ export default function SprintboardPage() {
       </div>
       <div className="flex gap-4">
         <DndProvider backend={HTML5Backend}>
-          <Bucket status={TASK_STATUS.BACKLOG}>
+          <Lane status={TASK_STATUS.BACKLOG}>
             {renderTaskCardsForStatus(TASK_STATUS.BACKLOG)}
-          </Bucket>
-          <Bucket status={TASK_STATUS.DOING}>
+          </Lane>
+          <Lane status={TASK_STATUS.DOING}>
             {renderTaskCardsForStatus(TASK_STATUS.DOING)}
-          </Bucket>
-          <Bucket status={TASK_STATUS.DONE}>
+          </Lane>
+          <Lane status={TASK_STATUS.DONE}>
             {renderTaskCardsForStatus(TASK_STATUS.DONE)}
-          </Bucket>
+          </Lane>
         </DndProvider>
       </div>
       <div className="mx-4 mt-8 flex flex-wrap gap-4">
@@ -455,6 +496,16 @@ export default function SprintboardPage() {
               config={config}
             />
           ))}
+      </div>
+      <div>
+        {buckets.map((bucket) => (
+          <BucketCard
+            bucket={bucket}
+            tagsById={tagsById}
+            tagAssignments={bucketTagAssignments}
+            setTagAssignments={setBucketTagAssignments}
+          />
+        ))}
       </div>
     </div>
   );

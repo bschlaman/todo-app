@@ -11,6 +11,7 @@ type Task struct {
 	Description  string    `json:"description"`
 	Status       string    `json:"status"`
 	StoryID      *string   `json:"story_id"`
+	BucketID     *string   `json:"bucket_id"`
 	Edited       bool      `json:"edited"`
 	BulkTask     bool      `json:"bulk_task"`
 	CommentCount *int      `json:"comment_count,omitempty"`
@@ -42,6 +43,13 @@ type TagAssignment struct {
 	StoryID   string    `json:"story_id"`
 }
 
+type BucketTagAssignment struct {
+	ID        int       `json:"id"`
+	CreatedAt time.Time `json:"created_at"`
+	TagID     string    `json:"tag_id"`
+	BucketID  string    `json:"bucket_id"`
+}
+
 type Sprint struct {
 	ID        string    `json:"id"`
 	CreatedAt time.Time `json:"created_at"`
@@ -61,6 +69,17 @@ type Story struct {
 	Description string    `json:"description"`
 	Status      string    `json:"status"`
 	SprintID    string    `json:"sprint_id"`
+	Edited      bool      `json:"edited"`
+}
+
+type Bucket struct {
+	ID          string    `json:"id"`
+	Sqid        string    `json:"sqid"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
+	Title       string    `json:"title"`
+	Description string    `json:"description"`
+	Status      string    `json:"status"`
 	Edited      bool      `json:"edited"`
 }
 

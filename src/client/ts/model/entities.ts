@@ -24,6 +24,12 @@ export enum STORY_RELATIONSHIP {
   ContinuedBy = "CONTINUED_BY",
 }
 
+export enum BUCKET_STATUS {
+  ACTIVE = "ACTIVE",
+  INACTIVE = "INACTIVE",
+  ARCHIVED = "ARCHIVED",
+}
+
 export interface Config {
   comment_max_len: number;
   server_name: string;
@@ -45,8 +51,9 @@ export interface Task {
   title: string;
   description: string;
   status: TASK_STATUS;
-  story_id: string;
-  edited: string;
+  story_id: string | null;
+  bucket_id: string | null;
+  edited: boolean;
   bulk_task: boolean;
   comment_count?: number;
 }
@@ -57,7 +64,7 @@ export interface TaskComment {
   created_at: string;
   updated_at: string;
   text: string;
-  edited: string;
+  edited: boolean;
 }
 
 export interface Tag {
@@ -66,8 +73,8 @@ export interface Tag {
   updated_at: string;
   title: string;
   description: string;
-  is_parent: string;
-  edited: string;
+  is_parent: boolean;
+  edited: boolean;
 }
 
 export interface TagAssignment {
@@ -77,6 +84,13 @@ export interface TagAssignment {
   story_id: string;
 }
 
+export interface BucketTagAssignment {
+  id: number;
+  created_at: string;
+  tag_id: string;
+  bucket_id: string;
+}
+
 export interface Sprint {
   id: string;
   created_at: string;
@@ -84,7 +98,7 @@ export interface Sprint {
   title: string;
   start_date: string;
   end_date: string;
-  edited: string;
+  edited: boolean;
 }
 
 export interface Story {
@@ -96,7 +110,18 @@ export interface Story {
   description: string;
   status: STORY_STATUS;
   sprint_id: string;
-  edited: string;
+  edited: boolean;
+}
+
+export interface Bucket {
+  id: string;
+  sqid: string;
+  created_at: string;
+  updated_at: string;
+  title: string;
+  description: string;
+  status: BUCKET_STATUS;
+  edited: boolean;
 }
 
 export interface StoryRelationship {

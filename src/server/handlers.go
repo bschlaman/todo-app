@@ -891,6 +891,144 @@ func uploadImageHandle() http.Handler {
 	})
 }
 
+func getBucketTagAssignmentsHandle() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		assignments, err := model.GetBucketTagAssignments(env.Log)
+		if err != nil {
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+
+		js, err := json.Marshal(assignments)
+		if err != nil {
+			log.Errorf("json.Marshal failed: %v", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+
+		*r = *r.WithContext(context.WithValue(r.Context(), getRequestBytesKey, len(js)))
+
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(js)
+	})
+}
+
+func createBucketTagAssignmentHandle() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		createReq := model.CreateBucketTagAssignmentReq{}
+		if err := json.NewDecoder(r.Body).Decode(&createReq); err != nil {
+			log.Errorf("unable to decode json: %v", err)
+			http.Error(w, "something went wrong", http.StatusBadRequest)
+			return
+		}
+
+		entity, err := model.CreateBucketTagAssignment(env.Log, createReq)
+		if err != nil {
+			log.Errorf("bucket tag assignment creation failed: %v", err)
+			if errors.Is(err, model.InputError{}) {
+				http.Error(w, "something went wrong", http.StatusBadRequest)
+			} else {
+				http.Error(w, "something went wrong", http.StatusInternalServerError)
+			}
+			return
+		}
+
+		*r = *r.WithContext(context.WithValue(r.Context(), createEntityIDKey, entity.ID))
+
+		js, err := json.Marshal(entity)
+		if err != nil {
+			log.Errorf("json.Marshal failed: %v", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+
+		*r = *r.WithContext(context.WithValue(r.Context(), getRequestBytesKey, len(js)))
+
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(js)
+	})
+}
+
+func destroyBucketTagAssignmentByIDHandle() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		destroyReq := model.DestroyBucketTagAssignmentByIDReq{}
+		if err := json.NewDecoder(r.Body).Decode(&destroyReq); err != nil {
+			log.Errorf("unable to decode json: %v", err)
+			http.Error(w, "something went wrong", http.StatusBadRequest)
+			return
+		}
+
+		err := model.DestroyBucketTagAssignmentByID(env.Log, destroyReq)
+		if err != nil {
+			log.Errorf("bucket tag assignment destruction failed: %v", err)
+			if errors.Is(err, model.InputError{}) {
+				http.Error(w, "something went wrong", http.StatusBadRequest)
+			} else {
+				http.Error(w, "something went wrong", http.StatusInternalServerError)
+			}
+			return
+		}
+	})
+}
+
+func getBucketsHandle() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		buckets, err := model.GetBuckets(env.Log)
+		if err != nil {
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+
+		js, err := json.Marshal(buckets)
+		if err != nil {
+			log.Errorf("json.Marshal failed: %v", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+
+		*r = *r.WithContext(context.WithValue(r.Context(), getRequestBytesKey, len(js)))
+
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(js)
+	})
+}
+
+func createBucketHandle() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		createReq := model.CreateBucketReq{}
+		if err := json.NewDecoder(r.Body).Decode(&createReq); err != nil {
+			log.Errorf("unable to decode json: %v", err)
+			http.Error(w, "something went wrong", http.StatusBadRequest)
+			return
+		}
+
+		entity, err := model.CreateBucket(env.Log, env.Sqids, createReq)
+		if err != nil {
+			log.Errorf("bucket creation failed: %v", err)
+			if errors.Is(err, model.InputError{}) {
+				http.Error(w, "something went wrong", http.StatusBadRequest)
+			} else {
+				http.Error(w, "something went wrong", http.StatusInternalServerError)
+			}
+			return
+		}
+
+		*r = *r.WithContext(context.WithValue(r.Context(), createEntityIDKey, entity.ID))
+
+		js, err := json.Marshal(entity)
+		if err != nil {
+			log.Errorf("json.Marshal failed: %v", err)
+			http.Error(w, "something went wrong", http.StatusInternalServerError)
+			return
+		}
+
+		*r = *r.WithContext(context.WithValue(r.Context(), getRequestBytesKey, len(js)))
+
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(js)
+	})
+}
+
 func looksLikeUUIDv4(id string) bool {
 	return len(id) == 36 && strings.Count(id, "-") == 4 && id[14] == '4'
 }

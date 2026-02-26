@@ -26,7 +26,12 @@ CREATE TYPE event_action AS ENUM (
 	'GetStoryRelationships',
 	'CreateStoryRelationship',
 	'DestroyStoryRelationship',
-	'UploadImage'
+	'UploadImage',
+	'GetBuckets',
+	'CreateBucket',
+	'GetBucketTagAssignments',
+	'CreateBucketTagAssignment',
+	'DestroyBucketTagAssignmentByID'
 );
 
 CREATE TYPE event_action_type AS ENUM (

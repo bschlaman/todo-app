@@ -24,8 +24,10 @@ import {
   createTag,
   createStoryRelationship,
   updateTaskById,
+  createBucket,
 } from "../../ts/lib/api";
 import {
+  type Bucket,
   type Config,
   STORY_RELATIONSHIP,
   type Sprint,
@@ -1082,6 +1084,90 @@ export function CopyToNewStory({
   );
 }
 
+export function CreateBucket({
+  config,
+  setBuckets,
+}: {
+  config: Config | null;
+  setBuckets: React.Dispatch<React.SetStateAction<Bucket[]>>;
+}) {
+  const [open, setOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const titleRef = useRef<HTMLInputElement>(null);
+  const descriptionRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (open) titleRef.current?.focus();
+  }, [open]);
+
+  function handleClose() {
+    setOpen(false);
+  }
+
+  function handleSave() {
+    if (isLoading) return;
+
+    void (async () => {
+      if (titleRef.current === null) return;
+      if (descriptionRef.current === null) return;
+
+      setIsLoading(true);
+      try {
+        const bucket = await createBucket(
+          titleRef.current.value,
+          descriptionRef.current.value,
+        );
+        setBuckets((buckets) => [...buckets, bucket]);
+        handleClose();
+      } catch (error) {
+        console.error("Failed to create bucket:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    })();
+  }
+
+  return (
+    <>
+      {renderCreationButton("+ Bucket", setOpen)}
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="form-dialog-title"
+        disableRestoreFocus
+      >
+        <DialogTitle id="form-dialog-title">Create Bucket</DialogTitle>
+        <DialogContent>
+          <TextField
+            inputRef={titleRef}
+            name="title"
+            label="Title"
+            autoFocus
+            fullWidth
+            margin="dense"
+            slotProps={{
+              htmlInput: { maxLength: config?.story_title_max_len },
+            }}
+          />
+          <TextField
+            inputRef={descriptionRef}
+            name="description"
+            label="Description"
+            multiline
+            minRows={3}
+            fullWidth
+            margin="dense"
+            slotProps={{
+              htmlInput: { maxLength: config?.story_desc_max_len },
+            }}
+          />
+        </DialogContent>
+        {renderDialogActions(handleClose, handleSave, isLoading)}
+      </Dialog>
+    </>
+  );
+}
+
 interface EntityCreationStationProps {
   stories: Story[] | undefined;
   sprints: Sprint[] | undefined;
@@ -1095,6 +1181,7 @@ interface EntityCreationStationProps {
   setSprints: React.Dispatch<React.SetStateAction<Sprint[]>>;
   setTags: React.Dispatch<React.SetStateAction<Tag[]>>;
   setTagAssignments: React.Dispatch<React.SetStateAction<TagAssignment[]>>;
+  setBuckets: React.Dispatch<React.SetStateAction<Bucket[]>>;
 }
 
 export default function EntityCreationStation({
@@ -1110,6 +1197,7 @@ export default function EntityCreationStation({
   setSprints,
   setTags,
   setTagAssignments,
+  setBuckets,
 }: EntityCreationStationProps) {
   return (
     <div className="flex flex-wrap gap-2">
@@ -1140,6 +1228,7 @@ export default function EntityCreationStation({
         setTasks={setTasks}
       />
       <BatchUploadTask setTasks={setTasks} />
+      <CreateBucket config={config} setBuckets={setBuckets} />
     </div>
   );
 }

@@ -6,9 +6,11 @@ import {
   type Sprint,
   type Tag,
   type TagAssignment,
+  type BucketTagAssignment,
   type TaskComment,
   type Config,
   type StoryRelationship,
+  type Bucket,
   STORY_RELATIONSHIP,
 } from "../model/entities";
 import type { CheckSessionRes } from "../model/responses";
@@ -46,6 +48,13 @@ const routes = {
   createStoryRelationship: "/api/create_story_relationship",
   destroyStoryRelationshipById: "/api/destroy_story_relationship_by_id",
   uploadImage: "/api/upload_image",
+
+  getBuckets: "/api/get_buckets",
+  createBucket: "/api/create_bucket",
+
+  getBucketTagAssignments: "/api/get_bucket_tag_assignments",
+  createBucketTagAssignment: "/api/create_bucket_tag_assignment",
+  destroyBucketTagAssignmentById: "/api/destroy_bucket_tag_assignment_by_id",
 };
 
 // API
@@ -425,6 +434,68 @@ export async function uploadImage(file: File): Promise<{ url: string }> {
     body: formData,
   });
   return (await handleApiRes(res)) as { url: string };
+}
+
+export async function getBuckets(): Promise<Bucket[]> {
+  try {
+    const res = await fetch(routes.getBuckets, { method: "GET" });
+    return (await handleApiRes(res)) as Bucket[];
+  } catch (err) {
+    if (err instanceof Error) handleApiErr(err);
+    throw err;
+  }
+}
+
+export async function createBucket(
+  title: string,
+  description: string,
+): Promise<Bucket> {
+  const res = await fetch(routes.createBucket, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      title,
+      description,
+    }),
+  });
+  return (await handleApiRes(res)) as Bucket;
+}
+
+export async function getBucketTagAssignments(): Promise<
+  BucketTagAssignment[]
+> {
+  try {
+    const res = await fetch(routes.getBucketTagAssignments, { method: "GET" });
+    return (await handleApiRes(res)) as BucketTagAssignment[];
+  } catch (err) {
+    if (err instanceof Error) handleApiErr(err);
+    throw err;
+  }
+}
+
+export async function createBucketTagAssignment(
+  tagId: string,
+  bucketId: string,
+): Promise<BucketTagAssignment> {
+  const res = await fetch(routes.createBucketTagAssignment, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ tag_id: tagId, bucket_id: bucketId }),
+  });
+  return (await handleApiRes(res)) as BucketTagAssignment;
+}
+
+export async function destroyBucketTagAssignmentById(
+  id: number,
+): Promise<JSON> {
+  const res = await fetch(routes.destroyBucketTagAssignmentById, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id }),
+  });
+  return await handleApiRes(res);
 }
 
 export async function getStoryRelationships(): Promise<StoryRelationship[]> {

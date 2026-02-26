@@ -75,6 +75,20 @@ type DestroyStoryRelationshipByIDReq struct {
 	ID int `json:"id"`
 }
 
+type CreateBucketReq struct {
+	Title       string `json:"title"`
+	Description string `json:"description"`
+}
+
+type CreateBucketTagAssignmentReq struct {
+	TagID    string `json:"tag_id"`
+	BucketID string `json:"bucket_id"`
+}
+
+type DestroyBucketTagAssignmentByIDReq struct {
+	ID int `json:"id"`
+}
+
 type CreateUploadWithArtifactsReq struct {
 	UploaderIP     *string
 	ClientFilename *string

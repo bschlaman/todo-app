@@ -78,6 +78,13 @@ func registerAPIHandlers() {
 		{"/api/destroy_story_relationship", destroyStoryRelationshipByIDHandle, "DestroyStoryRelationship", APIType.Destroy},
 		// uploads
 		{"/api/upload_image", uploadImageHandle, "UploadImage", APIType.Upload},
+		// buckets
+		{"/api/get_buckets", getBucketsHandle, "GetBuckets", APIType.GetMany},
+		{"/api/create_bucket", createBucketHandle, "CreateBucket", APIType.Create},
+		// bucket_tag_assignments
+		{"/api/get_bucket_tag_assignments", getBucketTagAssignmentsHandle, "GetBucketTagAssignments", APIType.GetMany},
+		{"/api/create_bucket_tag_assignment", createBucketTagAssignmentHandle, "CreateBucketTagAssignment", APIType.Create},
+		{"/api/destroy_bucket_tag_assignment_by_id", destroyBucketTagAssignmentByIDHandle, "DestroyBucketTagAssignmentByID", APIType.Destroy},
 	}
 
 	for _, route := range apiRoutes {
