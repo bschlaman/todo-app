@@ -26,7 +26,6 @@ export default function TaskCard({
   assocTagIdsByStoryId: Map<string, string[]>;
   moveTask: (taskId: string, status: TASK_STATUS) => void;
 }) {
-  const story = storiesById.get(task.story_id);
   const taskPageRef = `/task/${task.sqid}`;
 
   // workaround for strict mode messing up drag previews.
@@ -102,28 +101,34 @@ export default function TaskCard({
           <ReactMarkdownCustom content={task.description} />
         </div>
       )}
-      <div className="mt-4 mb-2">
-        {task.status === TASK_STATUS.DONE ? (
-          <TagCircles
-            storyId={task.story_id}
-            tagsById={tagsById}
-            assocTagIdsByStoryId={assocTagIdsByStoryId}
-          />
-        ) : (
-          <TagBadgesForStoryId
-            storyId={task.story_id}
-            tagsById={tagsById}
-            assocTagIdsByStoryId={assocTagIdsByStoryId}
-          />
-        )}
-      </div>
+      {task.story_id && (
+        <div className="mt-4 mb-2">
+          {task.status === TASK_STATUS.DONE ? (
+            <TagCircles
+              storyId={task.story_id}
+              tagsById={tagsById}
+              assocTagIdsByStoryId={assocTagIdsByStoryId}
+            />
+          ) : (
+            <TagBadgesForStoryId
+              storyId={task.story_id}
+              tagsById={tagsById}
+              assocTagIdsByStoryId={assocTagIdsByStoryId}
+            />
+          )}
+        </div>
+      )}
       <div className="flex items-center gap-2">
-        <a
-          className="text-xs text-zinc-600 underline"
-          href={"#" + (story?.id ?? "")}
-        >
-          {story?.title ?? "-"}
-        </a>
+        {task.story_id ? (
+          <a
+            className="text-xs text-zinc-600 underline"
+            href={"#" + (storiesById.get(task.story_id)?.id ?? "")}
+          >
+            {storiesById.get(task.story_id)?.title ?? "? ERROR!"}
+          </a>
+        ) : (
+          <p className="text-xs text-zinc-600 underline">-</p>
+        )}
         {!!task.comment_count && (
           <span className="text-xs text-zinc-600" title="Comments">
             🗨 {task.comment_count}

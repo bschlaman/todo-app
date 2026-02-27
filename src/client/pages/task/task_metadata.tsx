@@ -103,13 +103,13 @@ export default function TaskMetadata({
   );
 
   function handleTaskMetadataChange(
-    event: React.ChangeEvent<HTMLSelectElement> | SelectChangeEvent<string>,
+    event: React.ChangeEvent<HTMLSelectElement> | SelectChangeEvent<string | null>,
   ) {
     const { name, value } = event.target;
     const updatedTask = {
       ...task,
       // clunky way to check if I've selected null story
-      [name]: value === NULL_STORY_IDENTIFIER ? null : value,
+      [name]: (value === NULL_STORY_IDENTIFIER || value === null) ? null : value,
     };
     console.log(updatedTask, name, value);
     void onTaskUpdate(updatedTask);
@@ -188,7 +188,7 @@ export default function TaskMetadata({
       <div className="mt-4 flex items-center">
         <p className="mr-4 font-bold dark:text-zinc-200">Parent story:</p>
         <StoryDropdown
-          taskStoryId={task.story_id}
+          selectedStoryId={task.story_id}
           stories={stories}
           sprints={sprints}
           tagsById={tagsById}

@@ -110,19 +110,19 @@ export function StorySelect({
 }
 
 export function StoryDropdown({
-  taskStoryId,
+  selectedStoryId,
   stories,
   sprints,
   tagsById,
   assocTagIdsByStoryId,
   handleTaskMetadataChange,
 }: {
-  taskStoryId: string;
+  selectedStoryId: string | null;
   stories: Story[];
   sprints: Sprint[];
   tagsById: Map<string, Tag>;
   assocTagIdsByStoryId: Map<string, string[]>;
-  handleTaskMetadataChange: (e: SelectChangeEvent<string>) => void;
+  handleTaskMetadataChange: (e: SelectChangeEvent<string | null>) => void;
 }) {
   // bucketize the stories by sprint
   const sprintBuckets = new Map<string, Story[]>();
@@ -140,15 +140,14 @@ export function StoryDropdown({
   let sprintsBeforeTask = 3;
 
   sprints
-    .sort(
-      (sprint0, sprint1) =>
-        sprint1.start_date.localeCompare(sprint0.start_date),
+    .sort((sprint0, sprint1) =>
+      sprint1.start_date.localeCompare(sprint0.start_date),
     )
     .forEach((sprint) => {
       if (sprintsBeforeTask === 0) return;
       if (taskSprintFound) sprintsBeforeTask--;
       sprintBuckets.get(sprint.id)?.forEach((story) => {
-        if (story.id === taskStoryId) taskSprintFound = true;
+        if (story.id === selectedStoryId) taskSprintFound = true;
       });
       sprintsToRender.push(sprint);
     });
@@ -160,7 +159,7 @@ export function StoryDropdown({
   return stories.length > 0 && sprints.length > 0 ? (
     <Select
       name="story_id"
-      value={taskStoryId}
+      value={selectedStoryId}
       onChange={handleTaskMetadataChange}
       SelectDisplayProps={{
         style: {

@@ -320,7 +320,7 @@ func CreateTask(log *logger.BLogger, s *sqids.Sqids, createReq CreateTaskReq) (*
 	defer conn.Release()
 
 	var id, sqid, title, desc, status string
-	var storyID *string
+	var storyID, bucketID *string
 	var cAt, uAt time.Time
 	var edited, bulkTask bool
 
@@ -359,13 +359,13 @@ func CreateTask(log *logger.BLogger, s *sqids.Sqids, createReq CreateTaskReq) (*
 		createReq.StoryID,
 		createReq.BulkTask,
 		sq,
-	).Scan(&id, &sqid, &cAt, &uAt, &title, &desc, &status, &storyID, &edited, &bulkTask)
+	).Scan(&id, &sqid, &cAt, &uAt, &title, &desc, &status, &storyID, &bucketID, &edited, &bulkTask)
 	if err != nil {
 		log.Errorf("conn.Exec failed: %v", err)
 		return nil, err
 	}
 
-	return &Task{id, sqid, cAt, uAt, title, desc, status, storyID, nil, edited, bulkTask, nil}, nil
+	return &Task{id, sqid, cAt, uAt, title, desc, status, storyID, bucketID, edited, bulkTask, nil}, nil
 }
 
 func CreateComment(log *logger.BLogger, createReq CreateCommentReq) (*Comment, error) {

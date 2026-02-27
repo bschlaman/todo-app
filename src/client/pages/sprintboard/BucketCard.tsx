@@ -4,7 +4,6 @@ import type {
   Bucket,
   BucketTagAssignment,
   Tag,
-  TagAssignment,
 } from "../../ts/model/entities";
 import {
   createBucketTagAssignment,
@@ -21,7 +20,7 @@ export default function BucketCard({
 
   tagsById: Map<string, Tag>;
   tagAssignments: BucketTagAssignment[];
-  setTagAssignments: React.Dispatch<React.SetStateAction<TagAssignment[]>>;
+  setTagAssignments: React.Dispatch<React.SetStateAction<BucketTagAssignment[]>>;
 }) {
   const selectedTagIds = useMemo(
     () =>

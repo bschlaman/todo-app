@@ -110,7 +110,7 @@ export default function CommentsSection({
       setComments((comments) =>
         comments.map((comment) =>
           comment.id === commentId
-            ? { ...comment, text: newText, edited: "true" }
+            ? { ...comment, text: newText, edited: true }
             : comment,
         ),
       );
