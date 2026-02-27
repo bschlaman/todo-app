@@ -2,11 +2,15 @@ import { type ReactNode, type Ref } from "react";
 import { TASK_STATUS, type Task } from "../../ts/model/entities";
 import { DRAG_TYPE } from "./drag";
 import { useDrop } from "react-dnd";
-import { isDarkMode } from "../../ts/lib/utils";
 
 interface LaneProps {
   status: TASK_STATUS;
   children?: ReactNode;
+}
+
+// TODO (2026.02): is this needed?
+function isDarkMode() {
+  return !!window.matchMedia("(prefers-color-scheme: dark)").matches;
 }
 
 export default function Lane({ status, children }: LaneProps) {

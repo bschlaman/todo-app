@@ -42,10 +42,6 @@ export function inProgress(task: Task) {
   return ["BACKLOG", "DOING"].includes(task.status);
 }
 
-export function isDarkMode() {
-  return !!window.matchMedia("(prefers-color-scheme: dark)").matches;
-}
-
 // this function is a workaround that provides
 // copy-to-clipboard functionality without using the
 // ClipboardAPI, which only works over HTTPS or localhost
