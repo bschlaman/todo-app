@@ -196,16 +196,6 @@ export default function SprintboardPage() {
     return _map;
   }, [tagAssignments]);
 
-  const assocTagIdsByBucketId = useMemo(() => {
-    const _map = new Map<string, string[]>();
-    for (const tagAssignment of tagAssignments) {
-      if (!_map.has(tagAssignment.story_id))
-        _map.set(tagAssignment.story_id, []);
-      _map.get(tagAssignment.story_id)?.push(tagAssignment.tag_id);
-    }
-    return _map;
-  }, [bucketTagAssignments]);
-
   const tasksToRender = useMemo(
     () =>
       tasks.filter((task) =>
@@ -520,6 +510,8 @@ export default function SprintboardPage() {
             tagsById={tagsById}
             tagAssignments={bucketTagAssignments}
             setTagAssignments={setBucketTagAssignments}
+            tasksByBucketId={tasksByBucketId}
+            config={config}
           />
         ))}
       </div>

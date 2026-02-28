@@ -1,18 +1,13 @@
 import { useMemo, useState } from "react";
 import { TagCircleIndicators } from "../../components/tags";
-import type { Bucket, BucketTagAssignment, Config, Tag } from "../../ts/model/entities";
-import {
-  createBucketTagAssignment,
-  destroyBucketTagAssignmentById,
-} from "../../ts/lib/api";
+import type { Bucket, BucketTagAssignment, Config, Tag, Task } from "../../ts/model/entities";
 import ReactMarkdownCustom from "../../components/markdown";
-import story from "../../routes/story";
 
 export default function BucketCard({
   bucket,
   tagsById,
   tagAssignments,
-  setTagAssignments,
+  setTagAssignments,tasksByBucketId,
     config,
 }: {
   bucket: Bucket;
@@ -21,6 +16,7 @@ export default function BucketCard({
   setTagAssignments: React.Dispatch<
     React.SetStateAction<BucketTagAssignment[]>
   >;
+  tasksByBucketId: Map<string, Task[]>;
     config: Config | null;
 }) {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
