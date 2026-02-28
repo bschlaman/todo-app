@@ -5,6 +5,7 @@ import { createBrowserRouter, RouterProvider } from "react-router";
 import Story, { loader as storyLoader } from "../../routes/story";
 import StoriesRoot from "./stories";
 import { getStories } from "../../ts/lib/api";
+import { TasksProvider } from "../../contexts/TasksContext";
 
 const router = createBrowserRouter(
   [
@@ -36,6 +37,8 @@ const router = createBrowserRouter(
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <TasksProvider>
+      <RouterProvider router={router} />
+    </TasksProvider>
   </React.StrictMode>,
 );

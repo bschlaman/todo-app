@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ErrorBanner from "../../components/banners";
 import {
   checkSession,
@@ -42,6 +42,7 @@ import {
 } from "../../ts/lib/api_utils";
 import type { CheckSessionRes } from "../../ts/model/responses";
 import BucketCard from "./BucketCard";
+import { broadcast, useBroadcastListener } from "../../ts/lib/broadcast";
 
 const LOCAL_STORAGE_KEYS = {
   selectedSprintId: "viewing_sprint_id",
@@ -238,6 +239,18 @@ export default function SprintboardPage() {
     return _map;
   }, [tasksToRender]);
 
+  useBroadcastListener(
+    useCallback(
+      (msg) => {
+        if (msg.type === "task-mutated") {
+          console.log("[SprintboardPage] refetching tasks due to broadcast");
+          void getTasks().then(setTasks);
+        }
+      },
+      [setTasks],
+    ),
+  );
+
   useEffect(() => {
     // use unique timers to avoid conflicts on repeated page mount
     const timerId = `api_calls#${Date.now() % 1e3}`;
@@ -318,21 +331,23 @@ export default function SprintboardPage() {
     ));
   }
 
-  function updateTaskStatusById(taskId: string, status: TASK_STATUS) {
+  async function updateTaskStatusById(taskId: string, status: TASK_STATUS) {
     const task = tasksById.get(taskId);
     if (task === undefined) throw new Error("task not found: " + taskId);
-    void updateTaskById(
+    // Optimistic local update
+    setTasks((tasks) =>
+      tasks.map((_task) =>
+        _task.id === task.id ? { ..._task, status } : _task,
+      ),
+    );
+    await updateTaskById(
       task.id,
       status,
       task.title,
       task.description,
       task.story_id,
     );
-    setTasks((tasks) =>
-      tasks.map((_task) =>
-        _task.id === task.id ? { ..._task, status } : _task,
-      ),
-    );
+    broadcast({ type: "task-mutated", taskId: task.id });
   }
 
   if (errors.length > 0) return <ErrorBanner errors={errors} />;
@@ -500,6 +515,7 @@ export default function SprintboardPage() {
       <div>
         {buckets.map((bucket) => (
           <BucketCard
+            key={bucket.id}
             bucket={bucket}
             tagsById={tagsById}
             tagAssignments={bucketTagAssignments}

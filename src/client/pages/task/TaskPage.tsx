@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import ErrorBanner from "../../components/banners";
 import type { Config, Task } from "../../ts/model/entities";
 import {
@@ -25,6 +25,7 @@ import {
 } from "../../ts/lib/api_utils";
 import type { CheckSessionRes } from "../../ts/model/responses";
 import FormatMarkdownButton from "../../components/format_button";
+import { broadcast, useBroadcastListener } from "../../ts/lib/broadcast";
 
 function TaskView({
   task,
@@ -239,7 +240,21 @@ export default function TaskPage() {
       updatedTask.story_id,
     );
     setTask(updatedTask);
+    broadcast({ type: "task-mutated", taskId: updatedTask.id });
   }
+
+  useBroadcastListener(
+    useCallback(
+      (msg) => {
+        if (msg.taskId !== task?.id) return;
+        if (msg.type === "task-mutated") {
+          console.log("[TaskPage] refetching task due to broadcast");
+          void getTaskById(taskIdFromPath).then(setTask);
+        }
+      },
+      [task?.id, taskIdFromPath],
+    ),
+  );
 
   if (errors.length > 0) return <ErrorBanner errors={errors} />;
 

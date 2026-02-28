@@ -41,6 +41,8 @@ export interface Config {
   tag_title_max_len: number;
   task_desc_max_len: number;
   task_title_max_len: number;
+  bucket_desc_max_len: number;
+  bucket_title_max_len: number;
 }
 
 export interface Task {
