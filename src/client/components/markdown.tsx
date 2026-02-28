@@ -62,7 +62,7 @@ export default function ReactMarkdownCustom({ content }: { content: string }) {
                 .join("\n");
             });
           },
-          // Style ISO dates (e.g. 2024-01-15, 2024.01.15) as <span class="iso-date">
+          // Replace ISO dates (e.g. 2024-01-15, 2024.01.15) with <span class="iso-date">
           () => (tree: Root) => {
             findAndReplace(tree, [
               /\d{4}[-.]\d{2}[-.]\d{2}/g,

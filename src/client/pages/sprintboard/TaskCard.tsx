@@ -11,6 +11,24 @@ import { DRAG_TYPE } from "./drag";
 import { useDrag } from "react-dnd";
 import { TagBadgesForStoryId, TagCircles } from "../../components/tags";
 import ReactMarkdownCustom from "../../components/markdown";
+import CommentIcon from "@mui/icons-material/Comment";
+
+// Replace ISO dates (e.g. 2024-01-15, 2024.01.15) with <span class="iso-date">
+export function renderTextWithISOSpan(text: string) {
+  const isoDateRegxp = /(\d{4}[-.]\d{2}[-.]\d{2})/g;
+  return text.split(isoDateRegxp).map((part, i) =>
+    isoDateRegxp.test(part) ? (
+      <span
+        key={i}
+        className="m-1 inline-block rounded-md bg-blue-950 p-1 align-middle font-mono text-sm text-zinc-300 inset-shadow-sm inset-shadow-indigo-500"
+      >
+        {part}
+      </span>
+    ) : (
+      part
+    ),
+  );
+}
 
 // TODO 2023.11.11: if switching to dnd-kit, remember to use setActivatorNodeRef
 export default function TaskCard({
@@ -83,7 +101,7 @@ export default function TaskCard({
       ref={preview as unknown as Ref<HTMLDivElement>}
     >
       <h3 className="mb-4 border-b border-b-zinc-400 text-xl font-bold dark:text-zinc-200">
-        {task.title}
+        {renderTextWithISOSpan(task.title)}
       </h3>
       <div className="absolute right-3 bottom-3">
         <CopyToClipboardButton value={copyValue}></CopyToClipboardButton>
@@ -131,7 +149,7 @@ export default function TaskCard({
         )}
         {!!task.comment_count && (
           <span className="text-xs text-zinc-600" title="Comments">
-            🗨 {task.comment_count}
+            <CommentIcon /> {task.comment_count}
           </span>
         )}
       </div>
