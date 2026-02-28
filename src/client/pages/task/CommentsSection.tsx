@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import ErrorBanner from "../../components/banners";
 import {
   getCommentsByTaskId,
@@ -12,6 +12,7 @@ import ReactMarkdownCustom, { ErrorBoundary } from "../../components/markdown";
 import { makeTimedPageLoadApiCall } from "../../ts/lib/api_utils";
 import { CopyIcon } from "../../components/copy_to_clipboard_components";
 import FormatMarkdownButton from "../../components/format_button";
+import { broadcast, useBroadcastListener } from "../../ts/lib/broadcast";
 
 export default function CommentsSection({
   taskId,
@@ -92,6 +93,7 @@ export default function CommentsSection({
       const comment = await createComment(taskId, createCommentText);
       setComments([...comments, comment]);
       setCreateCommentText("");
+      broadcast({ type: "comment-mutated", taskId });
       createCommentTextareaRef.current?.focus();
       // Small delay required make this work (perhaps something to do with render scheduling)
       setTimeout(() => {
@@ -114,8 +116,21 @@ export default function CommentsSection({
             : comment,
         ),
       );
+      broadcast({ type: "comment-mutated", taskId });
     })();
   }
+
+  useBroadcastListener(
+    useCallback(
+      (msg) => {
+        if (msg.type !== "comment-mutated") return;
+        if (msg.taskId !== taskId) return;
+        console.log("[CommentsSection] refetching comments due to broadcast");
+        void getCommentsByTaskId(taskId).then(setComments);
+      },
+      [taskId],
+    ),
+  );
 
   return (
     <>

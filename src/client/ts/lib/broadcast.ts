@@ -1,10 +1,9 @@
 import { useEffect } from "react";
 
 // All possible broadcast message types
-export type BroadcastMessage = {
-  type: "task-mutated";
-  taskId: string;
-};
+export type BroadcastMessage =
+  | { type: "task-mutated"; taskId: string }
+  | { type: "comment-mutated"; taskId: string };
 
 // Singleton channel instance
 let channel: BroadcastChannel | null = null;
